@@ -85,8 +85,8 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <header className="sticky top-0 z-40 w-full anilist-nav">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 gap-4">
+        <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16">
+          <div className="flex items-center justify-between h-16 gap-4 sm:gap-8">
             {/* AniList Brand Logo */}
             <Link to="/" className="flex items-center gap-2.5 group flex-shrink-0">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#3db4f2] to-[#0084ff] flex items-center justify-center text-white font-extrabold text-base shadow-md shadow-[#3db4f2]/25 group-hover:scale-105 transition-transform border border-white/20">
@@ -103,7 +103,7 @@ export const Navbar: React.FC = () => {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden md:flex items-center gap-1.5 p-1 rounded-xl bg-[#151f2e]/80 border border-white/[0.06]">
+            <nav className="hidden md:flex items-center gap-2 p-1.5 rounded-xl bg-[#151f2e]/80 border border-white/[0.06]">
               {navLinks.map((link) => {
                 const Icon = link.icon;
                 const active = isActive(link.path);
@@ -111,13 +111,13 @@ export const Navbar: React.FC = () => {
                   <Link
                     key={link.label}
                     to={link.path}
-                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all relative ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all relative ${
                       active
                         ? 'bg-[#3db4f2] text-white shadow-sm'
                         : 'text-slate-300 hover:text-white hover:bg-white/[0.06]'
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5" />
+                    <Icon className="w-4 h-4" />
                     <span>{link.label}</span>
                     {typeof link.badge === 'number' && link.badge > 0 && (
                       <span className={`px-1.5 py-0.2 text-[10px] font-bold rounded-full ${
@@ -131,10 +131,10 @@ export const Navbar: React.FC = () => {
               })}
             </nav>
 
-            {/* Right Action Section: Search Autocomplete, Randomizer & Watchlist */}
-            <div className="flex items-center gap-2.5 flex-1 max-w-sm sm:max-w-md justify-end">
+            {/* Right Action Section: Search Autocomplete & Randomizer */}
+            <div className="flex items-center gap-3 flex-1 max-w-xs sm:max-w-sm md:max-w-md justify-end">
               {/* Search Bar with Autocomplete Dropdown */}
-              <div ref={searchContainerRef} className="relative flex-1 max-w-[260px] sm:max-w-xs">
+              <div ref={searchContainerRef} className="relative flex-1">
                 <form onSubmit={handleSearchSubmit} className="relative items-center">
                   <input
                     type="text"
@@ -144,9 +144,9 @@ export const Navbar: React.FC = () => {
                     onFocus={() => {
                       if (autocompleteResults.length > 0) setShowAutocomplete(true);
                     }}
-                    className="anilist-input w-full text-xs sm:text-sm pl-8 pr-7 py-2 placeholder-slate-500"
+                    className="anilist-input w-full text-xs sm:text-sm pl-9 pr-7 py-2.5 placeholder-slate-500 rounded-xl"
                   />
-                  <Search className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" />
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
 
                   {searchQuery && (
                     <button
@@ -155,7 +155,7 @@ export const Navbar: React.FC = () => {
                         setSearchQuery('');
                         setShowAutocomplete(false);
                       }}
-                      className="absolute right-2.5 top-2.5 text-slate-400 hover:text-white"
+                      className="absolute right-3 top-3 text-slate-400 hover:text-white"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -231,29 +231,11 @@ export const Navbar: React.FC = () => {
               {/* Randomizer "Roll" Button */}
               <button
                 onClick={() => setRandomModalOpen(true)}
-                className="p-2 rounded-lg anilist-btn-secondary text-slate-300 hover:text-[#3db4f2] transition flex items-center justify-center"
+                className="p-2.5 rounded-xl anilist-btn-secondary text-slate-300 hover:text-[#3db4f2] transition flex items-center justify-center flex-shrink-0"
                 title="Roll a Random Anime"
               >
                 <Dices className="w-4 h-4" />
               </button>
-
-              {/* Watchlist Quick Button */}
-              <Link
-                to="/watchlist"
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition ${
-                  location.pathname === '/watchlist'
-                    ? 'anilist-btn-primary'
-                    : 'anilist-btn-secondary'
-                }`}
-              >
-                <Bookmark className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">List</span>
-                {watchlist.length > 0 && (
-                  <span className="px-1.5 py-0.2 text-[10px] font-bold text-white bg-[#0084ff] rounded-full">
-                    {watchlist.length}
-                  </span>
-                )}
-              </Link>
             </div>
           </div>
         </div>

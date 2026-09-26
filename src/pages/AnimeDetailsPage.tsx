@@ -157,10 +157,10 @@ export const AnimeDetailsPage: React.FC = () => {
       </div>
 
       {/* Main Content Layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-32 sm:-mt-44 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+      <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 -mt-32 sm:-mt-44 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-10">
           {/* Left Column: Poster, Status Tracker & Metadata Sidebar */}
-          <div className="lg:col-span-4 space-y-4">
+          <div className="lg:col-span-4 xl:col-span-3 space-y-4">
             {/* Poster Card */}
             <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-[#09111c] aspect-[3/4] max-w-xs mx-auto lg:max-w-none shadow-2xl">
               <img
@@ -365,7 +365,7 @@ export const AnimeDetailsPage: React.FC = () => {
           </div>
 
           {/* Right Column: Details, Rankings, Navigation Tabs & Content */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="lg:col-span-8 xl:col-span-9 space-y-6">
             {/* Title & Action Buttons */}
             <div className="space-y-3">
               {/* Rankings Badges */}

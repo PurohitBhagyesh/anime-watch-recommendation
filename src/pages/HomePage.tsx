@@ -42,12 +42,12 @@ export const HomePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="space-y-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="space-y-12 w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-6">
         <HeroSkeleton />
         <div className="space-y-4">
           <div className="h-6 bg-[#151f2e] rounded w-40 shimmer-loading" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-3 sm:gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
               <CardSkeleton key={i} />
             ))}
           </div>
@@ -82,7 +82,7 @@ export const HomePage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 animate-fadeIn">
+    <div className="space-y-12 w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-6 animate-fadeIn">
       {/* Interactive Hero Spotlight Slider */}
       <HeroBanner animeList={data.spotlights} anime={data.spotlight} />
 

@@ -53,7 +53,7 @@ export const GenreGrid: React.FC = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 xl:grid-cols-10 gap-2.5 sm:gap-3 lg:gap-4">
         {FEATURED_GENRES.map((item) => {
           const Icon = item.icon;
           return (
