@@ -15,7 +15,7 @@ export const App: React.FC = () => {
   return (
     <WatchlistProvider>
       <BrowserRouter>
-        <div className="flex flex-col min-h-screen bg-[#05070b] text-[#f5f5f7] selection:bg-[#0071e3] selection:text-white pb-16 md:pb-0">
+        <div className="flex flex-col min-h-screen bg-[#0b1622] text-[#bcbedc] selection:bg-[#3db4f2] selection:text-white pb-16 md:pb-0">
           <Navbar />
           <main className="flex-1">
             <Routes>
