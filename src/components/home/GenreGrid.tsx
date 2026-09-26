@@ -1,6 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sword, Heart, Rocket, Sparkles, Ghost, Compass, Laugh, Music, Trophy, ShieldAlert } from 'lucide-react';
+import {
+  Sword,
+  Heart,
+  Rocket,
+  Sparkles,
+  Ghost,
+  Compass,
+  Laugh,
+  Music,
+  Trophy,
+  ShieldAlert,
+  ArrowRight,
+} from 'lucide-react';
 
 interface GenreItem {
   name: string;
@@ -25,7 +37,7 @@ export const GenreGrid: React.FC = () => {
     <section className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+          <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
             Browse by Genre
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
@@ -34,9 +46,10 @@ export const GenreGrid: React.FC = () => {
         </div>
         <Link
           to="/discover"
-          className="text-xs font-semibold text-[#2997ff] hover:text-[#0071e3] transition"
+          className="text-xs font-bold text-[#3db4f2] hover:text-[#00a8ff] flex items-center gap-1 transition"
         >
-          All genres →
+          <span>All genres</span>
+          <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
 
@@ -47,12 +60,12 @@ export const GenreGrid: React.FC = () => {
             <Link
               key={item.name}
               to={`/discover?genre=${encodeURIComponent(item.name)}`}
-              className="apple-card-interactive p-3.5 rounded-xl sm:rounded-2xl flex items-center gap-3 group"
+              className="anilist-card p-3.5 flex items-center gap-3 group"
             >
-              <div className="p-2 rounded-lg bg-white/[0.06] text-slate-300 group-hover:text-[#2997ff] transition">
+              <div className="p-2 rounded-lg bg-[#0b1622] text-[#3db4f2] group-hover:bg-[#3db4f2] group-hover:text-white transition">
                 <Icon className="w-4 h-4" />
               </div>
-              <span className="font-semibold text-xs sm:text-sm text-slate-200 group-hover:text-white transition">
+              <span className="font-bold text-xs sm:text-sm text-slate-200 group-hover:text-white transition">
                 {item.name}
               </span>
             </Link>

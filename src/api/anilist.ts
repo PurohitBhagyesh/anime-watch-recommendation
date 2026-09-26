@@ -97,6 +97,7 @@ async function fetchGraphQL<T>(query: string, variables: Record<string, any> = {
 
 export interface HomeSectionsData {
   spotlight: AnimeCardData | null;
+  spotlights: AnimeCardData[];
   trending: AnimeCardData[];
   seasonal: AnimeCardData[];
   topRated: AnimeCardData[];
@@ -148,18 +149,66 @@ export async function fetchHomeData(): Promise<HomeSectionsData> {
     upcoming: { media: AnimeCardData[] };
   }>(query, { season, seasonYear: year });
 
-  // Pick top trending anime with a banner as spotlight
-  const spotlightCandidates = data.trending?.media || [];
-  const spotlight = spotlightCandidates.find((a) => a.bannerImage && a.description) || spotlightCandidates[0] || null;
+  const trendingList = data.trending?.media || [];
+  const validSpotlights = trendingList.filter((a) => a.bannerImage && a.description);
+  const spotlights = validSpotlights.length > 0 ? validSpotlights.slice(0, 5) : trendingList.slice(0, 5);
+  const spotlight = spotlights[0] || null;
 
   return {
     spotlight,
-    trending: data.trending?.media || [],
+    spotlights,
+    trending: trendingList,
     seasonal: data.seasonal?.media || [],
     topRated: data.topRated?.media || [],
     popularAllTime: data.popularAllTime?.media || [],
     upcoming: data.upcoming?.media || [],
   };
+}
+
+export async function searchAnimeAutocomplete(queryText: string): Promise<AnimeCardData[]> {
+  if (!queryText || queryText.trim().length === 0) return [];
+
+  const query = `
+    query ($search: String) {
+      Page(page: 1, perPage: 6) {
+        media(type: ANIME, search: $search, sort: [POPULARITY_DESC], isAdult: false) {
+          ${CARD_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await fetchGraphQL<{ Page: { media: AnimeCardData[] } }>(query, { search: queryText.trim() });
+    return data.Page?.media || [];
+  } catch (e) {
+    console.error('Autocomplete error', e);
+    return [];
+  }
+}
+
+export async function fetchRandomAnime(): Promise<AnimeCardData | null> {
+  const randomPage = Math.floor(Math.random() * 5) + 1; // page 1-5 of top scored
+  const query = `
+    query ($page: Int) {
+      Page(page: $page, perPage: 20) {
+        media(type: ANIME, sort: [SCORE_DESC], isAdult: false) {
+          ${CARD_FRAGMENT}
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await fetchGraphQL<{ Page: { media: AnimeCardData[] } }>(query, { page: randomPage });
+    const list = data.Page?.media || [];
+    if (list.length === 0) return null;
+    const randomIndex = Math.floor(Math.random() * list.length);
+    return list[randomIndex];
+  } catch (e) {
+    console.error('Random anime fetch error', e);
+    return null;
+  }
 }
 
 export interface SearchFilterParams {

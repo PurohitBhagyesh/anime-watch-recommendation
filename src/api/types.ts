@@ -2,7 +2,7 @@ export type AnimeFormat = 'TV' | 'TV_SHORT' | 'MOVIE' | 'SPECIAL' | 'OVA' | 'ONA
 export type AnimeStatus = 'FINISHED' | 'RELEASING' | 'NOT_YET_RELEASED' | 'CANCELLED' | 'HIATUS';
 export type AnimeSeason = 'WINTER' | 'SPRING' | 'SUMMER' | 'FALL';
 
-export type WatchlistStatus = 'watching' | 'plan_to_watch' | 'completed' | 'dropped' | 'favorite';
+export type WatchlistStatus = 'watching' | 'plan_to_watch' | 'completed' | 'rewatching' | 'paused' | 'dropped' | 'favorite';
 
 export interface AnimeTitle {
   romaji: string;

@@ -33,7 +33,7 @@ export const StreamingPlatforms: React.FC<StreamingPlatformsProps> = ({ links })
 
   if (links.length === 0) {
     return (
-      <div className="p-4 rounded-lg bg-[#111622] border border-[#1e2638] text-center text-slate-400 text-xs">
+      <div className="p-4 rounded-xl anilist-card-static text-center text-slate-400 text-xs">
         No official streaming links indexed for this anime yet.
       </div>
     );
@@ -41,26 +41,26 @@ export const StreamingPlatforms: React.FC<StreamingPlatformsProps> = ({ links })
 
   const getSiteColor = (site: string) => {
     const s = site.toLowerCase();
-    if (s.includes('crunchyroll')) return 'bg-[#f47521] hover:bg-[#ff8433] text-black font-bold';
-    if (s.includes('netflix')) return 'bg-[#e50914] hover:bg-[#f40612] text-white font-bold';
-    if (s.includes('hulu')) return 'bg-[#1ce783] hover:bg-[#25f791] text-black font-bold';
-    if (s.includes('youtube')) return 'bg-[#ff0000] hover:bg-[#ff2626] text-white font-bold';
-    if (s.includes('disney')) return 'bg-[#113ccf] hover:bg-[#1f4bf3] text-white font-bold';
-    if (s.includes('amazon')) return 'bg-[#00a8e1] hover:bg-[#1cbcf7] text-white font-bold';
-    if (s.includes('hidive')) return 'bg-[#00b2ff] hover:bg-[#2bc0ff] text-black font-bold';
-    return 'bg-[#1f293d] hover:bg-[#2b3752] text-slate-200 border border-[#2e3b56]';
+    if (s.includes('crunchyroll')) return 'bg-[#f47521] hover:bg-[#ff8433] text-black font-black';
+    if (s.includes('netflix')) return 'bg-[#e50914] hover:bg-[#f40612] text-white font-black';
+    if (s.includes('hulu')) return 'bg-[#1ce783] hover:bg-[#25f791] text-black font-black';
+    if (s.includes('youtube')) return 'bg-[#ff0000] hover:bg-[#ff2626] text-white font-black';
+    if (s.includes('disney')) return 'bg-[#113ccf] hover:bg-[#1f4bf3] text-white font-black';
+    if (s.includes('amazon')) return 'bg-[#00a8e1] hover:bg-[#1cbcf7] text-white font-black';
+    if (s.includes('hidive')) return 'bg-[#00b2ff] hover:bg-[#2bc0ff] text-black font-black';
+    return 'bg-[#151f2e] hover:bg-[#1f2d42] text-slate-200 border border-white/10 font-bold';
   };
 
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <PlayCircle className="w-4 h-4 text-blue-400" />
-        <h3 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider font-mono">
+        <PlayCircle className="w-4 h-4 text-[#3db4f2]" />
+        <h3 className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-mono">
           Where to Stream
         </h3>
-        <span className="flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 font-medium ml-auto">
+        <span className="flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 font-bold ml-auto">
           <ShieldCheck className="w-3 h-3" />
-          Verified Links
+          Official Links
         </span>
       </div>
 
@@ -72,9 +72,9 @@ export const StreamingPlatforms: React.FC<StreamingPlatformsProps> = ({ links })
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`p-3 rounded-md ${getSiteColor(
+              className={`p-3 rounded-xl ${getSiteColor(
                 link.site
-              )} text-xs sm:text-sm flex items-center justify-between transition`}
+              )} text-xs sm:text-sm flex items-center justify-between transition shadow-md`}
             >
               <div className="flex items-center gap-2">
                 {link.icon ? (
@@ -95,8 +95,8 @@ export const StreamingPlatforms: React.FC<StreamingPlatformsProps> = ({ links })
       {/* Official Media & Socials */}
       {otherLinks.length > 0 && (
         <div className="pt-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2 font-mono">
-            Official Links & Socials
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2 font-mono">
+            Official Links & External Resources
           </span>
           <div className="flex flex-wrap gap-1.5">
             {otherLinks.map((link) => (
@@ -105,7 +105,7 @@ export const StreamingPlatforms: React.FC<StreamingPlatformsProps> = ({ links })
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs px-2.5 py-1 rounded bg-[#111622] hover:bg-[#182133] text-slate-300 hover:text-white border border-[#212a3d] flex items-center gap-1.5 transition"
+                className="text-xs px-3 py-1.5 rounded-lg bg-[#151f2e] hover:bg-[#1f2d42] text-slate-200 hover:text-[#3db4f2] border border-white/10 flex items-center gap-1.5 transition font-semibold"
               >
                 {link.icon && <img src={link.icon} alt="" className="w-3.5 h-3.5 rounded object-contain" />}
                 <span>{link.site}</span>

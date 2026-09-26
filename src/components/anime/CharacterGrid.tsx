@@ -12,11 +12,11 @@ export const CharacterGrid: React.FC<CharacterGridProps> = ({ characters }) => {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <Users className="w-4 h-4 text-blue-400" />
-        <h3 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider font-mono">
+        <Users className="w-4 h-4 text-[#3db4f2]" />
+        <h3 className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-mono">
           Characters & Voice Cast
         </h3>
-        <span className="text-xs text-slate-400 ml-auto">Japanese Cast</span>
+        <span className="text-xs text-[#3db4f2] ml-auto font-bold">Japanese Cast</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
@@ -27,21 +27,21 @@ export const CharacterGrid: React.FC<CharacterGridProps> = ({ characters }) => {
           return (
             <div
               key={`${char.id}-${va?.id || 'none'}`}
-              className="flex items-center justify-between p-2 rounded-lg bg-[#111622] border border-[#1e2638] hover:border-blue-500/40 transition"
+              className="flex items-center justify-between p-2 rounded-xl anilist-table-row transition"
             >
               {/* Character Info */}
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 <img
                   src={char.image.medium || char.image.large}
                   alt={char.name.full}
                   loading="lazy"
-                  className="w-10 h-12 rounded object-cover bg-[#0a0d14] flex-shrink-0"
+                  className="w-11 h-14 rounded-lg object-cover bg-[#09111c] flex-shrink-0"
                 />
-                <div className="min-w-0">
-                  <p className="text-xs font-bold text-slate-100 truncate">
+                <div className="min-w-0 pr-1">
+                  <p className="text-xs font-bold text-slate-100 truncate" title={char.name.full}>
                     {char.name.full}
                   </p>
-                  <p className="text-[10px] text-blue-400 capitalize">
+                  <p className="text-[10px] text-[#3db4f2] capitalize font-semibold">
                     {edge.role.toLowerCase()}
                   </p>
                 </div>
@@ -49,21 +49,21 @@ export const CharacterGrid: React.FC<CharacterGridProps> = ({ characters }) => {
 
               {/* Voice Actor Info */}
               {va && (
-                <div className="flex items-center gap-2 text-right pl-2">
+                <div className="flex items-center gap-2 text-right pl-2 min-w-0 flex-1 justify-end">
                   <div className="min-w-0">
-                    <p className="text-xs font-medium text-slate-300 truncate">
+                    <p className="text-xs font-bold text-slate-200 truncate" title={va.name.full}>
                       {va.name.full}
                     </p>
-                    <p className="text-[10px] text-slate-500 flex items-center justify-end gap-0.5">
-                      <Mic className="w-2.5 h-2.5 text-slate-400" />
-                      VA
+                    <p className="text-[10px] text-slate-400 flex items-center justify-end gap-0.5 font-medium">
+                      <Mic className="w-2.5 h-2.5 text-[#3db4f2]" />
+                      <span>Japanese</span>
                     </p>
                   </div>
                   <img
                     src={va.image.medium || va.image.large}
                     alt={va.name.full}
                     loading="lazy"
-                    className="w-10 h-12 rounded object-cover bg-[#0a0d14] flex-shrink-0"
+                    className="w-11 h-14 rounded-lg object-cover bg-[#09111c] flex-shrink-0"
                   />
                 </div>
               )}

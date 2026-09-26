@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Check, Plus, Tv, Calendar } from 'lucide-react';
+import { Check, Plus, Calendar, Tv, Clock } from 'lucide-react';
 import type { AnimeCardData, WatchlistStatus } from '../../api/types';
 import { useWatchlist } from '../../context/WatchlistContext';
 
@@ -17,52 +17,84 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
   const inWatchlist = isInWatchlist(anime.id);
   const currentItem = getItem(anime.id);
 
-  const formatScore = (score: number | null) => {
-    if (!score) return null;
-    return `${(score / 10).toFixed(1)}`;
+  const getScoreBadgeClass = (score: number | null) => {
+    if (!score) return '';
+    if (score >= 75) return 'score-pill-high';
+    if (score >= 60) return 'score-pill-med';
+    return 'score-pill-low';
   };
 
   const statusLabels: { id: WatchlistStatus; label: string }[] = [
     { id: 'watching', label: 'Watching' },
-    { id: 'plan_to_watch', label: 'Plan to Watch' },
+    { id: 'plan_to_watch', label: 'Planning' },
     { id: 'completed', label: 'Completed' },
-    { id: 'favorite', label: 'Favorite' },
+    { id: 'rewatching', label: 'Rewatching' },
+    { id: 'paused', label: 'Paused' },
+    { id: 'dropped', label: 'Dropped' },
   ];
 
+  // Helper for countdown
+  const formatTimeUntilAiring = (seconds: number) => {
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    if (days > 0) return `${days}d ${hours}h`;
+    const mins = Math.floor((seconds % 3600) / 60);
+    return `${hours}h ${mins}m`;
+  };
+
   return (
-    <div className="group relative flex flex-col apple-card rounded-xl sm:rounded-2xl overflow-hidden">
-      {/* Poster Image */}
-      <Link to={`/anime/${anime.id}`} className="relative aspect-[3/4] w-full overflow-hidden bg-[#0a0d14] block">
+    <div className="group relative flex flex-col anilist-card overflow-hidden">
+      {/* Poster Image Container */}
+      <Link
+        to={`/anime/${anime.id}`}
+        className="relative aspect-[3/4] w-full overflow-hidden bg-[#09111c] block"
+      >
         <img
           src={anime.coverImage.extraLarge || anime.coverImage.large}
           alt={title}
           loading="lazy"
-          className="w-full h-full object-cover object-center group-hover:scale-103 transition-transform duration-500 ease-out"
+          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
         />
 
-        {/* Dynamic Translucent Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#05070b] via-transparent to-transparent opacity-80" />
+        {/* Gradient shadow overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0b1622] via-transparent to-transparent opacity-80" />
 
         {/* Top Badges */}
-        <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none">
-          {anime.averageScore ? (
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/65 backdrop-blur-md text-[11px] font-bold text-amber-300 border border-white/10 shadow-sm">
-              <Star className="w-3 h-3 fill-amber-300" />
-              <span>{formatScore(anime.averageScore)}</span>
+        <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none z-10">
+          {anime.format ? (
+            <div className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#0b1622]/80 text-slate-300 backdrop-blur-md border border-white/10 uppercase tracking-tight">
+              {anime.format.replace('_', ' ')}
             </div>
           ) : (
             <div />
           )}
 
-          {anime.format && (
-            <div className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-black/65 text-slate-200 backdrop-blur-md border border-white/10 uppercase tracking-tight">
-              {anime.format.replace('_', ' ')}
+          {anime.averageScore ? (
+            <div
+              className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-extrabold backdrop-blur-md shadow-md ${getScoreBadgeClass(
+                anime.averageScore
+              )}`}
+            >
+              <span>{anime.averageScore}%</span>
             </div>
-          )}
+          ) : null}
         </div>
 
-        {/* Quick Add Button */}
-        <div className="absolute bottom-2 right-2 pointer-events-auto">
+        {/* Next Airing Episode Banner */}
+        {anime.nextAiringEpisode && (
+          <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 text-[10px] font-bold backdrop-blur-md">
+              <Clock className="w-2.5 h-2.5" />
+              <span>
+                Ep {anime.nextAiringEpisode.episode} in{' '}
+                {formatTimeUntilAiring(anime.nextAiringEpisode.timeUntilAiring)}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Add Button & Popover */}
+        <div className="absolute bottom-2 right-2 pointer-events-auto z-20">
           <div className="relative">
             <button
               onClick={(e) => {
@@ -70,17 +102,17 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
                 e.stopPropagation();
                 setShowStatusMenu(!showStatusMenu);
               }}
-              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center backdrop-blur-xl transition-all shadow-md ${
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center backdrop-blur-xl transition-all shadow-lg ${
                 inWatchlist
-                  ? 'bg-[#0071e3] text-white'
-                  : 'bg-black/60 text-slate-200 hover:text-white hover:bg-[#0071e3] border border-white/15'
+                  ? 'bg-[#3db4f2] text-white'
+                  : 'bg-[#0b1622]/80 text-slate-300 hover:text-white hover:bg-[#3db4f2] border border-white/15'
               }`}
-              title={inWatchlist ? `In Watchlist (${currentItem?.status})` : 'Add to Watchlist'}
+              title={inWatchlist ? `In List (${currentItem?.status})` : 'Add to AniList'}
             >
               {inWatchlist ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
             </button>
 
-            {/* Apple Style Floating Action Popover */}
+            {/* Status Selector Popover */}
             {showStatusMenu && (
               <>
                 <div
@@ -91,9 +123,9 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
                     setShowStatusMenu(false);
                   }}
                 />
-                <div className="absolute bottom-10 right-0 z-40 w-40 p-1.5 rounded-xl bg-[#0f1420]/90 border border-white/15 backdrop-blur-2xl shadow-2xl space-y-0.5 animate-fadeIn">
+                <div className="absolute bottom-10 right-0 z-40 w-44 p-1.5 rounded-xl anilist-surface-elevated border border-white/15 shadow-2xl space-y-0.5 animate-fadeIn">
                   <div className="text-[10px] uppercase font-bold text-slate-400 px-2 py-1 tracking-wider border-b border-white/10 font-mono">
-                    Status
+                    Set Status
                   </div>
                   {statusLabels.map((st) => (
                     <button
@@ -104,9 +136,9 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
                         addToWatchlist(anime, st.id);
                         setShowStatusMenu(false);
                       }}
-                      className={`w-full text-left px-2.5 py-1.5 text-xs rounded-lg flex items-center justify-between font-medium transition ${
+                      className={`w-full text-left px-2.5 py-1.5 text-xs rounded-lg flex items-center justify-between font-semibold transition ${
                         currentItem?.status === st.id
-                          ? 'bg-[#0071e3] text-white font-semibold'
+                          ? 'bg-[#3db4f2] text-white'
                           : 'text-slate-300 hover:bg-white/10 hover:text-white'
                       }`}
                     >
@@ -124,7 +156,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
                       }}
                       className="w-full text-left px-2.5 py-1 text-xs text-rose-400 hover:bg-rose-500/20 rounded-lg transition font-medium border-t border-white/10 mt-1"
                     >
-                      Remove
+                      Remove from list
                     </button>
                   )}
                 </div>
@@ -134,24 +166,24 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
         </div>
       </Link>
 
-      {/* Info Content */}
-      <div className="p-3 sm:p-3.5 flex flex-col flex-1 justify-between gap-1.5">
+      {/* Info Card Content */}
+      <div className="p-3 flex flex-col flex-1 justify-between gap-2">
         <div>
           <Link
             to={`/anime/${anime.id}`}
-            className="font-bold text-xs sm:text-sm text-slate-100 group-hover:text-[#2997ff] line-clamp-2 transition leading-snug"
+            className="font-bold text-xs sm:text-sm text-slate-100 group-hover:text-[#3db4f2] line-clamp-2 transition leading-snug"
             title={title}
           >
             {title}
           </Link>
           {anime.studios?.nodes?.[0] && (
-            <p className="text-[11px] text-slate-400 mt-0.5 truncate font-medium">
+            <p className="text-[11px] text-[#3db4f2] mt-0.5 truncate font-medium">
               {anime.studios.nodes[0].name}
             </p>
           )}
         </div>
 
-        {/* Metadata footer */}
+        {/* Bottom meta row */}
         <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1.5 border-t border-white/[0.06]">
           <div className="flex items-center gap-1">
             <Calendar className="w-3 h-3 text-slate-500" />
@@ -160,7 +192,9 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
 
           <div className="flex items-center gap-1">
             <Tv className="w-3 h-3 text-slate-500" />
-            <span>{anime.episodes ? `${anime.episodes} eps` : anime.status === 'RELEASING' ? 'Airing' : 'Movie'}</span>
+            <span>
+              {anime.episodes ? `${anime.episodes} eps` : anime.status === 'RELEASING' ? 'Airing' : 'Movie'}
+            </span>
           </div>
         </div>
       </div>

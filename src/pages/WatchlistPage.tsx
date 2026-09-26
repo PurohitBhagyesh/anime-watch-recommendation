@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Bookmark,
@@ -12,6 +12,12 @@ import {
   Clock,
   Heart,
   Compass,
+  Repeat,
+  PauseCircle,
+  XCircle,
+  LayoutGrid,
+  List,
+  BarChart3,
 } from 'lucide-react';
 import { useWatchlist } from '../context/WatchlistContext';
 import type { WatchlistStatus } from '../api/types';
@@ -29,14 +35,18 @@ export const WatchlistPage: React.FC = () => {
   } = useWatchlist();
 
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('table');
   const [importMessage, setImportMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const tabs: { id: string; label: string; icon: React.ElementType }[] = [
     { id: 'all', label: 'All', icon: Bookmark },
     { id: 'watching', label: 'Watching', icon: Clock },
-    { id: 'plan_to_watch', label: 'Plan to Watch', icon: Sparkles },
+    { id: 'plan_to_watch', label: 'Planning', icon: Sparkles },
     { id: 'completed', label: 'Completed', icon: CheckCircle2 },
+    { id: 'rewatching', label: 'Rewatching', icon: Repeat },
+    { id: 'paused', label: 'Paused', icon: PauseCircle },
+    { id: 'dropped', label: 'Dropped', icon: XCircle },
     { id: 'favorite', label: 'Favorites', icon: Heart },
   ];
 
@@ -45,14 +55,50 @@ export const WatchlistPage: React.FC = () => {
     return item.status === filterStatus;
   });
 
-  // Calculate statistics from genuine user data
+  // Calculate detailed AniList stats
   const totalAnime = watchlist.length;
   const watchingCount = watchlist.filter((i) => i.status === 'watching').length;
-  const totalEpisodesWatched = watchlist.reduce((sum, i) => sum + (i.currentEpisode || 0), 0);
+  const completedCount = watchlist.filter((i) => i.status === 'completed').length;
+  const totalEpisodesWatched = watchlist.reduce(
+    (sum, i) => sum + (i.currentEpisode || 0),
+    0
+  );
+  const daysWatched = ((totalEpisodesWatched * 24) / 1440).toFixed(1);
+
   const ratedItems = watchlist.filter((i) => i.userRating && i.userRating > 0);
-  const meanScore = ratedItems.length > 0
-    ? (ratedItems.reduce((sum, i) => sum + (i.userRating || 0), 0) / ratedItems.length).toFixed(1)
-    : 'None';
+  const meanScore =
+    ratedItems.length > 0
+      ? (
+          (ratedItems.reduce((sum, i) => sum + (i.userRating || 0), 0) /
+            ratedItems.length) *
+          10
+        ).toFixed(0)
+      : 'None';
+
+  // Score distribution 1 to 10
+  const scoreDistribution = useMemo(() => {
+    const dist: Record<number, number> = { 10: 0, 9: 0, 8: 0, 7: 0, 6: 0, 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    ratedItems.forEach((item) => {
+      const r = item.userRating || 0;
+      if (r >= 1 && r <= 10) dist[r] = (dist[r] || 0) + 1;
+    });
+    return dist;
+  }, [ratedItems]);
+
+  const maxScoreCount = Math.max(...Object.values(scoreDistribution), 1);
+
+  // Genre breakdown from watchlist
+  const genreBreakdown = useMemo(() => {
+    const counts: Record<string, number> = {};
+    watchlist.forEach((item) => {
+      item.anime.genres?.forEach((g) => {
+        counts[g] = (counts[g] || 0) + 1;
+      });
+    });
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6);
+  }, [watchlist]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -64,7 +110,7 @@ export const WatchlistPage: React.FC = () => {
       if (content) {
         const success = importWatchlist(content);
         if (success) {
-          setImportMessage('Watchlist imported successfully.');
+          setImportMessage('Watchlist imported successfully!');
         } else {
           setImportMessage('Failed to import: Invalid JSON format.');
         }
@@ -75,21 +121,54 @@ export const WatchlistPage: React.FC = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const getScoreBadgeClass = (score: number | null | undefined) => {
+    if (!score) return '';
+    if (score >= 75) return 'score-pill-high';
+    if (score >= 60) return 'score-pill-med';
+    return 'score-pill-low';
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 animate-fadeIn">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fadeIn">
       {/* Header & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Personal Watchlist
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            My Anime List
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-            Manage your anime library and episode progress stored locally on your device
+            Track your watching progress, personal scores, and anime collection
           </p>
         </div>
 
-        {/* Export & Import actions */}
-        <div className="flex items-center gap-2">
+        {/* View Mode Toggle & Export/Import actions */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* View Mode Toggle */}
+          <div className="flex items-center p-1 rounded-xl bg-[#151f2e] border border-white/10 mr-1">
+            <button
+              onClick={() => setViewMode('table')}
+              className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                viewMode === 'table'
+                  ? 'bg-[#3db4f2] text-white'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="Table View"
+            >
+              <List className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                viewMode === 'grid'
+                  ? 'bg-[#3db4f2] text-white'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="Grid View"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+          </div>
+
           <input
             type="file"
             ref={fileInputRef}
@@ -99,17 +178,17 @@ export const WatchlistPage: React.FC = () => {
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="apple-btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold"
+            className="anilist-btn-secondary flex items-center gap-1.5 px-3 py-2 text-xs font-bold"
             title="Import JSON backup"
           >
-            <Upload className="w-3.5 h-3.5 text-[#2997ff]" />
+            <Upload className="w-3.5 h-3.5 text-[#3db4f2]" />
             <span>Import</span>
           </button>
 
           <button
             onClick={exportWatchlist}
             disabled={watchlist.length === 0}
-            className="apple-btn-secondary flex items-center gap-1.5 px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold"
+            className="anilist-btn-secondary flex items-center gap-1.5 px-3 py-2 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold"
             title="Export JSON backup"
           >
             <Download className="w-3.5 h-3.5 text-slate-300" />
@@ -119,11 +198,15 @@ export const WatchlistPage: React.FC = () => {
           {watchlist.length > 0 && (
             <button
               onClick={() => {
-                if (window.confirm('Are you sure you want to clear your entire watchlist?')) {
+                if (
+                  window.confirm(
+                    'Are you sure you want to clear your entire anime list?'
+                  )
+                ) {
                   clearWatchlist();
                 }
               }}
-              className="p-2 rounded-lg bg-white/[0.05] hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-white/10 transition"
+              className="p-2 rounded-lg bg-[#151f2e] hover:bg-rose-950/60 text-slate-400 hover:text-rose-400 border border-white/10 transition"
               title="Clear all"
             >
               <Trash2 className="w-4 h-4" />
@@ -133,48 +216,117 @@ export const WatchlistPage: React.FC = () => {
       </div>
 
       {importMessage && (
-        <div className="p-3 rounded-xl bg-blue-950/80 border border-blue-500/50 text-blue-200 text-xs font-medium">
+        <div className="p-3 rounded-xl bg-[#3db4f2]/15 border border-[#3db4f2]/40 text-[#3db4f2] text-xs font-bold animate-fadeIn">
           {importMessage}
         </div>
       )}
 
-      {/* Real Stats Summary (Apple Glass Cards) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
-        <div className="p-3.5 rounded-xl apple-card-static">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 font-mono">
+      {/* AniList Profile Stats Summary Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="p-4 rounded-xl anilist-card-static">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
             Total Anime
           </span>
-          <p className="text-xl sm:text-2xl font-bold text-white mt-0.5">{totalAnime}</p>
-        </div>
-
-        <div className="p-3.5 rounded-xl apple-card-static">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 font-mono">
-            Currently Watching
-          </span>
-          <p className="text-xl sm:text-2xl font-bold text-[#2997ff] mt-0.5">{watchingCount}</p>
-        </div>
-
-        <div className="p-3.5 rounded-xl apple-card-static">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 font-mono">
-            Episodes Watched
-          </span>
-          <p className="text-xl sm:text-2xl font-bold text-emerald-400 mt-0.5">
-            {totalEpisodesWatched}
+          <p className="text-xl sm:text-2xl font-black text-white mt-1">
+            {totalAnime}
           </p>
+          <span className="text-[10px] text-slate-400">
+            {completedCount} Completed
+          </span>
         </div>
 
-        <div className="p-3.5 rounded-xl apple-card-static">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 font-mono">
+        <div className="p-4 rounded-xl anilist-card-static">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+            Days Watched
+          </span>
+          <p className="text-xl sm:text-2xl font-black text-[#3db4f2] mt-1">
+            {daysWatched} <span className="text-xs font-normal text-slate-400">days</span>
+          </p>
+          <span className="text-[10px] text-slate-400">
+            {totalEpisodesWatched} Episodes total
+          </span>
+        </div>
+
+        <div className="p-4 rounded-xl anilist-card-static">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
             Mean Score
           </span>
-          <p className="text-xl sm:text-2xl font-bold text-amber-400 mt-0.5">
-            {meanScore !== 'None' ? `${meanScore} / 10` : 'None'}
+          <p className="text-xl sm:text-2xl font-black text-emerald-400 mt-1">
+            {meanScore !== 'None' ? `${meanScore}%` : '—'}
           </p>
+          <span className="text-[10px] text-slate-400">
+            {ratedItems.length} Rated titles
+          </span>
+        </div>
+
+        <div className="p-4 rounded-xl anilist-card-static">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+            Currently Watching
+          </span>
+          <p className="text-xl sm:text-2xl font-black text-amber-400 mt-1">
+            {watchingCount}
+          </p>
+          <span className="text-[10px] text-slate-400">Active series</span>
         </div>
       </div>
 
-      {/* Apple Segmented Control Bar for Tabs */}
-      <div className="apple-segmented-container flex flex-wrap gap-1">
+      {/* Score Distribution & Top Genres Mini Analytics */}
+      {ratedItems.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* Score distribution bars */}
+          <div className="p-4 rounded-xl anilist-card-static space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase text-slate-300 font-mono flex items-center gap-1.5">
+                <BarChart3 className="w-3.5 h-3.5 text-[#3db4f2]" /> Score Distribution
+              </span>
+              <span className="text-[10px] text-slate-400">Scores 1-10</span>
+            </div>
+            <div className="flex items-end gap-1.5 h-16 pt-2">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => {
+                const count = scoreDistribution[score] || 0;
+                const heightPercent = count > 0 ? (count / maxScoreCount) * 100 : 4;
+                return (
+                  <div key={score} className="flex-1 flex flex-col items-center gap-1 h-full justify-end group relative">
+                    <div
+                      className={`w-full rounded-t transition-all ${
+                        count > 0 ? 'bg-[#3db4f2] group-hover:bg-[#00a8ff]' : 'bg-white/5'
+                      }`}
+                      style={{ height: `${heightPercent}%` }}
+                      title={`Score ${score}: ${count} anime`}
+                    />
+                    <span className="text-[9px] font-mono text-slate-400">{score}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Top Genres Breakdown */}
+          {genreBreakdown.length > 0 && (
+            <div className="p-4 rounded-xl anilist-card-static space-y-2">
+              <span className="text-xs font-bold uppercase text-slate-300 font-mono flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Top List Genres
+              </span>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {genreBreakdown.map(([genre, count]) => (
+                  <div
+                    key={genre}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0f1824] border border-white/10 text-xs"
+                  >
+                    <span className="font-semibold text-slate-200">{genre}</span>
+                    <span className="text-[10px] font-mono text-[#3db4f2] px-1 py-0.2 rounded bg-[#3db4f2]/10 font-bold">
+                      {count}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Status Filter Tabs */}
+      <div className="flex flex-wrap gap-1.5 border-b border-white/10 pb-3">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const count =
@@ -187,13 +339,15 @@ export const WatchlistPage: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setFilterStatus(tab.id)}
-              className={`apple-segmented-item flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold ${
-                isActive ? 'active' : 'text-slate-400 hover:text-slate-200'
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition ${
+                isActive
+                  ? 'anilist-btn-primary'
+                  : 'bg-[#151f2e] hover:bg-[#1f2d42] text-slate-300 border border-white/10'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
               <span>{tab.label}</span>
-              <span className="px-1.5 py-0.2 text-[10px] rounded-full bg-white/[0.08] font-mono">
+              <span className="px-1.5 py-0.2 text-[10px] rounded bg-black/40 font-mono">
                 {count}
               </span>
             </button>
@@ -201,140 +355,280 @@ export const WatchlistPage: React.FC = () => {
         })}
       </div>
 
-      {/* Watchlist Grid */}
+      {/* Watchlist Content (Table or Grid View) */}
       {filteredItems.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {filteredItems.map((item) => {
-            const anime = item.anime;
-            const title = anime.title.english || anime.title.romaji || anime.title.userPreferred;
-            const maxEpisodes = anime.episodes || 9999;
+        viewMode === 'table' ? (
+          /* AniList Table View */
+          <div className="space-y-2">
+            <div className="hidden sm:grid grid-cols-12 gap-3 px-4 py-2 text-[10px] uppercase font-bold text-slate-400 font-mono">
+              <span className="col-span-6">Anime Title</span>
+              <span className="col-span-2 text-center">Score</span>
+              <span className="col-span-2 text-center">Progress</span>
+              <span className="col-span-2 text-right">Status</span>
+            </div>
 
-            return (
-              <div
-                key={anime.id}
-                className="flex gap-3 p-3 rounded-xl apple-card-static group"
-              >
-                {/* Poster */}
-                <Link
-                  to={`/anime/${anime.id}`}
-                  className="w-20 sm:w-24 aspect-[3/4] rounded-lg overflow-hidden bg-[#0a0d14] flex-shrink-0 block relative"
+            {filteredItems.map((item) => {
+              const anime = item.anime;
+              const title =
+                anime.title.english || anime.title.romaji || anime.title.userPreferred;
+              const maxEpisodes = anime.episodes || 9999;
+
+              return (
+                <div
+                  key={anime.id}
+                  className="flex flex-col sm:grid sm:grid-cols-12 gap-3 items-center p-3 rounded-xl anilist-table-row"
                 >
-                  <img
-                    src={anime.coverImage.large || anime.coverImage.medium}
-                    alt={title}
-                    className="w-full h-full object-cover"
-                  />
-                  {anime.averageScore && (
-                    <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-md text-[10px] font-bold text-amber-300">
-                      {(anime.averageScore / 10).toFixed(1)}
-                    </div>
-                  )}
-                </Link>
-
-                {/* Details & Controls */}
-                <div className="flex flex-col justify-between flex-1 min-w-0 space-y-1.5">
-                  <div>
+                  {/* Title & Cover */}
+                  <div className="flex items-center gap-3 w-full sm:col-span-6 min-w-0">
                     <Link
                       to={`/anime/${anime.id}`}
-                      className="font-bold text-xs sm:text-sm text-slate-100 group-hover:text-[#2997ff] line-clamp-1 transition"
-                      title={title}
+                      className="w-12 aspect-[3/4] rounded-lg overflow-hidden flex-shrink-0 bg-[#0b1622]"
                     >
-                      {title}
+                      <img
+                        src={anime.coverImage.medium || anime.coverImage.large}
+                        alt={title}
+                        className="w-full h-full object-cover"
+                      />
                     </Link>
-                    <p className="text-[11px] text-slate-400">
-                      {anime.format?.replace('_', ' ')} · {anime.seasonYear || 'TBA'}
-                    </p>
+
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        to={`/anime/${anime.id}`}
+                        className="font-bold text-xs sm:text-sm text-slate-100 hover:text-[#3db4f2] truncate block"
+                        title={title}
+                      >
+                        {title}
+                      </Link>
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        {anime.format?.replace('_', ' ')} · {anime.seasonYear || 'TBA'} ·{' '}
+                        {anime.episodes ? `${anime.episodes} eps` : 'Airing'}
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Status Dropdown */}
-                  <div className="flex items-center gap-2">
+                  {/* Personal Rating */}
+                  <div className="flex items-center justify-center w-full sm:col-span-2">
+                    <select
+                      value={item.userRating || 0}
+                      onChange={(e) => updateRating(anime.id, Number(e.target.value))}
+                      className="anilist-input text-xs px-2 py-1 font-bold text-[#3db4f2]"
+                    >
+                      <option value="0">Unrated</option>
+                      {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
+                        <option key={r} value={r}>
+                          {r} / 10 ({r * 10}%)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Episode Progress Counter */}
+                  <div className="flex items-center justify-center gap-1.5 w-full sm:col-span-2">
+                    <button
+                      onClick={() =>
+                        updateProgress(
+                          anime.id,
+                          Math.max(0, (item.currentEpisode || 0) - 1)
+                        )
+                      }
+                      className="p-1 rounded-md bg-[#0f1824] hover:bg-[#19273a] text-slate-200 border border-white/10"
+                      title="Decrement"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </button>
+                    <span className="font-mono font-bold text-[#3db4f2] min-w-[3rem] text-center text-xs">
+                      {item.currentEpisode || 0} / {anime.episodes || '??'}
+                    </span>
+                    <button
+                      onClick={() =>
+                        updateProgress(
+                          anime.id,
+                          Math.min(maxEpisodes, (item.currentEpisode || 0) + 1)
+                        )
+                      }
+                      className="p-1 rounded-md bg-[#0f1824] hover:bg-[#19273a] text-slate-200 border border-white/10"
+                      title="Increment"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+
+                  {/* Status & Delete */}
+                  <div className="flex items-center justify-end gap-2 w-full sm:col-span-2">
                     <select
                       value={item.status}
-                      onChange={(e) => updateStatus(anime.id, e.target.value as WatchlistStatus)}
-                      className="apple-input text-xs px-2 py-1 capitalize"
+                      onChange={(e) =>
+                        updateStatus(anime.id, e.target.value as WatchlistStatus)
+                      }
+                      className="anilist-input text-xs px-2 py-1 font-semibold capitalize"
                     >
                       <option value="watching">Watching</option>
-                      <option value="plan_to_watch">Plan to Watch</option>
+                      <option value="plan_to_watch">Planning</option>
                       <option value="completed">Completed</option>
-                      <option value="favorite">Favorite</option>
+                      <option value="rewatching">Rewatching</option>
+                      <option value="paused">Paused</option>
+                      <option value="dropped">Dropped</option>
                     </select>
 
                     <button
                       onClick={() => removeFromWatchlist(anime.id)}
-                      className="p-1 rounded text-slate-400 hover:text-rose-400 transition ml-auto"
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/40 transition"
                       title="Remove"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          /* Grid View */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {filteredItems.map((item) => {
+              const anime = item.anime;
+              const title =
+                anime.title.english || anime.title.romaji || anime.title.userPreferred;
+              const maxEpisodes = anime.episodes || 9999;
 
-                  {/* Episode Progress Counter */}
-                  <div className="flex items-center justify-between text-xs pt-1 border-t border-white/[0.08]">
-                    <span className="text-slate-400 font-medium">Episode:</span>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() =>
-                          updateProgress(anime.id, Math.max(0, (item.currentEpisode || 0) - 1))
-                        }
-                        className="p-1 rounded-md bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 border border-white/10"
-                        title="Decrement"
+              return (
+                <div
+                  key={anime.id}
+                  className="flex gap-3 p-3 rounded-xl anilist-card-static group"
+                >
+                  {/* Poster */}
+                  <Link
+                    to={`/anime/${anime.id}`}
+                    className="w-20 sm:w-24 aspect-[3/4] rounded-lg overflow-hidden bg-[#0b1622] flex-shrink-0 block relative"
+                  >
+                    <img
+                      src={anime.coverImage.large || anime.coverImage.medium}
+                      alt={title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    />
+                    {anime.averageScore && (
+                      <div
+                        className={`absolute top-1 left-1 px-1.5 py-0.5 rounded text-[10px] font-black ${getScoreBadgeClass(
+                          anime.averageScore
+                        )}`}
                       >
-                        <Minus className="w-3 h-3" />
-                      </button>
-                      <span className="font-mono font-bold text-[#2997ff] min-w-[2.5rem] text-center text-xs">
-                        {item.currentEpisode || 0} / {anime.episodes || '??'}
-                      </span>
-                      <button
-                        onClick={() =>
-                          updateProgress(
-                            anime.id,
-                            Math.min(maxEpisodes, (item.currentEpisode || 0) + 1)
-                          )
-                        }
-                        className="p-1 rounded-md bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 border border-white/10"
-                        title="Increment"
+                        {anime.averageScore}%
+                      </div>
+                    )}
+                  </Link>
+
+                  {/* Details & Controls */}
+                  <div className="flex flex-col justify-between flex-1 min-w-0 space-y-1.5">
+                    <div>
+                      <Link
+                        to={`/anime/${anime.id}`}
+                        className="font-bold text-xs sm:text-sm text-slate-100 group-hover:text-[#3db4f2] line-clamp-1 transition"
+                        title={title}
                       >
-                        <Plus className="w-3 h-3" />
+                        {title}
+                      </Link>
+                      <p className="text-[11px] text-slate-400">
+                        {anime.format?.replace('_', ' ')} · {anime.seasonYear || 'TBA'}
+                      </p>
+                    </div>
+
+                    {/* Status Dropdown */}
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={item.status}
+                        onChange={(e) =>
+                          updateStatus(anime.id, e.target.value as WatchlistStatus)
+                        }
+                        className="anilist-input text-xs px-2 py-0.5 font-semibold capitalize flex-1"
+                      >
+                        <option value="watching">Watching</option>
+                        <option value="plan_to_watch">Planning</option>
+                        <option value="completed">Completed</option>
+                        <option value="rewatching">Rewatching</option>
+                        <option value="paused">Paused</option>
+                        <option value="dropped">Dropped</option>
+                      </select>
+
+                      <button
+                        onClick={() => removeFromWatchlist(anime.id)}
+                        className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-rose-950/30 transition"
+                        title="Remove"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                  </div>
 
-                  {/* Rating Selector */}
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-400 font-medium">Rating:</span>
-                    <select
-                      value={item.userRating || 0}
-                      onChange={(e) => updateRating(anime.id, Number(e.target.value))}
-                      className="apple-input text-xs px-2 py-0.5"
-                    >
-                      <option value="0">Unrated</option>
-                      {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
-                        <option key={r} value={r}>
-                          {r} / 10
-                        </option>
-                      ))}
-                    </select>
+                    {/* Episode Progress Counter */}
+                    <div className="flex items-center justify-between text-xs pt-1 border-t border-white/10">
+                      <span className="text-slate-400">Episode:</span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() =>
+                            updateProgress(
+                              anime.id,
+                              Math.max(0, (item.currentEpisode || 0) - 1)
+                            )
+                          }
+                          className="p-1 rounded bg-[#0f1824] hover:bg-[#19273a] text-slate-200 border border-white/10"
+                          title="Decrement"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="font-mono font-bold text-[#3db4f2] min-w-[2.5rem] text-center text-xs">
+                          {item.currentEpisode || 0} / {anime.episodes || '??'}
+                        </span>
+                        <button
+                          onClick={() =>
+                            updateProgress(
+                              anime.id,
+                              Math.min(maxEpisodes, (item.currentEpisode || 0) + 1)
+                            )
+                          }
+                          className="p-1 rounded bg-[#0f1824] hover:bg-[#19273a] text-slate-200 border border-white/10"
+                          title="Increment"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Rating Selector */}
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-400">Rating:</span>
+                      <select
+                        value={item.userRating || 0}
+                        onChange={(e) => updateRating(anime.id, Number(e.target.value))}
+                        className="anilist-input text-xs px-1.5 py-0.5 font-bold text-[#3db4f2]"
+                      >
+                        <option value="0">Unrated</option>
+                        {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
+                          <option key={r} value={r}>
+                            {r} / 10 ({r * 10}%)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )
       ) : (
-        <div className="p-12 rounded-2xl apple-card-static text-center space-y-3">
+        <div className="p-12 rounded-2xl anilist-card-static text-center space-y-3">
           <Bookmark className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-base font-bold text-white">Watchlist is empty</h3>
+          <h3 className="text-base font-bold text-white">List is empty</h3>
           <p className="text-xs text-slate-400 max-w-sm mx-auto">
             {filterStatus === 'all'
-              ? 'No anime saved to your watchlist yet. Browse trending titles to start your list.'
+              ? 'No anime saved in your list yet. Explore trending anime or search titles to build your list.'
               : `No anime currently marked as "${filterStatus.replace('_', ' ')}".`}
           </p>
           <Link
             to="/discover"
-            className="apple-btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold"
+            className="anilist-btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold"
           >
             <Compass className="w-4 h-4" />
-            <span>Explore Catalog</span>
+            <span>Discover Anime</span>
           </Link>
         </div>
       )}
