@@ -181,13 +181,14 @@ export const DiscoverPage: React.FC = () => {
 
   const getScoreBadgeClass = (score: number | null) => {
     if (!score) return '';
-    if (score >= 75) return 'score-pill-high';
+    if (score >= 80) return 'score-pill-gold';
+    if (score >= 70) return 'score-pill-high';
     if (score >= 60) return 'score-pill-med';
     return 'score-pill-low';
   };
 
   return (
-    <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-6 sm:py-8 space-y-6 animate-fadeIn">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 animate-fadeIn">
       {/* Header with Title & View Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -201,12 +202,12 @@ export const DiscoverPage: React.FC = () => {
 
         <div className="flex items-center gap-2">
           {/* View mode toggle (Grid vs Table) */}
-          <div className="flex items-center p-1 rounded-xl bg-[#151f2e] border border-white/10">
+          <div className="flex items-center p-1 rounded-xl bg-[#0e1528] border border-white/10">
             <button
               onClick={() => setViewMode('grid')}
               className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
                 viewMode === 'grid'
-                  ? 'bg-[#3db4f2] text-white'
+                  ? 'bg-[#6366f1] text-white shadow-sm'
                   : 'text-slate-400 hover:text-white'
               }`}
               title="Grid View"
@@ -217,7 +218,7 @@ export const DiscoverPage: React.FC = () => {
               onClick={() => setViewMode('table')}
               className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
                 viewMode === 'table'
-                  ? 'bg-[#3db4f2] text-white'
+                  ? 'bg-[#6366f1] text-white shadow-sm'
                   : 'text-slate-400 hover:text-white'
               }`}
               title="Table View"
@@ -229,17 +230,17 @@ export const DiscoverPage: React.FC = () => {
           {/* Mobile filter toggle button */}
           <button
             onClick={() => setShowMobileFilters(!showMobileFilters)}
-            className="md:hidden flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl anilist-btn-secondary text-xs font-bold"
+            className="md:hidden flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl royal-btn-secondary text-xs font-bold"
           >
-            <SlidersHorizontal className="w-4 h-4 text-[#3db4f2]" />
+            <SlidersHorizontal className="w-4 h-4 text-[#818cf8]" />
             <span>{showMobileFilters ? 'Hide Filters' : 'Filters'}</span>
           </button>
         </div>
       </div>
 
-      {/* Main AniList Filters Panel */}
+      {/* Main Filters Panel */}
       <div
-        className={`space-y-4 p-4 sm:p-5 rounded-2xl anilist-card-static ${
+        className={`space-y-4 p-4 sm:p-5 rounded-2xl royal-card-static ${
           showMobileFilters ? 'block' : 'hidden md:block'
         }`}
       >
@@ -269,7 +270,7 @@ export const DiscoverPage: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="anilist-btn-primary px-5 py-2.5 text-xs sm:text-sm font-bold"
+            className="royal-btn-primary px-5 py-2.5 text-xs sm:text-sm font-bold"
           >
             Search
           </button>
@@ -397,7 +398,7 @@ export const DiscoverPage: React.FC = () => {
                 setSelectedSort(e.target.value);
                 updateFiltersInUrl({ sort: e.target.value });
               }}
-              className="anilist-input w-full text-xs px-2.5 py-2 cursor-pointer text-[#3db4f2] font-bold"
+              className="anilist-input w-full text-xs px-2.5 py-2 cursor-pointer text-[#818cf8] font-bold"
             >
               <option value="TRENDING_DESC">Trending</option>
               <option value="POPULARITY_DESC">Popularity</option>
@@ -413,7 +414,7 @@ export const DiscoverPage: React.FC = () => {
         <div className="pt-2 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap gap-1.5 items-center">
             <span className="text-xs text-slate-400 mr-1 flex items-center gap-1 font-bold">
-              <Filter className="w-3.5 h-3.5 text-[#3db4f2]" /> Popular:
+              <Filter className="w-3.5 h-3.5 text-[#818cf8]" /> Popular:
             </span>
             {['Action', 'Romance', 'Fantasy', 'Sci-Fi', 'Comedy', 'Adventure', 'Sports'].map(
               (genre) => (
@@ -427,8 +428,8 @@ export const DiscoverPage: React.FC = () => {
                   }}
                   className={`text-xs px-2.5 py-1 rounded-lg transition font-semibold ${
                     selectedGenre === genre
-                      ? 'anilist-btn-primary'
-                      : 'bg-[#0f1824] hover:bg-[#19273a] text-slate-300 border border-white/10'
+                      ? 'royal-btn-primary'
+                      : 'bg-[#080d1a] hover:bg-[#141f38] text-slate-300 border border-white/10'
                   }`}
                 >
                   {genre}
@@ -473,20 +474,20 @@ export const DiscoverPage: React.FC = () => {
 
       {/* Results Display: Grid Mode or Table Mode */}
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 sm:gap-4 lg:gap-5">
-          {Array.from({ length: 21 }).map((_, i) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
+          {Array.from({ length: 18 }).map((_, i) => (
             <CardSkeleton key={i} />
           ))}
         </div>
       ) : results.length > 0 ? (
         viewMode === 'grid' ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 sm:gap-4 lg:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
             {results.map((anime) => (
               <AnimeCard key={anime.id} anime={anime} />
             ))}
           </div>
         ) : (
-          /* AniList Classic Table View */
+          /* Classic Table View */
           <div className="space-y-2">
             {results.map((anime, index) => {
               const title =
@@ -509,7 +510,7 @@ export const DiscoverPage: React.FC = () => {
 
                     <Link
                       to={`/anime/${anime.id}`}
-                      className="w-12 sm:w-14 aspect-[3/4] rounded-lg overflow-hidden flex-shrink-0 bg-[#0b1622] relative group"
+                      className="w-12 sm:w-14 aspect-[3/4] rounded-lg overflow-hidden flex-shrink-0 bg-[#080d1a] relative group"
                     >
                       <img
                         src={anime.coverImage.medium || anime.coverImage.large}
@@ -521,13 +522,13 @@ export const DiscoverPage: React.FC = () => {
                     <div className="min-w-0 flex-1">
                       <Link
                         to={`/anime/${anime.id}`}
-                        className="font-bold text-xs sm:text-sm text-slate-100 hover:text-[#3db4f2] truncate block transition"
+                        className="font-bold text-xs sm:text-sm text-slate-100 hover:text-[#818cf8] truncate block transition"
                         title={title}
                       >
                         {title}
                       </Link>
                       <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
-                        <span className="text-[#3db4f2] font-semibold">
+                        <span className="text-[#818cf8] font-semibold">
                           {anime.studios?.nodes?.[0]?.name || 'Studio'}
                         </span>
                         <span>·</span>
@@ -560,8 +561,8 @@ export const DiscoverPage: React.FC = () => {
                         }
                         className={`p-2 rounded-lg text-xs font-bold transition flex items-center justify-center ${
                           inWatchlist
-                            ? 'bg-[#3db4f2] text-white'
-                            : 'anilist-btn-secondary text-slate-300 hover:text-white'
+                            ? 'bg-[#6366f1] text-white'
+                            : 'royal-btn-secondary text-slate-300 hover:text-white'
                         }`}
                         title="Set Status"
                       >
@@ -591,7 +592,7 @@ export const DiscoverPage: React.FC = () => {
                                 }}
                                 className={`w-full text-left px-2.5 py-1.5 text-xs rounded-lg flex items-center justify-between font-semibold transition ${
                                   currentItem?.status === st.id
-                                    ? 'bg-[#3db4f2] text-white'
+                                    ? 'bg-[#6366f1] text-white'
                                     : 'text-slate-300 hover:bg-white/10 hover:text-white'
                                   }`}
                               >
@@ -623,7 +624,7 @@ export const DiscoverPage: React.FC = () => {
           </div>
         )
       ) : (
-        <div className="p-12 rounded-2xl anilist-card-static text-center space-y-3">
+        <div className="p-12 rounded-2xl royal-card-static text-center space-y-3">
           <Search className="w-10 h-10 text-slate-600 mx-auto" />
           <h3 className="text-base font-bold text-white">No anime found</h3>
           <p className="text-xs text-slate-400 max-w-sm mx-auto">
@@ -632,7 +633,7 @@ export const DiscoverPage: React.FC = () => {
           </p>
           <button
             onClick={resetAllFilters}
-            className="anilist-btn-primary px-4 py-2 text-xs font-bold"
+            className="royal-btn-primary px-4 py-2 text-xs font-bold"
           >
             Reset Filters
           </button>
@@ -649,13 +650,13 @@ export const DiscoverPage: React.FC = () => {
               updateFiltersInUrl({ page: newPage });
             }}
             disabled={currentPage <= 1 || loading}
-            className="anilist-btn-secondary flex items-center gap-1 px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold"
+            className="royal-btn-secondary flex items-center gap-1 px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Previous</span>
           </button>
 
-          <span className="px-3 py-1 rounded-lg bg-[#151f2e] border border-white/10 text-xs font-mono text-slate-300">
+          <span className="px-3 py-1 rounded-lg bg-[#0e1528] border border-white/10 text-xs font-mono text-slate-300">
             {currentPage} / {pageInfo.lastPage}
           </span>
 
@@ -666,7 +667,7 @@ export const DiscoverPage: React.FC = () => {
               updateFiltersInUrl({ page: newPage });
             }}
             disabled={!pageInfo.hasNextPage || loading}
-            className="anilist-btn-secondary flex items-center gap-1 px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold"
+            className="royal-btn-secondary flex items-center gap-1 px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold"
           >
             <span>Next</span>
             <ChevronRight className="w-3.5 h-3.5" />

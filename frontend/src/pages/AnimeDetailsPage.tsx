@@ -17,6 +17,7 @@ import {
   Users,
   Tv,
   GitFork,
+  Crown,
 } from 'lucide-react';
 import { fetchAnimeDetails } from '../api/anilist';
 import type { AnimeDetailsData, WatchlistStatus } from '../api/types';
@@ -83,12 +84,12 @@ export const AnimeDetailsPage: React.FC = () => {
 
   if (error || !anime) {
     return (
-      <div className="max-w-md mx-auto my-20 p-6 rounded-2xl anilist-card-static text-center space-y-3">
+      <div className="max-w-md mx-auto my-20 p-6 rounded-2xl royal-card-static text-center space-y-3">
         <h2 className="text-base font-bold text-white">Anime Not Found</h2>
         <p className="text-xs text-slate-400">{error || 'Could not find details for this anime.'}</p>
         <Link
           to="/discover"
-          className="anilist-btn-primary inline-flex items-center gap-2 px-4 py-2 text-xs font-bold"
+          className="royal-btn-primary inline-flex items-center gap-2 px-4 py-2 text-xs font-bold"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Discover</span>
@@ -120,7 +121,8 @@ export const AnimeDetailsPage: React.FC = () => {
 
   const getScoreBadgeClass = (score: number | null) => {
     if (!score) return '';
-    if (score >= 75) return 'score-pill-high';
+    if (score >= 80) return 'score-pill-gold';
+    if (score >= 70) return 'score-pill-high';
     if (score >= 60) return 'score-pill-med';
     return 'score-pill-low';
   };
@@ -136,19 +138,19 @@ export const AnimeDetailsPage: React.FC = () => {
   return (
     <div className="space-y-8 pb-16 animate-fadeIn">
       {/* Top Banner Header */}
-      <div className="relative w-full h-64 sm:h-80 md:h-96 overflow-hidden bg-[#09111c]">
+      <div className="relative w-full h-64 sm:h-80 md:h-96 overflow-hidden bg-[#050811]">
         <img
           src={banner}
           alt=""
-          className="w-full h-full object-cover object-center filter brightness-[0.45] contrast-[1.08]"
+          className="w-full h-full object-cover object-center filter brightness-[0.42] contrast-[1.12]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0b1622] via-[#0b1622]/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050811] via-[#080d1a]/70 to-transparent" />
 
         {/* Back Link */}
         <div className="absolute top-4 left-4 sm:left-8 z-10">
           <Link
             to={-1 as any}
-            className="anilist-btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold shadow-md"
+            className="royal-btn-secondary flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold shadow-md"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back</span>
@@ -156,13 +158,13 @@ export const AnimeDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content Layout */}
-      <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 -mt-32 sm:-mt-44 relative z-10">
+      {/* Main Content Layout with centered container alignment */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-28 sm:-mt-40 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-10">
           {/* Left Column: Poster, Status Tracker & Metadata Sidebar */}
           <div className="lg:col-span-4 xl:col-span-3 space-y-4">
             {/* Poster Card */}
-            <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-[#09111c] aspect-[3/4] max-w-xs mx-auto lg:max-w-none shadow-2xl">
+            <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-[#070b14] aspect-[3/4] max-w-xs mx-auto lg:max-w-none shadow-2xl">
               <img
                 src={anime.coverImage.extraLarge || anime.coverImage.large}
                 alt={title}
@@ -171,10 +173,11 @@ export const AnimeDetailsPage: React.FC = () => {
               {/* Score Overlay */}
               {anime.averageScore && (
                 <div
-                  className={`absolute top-3 right-3 px-2.5 py-1 rounded-md font-black text-xs backdrop-blur-xl shadow-lg ${getScoreBadgeClass(
+                  className={`absolute top-3 right-3 px-2.5 py-1 rounded-md font-black text-xs backdrop-blur-xl shadow-lg flex items-center gap-1 ${getScoreBadgeClass(
                     anime.averageScore
                   )}`}
                 >
+                  {anime.averageScore >= 80 && <Crown className="w-3 h-3 text-amber-400 fill-amber-400" />}
                   <span>{anime.averageScore}% Score</span>
                 </div>
               )}
@@ -182,7 +185,7 @@ export const AnimeDetailsPage: React.FC = () => {
 
             {/* Next Airing Countdown Banner if applicable */}
             {anime.nextAiringEpisode && (
-              <div className="p-3 rounded-xl bg-emerald-950/70 border border-emerald-500/30 text-emerald-300 flex items-center gap-2.5 text-xs">
+              <div className="p-3 rounded-xl bg-emerald-950/80 border border-emerald-500/35 text-emerald-300 flex items-center gap-2.5 text-xs">
                 <Clock className="w-4 h-4 text-emerald-400 flex-shrink-0 animate-pulse" />
                 <div>
                   <p className="font-bold">
@@ -196,13 +199,13 @@ export const AnimeDetailsPage: React.FC = () => {
             )}
 
             {/* Watchlist Tracker Box */}
-            <div className="p-4 rounded-2xl anilist-card-static space-y-3">
+            <div className="p-4 rounded-2xl royal-card-static space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
-                  AniList Tracker
+                  Watchlist Status
                 </span>
                 {inWatchlist && (
-                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-[#3db4f2]/20 border border-[#3db4f2]/40 text-[#3db4f2] font-bold">
+                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-[#6366f1]/20 border border-[#6366f1]/40 text-[#818cf8] font-bold">
                     In List
                   </span>
                 )}
@@ -224,8 +227,8 @@ export const AnimeDetailsPage: React.FC = () => {
                       }}
                       className={`px-2.5 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition ${
                         isActive
-                          ? 'anilist-btn-primary'
-                          : 'bg-[#0f1824] hover:bg-[#19273a] text-slate-300 border border-white/10'
+                          ? 'royal-btn-primary'
+                          : 'bg-[#080d1a] hover:bg-[#141f38] text-slate-300 border border-white/10'
                       }`}
                     >
                       {isActive && <Check className="w-3.5 h-3.5" />}
@@ -249,12 +252,12 @@ export const AnimeDetailsPage: React.FC = () => {
                             Math.max(0, (watchlistItem?.currentEpisode || 0) - 1)
                           )
                         }
-                        className="p-1 rounded-md bg-[#0f1824] hover:bg-[#19273a] text-slate-300 border border-white/10"
+                        className="p-1 rounded-md bg-[#080d1a] hover:bg-[#141f38] text-slate-300 border border-white/10"
                         title="Decrement episode"
                       >
                         <Minus className="w-3 h-3" />
                       </button>
-                      <span className="font-mono font-bold text-[#3db4f2] min-w-[2.5rem] text-center">
+                      <span className="font-mono font-bold text-[#818cf8] min-w-[2.5rem] text-center">
                         {watchlistItem?.currentEpisode || 0} / {anime.episodes || '??'}
                       </span>
                       <button
@@ -265,7 +268,7 @@ export const AnimeDetailsPage: React.FC = () => {
                             Math.min(max, (watchlistItem?.currentEpisode || 0) + 1)
                           );
                         }}
-                        className="p-1 rounded-md bg-[#0f1824] hover:bg-[#19273a] text-slate-300 border border-white/10"
+                        className="p-1 rounded-md bg-[#080d1a] hover:bg-[#141f38] text-slate-300 border border-white/10"
                         title="Increment episode"
                       >
                         <Plus className="w-3 h-3" />
@@ -279,7 +282,7 @@ export const AnimeDetailsPage: React.FC = () => {
                     <select
                       value={watchlistItem?.userRating || 0}
                       onChange={(e) => updateRating(anime.id, Number(e.target.value))}
-                      className="anilist-input text-xs px-2 py-1 font-bold text-[#3db4f2]"
+                      className="anilist-input text-xs px-2 py-1 font-bold text-[#fbbf24]"
                     >
                       <option value="0">Unrated</option>
                       {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
@@ -302,7 +305,7 @@ export const AnimeDetailsPage: React.FC = () => {
             </div>
 
             {/* Information Sidebar */}
-            <div className="p-4 rounded-2xl anilist-card-static space-y-2.5 text-xs">
+            <div className="p-4 rounded-2xl royal-card-static space-y-2.5 text-xs">
               <h3 className="font-bold uppercase tracking-wider text-slate-400 font-mono pb-2 border-b border-white/[0.08]">
                 Information
               </h3>
@@ -340,7 +343,7 @@ export const AnimeDetailsPage: React.FC = () => {
 
               <div className="flex justify-between">
                 <span className="text-slate-400">Studio:</span>
-                <span className="font-bold text-[#3db4f2]">
+                <span className="font-bold text-[#818cf8]">
                   {anime.studios?.nodes?.[0]?.name || 'Unknown'}
                 </span>
               </div>
@@ -373,9 +376,9 @@ export const AnimeDetailsPage: React.FC = () => {
                 {anime.rankings?.slice(0, 2).map((rank) => (
                   <span
                     key={rank.id}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#3db4f2]/15 border border-[#3db4f2]/30 text-[#3db4f2] text-xs font-bold backdrop-blur-md"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-[#818cf8] text-xs font-bold backdrop-blur-md"
                   >
-                    <Award className="w-3.5 h-3.5 text-[#3db4f2]" />
+                    <Award className="w-3.5 h-3.5 text-[#818cf8]" />
                     #{rank.rank} {rank.context}
                   </span>
                 ))}
@@ -398,7 +401,7 @@ export const AnimeDetailsPage: React.FC = () => {
                     <Link
                       key={genre}
                       to={`/discover?genre=${encodeURIComponent(genre)}`}
-                      className="text-xs px-2.5 py-1 rounded-lg bg-[#151f2e] hover:bg-[#1f2d42] border border-white/10 text-slate-200 font-semibold transition"
+                      className="text-xs px-2.5 py-1 rounded-lg bg-[#0e1528] hover:bg-[#182544] border border-white/10 text-slate-200 font-semibold transition"
                     >
                       {genre}
                     </Link>
@@ -411,7 +414,7 @@ export const AnimeDetailsPage: React.FC = () => {
                 {anime.trailer?.id && (
                   <button
                     onClick={() => setTrailerModalOpen(true)}
-                    className="anilist-btn-primary flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-bold"
+                    className="royal-btn-primary flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-bold"
                   >
                     <Play className="w-4 h-4 fill-white" />
                     <span>Watch Trailer</span>
@@ -420,7 +423,7 @@ export const AnimeDetailsPage: React.FC = () => {
 
                 <button
                   onClick={handleShare}
-                  className="anilist-btn-secondary flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-semibold"
+                  className="royal-btn-secondary flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-semibold"
                 >
                   <Share2 className="w-4 h-4 text-slate-400" />
                   <span>{copiedShare ? 'Link Copied!' : 'Share'}</span>
@@ -430,16 +433,16 @@ export const AnimeDetailsPage: React.FC = () => {
                   href={`https://anilist.co/anime/${anime.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="anilist-btn-secondary flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-semibold"
+                  className="royal-btn-secondary flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-semibold"
                 >
-                  <ExtLinkIcon className="w-3.5 h-3.5 text-[#3db4f2]" />
+                  <ExtLinkIcon className="w-3.5 h-3.5 text-[#818cf8]" />
                   <span>AniList</span>
                 </a>
               </div>
             </div>
 
             {/* Synopsis */}
-            <div className="space-y-2.5 p-4 sm:p-5 rounded-2xl anilist-card-static">
+            <div className="space-y-2.5 p-4 sm:p-5 rounded-2xl royal-card-static">
               <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
                 Synopsis
               </h3>
@@ -453,7 +456,7 @@ export const AnimeDetailsPage: React.FC = () => {
               {cleanSynopsis.length > 280 && (
                 <button
                   onClick={() => setShowFullSynopsis(!showFullSynopsis)}
-                  className="text-xs text-[#3db4f2] hover:underline font-bold flex items-center gap-1 transition pt-1"
+                  className="text-xs text-[#818cf8] hover:underline font-bold flex items-center gap-1 transition pt-1"
                 >
                   <span>{showFullSynopsis ? 'Show less' : 'Read more'}</span>
                   {showFullSynopsis ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -461,8 +464,8 @@ export const AnimeDetailsPage: React.FC = () => {
               )}
             </div>
 
-            {/* AniList Content Tabs */}
-            <div className="flex flex-wrap gap-1 p-1 rounded-xl bg-[#151f2e] border border-white/10">
+            {/* Content Tabs */}
+            <div className="flex flex-wrap gap-1 p-1 rounded-xl bg-[#0e1528] border border-white/10">
               {[
                 { id: 'overview', label: 'Overview', icon: Sparkles },
                 { id: 'characters', label: `Characters (${anime.characters?.edges?.length || 0})`, icon: Users },
@@ -477,7 +480,7 @@ export const AnimeDetailsPage: React.FC = () => {
                     onClick={() => setActiveTab(tab.id as any)}
                     className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition ${
                       active
-                        ? 'bg-[#3db4f2] text-white shadow-sm'
+                        ? 'bg-[#6366f1] text-white shadow-sm'
                         : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
                     }`}
                   >

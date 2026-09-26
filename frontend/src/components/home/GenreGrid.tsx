@@ -41,12 +41,12 @@ export const GenreGrid: React.FC = () => {
             Browse by Genre
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Filter catalog by theme and genre tags
+            Filter the anime catalog by genre and themes
           </p>
         </div>
         <Link
           to="/discover"
-          className="text-xs font-bold text-[#3db4f2] hover:text-[#00a8ff] flex items-center gap-1 transition"
+          className="text-xs font-bold text-[#818cf8] hover:text-[#c084fc] flex items-center gap-1 transition"
         >
           <span>All genres</span>
           <ArrowRight className="w-3.5 h-3.5" />
@@ -60,9 +60,9 @@ export const GenreGrid: React.FC = () => {
             <Link
               key={item.name}
               to={`/discover?genre=${encodeURIComponent(item.name)}`}
-              className="anilist-card p-3.5 flex items-center gap-3 group"
+              className="royal-card p-3.5 flex items-center gap-3 group"
             >
-              <div className="p-2 rounded-lg bg-[#0b1622] text-[#3db4f2] group-hover:bg-[#3db4f2] group-hover:text-white transition">
+              <div className="p-2 rounded-lg bg-[#080d1a] text-[#818cf8] group-hover:bg-gradient-to-br group-hover:from-[#6366f1] group-hover:to-[#a855f7] group-hover:text-white transition shadow-sm">
                 <Icon className="w-4 h-4" />
               </div>
               <span className="font-bold text-xs sm:text-sm text-slate-200 group-hover:text-white transition">

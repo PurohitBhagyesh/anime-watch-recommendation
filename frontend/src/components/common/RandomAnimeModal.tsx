@@ -46,7 +46,7 @@ export const RandomAnimeModal: React.FC<RandomAnimeModalProps> = ({ isOpen, onCl
         />
 
         {/* Modal Window */}
-        <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-2xl anilist-card-static border border-white/10 shadow-2xl z-10 space-y-5 animate-fadeIn">
+        <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-2xl royal-card-static border border-white/10 shadow-2xl z-10 space-y-5 animate-fadeIn">
           {/* Close button */}
           <button
             onClick={onClose}
@@ -57,15 +57,18 @@ export const RandomAnimeModal: React.FC<RandomAnimeModalProps> = ({ isOpen, onCl
 
           {/* Modal Header */}
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#3db4f2]/20 border border-[#3db4f2]/40 flex items-center justify-center text-[#3db4f2]">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6366f1]/20 to-[#c59b27]/20 border border-[#c59b27]/40 flex items-center justify-center text-[#e2b744]">
               <Dices className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white tracking-tight">
-                AniList Randomizer
+              <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                <span>Royal Fate Randomizer</span>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#c59b27]/15 border border-[#c59b27]/30 text-[#e2b744]">
+                  Dice
+                </span>
               </h2>
               <p className="text-xs text-slate-400">
-                Can't decide what to watch? Roll for a top-rated anime!
+                Can't decide what to watch? Let fate choose a masterpiece!
               </p>
             </div>
           </div>
@@ -73,38 +76,38 @@ export const RandomAnimeModal: React.FC<RandomAnimeModalProps> = ({ isOpen, onCl
           {/* Body content */}
           {!rolledAnime ? (
             <div className="py-8 text-center space-y-4">
-              <div className="w-20 h-20 mx-auto rounded-2xl bg-[#0f1824] border border-white/10 flex items-center justify-center text-[#3db4f2]">
-                <Sparkles className="w-10 h-10 animate-pulse text-[#3db4f2]" />
+              <div className="w-20 h-20 mx-auto rounded-2xl bg-[#090b14]/80 border border-white/10 flex items-center justify-center text-[#e2b744] shadow-inner">
+                <Sparkles className="w-10 h-10 animate-pulse text-[#e2b744]" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white">Ready to discover something new?</h3>
+                <h3 className="text-base font-bold text-white">Ready to discover something extraordinary?</h3>
                 <p className="text-xs text-slate-400 max-w-xs mx-auto mt-1">
-                  We'll pull a highly rated anime from the AniList community rankings.
+                  We'll summon a top-tier anime from the community rankings.
                 </p>
               </div>
 
               <button
                 onClick={handleRoll}
                 disabled={loading}
-                className="anilist-btn-primary px-6 py-2.5 text-sm inline-flex items-center gap-2 shadow-lg disabled:opacity-50"
+                className="royal-btn-gold px-6 py-2.5 text-sm inline-flex items-center gap-2 shadow-lg disabled:opacity-50 cursor-pointer"
               >
-                <Dices className={`w-4 h-4 ${loading ? 'animate-spin-dice' : ''}`} />
-                <span>{loading ? 'Rolling the dice...' : 'Roll Anime'}</span>
+                <Dices className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <span>{loading ? 'Consulting the stars...' : 'Roll Fate Anime'}</span>
               </button>
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="flex gap-4 p-3 rounded-xl bg-[#0f1824] border border-white/10">
+              <div className="flex gap-4 p-3.5 rounded-xl bg-[#090b14]/80 border border-white/10">
                 {/* Poster */}
-                <div className="w-24 aspect-[3/4] rounded-lg overflow-hidden flex-shrink-0 bg-[#0b1622] relative">
+                <div className="w-24 aspect-[3/4] rounded-lg overflow-hidden flex-shrink-0 bg-[#07090f] relative shadow-md">
                   <img
                     src={rolledAnime.coverImage.large || rolledAnime.coverImage.medium}
                     alt={title}
                     className="w-full h-full object-cover"
                   />
                   {rolledAnime.averageScore && (
-                    <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded text-[10px] font-bold score-pill-high">
-                      {rolledAnime.averageScore}%
+                    <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded text-[10px] font-bold score-pill-gold">
+                      ★ {rolledAnime.averageScore}%
                     </div>
                   )}
                 </div>
@@ -115,7 +118,7 @@ export const RandomAnimeModal: React.FC<RandomAnimeModalProps> = ({ isOpen, onCl
                     <h3 className="text-sm sm:text-base font-bold text-white line-clamp-2">
                       {title}
                     </h3>
-                    <p className="text-xs text-[#3db4f2] mt-0.5 font-medium">
+                    <p className="text-xs text-[#e2b744] mt-0.5 font-medium">
                       {rolledAnime.format?.replace('_', ' ')} · {rolledAnime.seasonYear || 'TBA'} · {rolledAnime.episodes ? `${rolledAnime.episodes} eps` : 'Airing'}
                     </p>
 
@@ -140,13 +143,13 @@ export const RandomAnimeModal: React.FC<RandomAnimeModalProps> = ({ isOpen, onCl
               </div>
 
               {/* Actions */}
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/10">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-white/10">
                 <button
                   onClick={handleRoll}
                   disabled={loading}
-                  className="anilist-btn-secondary px-3.5 py-2 text-xs flex items-center gap-1.5"
+                  className="royal-btn-secondary px-3.5 py-2 text-xs flex items-center gap-1.5"
                 >
-                  <Dices className={`w-3.5 h-3.5 ${loading ? 'animate-spin-dice' : ''}`} />
+                  <Dices className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
                   <span>{loading ? 'Rolling...' : 'Roll Again'}</span>
                 </button>
 
@@ -154,7 +157,7 @@ export const RandomAnimeModal: React.FC<RandomAnimeModalProps> = ({ isOpen, onCl
                   {rolledAnime.trailer?.id && (
                     <button
                       onClick={() => setTrailerOpen(true)}
-                      className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center gap-1.5 transition"
+                      className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
                     >
                       <Play className="w-3.5 h-3.5 fill-white" />
                       <span>Trailer</span>
@@ -167,20 +170,20 @@ export const RandomAnimeModal: React.FC<RandomAnimeModalProps> = ({ isOpen, onCl
                         addToWatchlist(rolledAnime, 'plan_to_watch');
                       }
                     }}
-                    className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                    className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
                       inWatchlist
                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                         : 'bg-white/10 hover:bg-white/15 text-white'
                     }`}
                   >
                     {inWatchlist ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                    <span>{inWatchlist ? 'Saved' : 'Save'}</span>
+                    <span>{inWatchlist ? 'In List' : 'Save'}</span>
                   </button>
 
                   <Link
                     to={`/anime/${rolledAnime.id}`}
                     onClick={onClose}
-                    className="anilist-btn-primary px-4 py-2 text-xs flex items-center gap-1.5"
+                    className="royal-btn-gold px-4 py-2 text-xs flex items-center gap-1.5"
                   >
                     <span>View Details</span>
                     <ArrowRight className="w-3.5 h-3.5" />

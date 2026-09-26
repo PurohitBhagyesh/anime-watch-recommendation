@@ -3,9 +3,9 @@ import { Shield, Lock, Eye, Database } from 'lucide-react';
 
 export const PrivacyPage: React.FC = () => {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 animate-fadeIn text-slate-300">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 animate-fadeIn text-slate-300">
       <div className="space-y-3 pb-6 border-b border-white/10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#3db4f2]/10 border border-[#3db4f2]/30 text-[#3db4f2] text-xs font-bold">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#c59b27]/10 border border-[#c59b27]/30 text-[#e2b744] text-xs font-bold">
           <Shield className="w-3.5 h-3.5" />
           <span>Privacy & Transparency</span>
         </div>
@@ -20,7 +20,7 @@ export const PrivacyPage: React.FC = () => {
       <div className="space-y-8 text-xs sm:text-sm leading-relaxed">
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Lock className="w-4 h-4 text-[#3db4f2]" />
+            <Lock className="w-4 h-4 text-[#e2b744]" />
             1. Overview & Data Ownership
           </h2>
           <p>
@@ -30,11 +30,11 @@ export const PrivacyPage: React.FC = () => {
 
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Database className="w-4 h-4 text-[#3db4f2]" />
+            <Database className="w-4 h-4 text-[#e2b744]" />
             2. Local Storage and Client-Side Data
           </h2>
           <p>
-            All watchlist data (including your watch status, custom episode progress, and personal ratings) is stored exclusively in your browser's local storage (<code className="px-1.5 py-0.5 rounded bg-[#0f1824] text-[#3db4f2] text-xs font-mono">localStorage</code>).
+            All watchlist data (including your watch status, custom episode progress, and personal ratings) is stored exclusively in your browser's local storage (<code className="px-1.5 py-0.5 rounded bg-[#090b14] text-[#e2b744] text-xs font-mono">localStorage</code>).
           </p>
           <ul className="list-disc list-inside space-y-1 text-slate-400 pl-2">
             <li>We do not sync or upload your list to any central tracking database.</li>
@@ -45,20 +45,20 @@ export const PrivacyPage: React.FC = () => {
 
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Eye className="w-4 h-4 text-[#3db4f2]" />
+            <Eye className="w-4 h-4 text-[#e2b744]" />
             3. Third-Party Services & API Queries
           </h2>
           <p>
             To provide live anime metadata, schedules, streaming links, and official trailers, the application connects to the following public endpoints:
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            <div className="p-4 rounded-xl anilist-card-static">
-              <h3 className="font-bold text-white text-xs uppercase tracking-wider mb-1 font-mono">AniList GraphQL API</h3>
+            <div className="p-4 rounded-xl royal-card-static">
+              <h3 className="font-bold text-white text-xs uppercase tracking-wider mb-1 font-mono text-[#e2b744]">AniList GraphQL API</h3>
               <p className="text-xs text-slate-400">Used to fetch titles, descriptions, character cast, voice actors, and verified streaming provider links.</p>
             </div>
-            <div className="p-4 rounded-xl anilist-card-static">
-              <h3 className="font-bold text-white text-xs uppercase tracking-wider mb-1 font-mono">YouTube Privacy-Enhanced Player</h3>
-              <p className="text-xs text-slate-400">Used with privacy-enhanced mode (<code className="text-[11px] font-mono text-[#3db4f2]">youtube-nocookie.com</code>) to display official trailers only when triggered by user click.</p>
+            <div className="p-4 rounded-xl royal-card-static">
+              <h3 className="font-bold text-white text-xs uppercase tracking-wider mb-1 font-mono text-[#e2b744]">YouTube Privacy-Enhanced Player</h3>
+              <p className="text-xs text-slate-400">Used with privacy-enhanced mode (<code className="text-[11px] font-mono text-[#e2b744]">youtube-nocookie.com</code>) to display official trailers only when triggered by user click.</p>
             </div>
           </div>
         </section>

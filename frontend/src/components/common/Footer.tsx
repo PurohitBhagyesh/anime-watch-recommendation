@@ -27,16 +27,16 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="mt-20 border-t border-white/[0.08] bg-[#070e17] text-slate-400 text-sm relative">
-      {/* Subtle top glowing line effect */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 max-w-4xl h-[1px] bg-gradient-to-r from-transparent via-[#3db4f2]/40 to-transparent" />
+    <footer className="mt-20 border-t border-white/[0.08] bg-[#050811] text-slate-400 text-sm relative">
+      {/* Top glowing royal accent line */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 max-w-4xl h-[1px] bg-gradient-to-r from-transparent via-[#6366f1]/50 to-transparent" />
 
       {/* Feature Highlights Strip */}
-      <div className="border-b border-white/[0.06] bg-[#09121d]/60">
-        <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-6">
+      <div className="border-b border-white/[0.06] bg-[#080d1a]/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 sm:p-2.5 rounded-xl bg-[#3db4f2]/10 border border-[#3db4f2]/20 text-[#3db4f2] flex-shrink-0">
+              <div className="p-2 sm:p-2.5 rounded-xl bg-indigo-500/15 border border-indigo-500/25 text-[#818cf8] flex-shrink-0">
                 <Zap className="w-4 h-4" />
               </div>
               <div>
@@ -46,7 +46,7 @@ export const Footer: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="p-2 sm:p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex-shrink-0">
+              <div className="p-2 sm:p-2.5 rounded-xl bg-purple-500/15 border border-purple-500/25 text-purple-400 flex-shrink-0">
                 <Bookmark className="w-4 h-4" />
               </div>
               <div>
@@ -56,7 +56,7 @@ export const Footer: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex-shrink-0">
+              <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 flex-shrink-0">
                 <Compass className="w-4 h-4" />
               </div>
               <div>
@@ -66,7 +66,7 @@ export const Footer: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="p-2 sm:p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex-shrink-0">
+              <div className="p-2 sm:p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/25 text-amber-400 flex-shrink-0">
                 <Shield className="w-4 h-4" />
               </div>
               <div>
@@ -79,7 +79,7 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* Main Footer Links & Directory */}
-      <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 pt-12 pb-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 mb-12">
           {/* Brand & Mission Column (Span 4) */}
           <div className="lg:col-span-4 space-y-4">
@@ -91,7 +91,7 @@ export const Footer: React.FC = () => {
             </p>
 
             {/* Live API Status indicator */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#101a28] border border-white/10 text-xs">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#0e1528] border border-white/10 text-xs">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -101,7 +101,7 @@ export const Footer: React.FC = () => {
                 href="https://anilist.co"
                 target="_blank"
                 rel="noreferrer"
-                className="text-[#3db4f2] hover:underline font-bold inline-flex items-center gap-1 transition"
+                className="text-[#818cf8] hover:underline font-bold inline-flex items-center gap-1 transition"
               >
                 AniList GraphQL API
                 <ExternalLink className="w-3 h-3" />
@@ -114,7 +114,7 @@ export const Footer: React.FC = () => {
                 href="https://github.com"
                 target="_blank"
                 rel="noreferrer"
-                className="p-2 rounded-lg bg-[#151f2e] hover:bg-[#1f2d42] text-slate-300 hover:text-white border border-white/10 transition flex items-center justify-center"
+                className="p-2 rounded-lg bg-[#0e1528] hover:bg-[#182544] text-slate-300 hover:text-white border border-white/10 transition flex items-center justify-center"
                 title="GitHub Repository"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -125,10 +125,10 @@ export const Footer: React.FC = () => {
                 href="https://anilist.co"
                 target="_blank"
                 rel="noreferrer"
-                className="px-2.5 py-1.5 rounded-lg bg-[#151f2e] hover:bg-[#1f2d42] text-slate-300 hover:text-[#3db4f2] border border-white/10 text-xs font-bold transition inline-flex items-center gap-1.5"
+                className="px-2.5 py-1.5 rounded-lg bg-[#0e1528] hover:bg-[#182544] text-slate-300 hover:text-[#818cf8] border border-white/10 text-xs font-bold transition inline-flex items-center gap-1.5"
                 title="AniList Official"
               >
-                <Activity className="w-3.5 h-3.5 text-[#3db4f2]" />
+                <Activity className="w-3.5 h-3.5 text-[#818cf8]" />
                 <span>AniList.co</span>
               </a>
             </div>
@@ -137,37 +137,37 @@ export const Footer: React.FC = () => {
           {/* Quick Navigation Column (Span 2) */}
           <div className="lg:col-span-2">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3.5 font-mono flex items-center gap-1.5">
-              <Compass className="w-3.5 h-3.5 text-[#3db4f2]" />
+              <Compass className="w-3.5 h-3.5 text-[#818cf8]" />
               <span>Explore</span>
             </h3>
             <ul className="space-y-2 text-xs font-medium">
               <li>
-                <Link to="/" className="hover:text-[#3db4f2] transition flex items-center gap-1.5">
+                <Link to="/" className="hover:text-[#818cf8] transition flex items-center gap-1.5">
                   Home / Spotlight
                 </Link>
               </li>
               <li>
-                <Link to="/discover" className="hover:text-[#3db4f2] transition flex items-center gap-1.5">
+                <Link to="/discover" className="hover:text-[#818cf8] transition flex items-center gap-1.5">
                   Browse Catalog
                 </Link>
               </li>
               <li>
-                <Link to="/discover?seasonal=true" className="hover:text-[#3db4f2] transition flex items-center gap-1.5">
+                <Link to="/discover?seasonal=true" className="hover:text-[#818cf8] transition flex items-center gap-1.5">
                   Seasonal Airing
                 </Link>
               </li>
               <li>
-                <Link to="/discover?sort=SCORE_DESC" className="hover:text-[#3db4f2] transition flex items-center gap-1.5">
-                  Top 100 Anime
+                <Link to="/discover?sort=SCORE_DESC" className="hover:text-[#818cf8] transition flex items-center gap-1.5">
+                  Top 100 Imperial
                 </Link>
               </li>
               <li>
-                <Link to="/discover?sort=TRENDING_DESC" className="hover:text-[#3db4f2] transition flex items-center gap-1.5">
+                <Link to="/discover?sort=TRENDING_DESC" className="hover:text-[#818cf8] transition flex items-center gap-1.5">
                   Trending Now
                 </Link>
               </li>
               <li>
-                <Link to="/discover?sort=POPULARITY_DESC" className="hover:text-[#3db4f2] transition flex items-center gap-1.5">
+                <Link to="/discover?sort=POPULARITY_DESC" className="hover:text-[#818cf8] transition flex items-center gap-1.5">
                   All Time Popular
                 </Link>
               </li>
@@ -177,22 +177,22 @@ export const Footer: React.FC = () => {
           {/* Formats & Library Column (Span 2) */}
           <div className="lg:col-span-2">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3.5 font-mono flex items-center gap-1.5">
-              <Bookmark className="w-3.5 h-3.5 text-[#3db4f2]" />
+              <Bookmark className="w-3.5 h-3.5 text-[#818cf8]" />
               <span>My Library</span>
             </h3>
             <ul className="space-y-2 text-xs font-medium mb-4">
               <li>
-                <Link to="/watchlist" className="hover:text-[#3db4f2] transition">
+                <Link to="/watchlist" className="hover:text-[#818cf8] transition">
                   My Anime List
                 </Link>
               </li>
               <li>
-                <Link to="/login" className="hover:text-[#3db4f2] transition">
+                <Link to="/login" className="hover:text-[#818cf8] transition">
                   User Sign In
                 </Link>
               </li>
               <li>
-                <Link to="/signup" className="hover:text-[#3db4f2] transition">
+                <Link to="/signup" className="hover:text-[#818cf8] transition">
                   Create Account
                 </Link>
               </li>
@@ -206,7 +206,7 @@ export const Footer: React.FC = () => {
                 to="/discover?format=TV"
                 className="flex items-center gap-1.5 text-slate-400 hover:text-slate-200 transition"
               >
-                <Tv className="w-3 h-3 text-[#3db4f2]" />
+                <Tv className="w-3 h-3 text-[#818cf8]" />
                 <span>TV Series</span>
               </Link>
               <Link
@@ -222,7 +222,7 @@ export const Footer: React.FC = () => {
           {/* Top Genres Column (Span 4) */}
           <div className="lg:col-span-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3.5 font-mono flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#3db4f2]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#818cf8]" />
               <span>Popular Genres</span>
             </h3>
             <div className="flex flex-wrap gap-1.5 mb-5">
@@ -230,7 +230,7 @@ export const Footer: React.FC = () => {
                 <Link
                   key={genre}
                   to={`/discover?genre=${encodeURIComponent(genre)}`}
-                  className="text-[11px] px-2.5 py-1 rounded-lg bg-[#151f2e] hover:bg-[#1f2d42] hover:border-[#3db4f2]/40 hover:text-white border border-white/[0.08] text-slate-300 transition font-medium shadow-sm"
+                  className="text-[11px] px-2.5 py-1 rounded-lg bg-[#0e1528] hover:bg-[#182544] hover:border-indigo-500/40 hover:text-white border border-white/[0.08] text-slate-300 transition font-medium shadow-sm"
                 >
                   {genre}
                 </Link>
@@ -241,11 +241,11 @@ export const Footer: React.FC = () => {
               Legal & Policy
             </h4>
             <div className="flex items-center gap-4 text-xs text-slate-400">
-              <Link to="/privacy" className="hover:text-[#3db4f2] transition">
+              <Link to="/privacy" className="hover:text-[#818cf8] transition">
                 Privacy Policy
               </Link>
               <span>·</span>
-              <Link to="/terms" className="hover:text-[#3db4f2] transition">
+              <Link to="/terms" className="hover:text-[#818cf8] transition">
                 Terms of Service
               </Link>
             </div>
@@ -265,11 +265,11 @@ export const Footer: React.FC = () => {
 
             <button
               onClick={scrollToTop}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#151f2e] hover:bg-[#1f2d42] text-slate-300 hover:text-white border border-white/10 transition text-xs font-semibold group"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0e1528] hover:bg-[#182544] text-slate-300 hover:text-white border border-white/10 transition text-xs font-semibold group"
               title="Scroll to top"
             >
               <span>Back to Top</span>
-              <ArrowUp className="w-3.5 h-3.5 text-[#3db4f2] group-hover:-translate-y-0.5 transition-transform" />
+              <ArrowUp className="w-3.5 h-3.5 text-[#818cf8] group-hover:-translate-y-0.5 transition-transform" />
             </button>
           </div>
         </div>
@@ -277,4 +277,3 @@ export const Footer: React.FC = () => {
     </footer>
   );
 };
-

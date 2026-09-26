@@ -132,6 +132,33 @@ docker compose -f database/docker-compose.yml up -d
 
 ---
 
+## 🚀 GitHub Pages Deployment
+
+Voltaku is configured to deploy directly to **GitHub Pages** with automated GitHub Actions CI/CD!
+
+### Option 1: Automatic Deployment with GitHub Actions (Recommended)
+1. Push your changes to the `main` branch on GitHub.
+2. In your GitHub repository, go to **Settings** → **Pages**.
+3. Under **Build and deployment** → **Source**, select **GitHub Actions**.
+4. The workflow in `.github/workflows/deploy.yml` will automatically build the frontend and deploy it to:
+   ```
+   https://<your-username>.github.io/anime-watch-recommendation/
+   ```
+
+### Option 2: Manual CLI Deployment
+You can deploy directly to the `gh-pages` branch using the `deploy` script:
+```bash
+# From the root directory:
+npm run deploy
+
+# Or from the frontend directory:
+cd frontend
+npm run deploy
+```
+Then under **Settings** → **Pages**, select **Deploy from a branch** and choose `gh-pages` branch / `root`.
+
+---
+
 ## 📡 API Endpoints Overview
 
 | Module | Method | Endpoint | Description | Auth Required |

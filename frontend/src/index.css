@@ -2,185 +2,247 @@
 
 @layer base {
   :root {
-    --font-heading: 'Overpass', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-body: 'Overpass', 'Roboto', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-heading: 'Overpass', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-body: 'Plus Jakarta Sans', 'Overpass', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
 
-    /* AniList signature color palette */
-    --color-bg-base: #0b1622;
-    --color-bg-card: #151f2e;
-    --color-bg-card-hover: #19273a;
-    --color-bg-elevated: #1f2d42;
-    --color-bg-nav: rgba(11, 22, 34, 0.92);
+    /* Royal Imperial Color Palette */
+    --color-royal-bg-darkest: #050811;
+    --color-royal-bg-base: #080d1a;
+    --color-royal-bg-card: #0e1528;
+    --color-royal-bg-card-hover: #141f38;
+    --color-royal-bg-elevated: #182544;
+    --color-royal-bg-nav: rgba(8, 13, 26, 0.88);
 
-    --color-primary: #3db4f2;
-    --color-primary-hover: #00a8ff;
-    --color-primary-dark: #2695d6;
+    /* Accents */
+    --color-royal-indigo: #6366f1;
+    --color-royal-indigo-dark: #4f46e5;
+    --color-royal-amethyst: #9333ea;
+    --color-royal-purple: #a855f7;
+    --color-royal-gold: #f59e0b;
+    --color-royal-gold-light: #fbbf24;
+    --color-royal-sapphire: #38bdf8;
+    --color-royal-azure: #3db4f2;
 
-    --color-text-primary: #edf1f5;
-    --color-text-secondary: #9fadbd;
-    --color-text-muted: #647384;
+    /* Text */
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #cbd5e1;
+    --color-text-muted: #8493a8;
 
-    --color-score-high: #48bb78;
-    --color-score-med: #f6ad55;
-    --color-score-low: #e85d75;
+    /* Scores */
+    --color-score-high: #10b981;
+    --color-score-med: #f59e0b;
+    --color-score-low: #f43f5e;
   }
 
   body {
     font-family: var(--font-body);
-    background-color: #0b1622;
-    color: #9fadbd;
+    background-color: var(--color-royal-bg-darkest);
+    color: var(--color-text-secondary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-image: 
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.12), transparent),
+      radial-gradient(ellipse 60% 40% at 85% 10%, rgba(147, 51, 234, 0.08), transparent),
+      radial-gradient(ellipse 50% 30% at 15% 30%, rgba(245, 158, 11, 0.04), transparent);
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    color: #edf1f5;
+    color: var(--color-text-primary);
     font-weight: 800;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
   }
 }
 
-/* AniList Navigation Bar */
-.anilist-nav {
-  background: rgba(11, 22, 34, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+/* Royal Navigation Bar */
+.anilist-nav, .royal-nav {
+  background: rgba(8, 13, 26, 0.85);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.45);
 }
 
-.anilist-tabbar {
-  background: rgba(11, 22, 34, 0.96);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+.anilist-tabbar, .royal-tabbar {
+  background: rgba(8, 13, 26, 0.92);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-bottom: max(env(safe-area-inset-bottom), 8px);
 }
 
-/* AniList Surfaces & Cards */
-.anilist-card {
-  background: #151f2e;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+/* Royal Glass Surfaces & Cards */
+.anilist-card, .royal-card {
+  background: rgba(14, 21, 40, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.anilist-card:hover, .royal-card:hover {
+  background: rgba(20, 31, 56, 0.85);
+  border-color: rgba(99, 102, 241, 0.45);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.65), 0 0 24px rgba(99, 102, 241, 0.22);
+}
+
+.anilist-card-static, .royal-card-static {
+  background: rgba(14, 21, 40, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.anilist-surface-elevated, .royal-surface-elevated {
+  background: rgba(24, 37, 68, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Royal Luxury Buttons */
+.anilist-btn-primary, .royal-btn-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #3b82f6 100%);
+  color: #ffffff;
   border-radius: 10px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
-  transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+  font-weight: 700;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.anilist-card:hover {
-  background: #182538;
-  border-color: rgba(61, 180, 242, 0.35);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5), 0 0 20px rgba(61, 180, 242, 0.12);
+.anilist-btn-primary:hover, .royal-btn-primary:hover {
+  background: linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #38bdf8 100%);
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px) scale(1.01);
 }
 
-.anilist-card-static {
-  background: #151f2e;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
+.anilist-btn-secondary, .royal-btn-secondary {
+  background: rgba(14, 21, 40, 0.75);
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-weight: 600;
+  backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+}
+
+.anilist-btn-secondary:hover, .royal-btn-secondary:hover {
+  background: rgba(24, 37, 68, 0.9);
+  border-color: rgba(99, 102, 241, 0.45);
+  color: #818cf8;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-.anilist-surface-elevated {
-  background: #19273a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.royal-btn-gold {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  color: #070b14;
+  border-radius: 10px;
+  font-weight: 800;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
 }
 
-/* AniList Buttons */
-.anilist-btn-primary {
-  background: #3db4f2;
-  color: #ffffff;
-  border-radius: 8px;
-  font-weight: 700;
-  transition: all 0.18s ease;
-  box-shadow: 0 2px 10px rgba(61, 180, 242, 0.35);
+.royal-btn-gold:hover {
+  background: linear-gradient(135deg, #fde68a 0%, #fbbf24 50%, #f59e0b 100%);
+  box-shadow: 0 6px 24px rgba(245, 158, 11, 0.55);
+  transform: translateY(-1px);
 }
 
-.anilist-btn-primary:hover {
-  background: #00a8ff;
-  box-shadow: 0 4px 16px rgba(61, 180, 242, 0.55);
-  transform: scale(1.02);
-}
-
-.anilist-btn-secondary {
-  background: #151f2e;
-  color: #edf1f5;
+/* Royal Inputs */
+.anilist-input, .royal-input {
+  background: rgba(10, 16, 32, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.18s ease;
+  border-radius: 10px;
+  color: #f8fafc;
+  transition: all 0.2s ease;
 }
 
-.anilist-btn-secondary:hover {
-  background: #1c2b40;
-  border-color: rgba(61, 180, 242, 0.4);
-  color: #3db4f2;
-}
-
-/* AniList Inputs */
-.anilist-input {
-  background: #0f1824;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 8px;
-  color: #edf1f5;
-  transition: all 0.18s ease;
-}
-
-.anilist-input:focus {
-  background: #152233;
-  border-color: #3db4f2;
+.anilist-input:focus, .royal-input:focus {
+  background: rgba(15, 24, 48, 0.95);
+  border-color: #6366f1;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(61, 180, 242, 0.22);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25), 0 0 18px rgba(99, 102, 241, 0.2);
 }
 
 /* Score Pills */
 .score-pill-high {
-  background: rgba(72, 187, 120, 0.15);
-  color: #48bb78;
-  border: 1px solid rgba(72, 187, 120, 0.3);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.12));
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+}
+
+.score-pill-gold {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.14));
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.2);
 }
 
 .score-pill-med {
-  background: rgba(246, 173, 85, 0.15);
-  color: #f6ad55;
-  border: 1px solid rgba(246, 173, 85, 0.3);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.1));
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .score-pill-low {
-  background: rgba(232, 93, 117, 0.15);
-  color: #e85d75;
-  border: 1px solid rgba(232, 93, 117, 0.3);
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.18), rgba(225, 29, 72, 0.1));
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.3);
 }
 
-/* AniList Table Styling */
+/* Royal Gradient Text */
+.text-royal-gradient {
+  background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 40%, #818cf8 70%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #fef08a 0%, #fbbf24 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Table Rows */
 .anilist-table-row {
-  background: #151f2e;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  transition: all 0.15s ease;
+  background: rgba(14, 21, 40, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.18s ease;
 }
 
 .anilist-table-row:hover {
-  background: #19273a;
-  border-color: rgba(61, 180, 242, 0.25);
-  transform: translateX(2px);
+  background: rgba(24, 37, 68, 0.85);
+  border-color: rgba(99, 102, 241, 0.35);
+  transform: translateX(3px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Custom Minimalist Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0b1622;
+  background: #050811;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1f2d42;
+  background: #182544;
   border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3db4f2;
+  background: #6366f1;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -202,16 +264,16 @@
 }
 
 .shimmer-loading {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02) 25%, rgba(255, 255, 255, 0.07) 50%, rgba(255, 255, 255, 0.02) 75%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02) 25%, rgba(99, 102, 241, 0.08) 50%, rgba(255, 255, 255, 0.02) 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 1.6s infinite;
 }
 
 /* Fade in Animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -220,10 +282,10 @@
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Dice roll keyframe */
+/* Dice roll animation */
 @keyframes diceSpin {
   0% { transform: rotate(0deg) scale(1); }
   50% { transform: rotate(180deg) scale(1.2); }

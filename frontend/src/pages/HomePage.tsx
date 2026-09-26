@@ -7,6 +7,7 @@ import {
   RefreshCw,
   AlertTriangle,
   Flame,
+  Crown,
 } from 'lucide-react';
 import { fetchHomeData, getCurrentSeason } from '../api/anilist';
 import type { HomeSectionsData } from '../api/anilist';
@@ -44,10 +45,10 @@ export const HomePage: React.FC = () => {
     return (
       <div className="w-full pb-20 space-y-10">
         <HeroSkeleton />
-        <div className="space-y-4 px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
-          <div className="h-6 bg-[#151f2e] rounded w-40 shimmer-loading" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-3 sm:gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+          <div className="h-6 bg-[#0e1528] rounded-md w-40 shimmer-loading" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
               <CardSkeleton key={i} />
             ))}
           </div>
@@ -58,13 +59,13 @@ export const HomePage: React.FC = () => {
 
   if (error || !data) {
     return (
-      <div className="max-w-md mx-auto my-20 p-6 rounded-2xl anilist-card-static text-center space-y-3">
+      <div className="max-w-md mx-auto my-20 p-6 rounded-2xl royal-card-static text-center space-y-3">
         <AlertTriangle className="w-10 h-10 text-rose-500 mx-auto" />
         <h2 className="text-lg font-bold text-white">Connection Error</h2>
         <p className="text-xs text-slate-400">{error || 'Unable to connect to AniList API.'}</p>
         <button
           onClick={loadData}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg anilist-btn-primary text-xs font-semibold"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg royal-btn-primary text-xs font-semibold"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Retry Connection</span>
@@ -76,30 +77,30 @@ export const HomePage: React.FC = () => {
   const quickCategories = [
     { label: 'Trending', anchor: '#trending', icon: Flame },
     { label: `${season} ${year}`, anchor: '#seasonal', icon: PlaySquare },
-    { label: 'Top 100', anchor: '#top100', icon: Trophy },
-    { label: 'Popular', anchor: '#popular', icon: TrendingUp },
-    { label: 'Upcoming', anchor: '#upcoming', icon: Clock },
+    { label: 'Top 100 Imperial', anchor: '#top100', icon: Crown },
+    { label: 'All-Time Popular', anchor: '#popular', icon: TrendingUp },
+    { label: 'Upcoming Releases', anchor: '#upcoming', icon: Clock },
   ];
 
   return (
     <div className="w-full pb-20 animate-fadeIn">
-      {/* Interactive Hero Spotlight Slider stretching till the Nav Bar */}
+      {/* Interactive Hero Spotlight Slider */}
       <HeroBanner animeList={data.spotlights} anime={data.spotlight} />
 
-      {/* Main Body Sections */}
-      <div className="space-y-12 sm:space-y-16 w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 pt-8">
+      {/* Main Body Sections with centered container alignment */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16 pt-8">
         {/* Quick Jump Category Bar */}
         <div className="pt-2 pb-2">
-          <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
+          <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 no-scrollbar">
             {quickCategories.map((cat) => {
               const Icon = cat.icon;
               return (
                 <a
                   key={cat.label}
                   href={cat.anchor}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap anilist-card hover:border-[#3db4f2]/40 hover:text-[#3db4f2] text-slate-300 transition-all shadow-sm"
+                  className="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap royal-card hover:border-[#6366f1]/50 hover:text-[#818cf8] text-slate-300 transition-all shadow-sm"
                 >
-                  <Icon className="w-3.5 h-3.5 text-[#3db4f2]" />
+                  <Icon className="w-3.5 h-3.5 text-[#6366f1]" />
                   <span>{cat.label}</span>
                 </a>
               );
@@ -111,7 +112,7 @@ export const HomePage: React.FC = () => {
         <div id="trending" className="scroll-mt-24">
           <CarouselRow
             title="Trending Now"
-            subtitle="Top active and discussed titles in the community"
+            subtitle="Top active and discussed anime in the global community"
             icon={Flame}
             animes={data.trending}
             viewAllLink="/discover?sort=TRENDING_DESC"
@@ -129,14 +130,14 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        {/* Visual Genre Cards */}
+        {/* Visual Genre Explorer */}
         <GenreGrid />
 
-        {/* Top 100 Highest Rated */}
+        {/* Top 100 Imperial Ratings */}
         <div id="top100" className="scroll-mt-20">
           <CarouselRow
-            title="Top 100 Anime"
-            subtitle="Highest community score of all time"
+            title="Top 100 Imperial Masterpieces"
+            subtitle="Highest rated anime of all time"
             icon={Trophy}
             animes={data.topRated}
             viewAllLink="/discover?sort=SCORE_DESC"
@@ -146,8 +147,8 @@ export const HomePage: React.FC = () => {
         {/* All Time Popular */}
         <div id="popular" className="scroll-mt-20">
           <CarouselRow
-            title="All Time Popular"
-            subtitle="Anime with the largest global follower counts"
+            title="All-Time Global Favorites"
+            subtitle="Anime with the largest international follower base"
             icon={TrendingUp}
             animes={data.popularAllTime}
             viewAllLink="/discover?sort=POPULARITY_DESC"

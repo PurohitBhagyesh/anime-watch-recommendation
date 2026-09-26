@@ -10,7 +10,6 @@ import {
   Minus,
   CheckCircle2,
   Clock,
-  Heart,
   Compass,
   Repeat,
   PauseCircle,
@@ -47,7 +46,6 @@ export const WatchlistPage: React.FC = () => {
     { id: 'rewatching', label: 'Rewatching', icon: Repeat },
     { id: 'paused', label: 'Paused', icon: PauseCircle },
     { id: 'dropped', label: 'Dropped', icon: XCircle },
-    { id: 'favorite', label: 'Favorites', icon: Heart },
   ];
 
   const filteredItems = watchlist.filter((item) => {
@@ -55,7 +53,7 @@ export const WatchlistPage: React.FC = () => {
     return item.status === filterStatus;
   });
 
-  // Calculate detailed AniList stats
+  // Calculate detailed stats
   const totalAnime = watchlist.length;
   const watchingCount = watchlist.filter((i) => i.status === 'watching').length;
   const completedCount = watchlist.filter((i) => i.status === 'completed').length;
@@ -123,13 +121,14 @@ export const WatchlistPage: React.FC = () => {
 
   const getScoreBadgeClass = (score: number | null | undefined) => {
     if (!score) return '';
-    if (score >= 75) return 'score-pill-high';
+    if (score >= 80) return 'score-pill-gold';
+    if (score >= 70) return 'score-pill-high';
     if (score >= 60) return 'score-pill-med';
     return 'score-pill-low';
   };
 
   return (
-    <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-8 space-y-6 animate-fadeIn">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fadeIn">
       {/* Header & Actions */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -144,12 +143,12 @@ export const WatchlistPage: React.FC = () => {
         {/* View Mode Toggle & Export/Import actions */}
         <div className="flex flex-wrap items-center gap-2">
           {/* View Mode Toggle */}
-          <div className="flex items-center p-1 rounded-xl bg-[#151f2e] border border-white/10 mr-1">
+          <div className="flex items-center p-1 rounded-xl bg-[#0e1528] border border-white/10 mr-1">
             <button
               onClick={() => setViewMode('table')}
               className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
                 viewMode === 'table'
-                  ? 'bg-[#3db4f2] text-white'
+                  ? 'bg-[#6366f1] text-white shadow-sm'
                   : 'text-slate-400 hover:text-white'
               }`}
               title="Table View"
@@ -160,7 +159,7 @@ export const WatchlistPage: React.FC = () => {
               onClick={() => setViewMode('grid')}
               className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
                 viewMode === 'grid'
-                  ? 'bg-[#3db4f2] text-white'
+                  ? 'bg-[#6366f1] text-white shadow-sm'
                   : 'text-slate-400 hover:text-white'
               }`}
               title="Grid View"
@@ -178,17 +177,17 @@ export const WatchlistPage: React.FC = () => {
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="anilist-btn-secondary flex items-center gap-1.5 px-3 py-2 text-xs font-bold"
+            className="royal-btn-secondary flex items-center gap-1.5 px-3 py-2 text-xs font-bold"
             title="Import JSON backup"
           >
-            <Upload className="w-3.5 h-3.5 text-[#3db4f2]" />
+            <Upload className="w-3.5 h-3.5 text-[#818cf8]" />
             <span>Import</span>
           </button>
 
           <button
             onClick={exportWatchlist}
             disabled={watchlist.length === 0}
-            className="anilist-btn-secondary flex items-center gap-1.5 px-3 py-2 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold"
+            className="royal-btn-secondary flex items-center gap-1.5 px-3 py-2 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold"
             title="Export JSON backup"
           >
             <Download className="w-3.5 h-3.5 text-slate-300" />
@@ -206,7 +205,7 @@ export const WatchlistPage: React.FC = () => {
                   clearWatchlist();
                 }
               }}
-              className="p-2 rounded-lg bg-[#151f2e] hover:bg-rose-950/60 text-slate-400 hover:text-rose-400 border border-white/10 transition"
+              className="p-2 rounded-lg bg-[#0e1528] hover:bg-rose-950/60 text-slate-400 hover:text-rose-400 border border-white/10 transition"
               title="Clear all"
             >
               <Trash2 className="w-4 h-4" />
@@ -216,14 +215,14 @@ export const WatchlistPage: React.FC = () => {
       </div>
 
       {importMessage && (
-        <div className="p-3 rounded-xl bg-[#3db4f2]/15 border border-[#3db4f2]/40 text-[#3db4f2] text-xs font-bold animate-fadeIn">
+        <div className="p-3 rounded-xl bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-xs font-bold animate-fadeIn">
           {importMessage}
         </div>
       )}
 
-      {/* AniList Profile Stats Summary Grid */}
+      {/* Stats Summary Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-4 rounded-xl anilist-card-static">
+        <div className="p-4 rounded-xl royal-card-static">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
             Total Anime
           </span>
@@ -235,11 +234,11 @@ export const WatchlistPage: React.FC = () => {
           </span>
         </div>
 
-        <div className="p-4 rounded-xl anilist-card-static">
+        <div className="p-4 rounded-xl royal-card-static">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
             Days Watched
           </span>
-          <p className="text-xl sm:text-2xl font-black text-[#3db4f2] mt-1">
+          <p className="text-xl sm:text-2xl font-black text-[#818cf8] mt-1">
             {daysWatched} <span className="text-xs font-normal text-slate-400">days</span>
           </p>
           <span className="text-[10px] text-slate-400">
@@ -247,7 +246,7 @@ export const WatchlistPage: React.FC = () => {
           </span>
         </div>
 
-        <div className="p-4 rounded-xl anilist-card-static">
+        <div className="p-4 rounded-xl royal-card-static">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
             Mean Score
           </span>
@@ -259,7 +258,7 @@ export const WatchlistPage: React.FC = () => {
           </span>
         </div>
 
-        <div className="p-4 rounded-xl anilist-card-static">
+        <div className="p-4 rounded-xl royal-card-static">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
             Currently Watching
           </span>
@@ -274,10 +273,10 @@ export const WatchlistPage: React.FC = () => {
       {ratedItems.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* Score distribution bars */}
-          <div className="p-4 rounded-xl anilist-card-static space-y-2">
+          <div className="p-4 rounded-xl royal-card-static space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase text-slate-300 font-mono flex items-center gap-1.5">
-                <BarChart3 className="w-3.5 h-3.5 text-[#3db4f2]" /> Score Distribution
+                <BarChart3 className="w-3.5 h-3.5 text-[#818cf8]" /> Score Distribution
               </span>
               <span className="text-[10px] text-slate-400">Scores 1-10</span>
             </div>
@@ -289,7 +288,7 @@ export const WatchlistPage: React.FC = () => {
                   <div key={score} className="flex-1 flex flex-col items-center gap-1 h-full justify-end group relative">
                     <div
                       className={`w-full rounded-t transition-all ${
-                        count > 0 ? 'bg-[#3db4f2] group-hover:bg-[#00a8ff]' : 'bg-white/5'
+                        count > 0 ? 'bg-[#6366f1] group-hover:bg-[#818cf8]' : 'bg-white/5'
                       }`}
                       style={{ height: `${heightPercent}%` }}
                       title={`Score ${score}: ${count} anime`}
@@ -303,7 +302,7 @@ export const WatchlistPage: React.FC = () => {
 
           {/* Top Genres Breakdown */}
           {genreBreakdown.length > 0 && (
-            <div className="p-4 rounded-xl anilist-card-static space-y-2">
+            <div className="p-4 rounded-xl royal-card-static space-y-2">
               <span className="text-xs font-bold uppercase text-slate-300 font-mono flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Top List Genres
               </span>
@@ -311,10 +310,10 @@ export const WatchlistPage: React.FC = () => {
                 {genreBreakdown.map(([genre, count]) => (
                   <div
                     key={genre}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0f1824] border border-white/10 text-xs"
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#080d1a] border border-white/10 text-xs"
                   >
                     <span className="font-semibold text-slate-200">{genre}</span>
-                    <span className="text-[10px] font-mono text-[#3db4f2] px-1 py-0.2 rounded bg-[#3db4f2]/10 font-bold">
+                    <span className="text-[10px] font-mono text-[#818cf8] px-1.5 py-0.2 rounded bg-indigo-500/15 font-bold">
                       {count}
                     </span>
                   </div>
@@ -341,8 +340,8 @@ export const WatchlistPage: React.FC = () => {
               onClick={() => setFilterStatus(tab.id)}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition ${
                 isActive
-                  ? 'anilist-btn-primary'
-                  : 'bg-[#151f2e] hover:bg-[#1f2d42] text-slate-300 border border-white/10'
+                  ? 'royal-btn-primary'
+                  : 'bg-[#0e1528] hover:bg-[#182544] text-slate-300 border border-white/10'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -358,7 +357,7 @@ export const WatchlistPage: React.FC = () => {
       {/* Watchlist Content (Table or Grid View) */}
       {filteredItems.length > 0 ? (
         viewMode === 'table' ? (
-          /* AniList Table View */
+          /* Table View */
           <div className="space-y-2">
             <div className="hidden sm:grid grid-cols-12 gap-3 px-4 py-2 text-[10px] uppercase font-bold text-slate-400 font-mono">
               <span className="col-span-6">Anime Title</span>
@@ -382,7 +381,7 @@ export const WatchlistPage: React.FC = () => {
                   <div className="flex items-center gap-3 w-full sm:col-span-6 min-w-0">
                     <Link
                       to={`/anime/${anime.id}`}
-                      className="w-12 aspect-[3/4] rounded-lg overflow-hidden flex-shrink-0 bg-[#0b1622]"
+                      className="w-12 aspect-[3/4] rounded-lg overflow-hidden flex-shrink-0 bg-[#080d1a]"
                     >
                       <img
                         src={anime.coverImage.medium || anime.coverImage.large}
@@ -394,7 +393,7 @@ export const WatchlistPage: React.FC = () => {
                     <div className="min-w-0 flex-1">
                       <Link
                         to={`/anime/${anime.id}`}
-                        className="font-bold text-xs sm:text-sm text-slate-100 hover:text-[#3db4f2] truncate block"
+                        className="font-bold text-xs sm:text-sm text-slate-100 hover:text-[#818cf8] truncate block"
                         title={title}
                       >
                         {title}
@@ -411,7 +410,7 @@ export const WatchlistPage: React.FC = () => {
                     <select
                       value={item.userRating || 0}
                       onChange={(e) => updateRating(anime.id, Number(e.target.value))}
-                      className="anilist-input text-xs px-2 py-1 font-bold text-[#3db4f2]"
+                      className="anilist-input text-xs px-2 py-1 font-bold text-[#fbbf24]"
                     >
                       <option value="0">Unrated</option>
                       {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
@@ -431,12 +430,12 @@ export const WatchlistPage: React.FC = () => {
                           Math.max(0, (item.currentEpisode || 0) - 1)
                         )
                       }
-                      className="p-1 rounded-md bg-[#0f1824] hover:bg-[#19273a] text-slate-200 border border-white/10"
+                      className="p-1 rounded-md bg-[#080d1a] hover:bg-[#141f38] text-slate-200 border border-white/10"
                       title="Decrement"
                     >
                       <Minus className="w-3 h-3" />
                     </button>
-                    <span className="font-mono font-bold text-[#3db4f2] min-w-[3rem] text-center text-xs">
+                    <span className="font-mono font-bold text-[#818cf8] min-w-[3rem] text-center text-xs">
                       {item.currentEpisode || 0} / {anime.episodes || '??'}
                     </span>
                     <button
@@ -446,7 +445,7 @@ export const WatchlistPage: React.FC = () => {
                           Math.min(maxEpisodes, (item.currentEpisode || 0) + 1)
                         )
                       }
-                      className="p-1 rounded-md bg-[#0f1824] hover:bg-[#19273a] text-slate-200 border border-white/10"
+                      className="p-1 rounded-md bg-[#080d1a] hover:bg-[#141f38] text-slate-200 border border-white/10"
                       title="Increment"
                     >
                       <Plus className="w-3 h-3" />
@@ -484,7 +483,7 @@ export const WatchlistPage: React.FC = () => {
           </div>
         ) : (
           /* Grid View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
             {filteredItems.map((item) => {
               const anime = item.anime;
               const title =
@@ -494,12 +493,12 @@ export const WatchlistPage: React.FC = () => {
               return (
                 <div
                   key={anime.id}
-                  className="flex gap-3 p-3 rounded-xl anilist-card-static group"
+                  className="flex gap-3 p-3 rounded-xl royal-card-static group"
                 >
                   {/* Poster */}
                   <Link
                     to={`/anime/${anime.id}`}
-                    className="w-20 sm:w-24 aspect-[3/4] rounded-lg overflow-hidden bg-[#0b1622] flex-shrink-0 block relative"
+                    className="w-20 sm:w-24 aspect-[3/4] rounded-lg overflow-hidden bg-[#080d1a] flex-shrink-0 block relative"
                   >
                     <img
                       src={anime.coverImage.large || anime.coverImage.medium}
@@ -522,7 +521,7 @@ export const WatchlistPage: React.FC = () => {
                     <div>
                       <Link
                         to={`/anime/${anime.id}`}
-                        className="font-bold text-xs sm:text-sm text-slate-100 group-hover:text-[#3db4f2] line-clamp-1 transition"
+                        className="font-bold text-xs sm:text-sm text-slate-100 group-hover:text-[#818cf8] line-clamp-1 transition"
                         title={title}
                       >
                         {title}
@@ -569,12 +568,12 @@ export const WatchlistPage: React.FC = () => {
                               Math.max(0, (item.currentEpisode || 0) - 1)
                             )
                           }
-                          className="p-1 rounded bg-[#0f1824] hover:bg-[#19273a] text-slate-200 border border-white/10"
+                          className="p-1 rounded bg-[#080d1a] hover:bg-[#141f38] text-slate-200 border border-white/10"
                           title="Decrement"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="font-mono font-bold text-[#3db4f2] min-w-[2.5rem] text-center text-xs">
+                        <span className="font-mono font-bold text-[#818cf8] min-w-[2.5rem] text-center text-xs">
                           {item.currentEpisode || 0} / {anime.episodes || '??'}
                         </span>
                         <button
@@ -584,7 +583,7 @@ export const WatchlistPage: React.FC = () => {
                               Math.min(maxEpisodes, (item.currentEpisode || 0) + 1)
                             )
                           }
-                          className="p-1 rounded bg-[#0f1824] hover:bg-[#19273a] text-slate-200 border border-white/10"
+                          className="p-1 rounded bg-[#080d1a] hover:bg-[#141f38] text-slate-200 border border-white/10"
                           title="Increment"
                         >
                           <Plus className="w-3 h-3" />
@@ -598,7 +597,7 @@ export const WatchlistPage: React.FC = () => {
                       <select
                         value={item.userRating || 0}
                         onChange={(e) => updateRating(anime.id, Number(e.target.value))}
-                        className="anilist-input text-xs px-1.5 py-0.5 font-bold text-[#3db4f2]"
+                        className="anilist-input text-xs px-1.5 py-0.5 font-bold text-[#fbbf24]"
                       >
                         <option value="0">Unrated</option>
                         {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
@@ -615,7 +614,7 @@ export const WatchlistPage: React.FC = () => {
           </div>
         )
       ) : (
-        <div className="p-12 rounded-2xl anilist-card-static text-center space-y-3">
+        <div className="p-12 rounded-2xl royal-card-static text-center space-y-3">
           <Bookmark className="w-10 h-10 text-slate-600 mx-auto" />
           <h3 className="text-base font-bold text-white">List is empty</h3>
           <p className="text-xs text-slate-400 max-w-sm mx-auto">
@@ -625,7 +624,7 @@ export const WatchlistPage: React.FC = () => {
           </p>
           <Link
             to="/discover"
-            className="anilist-btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold"
+            className="royal-btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold"
           >
             <Compass className="w-4 h-4" />
             <span>Discover Anime</span>

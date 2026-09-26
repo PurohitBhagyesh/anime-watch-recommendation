@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Voltaku • Redirecting...</title>
+    <script>
+      // Single Page Apps for GitHub Pages
+      // Redirects non-hash URLs to hash URLs for seamless SPA navigation
+      (function() {
+        var path = window.location.pathname;
+        var search = window.location.search || '';
+        var hash = window.location.hash || '';
+
+        // Extract repository subdirectory if hosted under github.io/<repo>/
+        var segments = path.split('/').filter(Boolean);
+        var repoName = segments.length > 0 ? '/' + segments[0] : '';
+        var remainingPath = segments.length > 1 ? '/' + segments.slice(1).join('/') : '';
+
+        var redirectUrl = window.location.origin + repoName + '/#' + remainingPath + search + hash;
+        window.location.replace(redirectUrl);
+      })();
+    </script>
+  </head>
+  <body style="background-color: #0b1622; color: #bcbedc; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+    <p>Redirecting to Voltaku...</p>
+  </body>
+</html>

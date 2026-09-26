@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, Plus, Calendar, Tv, Clock } from 'lucide-react';
+import { Check, Plus, Calendar, Tv, Clock, Crown } from 'lucide-react';
 import type { AnimeCardData, WatchlistStatus } from '../../api/types';
 import { useWatchlist } from '../../context/WatchlistContext';
 
@@ -19,7 +19,8 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
 
   const getScoreBadgeClass = (score: number | null) => {
     if (!score) return '';
-    if (score >= 75) return 'score-pill-high';
+    if (score >= 80) return 'score-pill-gold';
+    if (score >= 70) return 'score-pill-high';
     if (score >= 60) return 'score-pill-med';
     return 'score-pill-low';
   };
@@ -43,11 +44,11 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
   };
 
   return (
-    <div className="group relative flex flex-col anilist-card overflow-hidden">
+    <div className="group relative flex flex-col anilist-card overflow-hidden h-full">
       {/* Poster Image Container */}
       <Link
         to={`/anime/${anime.id}`}
-        className="relative aspect-[3/4] w-full overflow-hidden bg-[#09111c] block"
+        className="relative aspect-[3/4] w-full overflow-hidden bg-[#070b14] block"
       >
         <img
           src={anime.coverImage.extraLarge || anime.coverImage.large}
@@ -56,13 +57,13 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
         />
 
-        {/* Gradient shadow overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0b1622] via-transparent to-transparent opacity-80" />
+        {/* Subtle royal gradient shadow */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080d1a] via-transparent to-transparent opacity-80" />
 
         {/* Top Badges */}
         <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none z-10">
           {anime.format ? (
-            <div className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#0b1622]/80 text-slate-300 backdrop-blur-md border border-white/10 uppercase tracking-tight">
+            <div className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#080d1a]/85 text-slate-300 backdrop-blur-md border border-white/10 uppercase tracking-tight">
               {anime.format.replace('_', ' ')}
             </div>
           ) : (
@@ -71,10 +72,11 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
 
           {anime.averageScore ? (
             <div
-              className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-extrabold backdrop-blur-md shadow-md ${getScoreBadgeClass(
+              className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-extrabold backdrop-blur-md shadow-md ${getScoreBadgeClass(
                 anime.averageScore
               )}`}
             >
+              {anime.averageScore >= 80 && <Crown className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />}
               <span>{anime.averageScore}%</span>
             </div>
           ) : null}
@@ -83,7 +85,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
         {/* Next Airing Episode Banner */}
         {anime.nextAiringEpisode && (
           <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 text-[10px] font-bold backdrop-blur-md">
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-950/85 border border-emerald-500/40 text-emerald-400 text-[10px] font-bold backdrop-blur-md">
               <Clock className="w-2.5 h-2.5" />
               <span>
                 Ep {anime.nextAiringEpisode.episode} in{' '}
@@ -104,10 +106,10 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
               }}
               className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center backdrop-blur-xl transition-all shadow-lg ${
                 inWatchlist
-                  ? 'bg-[#3db4f2] text-white'
-                  : 'bg-[#0b1622]/80 text-slate-300 hover:text-white hover:bg-[#3db4f2] border border-white/15'
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-emerald-500/25'
+                  : 'bg-[#080d1a]/80 text-slate-300 hover:text-white hover:bg-[#6366f1] border border-white/15'
               }`}
-              title={inWatchlist ? `In List (${currentItem?.status})` : 'Add to AniList'}
+              title={inWatchlist ? `In List (${currentItem?.status})` : 'Add to Watchlist'}
             >
               {inWatchlist ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
             </button>
@@ -138,7 +140,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
                       }}
                       className={`w-full text-left px-2.5 py-1.5 text-xs rounded-lg flex items-center justify-between font-semibold transition ${
                         currentItem?.status === st.id
-                          ? 'bg-[#3db4f2] text-white'
+                          ? 'bg-[#6366f1] text-white'
                           : 'text-slate-300 hover:bg-white/10 hover:text-white'
                       }`}
                     >
@@ -171,13 +173,13 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
         <div>
           <Link
             to={`/anime/${anime.id}`}
-            className="font-bold text-xs sm:text-sm text-slate-100 group-hover:text-[#3db4f2] line-clamp-2 transition leading-snug"
+            className="font-bold text-xs sm:text-sm text-slate-100 group-hover:text-[#818cf8] line-clamp-2 transition leading-snug"
             title={title}
           >
             {title}
           </Link>
           {anime.studios?.nodes?.[0] && (
-            <p className="text-[11px] text-[#3db4f2] mt-0.5 truncate font-medium">
+            <p className="text-[11px] text-[#6366f1] mt-0.5 truncate font-medium">
               {anime.studios.nodes[0].name}
             </p>
           )}

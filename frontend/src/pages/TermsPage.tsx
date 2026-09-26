@@ -3,9 +3,9 @@ import { FileText, CheckCircle, AlertCircle } from 'lucide-react';
 
 export const TermsPage: React.FC = () => {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 animate-fadeIn text-slate-300">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 animate-fadeIn text-slate-300">
       <div className="space-y-3 pb-6 border-b border-white/10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#3db4f2]/10 border border-[#3db4f2]/30 text-[#3db4f2] text-xs font-bold">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#c59b27]/10 border border-[#c59b27]/30 text-[#e2b744] text-xs font-bold">
           <FileText className="w-3.5 h-3.5" />
           <span>Terms & Conditions</span>
         </div>

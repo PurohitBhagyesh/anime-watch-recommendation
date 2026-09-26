@@ -12,11 +12,11 @@ export const CharacterGrid: React.FC<CharacterGridProps> = ({ characters }) => {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <Users className="w-4 h-4 text-[#3db4f2]" />
+        <Users className="w-4 h-4 text-[#818cf8]" />
         <h3 className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-mono">
           Characters & Voice Cast
         </h3>
-        <span className="text-xs text-[#3db4f2] ml-auto font-bold">Japanese Cast</span>
+        <span className="text-xs text-[#818cf8] ml-auto font-bold">Japanese Cast</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
@@ -35,13 +35,13 @@ export const CharacterGrid: React.FC<CharacterGridProps> = ({ characters }) => {
                   src={char.image.medium || char.image.large}
                   alt={char.name.full}
                   loading="lazy"
-                  className="w-11 h-14 rounded-lg object-cover bg-[#09111c] flex-shrink-0"
+                  className="w-11 h-14 rounded-lg object-cover bg-[#070b14] flex-shrink-0"
                 />
                 <div className="min-w-0 pr-1">
                   <p className="text-xs font-bold text-slate-100 truncate" title={char.name.full}>
                     {char.name.full}
                   </p>
-                  <p className="text-[10px] text-[#3db4f2] capitalize font-semibold">
+                  <p className="text-[10px] text-[#818cf8] capitalize font-semibold">
                     {edge.role.toLowerCase()}
                   </p>
                 </div>
@@ -55,7 +55,7 @@ export const CharacterGrid: React.FC<CharacterGridProps> = ({ characters }) => {
                       {va.name.full}
                     </p>
                     <p className="text-[10px] text-slate-400 flex items-center justify-end gap-0.5 font-medium">
-                      <Mic className="w-2.5 h-2.5 text-[#3db4f2]" />
+                      <Mic className="w-2.5 h-2.5 text-[#818cf8]" />
                       <span>Japanese</span>
                     </p>
                   </div>
@@ -63,7 +63,7 @@ export const CharacterGrid: React.FC<CharacterGridProps> = ({ characters }) => {
                     src={va.image.medium || va.image.large}
                     alt={va.name.full}
                     loading="lazy"
-                    className="w-11 h-14 rounded-lg object-cover bg-[#09111c] flex-shrink-0"
+                    className="w-11 h-14 rounded-lg object-cover bg-[#070b14] flex-shrink-0"
                   />
                 </div>
               )}

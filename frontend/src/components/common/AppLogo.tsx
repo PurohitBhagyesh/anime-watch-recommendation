@@ -24,7 +24,7 @@ export const BoltIcon: React.FC<{
       width={size}
       height={size * (46 / 48)}
       className={`inline-block flex-shrink-0 transition-transform ${
-        glow ? 'drop-shadow-[0_0_12px_rgba(157,78,221,0.5)]' : ''
+        glow ? 'drop-shadow-[0_0_14px_rgba(99,102,241,0.6)]' : ''
       } ${className}`}
     >
       <defs>
@@ -35,11 +35,11 @@ export const BoltIcon: React.FC<{
           x2="100%"
           y2="100%"
         >
-          <stop offset="0%" stopColor="#9d4edd" />
-          <stop offset="25%" stopColor="#8b5cf6" />
-          <stop offset="60%" stopColor="#6366f1" />
-          <stop offset="85%" stopColor="#3db4f2" />
-          <stop offset="100%" stopColor="#38bdf8" />
+          <stop offset="0%" stopColor="#c084fc" />
+          <stop offset="25%" stopColor="#a855f7" />
+          <stop offset="55%" stopColor="#6366f1" />
+          <stop offset="85%" stopColor="#38bdf8" />
+          <stop offset="100%" stopColor="#fbbf24" />
         </linearGradient>
       </defs>
       <path
@@ -104,14 +104,14 @@ export const AppLogo: React.FC<AppLogoProps> = ({
 
   return (
     <div className={`flex items-center gap-2.5 group ${className}`}>
-      {/* Icon Emblem Box */}
+      {/* Royal Icon Box */}
       <div
-        className={`${dims.boxSize} rounded-xl bg-gradient-to-br from-[#1a1735]/90 via-[#0e1726]/90 to-[#0a121e]/90 border border-purple-500/25 flex items-center justify-center shadow-lg shadow-purple-500/10 ${
-          glow ? 'hover:shadow-purple-500/25' : ''
-        } ${animateOnHover ? 'group-hover:scale-105 group-hover:border-purple-400/40' : ''} transition-all duration-300 relative overflow-hidden flex-shrink-0 backdrop-blur-sm`}
+        className={`${dims.boxSize} rounded-xl bg-gradient-to-br from-[#1b1f3b]/95 via-[#0e1528]/95 to-[#080d1a]/95 border border-indigo-500/30 flex items-center justify-center shadow-lg shadow-indigo-500/15 ${
+          glow ? 'hover:shadow-indigo-500/30' : ''
+        } ${animateOnHover ? 'group-hover:scale-105 group-hover:border-indigo-400/50' : ''} transition-all duration-300 relative overflow-hidden flex-shrink-0 backdrop-blur-sm`}
       >
-        {/* Subtle inner ambient glow */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/15 via-transparent to-[#3db4f2]/15 pointer-events-none" />
+        {/* Ambient Royal Shimmer */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600/20 via-purple-600/10 to-amber-400/15 pointer-events-none" />
         <BoltIcon size={dims.iconSize} glow={glow} />
       </div>
 
@@ -122,7 +122,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
             className={`${dims.textSize} font-black tracking-tight text-white leading-none flex items-center gap-0.5`}
           >
             <span>Volt</span>
-            <span className="bg-gradient-to-r from-[#9d4edd] via-[#6366f1] to-[#3db4f2] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#a855f7] via-[#6366f1] to-[#38bdf8] bg-clip-text text-transparent">
               aku
             </span>
           </span>

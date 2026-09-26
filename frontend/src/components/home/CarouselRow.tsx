@@ -35,12 +35,12 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
   if (!animes || animes.length === 0) return null;
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-3.5">
       {/* Section Header */}
       <div className="flex items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            {Icon && <Icon className="w-4 h-4 text-[#3db4f2] flex-shrink-0" />}
+            {Icon && <Icon className="w-4 h-4 text-[#818cf8] flex-shrink-0" />}
             <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
               {title}
             </h2>
@@ -52,11 +52,11 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
           )}
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           {viewAllLink && (
             <Link
               to={viewAllLink}
-              className="text-xs font-bold text-[#3db4f2] hover:text-[#00a8ff] flex items-center gap-1 transition pr-1"
+              className="text-xs font-bold text-[#818cf8] hover:text-[#c084fc] flex items-center gap-1 transition pr-1"
             >
               <span>View all</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -67,14 +67,14 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
           <div className="hidden sm:flex items-center gap-1">
             <button
               onClick={() => scroll('left')}
-              className="p-1.5 rounded-lg anilist-btn-secondary text-slate-300 hover:text-white transition"
+              className="p-1.5 rounded-lg royal-btn-secondary text-slate-300 hover:text-white transition"
               aria-label="Scroll left"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => scroll('right')}
-              className="p-1.5 rounded-lg anilist-btn-secondary text-slate-300 hover:text-white transition"
+              className="p-1.5 rounded-lg royal-btn-secondary text-slate-300 hover:text-white transition"
               aria-label="Scroll right"
             >
               <ChevronRight className="w-4 h-4" />
