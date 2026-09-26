@@ -82,29 +82,31 @@ export const HomePage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-12 w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-6 animate-fadeIn">
+    <div className="space-y-12 sm:space-y-16 w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 pt-8 sm:pt-10 pb-20 animate-fadeIn">
       {/* Interactive Hero Spotlight Slider */}
       <HeroBanner animeList={data.spotlights} anime={data.spotlight} />
 
-      {/* Quick Jump Category Bar (Apple Frosted Glass) */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-        {quickCategories.map((cat) => {
-          const Icon = cat.icon;
-          return (
-            <a
-              key={cat.label}
-              href={cat.anchor}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap anilist-card hover:border-[#3db4f2]/40 hover:text-[#3db4f2] text-slate-300 transition-all shadow-sm"
-            >
-              <Icon className="w-3.5 h-3.5 text-[#3db4f2]" />
-              <span>{cat.label}</span>
-            </a>
-          );
-        })}
+      {/* Quick Jump Category Bar (Apple Frosted Glass) with generous spacing */}
+      <div className="pt-2 pb-2">
+        <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
+          {quickCategories.map((cat) => {
+            const Icon = cat.icon;
+            return (
+              <a
+                key={cat.label}
+                href={cat.anchor}
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap anilist-card hover:border-[#3db4f2]/40 hover:text-[#3db4f2] text-slate-300 transition-all shadow-sm"
+              >
+                <Icon className="w-3.5 h-3.5 text-[#3db4f2]" />
+                <span>{cat.label}</span>
+              </a>
+            );
+          })}
+        </div>
       </div>
 
       {/* Trending Now */}
-      <div id="trending" className="scroll-mt-20">
+      <div id="trending" className="scroll-mt-24">
         <CarouselRow
           title="Trending Now"
           subtitle="Top active and discussed titles in the community"
@@ -115,7 +117,7 @@ export const HomePage: React.FC = () => {
       </div>
 
       {/* Popular This Season */}
-      <div id="seasonal" className="scroll-mt-20">
+      <div id="seasonal" className="scroll-mt-24">
         <CarouselRow
           title={`Popular This Season • ${season} ${year}`}
           subtitle="Currently broadcasting weekly anime series"

@@ -58,7 +58,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
 
   return (
     <>
-      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden min-h-[460px] md:min-h-[540px] flex items-end border border-white/10 shadow-2xl group bg-[#09111c]">
+      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden min-h-[480px] sm:min-h-[520px] md:min-h-[580px] lg:min-h-[620px] flex items-end border border-white/10 shadow-2xl group bg-[#09111c]">
         {/* Background Image Banner */}
         <div className="absolute inset-0 z-0">
           <img
