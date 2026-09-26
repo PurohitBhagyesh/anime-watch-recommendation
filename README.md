@@ -1,135 +1,176 @@
-# AnimePulse — Anime Discovery & Tracking Platform
+# ⚡ Voltaku — Full-Stack Anime Discovery & Recommendation Platform
 
-[![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=black)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-8.3-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![GraphQL](https://img.shields.io/badge/API-AniList_GraphQL-E10098?logo=graphql&logoColor=white)](https://anilist.co)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<p align="center">
+  <img src="frontend/public/logo.svg" alt="Voltaku Logo" width="90" height="90" />
+</p>
 
-> **AnimePulse** is a modern, privacy-focused anime discovery platform and personal watchlist tracker built with **React 19**, **TypeScript**, **Tailwind CSS v4**, and the **AniList GraphQL API**, featuring an **Apple Human Interface-inspired frosted glass UI**.
+<p align="center">
+  <strong>A modern, high-performance 3-tier anime discovery, real-time schedule tracking, and personalized recommendation platform.</strong>
+</p>
 
----
-
-## ✨ Features
-
-- 🌟 **Spotlight Hero Banner:** Features the #1 trending title with dynamic banner backdrop, score badges, and direct YouTube trailer modal.
-- ⚡ **Real-Time AniList GraphQL Data:** Instant access to thousands of anime titles, airing schedules, and high-resolution assets with zero rate limiting.
-- 🧭 **Multi-Parameter Discovery Engine:** Filter catalog by genre, broadcast season, format (TV, Movie, OVA, Special), release year, or keyword search.
-- 🍿 **Verified Streaming Availability:** Direct outlinks to legitimate official streaming partners (Crunchyroll, Netflix, Hulu, Disney+, Amazon Prime Video, HIDIVE).
-- 🎙️ **Characters & Voice Cast:** Japanese voice actors (Seiyuu) mapped directly to character roles.
-- 🔗 **Franchise Relations:** Prequels, sequels, spin-offs, and community recommendations.
-- 📱 **Device Adaptive / Mobile-First Design:** Features an iOS-style floating bottom tab bar on mobile and a frosted glass top navbar on desktop.
-- 🔒 **Privacy-First Watchlist:** Complete watchlist tracking (Watching, Plan to Watch, Completed, Favorites) stored in `localStorage` with JSON export/import backup.
-- ⚖️ **Compliance Ready:** Dedicated, real Privacy Policy (`/privacy`) and Terms of Service (`/terms`) pages.
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19.0-61DAFB?logo=react&logoColor=black" alt="React 19" />
+  <img src="https://img.shields.io/badge/Vite-8.0-646CFF?logo=vite&logoColor=white" alt="Vite 8" />
+  <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/TailwindCSS-v4-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Node.js-Express-000000?logo=express&logoColor=white" alt="Express" />
+  <img src="https://img.shields.io/badge/ORM-Prisma-2D3748?logo=prisma&logoColor=white" alt="Prisma" />
+  <img src="https://img.shields.io/badge/Database-SQLite%20%2F%20Postgres-003B57?logo=sqlite&logoColor=white" alt="SQLite" />
+  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License" />
+</p>
 
 ---
 
-## 🛠️ Tech Stack
+## 🏛️ 3-Tier System Architecture
 
-| Layer | Technology |
-| :--- | :--- |
-| **Frontend Framework** | React 19 + TypeScript |
-| **Build Tool & Bundler** | Vite 8 |
-| **Styling & Design System** | Tailwind CSS v4 + Apple UI Frosted Glass Tokens |
-| **Routing** | React Router DOM v7 |
-| **Icons** | Lucide React |
-| **API Integration** | AniList Public GraphQL Endpoint |
-| **State & Storage** | React Context API + Client `localStorage` |
+The project is cleanly decoupled into three independent tiers:
 
----
+```mermaid
+graph TD
+    User([User Browser - Desktop / Mobile]) <-->|HTTPS / React 19 UI| Frontend["Frontend Tier (React + Vite + Tailwind)"]
+    Frontend <-->|REST API + JWT Bearer| Backend["Backend Tier (Node.js + Express + TypeScript)"]
+    Backend <-->|Prisma ORM| Database[("Database Tier (SQLite / PostgreSQL)")]
+    Backend <-->|GraphQL with In-Memory TTL Cache| AniList["AniList Public GraphQL API"]
+    Frontend <-->|Direct Privacy Embed| YouTube["YouTube Nocookie Embed"]
+```
 
-## 🚀 Quick Start
-
-### Prerequisites
-- [Node.js](https://nodejs.org/) (version 18 or newer)
-- `npm` or `pnpm`
-
-### Installation & Setup
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/PurohitBhagyesh/anime-watch-recommendation.git
-   cd anime-watch-recommendation
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Start the local development server:**
-   ```bash
-   npm run dev
-   ```
-   Open your browser at `http://localhost:5173`.
-
-4. **Build for production:**
-   ```bash
-   npm run build
-   ```
-
-5. **Preview production build:**
-   ```bash
-   npm run preview
-   ```
-
----
-
-## 📂 Project Structure
-
-```text
+```
 anime-watch-recommendation/
-├── src/
-│   ├── api/
-│   │   ├── anilist.ts            # GraphQL client & query fetchers
-│   │   └── types.ts              # TypeScript interfaces for media, cast, streaming
-│   ├── components/
-│   │   ├── common/
-│   │   │   ├── Navbar.tsx        # Desktop frosted glass navigation bar
-│   │   │   ├── BottomTabBar.tsx  # Mobile iOS-style tab bar navigation
-│   │   │   ├── Footer.tsx        # Directory footer with legal links
-│   │   │   ├── AnimeCard.tsx     # Poster card with score & quick-add popover
-│   │   │   ├── TrailerModal.tsx  # YouTube iframe trailer modal
-│   │   │   └── Skeleton.tsx      # Shimmer loading cards & hero
-│   │   ├── home/
-│   │   │   ├── HeroBanner.tsx    # Hero spotlight with trailer trigger
-│   │   │   ├── CarouselRow.tsx   # Smooth horizontal scroll row
-│   │   │   └── GenreGrid.tsx     # Visual genre exploration cards
-│   │   └── anime/
-│   │       ├── StreamingPlatforms.tsx # Verified streaming partner badges
-│   │       ├── EpisodesGrid.tsx       # Episode clips & stream links
-│   │       ├── CharacterGrid.tsx      # Characters & Japanese voice actors
-│   │       ├── RelationsGrid.tsx      # Franchise prequels & sequels
-│   │       └── RecommendationsGrid.tsx# Community suggestions
-│   ├── context/
-│   │   └── WatchlistContext.tsx   # Persistent watchlist provider & JSON export
-│   ├── pages/
-│   │   ├── HomePage.tsx           # Home dashboard
-│   │   ├── DiscoverPage.tsx       # Advanced search & filter catalog
-│   │   ├── AnimeDetailsPage.tsx   # Deep profile & streaming sources
-│   │   ├── WatchlistPage.tsx      # Personal library & episode counter
-│   │   ├── PrivacyPage.tsx        # Privacy policy
-│   │   └── TermsPage.tsx          # Terms of service
-│   ├── App.tsx                    # Route definitions & layout wrapper
-│   ├── main.tsx                   # React root mount
-│   └── index.css                  # Apple UI design system & glassmorphism
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-├── PRD.md                         # Product Requirements Document
-├── CONTRIBUTING.md                # Contribution guidelines
-└── LICENSE                        # MIT License
+├── 📱 frontend/              # React 19 + TypeScript + Vite + Tailwind CSS
+│   ├── src/                 # UI components, contexts, pages, hooks, styling
+│   │   ├── api/             # AniList GraphQL client & Backend API service
+│   │   ├── components/      # Apple-inspired UI, Carousels, Player, Navbar
+│   │   ├── context/         # Watchlist & Auth state providers
+│   │   └── pages/           # Home, Discover, Anime Details, Watchlist, Auth
+│   ├── public/              # Static assets, logos, SVG icons
+│   ├── package.json         # Frontend scripts & dependencies
+│   ├── vite.config.ts       # Vite bundler configuration
+│   └── .env.example         # Environment configuration (VITE_API_BASE_URL)
+│
+├── ⚙️ backend/               # Node.js + Express + TypeScript REST API Server
+│   ├── src/
+│   │   ├── config/          # Prisma DB client singleton
+│   │   ├── controllers/     # Auth, Anime, Watchlist, Recommendations, Reviews
+│   │   ├── middleware/      # JWT authentication, error handling, request logger
+│   │   ├── routes/          # REST route handlers (/api/auth, /api/anime, /api/watchlist)
+│   │   ├── services/        # AniList proxy with TTL caching & Genre affinity algorithms
+│   │   ├── scripts/         # Database seed script
+│   │   └── server.ts        # Express server entry point
+│   ├── package.json         # Backend dependencies & Prisma scripts
+│   ├── tsconfig.json        # Backend TypeScript configuration
+│   └── .env.example         # Environment variables template
+│
+├── 🗄️ database/              # Database Schema, Migrations, Seed Data & Docs
+│   ├── prisma/
+│   │   └── schema.prisma    # Prisma SQLite schema definition
+│   ├── schema.sql           # Standard SQL DDL migration file
+│   ├── seeds.sql            # Initial sample demo users, watchlists, & reviews
+│   ├── docker-compose.yml   # Optional PostgreSQL & Redis containerization
+│   └── README.md            # Schema ERD and database documentation
+│
+├── package.json             # Root monorepo workspace & orchestration commands
+├── PRD.md                   # Product Requirements Document v2.0
+└── README.md                # Main repository documentation
 ```
 
 ---
 
-## 📄 Documentation
+## ⚡ Quick Start Guide
 
-For full product specifications, user stories, and architecture diagrams, check out the [Product Requirements Document (`PRD.md`)](./PRD.md).
+### Prerequisites
+- **Node.js**: `v18.0+` or `v20.0+`
+- **npm**: `v9.0+`
+
+### 1. One-Step Workspace Setup
+From the repository root:
+```bash
+npm run setup
+```
+*(Installs all dependencies across workspaces, generates the Prisma client, pushes the SQLite schema, and seeds demo data).*
+
+### 2. Start Both Frontend & Backend Concurrently
+```bash
+npm run dev
+```
+* 🌐 **Frontend Web App:** [http://localhost:5173](http://localhost:5173)
+* ⚙️ **Backend REST API:** [http://localhost:5000](http://localhost:5000)
+* 🩺 **API Health Check:** [http://localhost:5000/api/health](http://localhost:5000/api/health)
 
 ---
 
-## 📜 License
+## 🛠️ Independent Tier Management
 
-This project is licensed under the [MIT License](./LICENSE). All anime metadata and imagery belong to their respective creators, publishers, and studios under fair use.
+You can run and manage each layer independently:
+
+### Frontend Tier (`/frontend`)
+```bash
+cd frontend
+npm run dev      # Start Vite dev server with Hot Module Replacement (HMR)
+npm run build    # Type-check and produce optimized production bundle
+npm run preview  # Preview production build locally
+```
+
+### Backend Tier (`/backend`)
+```bash
+cd backend
+npm run dev        # Run API server with hot-reload (tsx)
+npm run build      # Compile TypeScript to JavaScript
+npm run start      # Launch compiled production server
+npm run db:push    # Push Prisma schema changes to SQLite (dev.db)
+npm run db:seed    # Populate database with demo users & sample watchlists
+npm run db:studio  # Open Prisma Studio visual database browser
+```
+
+### Database Tier (`/database`)
+```bash
+# Launch visual database GUI
+npm run db:studio
+
+# (Optional) Spin up Docker PostgreSQL & Redis containers
+docker compose -f database/docker-compose.yml up -d
+```
+
+---
+
+## 📡 API Endpoints Overview
+
+| Module | Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- | :--- |
+| **Health** | `GET` | `/api/health` | Service uptime and status | No |
+| **Auth** | `POST` | `/api/auth/register` | Register new account | No |
+| **Auth** | `POST` | `/api/auth/login` | Login with credentials | No |
+| **Auth** | `POST` | `/api/auth/demo` | Instant demo login session | No |
+| **Auth** | `GET` | `/api/auth/me` | Fetch authenticated user profile | Yes (Bearer) |
+| **Auth** | `PUT` | `/api/auth/profile` | Update profile avatar/bio/genres | Yes (Bearer) |
+| **Anime** | `GET` | `/api/anime/trending` | Top community trending titles | No |
+| **Anime** | `GET` | `/api/anime/seasonal` | Airing seasonal releases | No |
+| **Anime** | `GET` | `/api/anime/top` | Top 100 highest rated anime | No |
+| **Anime** | `GET` | `/api/anime/popular` | All-time most popular anime | No |
+| **Anime** | `GET` | `/api/anime/search` | Multi-parameter search with filters | No |
+| **Anime** | `GET` | `/api/anime/:id` | Full details, cast, streaming links, trailer | No |
+| **Watchlist** | `GET` | `/api/watchlist` | Fetch user watchlist | Optional |
+| **Watchlist** | `POST` | `/api/watchlist` | Add or update watchlist item | Optional |
+| **Watchlist** | `PATCH`| `/api/watchlist/:id/progress` | Quick episode count increment | Optional |
+| **Watchlist** | `DELETE`| `/api/watchlist/:id` | Remove item from watchlist | Optional |
+| **Watchlist** | `POST` | `/api/watchlist/export` | Export watchlist JSON payload | Optional |
+| **Watchlist** | `POST` | `/api/watchlist/import` | Import watchlist items | Optional |
+| **Recommendations** | `GET` | `/api/recommendations/personalized` | AI/Genre-affinity recommendations | Optional |
+| **Recommendations** | `GET` | `/api/recommendations/anime/:id` | Similar & related franchise anime | Optional |
+| **Reviews** | `GET` | `/api/reviews/anime/:animeId` | Fetch community reviews for an anime | Optional |
+| **Reviews** | `POST` | `/api/reviews` | Post a community review & rating | Optional |
+| **Reviews** | `POST` | `/api/reviews/:id/like` | Upvote a review | Optional |
+
+---
+
+## 🔒 Security & Privacy
+
+* **Data Portability:** Full one-click JSON backup export and import.
+* **Password Protection:** Salted `bcrypt` hashing with JWT authentication.
+* **Intelligent Caching:** High-speed in-memory TTL caching prevents external AniList API rate limits.
+* **Zero Tracking:** No invasive tracking scripts or telemetry.
+
+---
+
+## 📄 License
+
+This project is open-source and available under the [MIT License](LICENSE).

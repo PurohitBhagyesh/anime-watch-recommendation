@@ -1,6 +1,6 @@
-# Contributing to AnimePulse
+# Contributing to Voltaku
 
-Thank you for your interest in contributing to AnimePulse! We welcome bug reports, feature suggestions, and code contributions.
+Thank you for your interest in contributing to Voltaku! We welcome bug reports, feature suggestions, and code contributions.
 
 ---
 

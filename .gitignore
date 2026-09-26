@@ -7,12 +7,30 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+.pnp
+.pnp.js
+
+# Production builds
 dist
 dist-ssr
-*.local
+build
 
-# Editor directories and files
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Database & SQLite files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+dev.db
+database/*.db
+
+# Editor and OS
 .vscode/*
 !.vscode/extensions.json
 .idea

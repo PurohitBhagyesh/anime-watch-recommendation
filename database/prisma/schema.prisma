@@ -1,0 +1,114 @@
+// Prisma Schema for Voltaku Anime Discovery & Recommendation Engine
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                  String           @id @default(uuid())
+  username            String           @unique
+  email               String           @unique
+  passwordHash        String?
+  avatar              String?
+  banner              String?
+  bio                 String?
+  favoriteGenre       String?          @default("Action")
+  joinedDate          DateTime         @default(now())
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  
+  watchlistItems      WatchlistItem[]
+  reviews             Review[]
+  activityLogs        ActivityLog[]
+
+  @@map("users")
+}
+
+model WatchlistItem {
+  id              String   @id @default(uuid())
+  userId          String
+  animeId         Int
+  title           String
+  romajiTitle     String?
+  coverImage      String?
+  bannerImage     String?
+  format          String?  @default("TV")
+  status          String   @default("watching") // 'watching' | 'plan_to_watch' | 'completed' | 'favorite' | 'dropped' | 'paused'
+  currentEpisode  Int      @default(0)
+  totalEpisodes   Int?     @default(0)
+  userRating      Float?   // 1 to 10
+  notes           String?
+  genres          String?  // JSON stringified array of genres
+  addedAt         DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, animeId])
+  @@index([userId, status])
+  @@map("watchlist_items")
+}
+
+model AnimeCache {
+  id            Int      @id // AniList Anime ID
+  titleEnglish  String?
+  titleRomaji   String
+  titleNative   String?
+  coverImage    String
+  bannerImage   String?
+  format        String?
+  status        String?
+  episodes      Int?
+  duration      Int?
+  season        String?
+  seasonYear    Int?
+  averageScore  Int?
+  popularity    Int?
+  favourites    Int?
+  genres        String   // JSON string of array
+  description   String?
+  studios       String?  // JSON string
+  externalLinks String?  // JSON string
+  trailerUrl    String?
+  detailsJson   String?  // Full cached JSON payload
+  cachedAt      DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([popularity])
+  @@index([averageScore])
+  @@map("anime_cache")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  userId     String
+  animeId    Int
+  rating     Int      // 1-10
+  reviewText String
+  likesCount Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([animeId])
+  @@map("reviews")
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String   // 'WATCHED_EPISODE' | 'ADDED_TO_WATCHLIST' | 'UPDATED_SCORE' | 'REVIEWED'
+  animeId   Int
+  metadata  String?  // JSON context
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("activity_logs")
+}
