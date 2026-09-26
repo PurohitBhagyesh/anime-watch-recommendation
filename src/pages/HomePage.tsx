@@ -73,58 +73,93 @@ export const HomePage: React.FC = () => {
     );
   }
 
+  const quickCategories = [
+    { label: 'Trending', anchor: '#trending', icon: Flame },
+    { label: `${season} ${year}`, anchor: '#seasonal', icon: PlaySquare },
+    { label: 'Top 100', anchor: '#top100', icon: Trophy },
+    { label: 'Popular', anchor: '#popular', icon: TrendingUp },
+    { label: 'Upcoming', anchor: '#upcoming', icon: Clock },
+  ];
+
   return (
     <div className="space-y-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 animate-fadeIn">
       {/* Interactive Hero Spotlight Slider */}
       <HeroBanner animeList={data.spotlights} anime={data.spotlight} />
 
+      {/* Quick Jump Category Bar (Apple Frosted Glass) */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        {quickCategories.map((cat) => {
+          const Icon = cat.icon;
+          return (
+            <a
+              key={cat.label}
+              href={cat.anchor}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap anilist-card hover:border-[#3db4f2]/40 hover:text-[#3db4f2] text-slate-300 transition-all shadow-sm"
+            >
+              <Icon className="w-3.5 h-3.5 text-[#3db4f2]" />
+              <span>{cat.label}</span>
+            </a>
+          );
+        })}
+      </div>
+
       {/* Trending Now */}
-      <CarouselRow
-        title="Trending Now"
-        subtitle="Top active and discussed titles in the community"
-        icon={Flame}
-        animes={data.trending}
-        viewAllLink="/discover?sort=TRENDING_DESC"
-      />
+      <div id="trending" className="scroll-mt-20">
+        <CarouselRow
+          title="Trending Now"
+          subtitle="Top active and discussed titles in the community"
+          icon={Flame}
+          animes={data.trending}
+          viewAllLink="/discover?sort=TRENDING_DESC"
+        />
+      </div>
 
       {/* Popular This Season */}
-      <CarouselRow
-        title={`Popular This Season • ${season} ${year}`}
-        subtitle="Currently broadcasting weekly anime series"
-        icon={PlaySquare}
-        animes={data.seasonal}
-        viewAllLink={`/discover?season=${season}&year=${year}`}
-      />
+      <div id="seasonal" className="scroll-mt-20">
+        <CarouselRow
+          title={`Popular This Season • ${season} ${year}`}
+          subtitle="Currently broadcasting weekly anime series"
+          icon={PlaySquare}
+          animes={data.seasonal}
+          viewAllLink={`/discover?season=${season}&year=${year}`}
+        />
+      </div>
 
       {/* Visual Genre Cards */}
       <GenreGrid />
 
       {/* Top 100 Highest Rated */}
-      <CarouselRow
-        title="Top 100 Anime"
-        subtitle="Highest community score of all time"
-        icon={Trophy}
-        animes={data.topRated}
-        viewAllLink="/discover?sort=SCORE_DESC"
-      />
+      <div id="top100" className="scroll-mt-20">
+        <CarouselRow
+          title="Top 100 Anime"
+          subtitle="Highest community score of all time"
+          icon={Trophy}
+          animes={data.topRated}
+          viewAllLink="/discover?sort=SCORE_DESC"
+        />
+      </div>
 
       {/* All Time Popular */}
-      <CarouselRow
-        title="All Time Popular"
-        subtitle="Anime with the largest global follower counts"
-        icon={TrendingUp}
-        animes={data.popularAllTime}
-        viewAllLink="/discover?sort=POPULARITY_DESC"
-      />
+      <div id="popular" className="scroll-mt-20">
+        <CarouselRow
+          title="All Time Popular"
+          subtitle="Anime with the largest global follower counts"
+          icon={TrendingUp}
+          animes={data.popularAllTime}
+          viewAllLink="/discover?sort=POPULARITY_DESC"
+        />
+      </div>
 
       {/* Upcoming Releases */}
-      <CarouselRow
-        title="Upcoming Next Season"
-        subtitle="Confirmed anime scheduled for future broadcast"
-        icon={Clock}
-        animes={data.upcoming}
-        viewAllLink="/discover?status=NOT_YET_RELEASED"
-      />
+      <div id="upcoming" className="scroll-mt-20">
+        <CarouselRow
+          title="Upcoming Next Season"
+          subtitle="Confirmed anime scheduled for future broadcast"
+          icon={Clock}
+          animes={data.upcoming}
+          viewAllLink="/discover?status=NOT_YET_RELEASED"
+        />
+      </div>
     </div>
   );
 };

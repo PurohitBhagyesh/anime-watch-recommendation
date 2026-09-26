@@ -5,8 +5,6 @@ import {
   Bookmark,
   Compass,
   TrendingUp,
-  Trophy,
-  Calendar,
   Dices,
   X,
 } from 'lucide-react';
@@ -76,19 +74,12 @@ export const Navbar: React.FC = () => {
   const navLinks = [
     { label: 'Home', path: '/', icon: TrendingUp },
     { label: 'Discover', path: '/discover', icon: Compass },
-    { label: 'Top 100', path: '/discover?sort=SCORE_DESC', icon: Trophy },
-    { label: 'Seasonal', path: '/discover?seasonal=true', icon: Calendar },
+    { label: 'Watchlist', path: '/watchlist', icon: Bookmark, badge: watchlist.length },
   ];
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
-    return (
-      location.pathname + location.search === path ||
-      (path.startsWith('/discover') &&
-        location.pathname === '/discover' &&
-        !path.includes('?') &&
-        !location.search)
-    );
+    return location.pathname.startsWith(path);
   };
 
   return (
@@ -120,7 +111,7 @@ export const Navbar: React.FC = () => {
                   <Link
                     key={link.label}
                     to={link.path}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all relative ${
                       active
                         ? 'bg-[#3db4f2] text-white shadow-sm'
                         : 'text-slate-300 hover:text-white hover:bg-white/[0.06]'
@@ -128,6 +119,13 @@ export const Navbar: React.FC = () => {
                   >
                     <Icon className="w-3.5 h-3.5" />
                     <span>{link.label}</span>
+                    {typeof link.badge === 'number' && link.badge > 0 && (
+                      <span className={`px-1.5 py-0.2 text-[10px] font-bold rounded-full ${
+                        active ? 'bg-white text-[#3db4f2]' : 'bg-[#3db4f2] text-white'
+                      }`}>
+                        {link.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
