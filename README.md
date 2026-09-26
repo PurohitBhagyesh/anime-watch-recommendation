@@ -49,7 +49,7 @@
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/<your-username>/anime-watch-recommendation.git
+   git clone https://github.com/PurohitBhagyesh/anime-watch-recommendation.git
    cd anime-watch-recommendation
    ```
 
