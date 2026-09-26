@@ -2,181 +2,185 @@
 
 @layer base {
   :root {
-    --font-heading: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Outfit', 'Segoe UI', Roboto, sans-serif;
-    --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Plus Jakarta Sans', 'Segoe UI', Roboto, sans-serif;
+    --font-heading: 'Overpass', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-body: 'Overpass', 'Roboto', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    /* AniList signature color palette */
+    --color-bg-base: #0b1622;
+    --color-bg-card: #151f2e;
+    --color-bg-card-hover: #19273a;
+    --color-bg-elevated: #1f2d42;
+    --color-bg-nav: rgba(11, 22, 34, 0.92);
+
+    --color-primary: #3db4f2;
+    --color-primary-hover: #00a8ff;
+    --color-primary-dark: #2695d6;
+
+    --color-text-primary: #edf1f5;
+    --color-text-secondary: #9fadbd;
+    --color-text-muted: #647384;
+
+    --color-score-high: #48bb78;
+    --color-score-med: #f6ad55;
+    --color-score-low: #e85d75;
   }
 
   body {
     font-family: var(--font-body);
-    background-color: #05070b;
-    color: #f5f5f7;
+    background-color: #0b1622;
+    color: #9fadbd;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    letter-spacing: -0.025em;
+    color: #edf1f5;
+    font-weight: 800;
+    letter-spacing: -0.015em;
   }
 }
 
-/* Apple iOS/macOS Frosted Glass Surfaces */
-.apple-nav {
-  background: rgba(8, 11, 16, 0.72);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+/* AniList Navigation Bar */
+.anilist-nav {
+  background: rgba(11, 22, 34, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.apple-tabbar {
-  background: rgba(10, 14, 22, 0.82);
-  backdrop-filter: blur(30px) saturate(190%);
-  -webkit-backdrop-filter: blur(30px) saturate(190%);
+.anilist-tabbar {
+  background: rgba(11, 22, 34, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-bottom: max(env(safe-area-inset-bottom), 8px);
 }
 
-.apple-card {
-  background: rgba(18, 24, 38, 0.55);
-  backdrop-filter: blur(20px) saturate(170%);
-  -webkit-backdrop-filter: blur(20px) saturate(170%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+/* AniList Surfaces & Cards */
+.anilist-card {
+  background: #151f2e;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.apple-card:hover {
-  background: rgba(24, 32, 50, 0.75);
-  border-color: rgba(255, 255, 255, 0.16);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
+.anilist-card:hover {
+  background: #182538;
+  border-color: rgba(61, 180, 242, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5), 0 0 20px rgba(61, 180, 242, 0.12);
 }
 
-.apple-card-static {
-  background: rgba(18, 24, 38, 0.55);
-  backdrop-filter: blur(20px) saturate(170%);
-  -webkit-backdrop-filter: blur(20px) saturate(170%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
-}
-
-.apple-card-interactive {
-  background: rgba(18, 24, 38, 0.55);
-  backdrop-filter: blur(20px) saturate(170%);
-  -webkit-backdrop-filter: blur(20px) saturate(170%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.apple-card-interactive:hover {
-  background: rgba(28, 38, 58, 0.7);
-  border-color: rgba(0, 113, 227, 0.4);
-}
-
-/* Apple Segmented Control Bar */
-.apple-segmented-container {
-  background: rgba(12, 16, 26, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 3px;
+.anilist-card-static {
+  background: #151f2e;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-.apple-segmented-item {
+.anilist-surface-elevated {
+  background: #19273a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* AniList Buttons */
+.anilist-btn-primary {
+  background: #3db4f2;
+  color: #ffffff;
+  border-radius: 8px;
+  font-weight: 700;
   transition: all 0.18s ease;
-  border-radius: 9px;
+  box-shadow: 0 2px 10px rgba(61, 180, 242, 0.35);
 }
 
-.apple-segmented-item.active {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+.anilist-btn-primary:hover {
+  background: #00a8ff;
+  box-shadow: 0 4px 16px rgba(61, 180, 242, 0.55);
+  transform: scale(1.02);
 }
 
-/* Apple System Buttons */
-.apple-btn-primary {
-  background: #0071e3;
-  color: #ffffff;
-  border-radius: 10px;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 113, 227, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.apple-btn-primary:hover {
-  background: #0077ed;
-  box-shadow: 0 4px 14px rgba(0, 113, 227, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
-  transform: scale(1.01);
-}
-
-.apple-btn-secondary {
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  color: #f5f5f7;
+.anilist-btn-secondary {
+  background: #151f2e;
+  color: #edf1f5;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  font-weight: 500;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.apple-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-}
-
-/* Apple Crisp Inputs */
-.apple-input {
-  background: rgba(14, 19, 30, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 10px;
-  color: #f5f5f7;
+  border-radius: 8px;
+  font-weight: 600;
   transition: all 0.18s ease;
 }
 
-.apple-input:focus {
-  background: rgba(18, 24, 38, 0.85);
-  border-color: #0071e3;
+.anilist-btn-secondary:hover {
+  background: #1c2b40;
+  border-color: rgba(61, 180, 242, 0.4);
+  color: #3db4f2;
+}
+
+/* AniList Inputs */
+.anilist-input {
+  background: #0f1824;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 8px;
+  color: #edf1f5;
+  transition: all 0.18s ease;
+}
+
+.anilist-input:focus {
+  background: #152233;
+  border-color: #3db4f2;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.25);
+  box-shadow: 0 0 0 3px rgba(61, 180, 242, 0.22);
 }
 
-/* Momentum Touch Scrolling for Mobile */
-.touch-scroll {
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
+/* Score Pills */
+.score-pill-high {
+  background: rgba(72, 187, 120, 0.15);
+  color: #48bb78;
+  border: 1px solid rgba(72, 187, 120, 0.3);
 }
 
-/* Scroll Snap Carousel */
-.scroll-snap-x {
-  scroll-snap-type: x mandatory;
+.score-pill-med {
+  background: rgba(246, 173, 85, 0.15);
+  color: #f6ad55;
+  border: 1px solid rgba(246, 173, 85, 0.3);
 }
-.scroll-snap-align-start {
-  scroll-snap-align: start;
+
+.score-pill-low {
+  background: rgba(232, 93, 117, 0.15);
+  color: #e85d75;
+  border: 1px solid rgba(232, 93, 117, 0.3);
+}
+
+/* AniList Table Styling */
+.anilist-table-row {
+  background: #151f2e;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all 0.15s ease;
+}
+
+.anilist-table-row:hover {
+  background: #19273a;
+  border-color: rgba(61, 180, 242, 0.25);
+  transform: translateX(2px);
 }
 
 /* Custom Minimalist Scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #0b1622;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: #1f2d42;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: #3db4f2;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -187,7 +191,7 @@
   scrollbar-width: none;
 }
 
-/* Shimmer Loading State */
+/* Shimmer Loading */
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -198,7 +202,34 @@
 }
 
 .shimmer-loading {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02) 25%, rgba(255, 255, 255, 0.07) 50%, rgba(255, 255, 255, 0.02) 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.6s infinite;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Fade in Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Dice roll keyframe */
+@keyframes diceSpin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.animate-spin-dice {
+  animation: diceSpin 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
