@@ -402,3 +402,127 @@ export const GENRE_LIST = [
   'Supernatural',
   'Thriller',
 ];
+
+export interface GenreMeta {
+  name: string;
+  totalEstimated: number;
+  formattedCount: string;
+  description: string;
+}
+
+export const GENRE_METADATA: Record<string, GenreMeta> = {
+  Comedy: {
+    name: 'Comedy',
+    totalEstimated: 7850,
+    formattedCount: '7,800+',
+    description: 'Humor, gag, parodies, and lighthearted laughs',
+  },
+  Action: {
+    name: 'Action',
+    totalEstimated: 5240,
+    formattedCount: '5,200+',
+    description: 'High-intensity battles, martial arts, and adrenaline',
+  },
+  Fantasy: {
+    name: 'Fantasy',
+    totalEstimated: 4420,
+    formattedCount: '4,400+',
+    description: 'Magic, isekai worlds, mythological beasts, and quests',
+  },
+  Adventure: {
+    name: 'Adventure',
+    totalEstimated: 3950,
+    formattedCount: '3,900+',
+    description: 'Epic journeys, explorations, and expeditions',
+  },
+  'Sci-Fi': {
+    name: 'Sci-Fi',
+    totalEstimated: 3410,
+    formattedCount: '3,400+',
+    description: 'Futuristic technology, space exploration, and cyberpunk',
+  },
+  Drama: {
+    name: 'Drama',
+    totalEstimated: 3120,
+    formattedCount: '3,100+',
+    description: 'Emotional depth, human relationships, and conflict',
+  },
+  Romance: {
+    name: 'Romance',
+    totalEstimated: 2680,
+    formattedCount: '2,600+',
+    description: 'Love stories, romantic comedies, and heartfelt relationships',
+  },
+  'Slice of Life': {
+    name: 'Slice of Life',
+    totalEstimated: 2450,
+    formattedCount: '2,400+',
+    description: 'Everyday life, heartwarming moments, and relaxation',
+  },
+  Music: {
+    name: 'Music',
+    totalEstimated: 2210,
+    formattedCount: '2,200+',
+    description: 'Idols, bands, musical journeys, and performances',
+  },
+  Supernatural: {
+    name: 'Supernatural',
+    totalEstimated: 1940,
+    formattedCount: '1,900+',
+    description: 'Ghosts, spirits, vampires, demons, and occult powers',
+  },
+  Ecchi: {
+    name: 'Ecchi',
+    totalEstimated: 1650,
+    formattedCount: '1,600+',
+    description: 'Playful fan-service and suggestive comedy',
+  },
+  Mecha: {
+    name: 'Mecha',
+    totalEstimated: 1350,
+    formattedCount: '1,300+',
+    description: 'Giant robotic suits, space warfare, and armored combat',
+  },
+  Mystery: {
+    name: 'Mystery',
+    totalEstimated: 1180,
+    formattedCount: '1,100+',
+    description: 'Detective cases, suspense, puzzles, and hidden truths',
+  },
+  Sports: {
+    name: 'Sports',
+    totalEstimated: 980,
+    formattedCount: '950+',
+    description: 'Athletic competitions, teamwork, and tournament battles',
+  },
+  Psychological: {
+    name: 'Psychological',
+    totalEstimated: 640,
+    formattedCount: '600+',
+    description: 'Mind games, mental battles, and dark dilemmas',
+  },
+  Horror: {
+    name: 'Horror',
+    totalEstimated: 560,
+    formattedCount: '550+',
+    description: 'Gore, psychological terror, monsters, and survival',
+  },
+  'Mahou Shoujo': {
+    name: 'Mahou Shoujo',
+    totalEstimated: 380,
+    formattedCount: '350+',
+    description: 'Magical girls, transformation spells, and guardian battles',
+  },
+  Thriller: {
+    name: 'Thriller',
+    totalEstimated: 190,
+    formattedCount: '180+',
+    description: 'High-stakes suspense, conspiracies, and tension',
+  },
+  Hentai: {
+    name: 'Hentai',
+    totalEstimated: 2100,
+    formattedCount: '2,100+',
+    description: 'Adult 18+ content',
+  },
+};

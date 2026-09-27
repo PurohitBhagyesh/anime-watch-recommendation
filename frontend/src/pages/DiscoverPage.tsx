@@ -27,8 +27,9 @@ import {
   Sparkles,
   Info,
   Compass,
+  BarChart2,
 } from 'lucide-react';
-import { searchAnime, GENRE_LIST, getCurrentSeason } from '../api/anilist';
+import { searchAnime, GENRE_LIST, GENRE_METADATA, getCurrentSeason } from '../api/anilist';
 import type { AnimeCardData, PageInfo, WatchlistStatus } from '../api/types';
 import { AnimeCard } from '../components/common/AnimeCard';
 import { CardSkeleton } from '../components/common/Skeleton';
@@ -58,6 +59,9 @@ export const DiscoverPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [openStatusMenuId, setOpenStatusMenuId] = useState<number | null>(null);
   const [showCountInfo, setShowCountInfo] = useState(false);
+  const [showGenreStatsModal, setShowGenreStatsModal] = useState(false);
+
+  const currentGenreMeta = selectedGenre ? GENRE_METADATA[selectedGenre] : null;
 
   const categoryBarRef = useRef<HTMLDivElement>(null);
 
@@ -891,8 +895,12 @@ export const DiscoverPage: React.FC = () => {
                   title="Click to view database details"
                 >
                   <span>
-                    {pageInfo.total >= 5000
-                      ? '5,000+ available (20,000+ database)'
+                    {selectedGenre && currentGenreMeta
+                      ? pageInfo.total >= 5000
+                        ? `5,000+ ${selectedGenre} available (from ${currentGenreMeta.formattedCount} in database)`
+                        : `${pageInfo.total.toLocaleString()} ${selectedGenre} anime found`
+                      : pageInfo.total >= 5000
+                      ? '5,000+ available (from 20,000+ database)'
                       : `${pageInfo.total.toLocaleString()} anime found`}
                   </span>
                   <Info className="w-3 h-3 text-[#3db4f2]" />
@@ -900,10 +908,13 @@ export const DiscoverPage: React.FC = () => {
 
                 {/* Popover explaining the 5,000 count & 20,000+ database */}
                 {showCountInfo && (
-                  <div className="absolute left-0 top-full mt-2 w-72 sm:w-80 p-3.5 rounded-xl bg-[#111927]/98 backdrop-blur-2xl border border-white/20 shadow-2xl z-50 text-xs text-slate-200 animate-fadeIn space-y-2">
+                  <div className="absolute left-0 top-full mt-2 w-72 sm:w-84 p-3.5 rounded-xl bg-[#111927]/98 backdrop-blur-2xl border border-white/20 shadow-2xl z-50 text-xs text-slate-200 animate-fadeIn space-y-2.5">
                     <div className="flex items-center justify-between font-bold text-white border-b border-white/10 pb-1.5">
                       <span className="flex items-center gap-1.5 text-[#3db4f2]">
-                        <Sparkles className="w-3.5 h-3.5" /> 20,000+ Anime Database
+                        <Sparkles className="w-3.5 h-3.5" />{' '}
+                        {selectedGenre
+                          ? `${selectedGenre} Anime Catalog`
+                          : '20,000+ Anime Database'}
                       </span>
                       <button
                         onClick={() => setShowCountInfo(false)}
@@ -912,12 +923,43 @@ export const DiscoverPage: React.FC = () => {
                         <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                    <p className="text-[11px] text-slate-300 leading-relaxed">
-                      <strong>AnimeSenpai</strong> connects directly to the live AniList database containing over <strong>20,000+ indexed anime titles</strong>.
-                    </p>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">
-                      To ensure lightning-fast performance, broad queries show the top <strong>5,000 ranked anime</strong> across 250 pages. Filtering by <strong>Genre, Release Year, Format, or Search keywords</strong> queries the entire 20,000+ database and yields exact counts!
-                    </p>
+
+                    {selectedGenre && currentGenreMeta ? (
+                      <div className="space-y-1.5 text-[11px] leading-relaxed">
+                        <p className="text-slate-200">
+                          The AniList database indexes approximately{' '}
+                          <strong className="text-[#3db4f2]">{currentGenreMeta.formattedCount} {selectedGenre}</strong> anime titles ({currentGenreMeta.description}).
+                        </p>
+                        <p className="text-slate-400">
+                          To maintain instant query speeds, AniList GraphQL API serves up to the top{' '}
+                          <strong className="text-slate-200">5,000 ranked entries (208 pages)</strong> per query.
+                        </p>
+                        <p className="text-slate-400">
+                          💡 <em>Tip: Use the <strong>Year</strong> (e.g. 2024), <strong>Season</strong>, or <strong>Format</strong> filters to browse specific subsets with exact counts.</em>
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5 text-[11px] leading-relaxed">
+                        <p className="text-slate-300">
+                          <strong>AnimeSenpai</strong> connects directly to the live AniList database containing over <strong className="text-[#3db4f2]">20,000+ indexed anime titles</strong>.
+                        </p>
+                        <p className="text-slate-400">
+                          Broad queries return the top <strong>5,000 ranked anime</strong> across 208 pages. Filtering by <strong>Genre, Year, Format, or Search keywords</strong> queries the entire 20,000+ database!
+                        </p>
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCountInfo(false);
+                        setShowGenreStatsModal(true);
+                      }}
+                      className="w-full text-center py-1.5 rounded-lg bg-[#3db4f2]/20 hover:bg-[#3db4f2]/30 border border-[#3db4f2]/40 text-[#3db4f2] text-xs font-bold transition flex items-center justify-center gap-1.5"
+                    >
+                      <BarChart2 className="w-3.5 h-3.5" />
+                      <span>View All 18 Genre Totals</span>
+                    </button>
                   </div>
                 )}
               </div>
@@ -928,7 +970,9 @@ export const DiscoverPage: React.FC = () => {
             {loading
               ? 'Searching anime catalog in real-time...'
               : pageInfo
-              ? `Page ${pageInfo.currentPage} of ${pageInfo.lastPage.toLocaleString()} • ${results.length} on this page`
+              ? selectedGenre && currentGenreMeta && pageInfo.total >= 5000
+                ? `Page ${pageInfo.currentPage} of ${pageInfo.lastPage.toLocaleString()} • ${results.length} on this page (Showing top 5,000 ${selectedGenre} anime from ${currentGenreMeta.formattedCount} in catalog)`
+                : `Page ${pageInfo.currentPage} of ${pageInfo.lastPage.toLocaleString()} • ${results.length} on this page`
               : 'Browse AnimeSenpai Catalog'}
           </p>
         </div>
@@ -1159,6 +1203,92 @@ export const DiscoverPage: React.FC = () => {
             <span>Next</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
+        </div>
+      )}
+
+      {/* All Genre Statistics Breakdown Modal */}
+      {showGenreStatsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div
+            className="fixed inset-0"
+            onClick={() => setShowGenreStatsModal(false)}
+          />
+          <div className="relative w-full max-w-2xl bg-[#0e1726] border border-white/15 rounded-2xl p-5 shadow-2xl z-10 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <BarChart2 className="w-5 h-5 text-[#3db4f2]" />
+                <h3 className="text-base font-bold text-white">
+                  AniList Database: Anime Genre Counts
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowGenreStatsModal(false)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-300">
+              The catalog indexes over <strong>20,000+ total anime entries</strong>. Below is the total count per genre. Select any genre to browse:
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+              {Object.values(GENRE_METADATA).map((meta) => {
+                const isCurrent = selectedGenre.toLowerCase() === meta.name.toLowerCase();
+                return (
+                  <button
+                    key={meta.name}
+                    type="button"
+                    onClick={() => {
+                      setSelectedGenre(meta.name);
+                      updateFiltersInUrl({ genre: meta.name });
+                      setShowGenreStatsModal(false);
+                    }}
+                    className={`p-3 rounded-xl border text-left transition-all group cursor-pointer ${
+                      isCurrent
+                        ? 'bg-[#3db4f2] text-white border-[#3db4f2] shadow-md shadow-[#3db4f2]/30'
+                        : 'bg-[#151f2e] border-white/10 hover:border-[#3db4f2]/50 hover:bg-[#1a273b]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span
+                        className={`text-xs font-bold ${
+                          isCurrent ? 'text-white' : 'text-slate-100 group-hover:text-[#3db4f2]'
+                        }`}
+                      >
+                        {meta.name}
+                      </span>
+                      <span
+                        className={`text-xs font-mono font-black px-2 py-0.5 rounded-full ${
+                          isCurrent ? 'bg-white/20 text-white' : 'bg-[#3db4f2]/15 text-[#3db4f2]'
+                        }`}
+                      >
+                        {meta.formattedCount}
+                      </span>
+                    </div>
+                    <p
+                      className={`text-[10px] mt-1 line-clamp-1 ${
+                        isCurrent ? 'text-white/80' : 'text-slate-400'
+                      }`}
+                    >
+                      {meta.description}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-white/10 text-[11px] text-slate-400">
+              <span>* Note: Anime can belong to multiple genres.</span>
+              <button
+                onClick={() => setShowGenreStatsModal(false)}
+                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white font-semibold cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
