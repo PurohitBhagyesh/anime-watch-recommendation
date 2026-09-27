@@ -33,7 +33,7 @@ export const StreamingPlatforms: React.FC<StreamingPlatformsProps> = ({ links })
 
   if (links.length === 0) {
     return (
-      <div className="p-4 rounded-xl royal-card-static text-center text-slate-400 text-xs">
+      <div className="p-4 rounded-xl anilist-card-static text-center text-slate-400 text-xs">
         No official streaming links indexed for this anime yet.
       </div>
     );
@@ -48,13 +48,13 @@ export const StreamingPlatforms: React.FC<StreamingPlatformsProps> = ({ links })
     if (s.includes('disney')) return 'bg-[#113ccf] hover:bg-[#1f4bf3] text-white font-black';
     if (s.includes('amazon')) return 'bg-[#00a8e1] hover:bg-[#1cbcf7] text-white font-black';
     if (s.includes('hidive')) return 'bg-[#00b2ff] hover:bg-[#2bc0ff] text-black font-black';
-    return 'bg-[#0e1528] hover:bg-[#182544] text-slate-200 border border-white/10 font-bold';
+    return 'bg-[#151f2e] hover:bg-[#1f2c3f] text-slate-200 border border-white/10 font-bold';
   };
 
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <PlayCircle className="w-4 h-4 text-[#818cf8]" />
+        <PlayCircle className="w-4 h-4 text-[#3db4f2]" />
         <h3 className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-mono">
           Where to Stream
         </h3>
@@ -105,7 +105,7 @@ export const StreamingPlatforms: React.FC<StreamingPlatformsProps> = ({ links })
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs px-3 py-1.5 rounded-lg bg-[#0e1528] hover:bg-[#182544] text-slate-200 hover:text-[#818cf8] border border-white/10 flex items-center gap-1.5 transition font-semibold"
+                className="text-xs px-3 py-1.5 rounded-lg bg-[#151f2e] hover:bg-[#1f2c3f] text-slate-200 hover:text-[#3db4f2] border border-white/10 flex items-center gap-1.5 transition font-semibold"
               >
                 {link.icon && <img src={link.icon} alt="" className="w-3.5 h-3.5 rounded object-contain" />}
                 <span>{link.site}</span>
@@ -118,3 +118,4 @@ export const StreamingPlatforms: React.FC<StreamingPlatformsProps> = ({ links })
     </div>
   );
 };
+

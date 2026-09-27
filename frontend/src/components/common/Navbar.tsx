@@ -170,46 +170,55 @@ export const Navbar: React.FC = () => {
             <div className="flex items-center gap-2 sm:gap-3 flex-1 justify-end max-w-xl">
               
               {/* Search Bar with Autocomplete */}
-              <div ref={searchContainerRef} className="relative flex-1 min-w-[130px] max-w-[240px] sm:max-w-[280px]">
-                <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+              <div ref={searchContainerRef} className="relative flex-1 min-w-[140px] max-w-[260px] sm:max-w-[320px] md:max-w-[360px]">
+                <form onSubmit={handleSearchSubmit} className="relative flex items-center group">
                   <input
                     ref={searchInputRef}
                     type="text"
-                    placeholder="Search anime... (/)"
+                    placeholder="Search 20,000+ anime... (/ or ⌘K)"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => {
                       if (autocompleteResults.length > 0) setShowAutocomplete(true);
                     }}
-                    className="anilist-input w-full text-xs pl-8 pr-7 py-2 placeholder-slate-500 rounded-lg text-slate-100"
+                    className="w-full text-xs pl-8 pr-12 py-2 bg-[#141f2e]/90 hover:bg-[#182638] focus:bg-[#1a293d] border border-white/10 focus:border-[#3db4f2] rounded-lg text-slate-100 placeholder-slate-400/80 outline-none transition-all shadow-inner focus:ring-1 focus:ring-[#3db4f2]/40"
                   />
-                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
+                  <Search className="w-3.5 h-3.5 text-slate-400 group-focus-within:text-[#3db4f2] absolute left-2.5 pointer-events-none transition-colors" />
 
-                  {searchQuery && (
+                  {searchQuery ? (
                     <button
                       type="button"
                       onClick={() => {
                         setSearchQuery('');
                         setShowAutocomplete(false);
                       }}
-                      className="absolute right-2.5 text-slate-400 hover:text-white"
+                      className="absolute right-2.5 text-slate-400 hover:text-white transition-colors"
+                      aria-label="Clear search"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
+                  ) : (
+                    <div className="absolute right-2.5 hidden sm:flex items-center gap-0.5 pointer-events-none">
+                      <kbd className="text-[10px] font-mono px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-slate-400">
+                        /
+                      </kbd>
+                    </div>
                   )}
                 </form>
 
                 {/* Autocomplete Dropdown Popover */}
                 {showAutocomplete && (
-                  <div className="absolute top-full left-0 right-0 mt-1.5 p-1.5 rounded-xl anilist-card-static shadow-2xl border border-white/10 z-50 max-h-96 overflow-y-auto space-y-1 animate-fadeIn">
+                  <div className="absolute top-full left-0 right-0 mt-2 p-1.5 rounded-xl bg-[#111927]/98 backdrop-blur-2xl shadow-2xl border border-white/15 z-50 max-h-96 overflow-y-auto space-y-1 animate-fadeIn">
                     {isSearching ? (
-                      <div className="p-4 text-center text-xs text-slate-400">
-                        Searching AniList...
+                      <div className="p-4 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+                        <div className="w-3.5 h-3.5 border-2 border-[#3db4f2] border-t-transparent rounded-full animate-spin" />
+                        <span>Searching 20,000+ anime titles...</span>
                       </div>
                     ) : autocompleteResults.length > 0 ? (
                       <>
-                        <div className="px-2.5 py-1 text-[10px] uppercase font-bold text-slate-400 tracking-wider font-mono">
-                          Quick Results
+                        <div className="px-2.5 py-1 text-[10px] uppercase font-bold text-[#8ba0b2] tracking-wider font-mono flex items-center justify-between border-b border-white/5">
+                          <span>Top Matches</span>
+                          <span className="text-[9px] text-[#3db4f2]">Live Catalog</span>
                         </div>
                         {autocompleteResults.map((item) => {
                           const itemTitle =
@@ -229,20 +238,26 @@ export const Navbar: React.FC = () => {
                               <img
                                 src={item.coverImage.medium || item.coverImage.large}
                                 alt={itemTitle}
-                                className="w-8 h-11 object-cover rounded bg-[#0b1622] flex-shrink-0"
+                                className="w-8 h-11 object-cover rounded bg-[#0b1622] flex-shrink-0 shadow-sm group-hover:ring-1 group-hover:ring-[#3db4f2]"
                               />
                               <div className="min-w-0 flex-1">
                                 <p className="text-xs font-bold text-slate-100 group-hover:text-[#3db4f2] truncate">
                                   {itemTitle}
                                 </p>
                                 <p className="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">
-                                  <span>{item.format?.replace('_', ' ') || 'Anime'}</span>
+                                  <span className="font-semibold text-slate-300">{item.format?.replace('_', ' ') || 'Anime'}</span>
                                   <span>·</span>
                                   <span>{item.seasonYear || 'TBA'}</span>
+                                  {item.genres && item.genres.length > 0 && (
+                                    <>
+                                      <span>·</span>
+                                      <span className="text-slate-400 truncate max-w-[90px]">{item.genres[0]}</span>
+                                    </>
+                                  )}
                                 </p>
                               </div>
                               {item.averageScore && (
-                                <div className="text-[11px] font-bold text-emerald-400 px-1.5 py-0.5 rounded bg-emerald-500/15">
+                                <div className="text-[11px] font-bold text-emerald-400 px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30">
                                   {item.averageScore}%
                                 </div>
                               )}
@@ -251,14 +266,14 @@ export const Navbar: React.FC = () => {
                         })}
                         <button
                           onClick={handleSearchSubmit}
-                          className="w-full text-center text-xs text-[#3db4f2] hover:underline font-semibold py-1.5 border-t border-white/10 mt-1"
+                          className="w-full text-center text-xs text-[#3db4f2] hover:text-[#70c9f7] font-bold py-2 border-t border-white/10 mt-1 hover:bg-white/5 rounded-b-lg transition"
                         >
-                          View all results for "{searchQuery}"
+                          View all results for "{searchQuery}" →
                         </button>
                       </>
                     ) : (
                       <div className="p-3 text-center text-xs text-slate-400">
-                        No matches found. Press enter to search.
+                        No matches found. Press <kbd className="font-mono text-[10px] bg-white/10 px-1 rounded">Enter</kbd> to search full catalog.
                       </div>
                     )}
                   </div>

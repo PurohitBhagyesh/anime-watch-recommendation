@@ -13,7 +13,7 @@ router.get('/health', (_req, res) => {
     status: 'healthy',
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
-    service: 'Voltaku API Backend',
+    service: 'AnimeSenpai API (animesenpai.online)',
     version: '1.0.0',
   });
 });

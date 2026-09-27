@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import {
   Search,
@@ -11,6 +11,22 @@ import {
   List,
   Check,
   Plus,
+  Flame,
+  PlaySquare,
+  TrendingUp,
+  Trophy,
+  Clock,
+  Film,
+  Tv,
+  Zap,
+  Heart,
+  Swords,
+  Ghost,
+  Smile,
+  Cpu,
+  Sparkles,
+  Info,
+  Compass,
 } from 'lucide-react';
 import { searchAnime, GENRE_LIST, getCurrentSeason } from '../api/anilist';
 import type { AnimeCardData, PageInfo, WatchlistStatus } from '../api/types';
@@ -40,13 +56,26 @@ export const DiscoverPage: React.FC = () => {
   const [results, setResults] = useState<AnimeCardData[]>([]);
   const [pageInfo, setPageInfo] = useState<PageInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [openStatusMenuId, setOpenStatusMenuId] = useState<number | null>(null);
+  const [showCountInfo, setShowCountInfo] = useState(false);
 
-  // Sync state when URL params change
+  const categoryBarRef = useRef<HTMLDivElement>(null);
+
+  const scrollCategoryBar = (direction: 'left' | 'right') => {
+    if (categoryBarRef.current) {
+      const offset = direction === 'left' ? -300 : 300;
+      categoryBarRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+    }
+  };
+
+  // Sync state when URL params change with case-insensitive genre normalization
   useEffect(() => {
     const s = searchParams.get('search') || '';
-    const g = searchParams.get('genre') || '';
+    const rawGenre = searchParams.get('genre') || '';
+    const matchedGenre = rawGenre
+      ? GENRE_LIST.find((item) => item.toLowerCase() === rawGenre.toLowerCase()) || rawGenre
+      : '';
+
     const f = searchParams.get('format') || '';
     const st = searchParams.get('status') || '';
     const se = searchParams.get('season') || '';
@@ -64,7 +93,7 @@ export const DiscoverPage: React.FC = () => {
     }
 
     setSearchQuery(s);
-    setSelectedGenre(g);
+    setSelectedGenre(matchedGenre);
     setSelectedFormat(f);
     setSelectedStatus(st);
     setSelectedSort(so);
@@ -77,7 +106,7 @@ export const DiscoverPage: React.FC = () => {
       setLoading(true);
       try {
         const res = await searchAnime({
-          search: searchQuery || undefined,
+          search: searchQuery.trim() || undefined,
           genres: selectedGenre ? [selectedGenre] : undefined,
           format: selectedFormat || undefined,
           status: selectedStatus || undefined,
@@ -93,6 +122,7 @@ export const DiscoverPage: React.FC = () => {
       } catch (err) {
         console.error('Failed to search anime', err);
         setResults([]);
+        setPageInfo(null);
       } finally {
         setLoading(false);
       }
@@ -140,6 +170,98 @@ export const DiscoverPage: React.FC = () => {
     setSearchParams(newParams);
   };
 
+  const applyCategoryPreset = (
+    preset:
+      | 'all'
+      | 'trending'
+      | 'seasonal'
+      | 'popular'
+      | 'topRated'
+      | 'upcoming'
+      | 'movies'
+      | 'tv'
+      | 'ova'
+      | 'action'
+      | 'romance'
+      | 'fantasy'
+      | 'scifi'
+      | 'comedy'
+      | 'supernatural'
+      | 'sports'
+      | 'mystery'
+      | 'sliceOfLife'
+  ) => {
+    const cur = getCurrentSeason();
+
+    if (preset === 'all' || preset === 'trending') {
+      resetAllFilters();
+      return;
+    }
+
+    // Reset base parameters
+    let nextGenre = '';
+    let nextFormat = '';
+    let nextStatus = '';
+    let nextSeason = '';
+    let nextYear = '';
+    let nextSort = 'POPULARITY_DESC';
+
+    if (preset === 'seasonal') {
+      nextSeason = cur.season;
+      nextYear = cur.year.toString();
+    } else if (preset === 'popular') {
+      nextSort = 'POPULARITY_DESC';
+    } else if (preset === 'topRated') {
+      nextSort = 'SCORE_DESC';
+    } else if (preset === 'upcoming') {
+      nextStatus = 'NOT_YET_RELEASED';
+    } else if (preset === 'movies') {
+      nextFormat = 'MOVIE';
+    } else if (preset === 'tv') {
+      nextFormat = 'TV';
+    } else if (preset === 'ova') {
+      nextFormat = 'OVA';
+    } else if (preset === 'action') {
+      nextGenre = 'Action';
+    } else if (preset === 'romance') {
+      nextGenre = 'Romance';
+    } else if (preset === 'fantasy') {
+      nextGenre = 'Fantasy';
+    } else if (preset === 'scifi') {
+      nextGenre = 'Sci-Fi';
+    } else if (preset === 'comedy') {
+      nextGenre = 'Comedy';
+    } else if (preset === 'supernatural') {
+      nextGenre = 'Supernatural';
+    } else if (preset === 'sports') {
+      nextGenre = 'Sports';
+    } else if (preset === 'mystery') {
+      nextGenre = 'Mystery';
+    } else if (preset === 'sliceOfLife') {
+      nextGenre = 'Slice of Life';
+    }
+
+    setSearchQuery('');
+    setSelectedGenre(nextGenre);
+    setSelectedFormat(nextFormat);
+    setSelectedStatus(nextStatus);
+    setSelectedSeason(nextSeason);
+    setSelectedYear(nextYear);
+    setSelectedSort(nextSort);
+    setCurrentPage(1);
+
+    updateFiltersInUrl({
+      search: '',
+      genre: nextGenre,
+      format: nextFormat,
+      status: nextStatus,
+      season: nextSeason,
+      year: nextYear,
+      sort: nextSort,
+      page: 1,
+    });
+  };
+
   const resetAllFilters = () => {
     setSearchQuery('');
     setSelectedGenre('');
@@ -181,298 +303,666 @@ export const DiscoverPage: React.FC = () => {
 
   const getScoreBadgeClass = (score: number | null) => {
     if (!score) return '';
-    if (score >= 80) return 'score-pill-gold';
-    if (score >= 70) return 'score-pill-high';
+    if (score >= 75) return 'score-pill-high';
     if (score >= 60) return 'score-pill-med';
     return 'score-pill-low';
   };
 
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 animate-fadeIn">
-      {/* Header with Title & View Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            Discover Anime
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-            Filter through over 15,000 anime by genres, format, season, and scores
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* View mode toggle (Grid vs Table) */}
-          <div className="flex items-center p-1 rounded-xl bg-[#0e1528] border border-white/10">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
-                viewMode === 'grid'
-                  ? 'bg-[#6366f1] text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-              title="Grid View"
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
-                viewMode === 'table'
-                  ? 'bg-[#6366f1] text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-              title="Table View"
-            >
-              <List className="w-4 h-4" />
-            </button>
+      {/* AniList Minimalist Filter Bar */}
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5 sm:gap-3 items-end">
+          {/* 1. Search */}
+          <div className="col-span-2 sm:col-span-1 lg:col-span-2">
+            <label className="block text-[11px] font-bold text-[#8ba0b2] tracking-wider mb-1">
+              Search
+            </label>
+            <form onSubmit={handleSearchSubmit} className="relative">
+              <Search className="w-3.5 h-3.5 text-[#8ba0b2] absolute left-3 top-3 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  updateFiltersInUrl({ search: e.target.value });
+                }}
+                placeholder="Any"
+                className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold pl-9 pr-7 py-2.5 rounded-lg border border-white/5 focus:border-[#3db4f2]/50 focus:ring-1 focus:ring-[#3db4f2]/50 outline-none transition placeholder-[#8ba0b2]"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    updateFiltersInUrl({ search: '' });
+                  }}
+                  className="absolute right-2.5 top-2.5 text-[#8ba0b2] hover:text-white"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </form>
           </div>
 
-          {/* Mobile filter toggle button */}
-          <button
-            onClick={() => setShowMobileFilters(!showMobileFilters)}
-            className="md:hidden flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl royal-btn-secondary text-xs font-bold"
-          >
-            <SlidersHorizontal className="w-4 h-4 text-[#818cf8]" />
-            <span>{showMobileFilters ? 'Hide Filters' : 'Filters'}</span>
-          </button>
+          {/* 2. Genres & Tags */}
+          <div>
+            <label className="block text-[11px] font-bold text-[#8ba0b2] tracking-wider mb-1">
+              Genres & Tags
+            </label>
+            <div className="relative">
+              <select
+                value={selectedGenre}
+                onChange={(e) => {
+                  setSelectedGenre(e.target.value);
+                  updateFiltersInUrl({ genre: e.target.value });
+                }}
+                className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 rounded-lg border border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
+              >
+                <option value="">Any</option>
+                {GENRE_LIST.map((g) => (
+                  <option key={g} value={g} className="bg-[#151f2e] text-[#edf1f5]">
+                    {g}
+                  </option>
+                ))}
+              </select>
+              <ChevronRight className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-3 rotate-90 pointer-events-none" />
+            </div>
+          </div>
+
+          {/* 3. Year */}
+          <div>
+            <label className="block text-[11px] font-bold text-[#8ba0b2] tracking-wider mb-1">
+              Year
+            </label>
+            <div className="relative">
+              <select
+                value={selectedYear}
+                onChange={(e) => {
+                  setSelectedYear(e.target.value);
+                  updateFiltersInUrl({ year: e.target.value });
+                }}
+                className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 rounded-lg border border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
+              >
+                <option value="">Any</option>
+                {yearsList.map((y) => (
+                  <option key={y} value={y} className="bg-[#151f2e] text-[#edf1f5]">
+                    {y}
+                  </option>
+                ))}
+              </select>
+              <ChevronRight className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-3 rotate-90 pointer-events-none" />
+            </div>
+          </div>
+
+          {/* 4. Season */}
+          <div>
+            <label className="block text-[11px] font-bold text-[#8ba0b2] tracking-wider mb-1">
+              Season
+            </label>
+            <div className="relative">
+              <select
+                value={selectedSeason}
+                onChange={(e) => {
+                  setSelectedSeason(e.target.value);
+                  updateFiltersInUrl({ season: e.target.value });
+                }}
+                className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 rounded-lg border border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
+              >
+                <option value="">Any</option>
+                <option value="WINTER" className="bg-[#151f2e] text-[#edf1f5]">Winter</option>
+                <option value="SPRING" className="bg-[#151f2e] text-[#edf1f5]">Spring</option>
+                <option value="SUMMER" className="bg-[#151f2e] text-[#edf1f5]">Summer</option>
+                <option value="FALL" className="bg-[#151f2e] text-[#edf1f5]">Fall</option>
+              </select>
+              <ChevronRight className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-3 rotate-90 pointer-events-none" />
+            </div>
+          </div>
+
+          {/* 5. Format */}
+          <div>
+            <label className="block text-[11px] font-bold text-[#8ba0b2] tracking-wider mb-1">
+              Format
+            </label>
+            <div className="relative">
+              <select
+                value={selectedFormat}
+                onChange={(e) => {
+                  setSelectedFormat(e.target.value);
+                  updateFiltersInUrl({ format: e.target.value });
+                }}
+                className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 rounded-lg border border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
+              >
+                <option value="">Any</option>
+                <option value="TV" className="bg-[#151f2e] text-[#edf1f5]">TV Show</option>
+                <option value="MOVIE" className="bg-[#151f2e] text-[#edf1f5]">Movie</option>
+                <option value="TV_SHORT" className="bg-[#151f2e] text-[#edf1f5]">TV Short</option>
+                <option value="OVA" className="bg-[#151f2e] text-[#edf1f5]">OVA</option>
+                <option value="ONA" className="bg-[#151f2e] text-[#edf1f5]">ONA</option>
+                <option value="SPECIAL" className="bg-[#151f2e] text-[#edf1f5]">Special</option>
+              </select>
+              <ChevronRight className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-3 rotate-90 pointer-events-none" />
+            </div>
+          </div>
+
+          {/* 6. Airing Status & 7. Toggle Filter Button */}
+          <div className="flex items-end gap-2">
+            <div className="flex-1">
+              <label className="block text-[11px] font-bold text-[#8ba0b2] tracking-wider mb-1">
+                Airing Status
+              </label>
+              <div className="relative">
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => {
+                    setSelectedStatus(e.target.value);
+                    updateFiltersInUrl({ status: e.target.value });
+                  }}
+                  className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 rounded-lg border border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
+                >
+                  <option value="">Any</option>
+                  <option value="RELEASING" className="bg-[#151f2e] text-[#edf1f5]">Airing</option>
+                  <option value="FINISHED" className="bg-[#151f2e] text-[#edf1f5]">Finished</option>
+                  <option value="NOT_YET_RELEASED" className="bg-[#151f2e] text-[#edf1f5]">Not Yet Aired</option>
+                  <option value="CANCELLED" className="bg-[#151f2e] text-[#edf1f5]">Cancelled</option>
+                </select>
+                <ChevronRight className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-3 rotate-90 pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Options button */}
+            <button
+              type="button"
+              onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+              className={`p-2.5 rounded-lg border transition ${
+                showAdvancedOptions || hasActiveFilters
+                  ? 'bg-[#3db4f2] text-white border-[#3db4f2]'
+                  : 'bg-[#151f2e] text-[#8ba0b2] hover:text-[#edf1f5] border-white/5'
+              }`}
+              title="Advanced Filter Options"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+            </button>
+          </div>
         </div>
+
+        {/* Advanced Filters & Popular Chips Drawer */}
+        {showAdvancedOptions && (
+          <div className="p-4 rounded-xl bg-[#151f2e]/90 border border-white/5 space-y-3 animate-fadeIn">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              {/* Sort By Dropdown */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-[#8ba0b2]">Sort By:</span>
+                <select
+                  value={selectedSort}
+                  onChange={(e) => {
+                    setSelectedSort(e.target.value);
+                    updateFiltersInUrl({ sort: e.target.value });
+                  }}
+                  className="bg-[#0b1622] text-[#3db4f2] text-xs font-bold px-3 py-1.5 rounded border border-white/10 outline-none cursor-pointer"
+                >
+                  <option value="TRENDING_DESC">Trending</option>
+                  <option value="POPULARITY_DESC">Popularity</option>
+                  <option value="SCORE_DESC">Average Score</option>
+                  <option value="START_DATE_DESC">Release Date</option>
+                  <option value="FAVOURITES_DESC">Favourites</option>
+                  <option value="TITLE_ROMAJI">Title (A-Z)</option>
+                </select>
+              </div>
+
+              {/* Reset button */}
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={resetAllFilters}
+                  className="text-xs font-bold text-[#e85d75] hover:underline flex items-center gap-1 transition ml-auto"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Reset All Filters</span>
+                </button>
+              )}
+            </div>
+
+            {/* Popular Genres Row */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-white/5">
+              <span className="text-xs font-bold text-[#8ba0b2] mr-1 flex items-center gap-1">
+                <Filter className="w-3 h-3 text-[#3db4f2]" /> Quick Genres:
+              </span>
+              {['Action', 'Romance', 'Fantasy', 'Sci-Fi', 'Comedy', 'Adventure', 'Sports', 'Drama'].map(
+                (g) => (
+                  <button
+                    key={g}
+                    type="button"
+                    onClick={() => {
+                      const nextGenre = selectedGenre === g ? '' : g;
+                      setSelectedGenre(nextGenre);
+                      updateFiltersInUrl({ genre: nextGenre });
+                    }}
+                    className={`text-xs px-2.5 py-1 rounded transition font-semibold ${
+                      selectedGenre === g
+                        ? 'bg-[#3db4f2] text-white'
+                        : 'bg-[#0b1622] text-[#8ba0b2] hover:text-[#edf1f5] border border-white/5'
+                    }`}
+                  >
+                    {g}
+                  </button>
+                )
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Main Filters Panel */}
-      <div
-        className={`space-y-4 p-4 sm:p-5 rounded-2xl royal-card-static ${
-          showMobileFilters ? 'block' : 'hidden md:block'
-        }`}
-      >
-        {/* Search Bar Row */}
-        <form onSubmit={handleSearchSubmit} className="flex gap-2">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              placeholder="Search anime title, e.g. Frieren, Demon Slayer, Jujutsu Kaisen..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="anilist-input w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm placeholder-slate-500"
-            />
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
-            {searchQuery && (
+      {/* Category Presets Quick Bar (Scrollable with smooth navigation arrows) */}
+      <div className="relative group/category">
+        {/* Left Scroll Arrow */}
+        <button
+          type="button"
+          onClick={() => scrollCategoryBar('left')}
+          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-[#0b1622]/90 hover:bg-[#151f2e] border border-white/15 text-slate-300 hover:text-white items-center justify-center shadow-lg backdrop-blur-md opacity-0 group-hover/category:opacity-100 transition-opacity"
+          aria-label="Scroll categories left"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+
+        {/* Scrollable Container */}
+        <div
+          ref={categoryBarRef}
+          className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar pt-1 scroll-smooth px-1"
+        >
+          {[
+            {
+              id: 'all' as const,
+              label: 'All Anime',
+              icon: Zap,
+              color: 'text-sky-400',
+              active:
+                !selectedGenre &&
+                !searchQuery &&
+                !selectedStatus &&
+                !selectedSeason &&
+                !selectedFormat &&
+                selectedSort === 'TRENDING_DESC',
+            },
+            {
+              id: 'trending' as const,
+              label: 'Trending',
+              icon: Flame,
+              color: 'text-amber-400',
+              active:
+                !selectedGenre &&
+                !searchQuery &&
+                !selectedStatus &&
+                !selectedSeason &&
+                !selectedFormat &&
+                selectedSort === 'TRENDING_DESC',
+            },
+            {
+              id: 'seasonal' as const,
+              label: `${getCurrentSeason().season} ${getCurrentSeason().year}`,
+              icon: PlaySquare,
+              color: 'text-[#3db4f2]',
+              active: Boolean(selectedSeason && selectedYear),
+            },
+            {
+              id: 'popular' as const,
+              label: 'All-Time Popular',
+              icon: TrendingUp,
+              color: 'text-emerald-400',
+              active:
+                !selectedSeason &&
+                !selectedGenre &&
+                !searchQuery &&
+                !selectedStatus &&
+                !selectedFormat &&
+                selectedSort === 'POPULARITY_DESC',
+            },
+            {
+              id: 'topRated' as const,
+              label: 'Top 100 Rated',
+              icon: Trophy,
+              color: 'text-amber-300',
+              active:
+                selectedSort === 'SCORE_DESC' &&
+                !selectedGenre &&
+                !searchQuery &&
+                !selectedFormat,
+            },
+            {
+              id: 'upcoming' as const,
+              label: 'Upcoming Next',
+              icon: Clock,
+              color: 'text-violet-400',
+              active: selectedStatus === 'NOT_YET_RELEASED',
+            },
+            {
+              id: 'movies' as const,
+              label: 'Anime Movies',
+              icon: Film,
+              color: 'text-pink-400',
+              active: selectedFormat === 'MOVIE',
+            },
+            {
+              id: 'tv' as const,
+              label: 'TV Series',
+              icon: Tv,
+              color: 'text-cyan-400',
+              active: selectedFormat === 'TV',
+            },
+            {
+              id: 'ova' as const,
+              label: 'OVA & Shorts',
+              icon: Sparkles,
+              color: 'text-indigo-400',
+              active: selectedFormat === 'OVA' || selectedFormat === 'TV_SHORT',
+            },
+            {
+              id: 'action' as const,
+              label: 'Action & Shonen',
+              icon: Swords,
+              color: 'text-rose-400',
+              active: selectedGenre.toLowerCase() === 'action',
+            },
+            {
+              id: 'romance' as const,
+              label: 'Romance & Drama',
+              icon: Heart,
+              color: 'text-rose-300',
+              active: selectedGenre.toLowerCase() === 'romance',
+            },
+            {
+              id: 'fantasy' as const,
+              label: 'Fantasy & Isekai',
+              icon: Sparkles,
+              color: 'text-purple-400',
+              active: selectedGenre.toLowerCase() === 'fantasy',
+            },
+            {
+              id: 'scifi' as const,
+              label: 'Sci-Fi & Cyberpunk',
+              icon: Cpu,
+              color: 'text-cyan-300',
+              active: selectedGenre.toLowerCase() === 'sci-fi',
+            },
+            {
+              id: 'comedy' as const,
+              label: 'Comedy',
+              icon: Smile,
+              color: 'text-yellow-400',
+              active: selectedGenre.toLowerCase() === 'comedy',
+            },
+            {
+              id: 'supernatural' as const,
+              label: 'Supernatural & Horror',
+              icon: Ghost,
+              color: 'text-teal-400',
+              active: selectedGenre.toLowerCase() === 'supernatural',
+            },
+            {
+              id: 'sports' as const,
+              label: 'Sports',
+              icon: Trophy,
+              color: 'text-orange-400',
+              active: selectedGenre.toLowerCase() === 'sports',
+            },
+            {
+              id: 'mystery' as const,
+              label: 'Mystery & Thriller',
+              icon: Compass,
+              color: 'text-blue-400',
+              active: selectedGenre.toLowerCase() === 'mystery',
+            },
+          ].map((cat) => {
+            const Icon = cat.icon;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => applyCategoryPreset(cat.id)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 cursor-pointer ${
+                  cat.active
+                    ? 'bg-[#3db4f2] text-white shadow-md shadow-[#3db4f2]/25 scale-[1.02]'
+                    : 'bg-[#151f2e] text-[#8ba0b2] hover:text-[#edf1f5] hover:bg-[#1c2a3f] border border-white/5'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${cat.active ? 'text-white' : cat.color}`} />
+                <span>{cat.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Right Scroll Arrow */}
+        <button
+          type="button"
+          onClick={() => scrollCategoryBar('right')}
+          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-[#0b1622]/90 hover:bg-[#151f2e] border border-white/15 text-slate-300 hover:text-white items-center justify-center shadow-lg backdrop-blur-md opacity-0 group-hover/category:opacity-100 transition-opacity"
+          aria-label="Scroll categories right"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Active Filter Chips Bar */}
+      {hasActiveFilters && (
+        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+          <span className="text-[11px] font-bold text-[#8ba0b2] uppercase tracking-wider mr-1">
+            Active Filters:
+          </span>
+          {searchQuery && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#1f2c3f] border border-[#3db4f2]/30 text-xs font-semibold text-[#edf1f5]">
+              Search: <strong className="text-[#3db4f2] font-bold">"{searchQuery}"</strong>
               <button
                 type="button"
                 onClick={() => {
                   setSearchQuery('');
                   updateFiltersInUrl({ search: '' });
                 }}
-                className="absolute right-3.5 top-3.5 text-slate-400 hover:text-white"
+                className="text-[#8ba0b2] hover:text-white ml-1"
+                aria-label="Remove search filter"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3 h-3" />
               </button>
-            )}
-          </div>
+            </span>
+          )}
+          {selectedGenre && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#1f2c3f] border border-[#3db4f2]/30 text-xs font-semibold text-[#edf1f5]">
+              Genre: <strong className="text-[#3db4f2] font-bold">{selectedGenre}</strong>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedGenre('');
+                  updateFiltersInUrl({ genre: '' });
+                }}
+                className="text-[#8ba0b2] hover:text-white ml-1"
+                aria-label="Remove genre filter"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {selectedYear && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#1f2c3f] border border-white/10 text-xs font-semibold text-[#edf1f5]">
+              Year: <strong className="text-[#3db4f2] font-bold">{selectedYear}</strong>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedYear('');
+                  updateFiltersInUrl({ year: '' });
+                }}
+                className="text-[#8ba0b2] hover:text-white ml-1"
+                aria-label="Remove year filter"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {selectedSeason && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#1f2c3f] border border-white/10 text-xs font-semibold text-[#edf1f5]">
+              Season: <strong className="text-[#3db4f2] font-bold">{selectedSeason}</strong>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedSeason('');
+                  updateFiltersInUrl({ season: '' });
+                }}
+                className="text-[#8ba0b2] hover:text-white ml-1"
+                aria-label="Remove season filter"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {selectedFormat && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#1f2c3f] border border-white/10 text-xs font-semibold text-[#edf1f5]">
+              Format: <strong className="text-[#3db4f2] font-bold">{selectedFormat.replace('_', ' ')}</strong>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedFormat('');
+                  updateFiltersInUrl({ format: '' });
+                }}
+                className="text-[#8ba0b2] hover:text-white ml-1"
+                aria-label="Remove format filter"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {selectedStatus && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#1f2c3f] border border-white/10 text-xs font-semibold text-[#edf1f5]">
+              Status: <strong className="text-[#3db4f2] font-bold">{selectedStatus.replace(/_/g, ' ')}</strong>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedStatus('');
+                  updateFiltersInUrl({ status: '' });
+                }}
+                className="text-[#8ba0b2] hover:text-white ml-1"
+                aria-label="Remove status filter"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
           <button
-            type="submit"
-            className="royal-btn-primary px-5 py-2.5 text-xs sm:text-sm font-bold"
+            type="button"
+            onClick={resetAllFilters}
+            className="text-xs font-bold text-[#e85d75] hover:underline ml-2 transition"
           >
-            Search
+            Clear all
           </button>
-        </form>
-
-        {/* Filter Dropdowns Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5 pt-1">
-          {/* Genre */}
-          <div>
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 font-mono">
-              Genre
-            </label>
-            <select
-              value={selectedGenre}
-              onChange={(e) => {
-                setSelectedGenre(e.target.value);
-                updateFiltersInUrl({ genre: e.target.value });
-              }}
-              className="anilist-input w-full text-xs px-2.5 py-2 cursor-pointer font-medium"
-            >
-              <option value="">All Genres</option>
-              {GENRE_LIST.map((g) => (
-                <option key={g} value={g}>
-                  {g}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Format */}
-          <div>
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 font-mono">
-              Format
-            </label>
-            <select
-              value={selectedFormat}
-              onChange={(e) => {
-                setSelectedFormat(e.target.value);
-                updateFiltersInUrl({ format: e.target.value });
-              }}
-              className="anilist-input w-full text-xs px-2.5 py-2 cursor-pointer font-medium"
-            >
-              <option value="">All Formats</option>
-              <option value="TV">TV Series</option>
-              <option value="MOVIE">Movie</option>
-              <option value="TV_SHORT">TV Short</option>
-              <option value="OVA">OVA</option>
-              <option value="ONA">ONA</option>
-              <option value="SPECIAL">Special</option>
-            </select>
-          </div>
-
-          {/* Airing Status */}
-          <div>
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 font-mono">
-              Airing Status
-            </label>
-            <select
-              value={selectedStatus}
-              onChange={(e) => {
-                setSelectedStatus(e.target.value);
-                updateFiltersInUrl({ status: e.target.value });
-              }}
-              className="anilist-input w-full text-xs px-2.5 py-2 cursor-pointer font-medium"
-            >
-              <option value="">All Statuses</option>
-              <option value="RELEASING">Airing</option>
-              <option value="FINISHED">Finished</option>
-              <option value="NOT_YET_RELEASED">Upcoming</option>
-              <option value="CANCELLED">Cancelled</option>
-            </select>
-          </div>
-
-          {/* Season */}
-          <div>
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 font-mono">
-              Season
-            </label>
-            <select
-              value={selectedSeason}
-              onChange={(e) => {
-                setSelectedSeason(e.target.value);
-                updateFiltersInUrl({ season: e.target.value });
-              }}
-              className="anilist-input w-full text-xs px-2.5 py-2 cursor-pointer font-medium"
-            >
-              <option value="">All Seasons</option>
-              <option value="WINTER">Winter</option>
-              <option value="SPRING">Spring</option>
-              <option value="SUMMER">Summer</option>
-              <option value="FALL">Fall</option>
-            </select>
-          </div>
-
-          {/* Year */}
-          <div>
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 font-mono">
-              Year
-            </label>
-            <select
-              value={selectedYear}
-              onChange={(e) => {
-                setSelectedYear(e.target.value);
-                updateFiltersInUrl({ year: e.target.value });
-              }}
-              className="anilist-input w-full text-xs px-2.5 py-2 cursor-pointer font-medium"
-            >
-              <option value="">All Years</option>
-              {yearsList.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Sort By */}
-          <div>
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 font-mono">
-              Sort By
-            </label>
-            <select
-              value={selectedSort}
-              onChange={(e) => {
-                setSelectedSort(e.target.value);
-                updateFiltersInUrl({ sort: e.target.value });
-              }}
-              className="anilist-input w-full text-xs px-2.5 py-2 cursor-pointer text-[#818cf8] font-bold"
-            >
-              <option value="TRENDING_DESC">Trending</option>
-              <option value="POPULARITY_DESC">Popularity</option>
-              <option value="SCORE_DESC">Average Score</option>
-              <option value="START_DATE_DESC">Release Date</option>
-              <option value="FAVOURITES_DESC">Favourites</option>
-              <option value="TITLE_ROMAJI">Title (A-Z)</option>
-            </select>
-          </div>
         </div>
+      )}
 
-        {/* Quick Genre Chips & Reset */}
-        <div className="pt-2 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap gap-1.5 items-center">
-            <span className="text-xs text-slate-400 mr-1 flex items-center gap-1 font-bold">
-              <Filter className="w-3.5 h-3.5 text-[#818cf8]" /> Popular:
-            </span>
-            {['Action', 'Romance', 'Fantasy', 'Sci-Fi', 'Comedy', 'Adventure', 'Sports'].map(
-              (genre) => (
+      {/* Dynamic Results Header with Live Total Count & View Toggle */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-white/[0.06]">
+        <div>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h2 className="text-base sm:text-lg font-black text-[#edf1f5] uppercase tracking-wider">
+              {selectedGenre
+                ? `${selectedGenre} Anime`
+                : searchQuery
+                ? `Search: "${searchQuery}"`
+                : selectedSeason && selectedYear
+                ? `${selectedSeason} ${selectedYear} Anime`
+                : selectedFormat
+                ? `${selectedFormat.replace('_', ' ')} Anime`
+                : selectedSort === 'TRENDING_DESC'
+                ? 'Trending Now'
+                : selectedSort === 'POPULARITY_DESC'
+                ? 'All-Time Popular'
+                : selectedSort === 'SCORE_DESC'
+                ? 'Top 100 Highest Rated'
+                : selectedStatus === 'NOT_YET_RELEASED'
+                ? 'Upcoming Next Season'
+                : 'Anime Discovery'}
+            </h2>
+
+            {!loading && pageInfo && (
+              <div className="relative inline-flex items-center">
                 <button
-                  key={genre}
                   type="button"
-                  onClick={() => {
-                    const val = selectedGenre === genre ? '' : genre;
-                    setSelectedGenre(val);
-                    updateFiltersInUrl({ genre: val });
-                  }}
-                  className={`text-xs px-2.5 py-1 rounded-lg transition font-semibold ${
-                    selectedGenre === genre
-                      ? 'royal-btn-primary'
-                      : 'bg-[#080d1a] hover:bg-[#141f38] text-slate-300 border border-white/10'
-                  }`}
+                  onClick={() => setShowCountInfo(!showCountInfo)}
+                  className="px-2.5 py-0.5 rounded-full bg-[#3db4f2]/15 hover:bg-[#3db4f2]/25 border border-[#3db4f2]/30 text-[#3db4f2] text-xs font-bold font-mono transition flex items-center gap-1.5 cursor-pointer"
+                  title="Click to view database details"
                 >
-                  {genre}
+                  <span>
+                    {pageInfo.total >= 5000
+                      ? '5,000+ available (20,000+ database)'
+                      : `${pageInfo.total.toLocaleString()} anime found`}
+                  </span>
+                  <Info className="w-3 h-3 text-[#3db4f2]" />
                 </button>
-              )
+
+                {/* Popover explaining the 5,000 count & 20,000+ database */}
+                {showCountInfo && (
+                  <div className="absolute left-0 top-full mt-2 w-72 sm:w-80 p-3.5 rounded-xl bg-[#111927]/98 backdrop-blur-2xl border border-white/20 shadow-2xl z-50 text-xs text-slate-200 animate-fadeIn space-y-2">
+                    <div className="flex items-center justify-between font-bold text-white border-b border-white/10 pb-1.5">
+                      <span className="flex items-center gap-1.5 text-[#3db4f2]">
+                        <Sparkles className="w-3.5 h-3.5" /> 20,000+ Anime Database
+                      </span>
+                      <button
+                        onClick={() => setShowCountInfo(false)}
+                        className="text-slate-400 hover:text-white"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      <strong>AnimeSenpai</strong> connects directly to the live AniList database containing over <strong>20,000+ indexed anime titles</strong>.
+                    </p>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      To ensure lightning-fast performance, broad queries show the top <strong>5,000 ranked anime</strong> across 250 pages. Filtering by <strong>Genre, Release Year, Format, or Search keywords</strong> queries the entire 20,000+ database and yields exact counts!
+                    </p>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
-          {hasActiveFilters && (
+          <p className="text-xs text-[#8ba0b2] mt-0.5">
+            {loading
+              ? 'Searching anime catalog in real-time...'
+              : pageInfo
+              ? `Page ${pageInfo.currentPage} of ${pageInfo.lastPage.toLocaleString()} • ${results.length} on this page`
+              : 'Browse AnimeSenpai Catalog'}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 self-end sm:self-auto">
+          {/* View mode toggle */}
+          <div className="flex items-center p-0.5 rounded bg-[#151f2e] border border-white/10">
             <button
-              onClick={resetAllFilters}
-              className="text-xs text-rose-400 hover:text-rose-300 flex items-center gap-1 font-bold ml-auto transition"
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded text-xs font-bold transition ${
+                viewMode === 'grid'
+                  ? 'bg-[#3db4f2] text-white shadow-sm'
+                  : 'text-[#8ba0b2] hover:text-white'
+              }`}
+              title="Grid View"
             >
-              <X className="w-3.5 h-3.5" />
-              Reset filters
+              <LayoutGrid className="w-3.5 h-3.5" />
             </button>
-          )}
+            <button
+              onClick={() => setViewMode('table')}
+              className={`p-1.5 rounded text-xs font-bold transition ${
+                viewMode === 'table'
+                  ? 'bg-[#3db4f2] text-white shadow-sm'
+                  : 'text-[#8ba0b2] hover:text-white'
+              }`}
+              title="Table View"
+            >
+              <List className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Results Header */}
-      <div className="flex items-center justify-between">
-        <p className="text-xs sm:text-sm font-semibold text-slate-300">
-          {loading ? (
-            'Loading anime results...'
-          ) : pageInfo ? (
-            <span>
-              <span className="text-white font-bold">{pageInfo.total.toLocaleString()}</span> anime
-              found
-            </span>
-          ) : (
-            'Results'
-          )}
-        </p>
-
-        {pageInfo && pageInfo.lastPage > 1 && (
-          <div className="text-xs text-slate-400 font-mono">
-            Page {pageInfo.currentPage} of {pageInfo.lastPage}
-          </div>
-        )}
-      </div>
-
-      {/* Results Display: Grid Mode or Table Mode */}
+      {/* Results Display */}
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
           {Array.from({ length: 18 }).map((_, i) => (
@@ -487,11 +977,11 @@ export const DiscoverPage: React.FC = () => {
             ))}
           </div>
         ) : (
-          /* Classic Table View */
-          <div className="space-y-2">
+          /* Table View */
+          <div className="space-y-1.5">
             {results.map((anime, index) => {
               const title =
-                anime.title.english || anime.title.romaji || anime.title.userPreferred;
+                anime.title.userPreferred || anime.title.english || anime.title.romaji;
               const inWatchlist = isInWatchlist(anime.id);
               const currentItem = getItem(anime.id);
               const rankNum = (currentPage - 1) * 24 + index + 1;
@@ -500,17 +990,16 @@ export const DiscoverPage: React.FC = () => {
               return (
                 <div
                   key={anime.id}
-                  className="flex items-center justify-between p-3 rounded-xl anilist-table-row gap-3 sm:gap-4"
+                  className="flex items-center justify-between p-2.5 sm:p-3 rounded-lg anilist-table-row gap-3 sm:gap-4"
                 >
-                  {/* Rank & Poster Thumbnail */}
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <span className="text-xs sm:text-sm font-mono font-bold text-slate-500 w-6 text-right flex-shrink-0">
+                    <span className="text-xs sm:text-sm font-bold text-[#8ba0b2] w-6 text-right flex-shrink-0">
                       #{rankNum}
                     </span>
 
                     <Link
                       to={`/anime/${anime.id}`}
-                      className="w-12 sm:w-14 aspect-[3/4] rounded-lg overflow-hidden flex-shrink-0 bg-[#080d1a] relative group"
+                      className="w-10 sm:w-12 aspect-[3/4] rounded overflow-hidden flex-shrink-0 bg-[#0b1622] relative group"
                     >
                       <img
                         src={anime.coverImage.medium || anime.coverImage.large}
@@ -522,13 +1011,13 @@ export const DiscoverPage: React.FC = () => {
                     <div className="min-w-0 flex-1">
                       <Link
                         to={`/anime/${anime.id}`}
-                        className="font-bold text-xs sm:text-sm text-slate-100 hover:text-[#818cf8] truncate block transition"
+                        className="font-semibold text-xs sm:text-sm text-[#edf1f5] hover:text-[#3db4f2] truncate block transition"
                         title={title}
                       >
                         {title}
                       </Link>
-                      <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
-                        <span className="text-[#818cf8] font-semibold">
+                      <div className="flex items-center gap-2 text-[11px] text-[#8ba0b2] mt-0.5">
+                        <span className="text-[#3db4f2] font-semibold">
                           {anime.studios?.nodes?.[0]?.name || 'Studio'}
                         </span>
                         <span>·</span>
@@ -539,35 +1028,33 @@ export const DiscoverPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Score Pill */}
                   <div className="flex items-center gap-3 flex-shrink-0">
                     {anime.averageScore ? (
                       <div
-                        className={`px-2.5 py-1 rounded-md text-xs font-black ${getScoreBadgeClass(
+                        className={`px-2 py-0.5 rounded text-xs font-bold ${getScoreBadgeClass(
                           anime.averageScore
                         )}`}
                       >
                         {anime.averageScore}%
                       </div>
                     ) : (
-                      <div className="text-xs text-slate-500 font-mono">—</div>
+                      <div className="text-xs text-[#8ba0b2]">—</div>
                     )}
 
-                    {/* Quick Add Button */}
                     <div className="relative">
                       <button
                         onClick={() =>
                           setOpenStatusMenuId(isMenuOpen ? null : anime.id)
                         }
-                        className={`p-2 rounded-lg text-xs font-bold transition flex items-center justify-center ${
+                        className={`p-2 rounded text-xs font-bold transition flex items-center justify-center ${
                           inWatchlist
-                            ? 'bg-[#6366f1] text-white'
-                            : 'royal-btn-secondary text-slate-300 hover:text-white'
+                            ? 'bg-[#7bd555] text-[#0b1622]'
+                            : 'anilist-btn-secondary text-[#edf1f5] hover:text-[#3db4f2] border border-white/10'
                         }`}
                         title="Set Status"
                       >
                         {inWatchlist ? (
-                          <Check className="w-3.5 h-3.5" />
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
                         ) : (
                           <Plus className="w-3.5 h-3.5" />
                         )}
@@ -579,8 +1066,8 @@ export const DiscoverPage: React.FC = () => {
                             className="fixed inset-0 z-30"
                             onClick={() => setOpenStatusMenuId(null)}
                           />
-                          <div className="absolute right-0 top-full mt-1.5 z-40 w-44 p-1.5 rounded-xl anilist-surface-elevated border border-white/15 shadow-2xl space-y-0.5 animate-fadeIn">
-                            <div className="text-[10px] uppercase font-bold text-slate-400 px-2 py-1 tracking-wider border-b border-white/10 font-mono">
+                          <div className="absolute right-0 top-full mt-1.5 z-40 w-44 p-1.5 rounded-lg anilist-surface-elevated border border-white/10 shadow-2xl space-y-0.5 animate-fadeIn">
+                            <div className="text-[10px] uppercase font-bold text-[#8ba0b2] px-2 py-1 tracking-wider border-b border-white/10">
                               Set Status
                             </div>
                             {statusLabels.map((st) => (
@@ -590,11 +1077,11 @@ export const DiscoverPage: React.FC = () => {
                                   addToWatchlist(anime, st.id);
                                   setOpenStatusMenuId(null);
                                 }}
-                                className={`w-full text-left px-2.5 py-1.5 text-xs rounded-lg flex items-center justify-between font-semibold transition ${
+                                className={`w-full text-left px-2.5 py-1.5 text-xs rounded flex items-center justify-between font-semibold transition ${
                                   currentItem?.status === st.id
-                                    ? 'bg-[#6366f1] text-white'
-                                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
-                                  }`}
+                                    ? 'bg-[#3db4f2] text-white'
+                                    : 'text-[#edf1f5] hover:bg-white/10'
+                                }`}
                               >
                                 <span>{st.label}</span>
                                 {currentItem?.status === st.id && (
@@ -608,7 +1095,7 @@ export const DiscoverPage: React.FC = () => {
                                   removeFromWatchlist(anime.id);
                                   setOpenStatusMenuId(null);
                                 }}
-                                className="w-full text-left px-2.5 py-1 text-xs text-rose-400 hover:bg-rose-500/20 rounded-lg transition font-medium border-t border-white/10 mt-1"
+                                className="w-full text-left px-2.5 py-1 text-xs text-[#e85d75] hover:bg-[#e85d75]/20 rounded transition font-medium border-t border-white/10 mt-1"
                               >
                                 Remove
                               </button>
@@ -624,16 +1111,16 @@ export const DiscoverPage: React.FC = () => {
           </div>
         )
       ) : (
-        <div className="p-12 rounded-2xl royal-card-static text-center space-y-3">
-          <Search className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-base font-bold text-white">No anime found</h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+        <div className="p-12 rounded-xl anilist-card-static text-center space-y-3">
+          <Search className="w-10 h-10 text-[#8ba0b2] mx-auto" />
+          <h3 className="text-base font-bold text-[#edf1f5]">No anime found</h3>
+          <p className="text-xs text-[#8ba0b2] max-w-sm mx-auto">
             No matching anime for the current filter criteria. Try adjusting your search query or
             resetting filters.
           </p>
           <button
             onClick={resetAllFilters}
-            className="royal-btn-primary px-4 py-2 text-xs font-bold"
+            className="anilist-btn-primary px-4 py-2 text-xs font-bold"
           >
             Reset Filters
           </button>
@@ -650,13 +1137,13 @@ export const DiscoverPage: React.FC = () => {
               updateFiltersInUrl({ page: newPage });
             }}
             disabled={currentPage <= 1 || loading}
-            className="royal-btn-secondary flex items-center gap-1 px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold"
+            className="anilist-btn-secondary flex items-center gap-1 px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold border border-white/10"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Previous</span>
           </button>
 
-          <span className="px-3 py-1 rounded-lg bg-[#0e1528] border border-white/10 text-xs font-mono text-slate-300">
+          <span className="px-3 py-1 rounded bg-[#151f2e] border border-white/10 text-xs font-mono text-[#edf1f5]">
             {currentPage} / {pageInfo.lastPage}
           </span>
 
@@ -667,7 +1154,7 @@ export const DiscoverPage: React.FC = () => {
               updateFiltersInUrl({ page: newPage });
             }}
             disabled={!pageInfo.hasNextPage || loading}
-            className="royal-btn-secondary flex items-center gap-1 px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold"
+            className="anilist-btn-secondary flex items-center gap-1 px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold border border-white/10"
           >
             <span>Next</span>
             <ChevronRight className="w-3.5 h-3.5" />

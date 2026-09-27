@@ -121,8 +121,7 @@ export const WatchlistPage: React.FC = () => {
 
   const getScoreBadgeClass = (score: number | null | undefined) => {
     if (!score) return '';
-    if (score >= 80) return 'score-pill-gold';
-    if (score >= 70) return 'score-pill-high';
+    if (score >= 75) return 'score-pill-high';
     if (score >= 60) return 'score-pill-med';
     return 'score-pill-low';
   };
@@ -132,24 +131,24 @@ export const WatchlistPage: React.FC = () => {
       {/* Header & Actions */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#edf1f5] tracking-tight">
             My Anime List
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-            Track your watching progress, personal scores, and anime collection
+          <p className="text-xs sm:text-sm text-[#8ba0b2] mt-0.5">
+            Track your watching progress, scores, and anime collection
           </p>
         </div>
 
         {/* View Mode Toggle & Export/Import actions */}
         <div className="flex flex-wrap items-center gap-2">
           {/* View Mode Toggle */}
-          <div className="flex items-center p-1 rounded-xl bg-[#0e1528] border border-white/10 mr-1">
+          <div className="flex items-center p-1 rounded bg-[#151f2e] border border-white/10 mr-1">
             <button
               onClick={() => setViewMode('table')}
-              className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+              className={`p-1.5 rounded text-xs font-bold transition flex items-center gap-1 ${
                 viewMode === 'table'
-                  ? 'bg-[#6366f1] text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-[#3db4f2] text-white shadow-sm'
+                  : 'text-[#8ba0b2] hover:text-white'
               }`}
               title="Table View"
             >
@@ -157,10 +156,10 @@ export const WatchlistPage: React.FC = () => {
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+              className={`p-1.5 rounded text-xs font-bold transition flex items-center gap-1 ${
                 viewMode === 'grid'
-                  ? 'bg-[#6366f1] text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-[#3db4f2] text-white shadow-sm'
+                  : 'text-[#8ba0b2] hover:text-white'
               }`}
               title="Grid View"
             >
@@ -177,20 +176,20 @@ export const WatchlistPage: React.FC = () => {
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="royal-btn-secondary flex items-center gap-1.5 px-3 py-2 text-xs font-bold"
+            className="anilist-btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold border border-white/10"
             title="Import JSON backup"
           >
-            <Upload className="w-3.5 h-3.5 text-[#818cf8]" />
+            <Upload className="w-3.5 h-3.5 text-[#3db4f2]" />
             <span>Import</span>
           </button>
 
           <button
             onClick={exportWatchlist}
             disabled={watchlist.length === 0}
-            className="royal-btn-secondary flex items-center gap-1.5 px-3 py-2 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold"
+            className="anilist-btn-secondary flex items-center gap-1.5 px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold border border-white/10"
             title="Export JSON backup"
           >
-            <Download className="w-3.5 h-3.5 text-slate-300" />
+            <Download className="w-3.5 h-3.5 text-[#8ba0b2]" />
             <span>Export</span>
           </button>
 
@@ -205,7 +204,7 @@ export const WatchlistPage: React.FC = () => {
                   clearWatchlist();
                 }
               }}
-              className="p-2 rounded-lg bg-[#0e1528] hover:bg-rose-950/60 text-slate-400 hover:text-rose-400 border border-white/10 transition"
+              className="p-1.5 rounded bg-[#151f2e] hover:bg-[#e85d75]/20 text-[#8ba0b2] hover:text-[#e85d75] border border-white/10 transition"
               title="Clear all"
             >
               <Trash2 className="w-4 h-4" />
@@ -215,57 +214,57 @@ export const WatchlistPage: React.FC = () => {
       </div>
 
       {importMessage && (
-        <div className="p-3 rounded-xl bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-xs font-bold animate-fadeIn">
+        <div className="p-3 rounded bg-[#3db4f2]/15 border border-[#3db4f2]/30 text-[#3db4f2] text-xs font-bold animate-fadeIn">
           {importMessage}
         </div>
       )}
 
       {/* Stats Summary Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-4 rounded-xl royal-card-static">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+        <div className="p-4 rounded-xl anilist-card-static">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#8ba0b2]">
             Total Anime
           </span>
-          <p className="text-xl sm:text-2xl font-black text-white mt-1">
+          <p className="text-xl sm:text-2xl font-extrabold text-[#edf1f5] mt-1">
             {totalAnime}
           </p>
-          <span className="text-[10px] text-slate-400">
+          <span className="text-[10px] text-[#8ba0b2]">
             {completedCount} Completed
           </span>
         </div>
 
-        <div className="p-4 rounded-xl royal-card-static">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+        <div className="p-4 rounded-xl anilist-card-static">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#8ba0b2]">
             Days Watched
           </span>
-          <p className="text-xl sm:text-2xl font-black text-[#818cf8] mt-1">
-            {daysWatched} <span className="text-xs font-normal text-slate-400">days</span>
+          <p className="text-xl sm:text-2xl font-extrabold text-[#3db4f2] mt-1">
+            {daysWatched} <span className="text-xs font-normal text-[#8ba0b2]">days</span>
           </p>
-          <span className="text-[10px] text-slate-400">
+          <span className="text-[10px] text-[#8ba0b2]">
             {totalEpisodesWatched} Episodes total
           </span>
         </div>
 
-        <div className="p-4 rounded-xl royal-card-static">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+        <div className="p-4 rounded-xl anilist-card-static">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#8ba0b2]">
             Mean Score
           </span>
-          <p className="text-xl sm:text-2xl font-black text-emerald-400 mt-1">
+          <p className="text-xl sm:text-2xl font-extrabold text-[#7bd555] mt-1">
             {meanScore !== 'None' ? `${meanScore}%` : '—'}
           </p>
-          <span className="text-[10px] text-slate-400">
+          <span className="text-[10px] text-[#8ba0b2]">
             {ratedItems.length} Rated titles
           </span>
         </div>
 
-        <div className="p-4 rounded-xl royal-card-static">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+        <div className="p-4 rounded-xl anilist-card-static">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#8ba0b2]">
             Currently Watching
           </span>
-          <p className="text-xl sm:text-2xl font-black text-amber-400 mt-1">
+          <p className="text-xl sm:text-2xl font-extrabold text-[#e4a834] mt-1">
             {watchingCount}
           </p>
-          <span className="text-[10px] text-slate-400">Active series</span>
+          <span className="text-[10px] text-[#8ba0b2]">Active series</span>
         </div>
       </div>
 
@@ -273,12 +272,12 @@ export const WatchlistPage: React.FC = () => {
       {ratedItems.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* Score distribution bars */}
-          <div className="p-4 rounded-xl royal-card-static space-y-2">
+          <div className="p-4 rounded-xl anilist-card-static space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase text-slate-300 font-mono flex items-center gap-1.5">
-                <BarChart3 className="w-3.5 h-3.5 text-[#818cf8]" /> Score Distribution
+              <span className="text-xs font-bold uppercase text-[#edf1f5] flex items-center gap-1.5">
+                <BarChart3 className="w-3.5 h-3.5 text-[#3db4f2]" /> Score Distribution
               </span>
-              <span className="text-[10px] text-slate-400">Scores 1-10</span>
+              <span className="text-[10px] text-[#8ba0b2]">Scores 1-10</span>
             </div>
             <div className="flex items-end gap-1.5 h-16 pt-2">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => {
@@ -288,12 +287,12 @@ export const WatchlistPage: React.FC = () => {
                   <div key={score} className="flex-1 flex flex-col items-center gap-1 h-full justify-end group relative">
                     <div
                       className={`w-full rounded-t transition-all ${
-                        count > 0 ? 'bg-[#6366f1] group-hover:bg-[#818cf8]' : 'bg-white/5'
+                        count > 0 ? 'bg-[#3db4f2] group-hover:bg-[#2ba2e0]' : 'bg-white/5'
                       }`}
                       style={{ height: `${heightPercent}%` }}
                       title={`Score ${score}: ${count} anime`}
                     />
-                    <span className="text-[9px] font-mono text-slate-400">{score}</span>
+                    <span className="text-[9px] font-mono text-[#8ba0b2]">{score}</span>
                   </div>
                 );
               })}
@@ -302,18 +301,18 @@ export const WatchlistPage: React.FC = () => {
 
           {/* Top Genres Breakdown */}
           {genreBreakdown.length > 0 && (
-            <div className="p-4 rounded-xl royal-card-static space-y-2">
-              <span className="text-xs font-bold uppercase text-slate-300 font-mono flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Top List Genres
+            <div className="p-4 rounded-xl anilist-card-static space-y-2">
+              <span className="text-xs font-bold uppercase text-[#edf1f5] flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#e4a834]" /> Top List Genres
               </span>
               <div className="flex flex-wrap gap-1.5 pt-1">
                 {genreBreakdown.map(([genre, count]) => (
                   <div
                     key={genre}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#080d1a] border border-white/10 text-xs"
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#0b1622] border border-white/10 text-xs"
                   >
-                    <span className="font-semibold text-slate-200">{genre}</span>
-                    <span className="text-[10px] font-mono text-[#818cf8] px-1.5 py-0.2 rounded bg-indigo-500/15 font-bold">
+                    <span className="font-semibold text-[#edf1f5]">{genre}</span>
+                    <span className="text-[10px] font-mono text-[#3db4f2] px-1.5 py-0.2 rounded bg-[#3db4f2]/15 font-bold">
                       {count}
                     </span>
                   </div>
@@ -338,10 +337,10 @@ export const WatchlistPage: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setFilterStatus(tab.id)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded text-xs font-bold transition ${
                 isActive
-                  ? 'royal-btn-primary'
-                  : 'bg-[#0e1528] hover:bg-[#182544] text-slate-300 border border-white/10'
+                  ? 'anilist-btn-primary'
+                  : 'bg-[#151f2e] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -354,12 +353,12 @@ export const WatchlistPage: React.FC = () => {
         })}
       </div>
 
-      {/* Watchlist Content (Table or Grid View) */}
+      {/* Watchlist Content */}
       {filteredItems.length > 0 ? (
         viewMode === 'table' ? (
           /* Table View */
-          <div className="space-y-2">
-            <div className="hidden sm:grid grid-cols-12 gap-3 px-4 py-2 text-[10px] uppercase font-bold text-slate-400 font-mono">
+          <div className="space-y-1.5">
+            <div className="hidden sm:grid grid-cols-12 gap-3 px-4 py-2 text-[10px] uppercase font-bold text-[#8ba0b2]">
               <span className="col-span-6">Anime Title</span>
               <span className="col-span-2 text-center">Score</span>
               <span className="col-span-2 text-center">Progress</span>
@@ -369,19 +368,19 @@ export const WatchlistPage: React.FC = () => {
             {filteredItems.map((item) => {
               const anime = item.anime;
               const title =
-                anime.title.english || anime.title.romaji || anime.title.userPreferred;
+                anime.title.userPreferred || anime.title.english || anime.title.romaji;
               const maxEpisodes = anime.episodes || 9999;
 
               return (
                 <div
                   key={anime.id}
-                  className="flex flex-col sm:grid sm:grid-cols-12 gap-3 items-center p-3 rounded-xl anilist-table-row"
+                  className="flex flex-col sm:grid sm:grid-cols-12 gap-3 items-center p-3 rounded-lg anilist-table-row"
                 >
                   {/* Title & Cover */}
                   <div className="flex items-center gap-3 w-full sm:col-span-6 min-w-0">
                     <Link
                       to={`/anime/${anime.id}`}
-                      className="w-12 aspect-[3/4] rounded-lg overflow-hidden flex-shrink-0 bg-[#080d1a]"
+                      className="w-10 sm:w-12 aspect-[3/4] rounded overflow-hidden flex-shrink-0 bg-[#0b1622]"
                     >
                       <img
                         src={anime.coverImage.medium || anime.coverImage.large}
@@ -393,12 +392,12 @@ export const WatchlistPage: React.FC = () => {
                     <div className="min-w-0 flex-1">
                       <Link
                         to={`/anime/${anime.id}`}
-                        className="font-bold text-xs sm:text-sm text-slate-100 hover:text-[#818cf8] truncate block"
+                        className="font-semibold text-xs sm:text-sm text-[#edf1f5] hover:text-[#3db4f2] truncate block"
                         title={title}
                       >
                         {title}
                       </Link>
-                      <p className="text-[10px] text-slate-400 mt-0.5">
+                      <p className="text-[10px] text-[#8ba0b2] mt-0.5">
                         {anime.format?.replace('_', ' ')} · {anime.seasonYear || 'TBA'} ·{' '}
                         {anime.episodes ? `${anime.episodes} eps` : 'Airing'}
                       </p>
@@ -410,7 +409,7 @@ export const WatchlistPage: React.FC = () => {
                     <select
                       value={item.userRating || 0}
                       onChange={(e) => updateRating(anime.id, Number(e.target.value))}
-                      className="anilist-input text-xs px-2 py-1 font-bold text-[#fbbf24]"
+                      className="anilist-input text-xs px-2 py-1 font-bold text-[#e4a834]"
                     >
                       <option value="0">Unrated</option>
                       {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
@@ -430,12 +429,12 @@ export const WatchlistPage: React.FC = () => {
                           Math.max(0, (item.currentEpisode || 0) - 1)
                         )
                       }
-                      className="p-1 rounded-md bg-[#080d1a] hover:bg-[#141f38] text-slate-200 border border-white/10"
+                      className="p-1 rounded bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10"
                       title="Decrement"
                     >
                       <Minus className="w-3 h-3" />
                     </button>
-                    <span className="font-mono font-bold text-[#818cf8] min-w-[3rem] text-center text-xs">
+                    <span className="font-mono font-bold text-[#3db4f2] min-w-[3rem] text-center text-xs">
                       {item.currentEpisode || 0} / {anime.episodes || '??'}
                     </span>
                     <button
@@ -445,7 +444,7 @@ export const WatchlistPage: React.FC = () => {
                           Math.min(maxEpisodes, (item.currentEpisode || 0) + 1)
                         )
                       }
-                      className="p-1 rounded-md bg-[#080d1a] hover:bg-[#141f38] text-slate-200 border border-white/10"
+                      className="p-1 rounded bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10"
                       title="Increment"
                     >
                       <Plus className="w-3 h-3" />
@@ -471,7 +470,7 @@ export const WatchlistPage: React.FC = () => {
 
                     <button
                       onClick={() => removeFromWatchlist(anime.id)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/40 transition"
+                      className="p-1.5 rounded text-[#8ba0b2] hover:text-[#e85d75] hover:bg-[#e85d75]/15 transition"
                       title="Remove"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -487,18 +486,18 @@ export const WatchlistPage: React.FC = () => {
             {filteredItems.map((item) => {
               const anime = item.anime;
               const title =
-                anime.title.english || anime.title.romaji || anime.title.userPreferred;
+                anime.title.userPreferred || anime.title.english || anime.title.romaji;
               const maxEpisodes = anime.episodes || 9999;
 
               return (
                 <div
                   key={anime.id}
-                  className="flex gap-3 p-3 rounded-xl royal-card-static group"
+                  className="flex gap-3 p-3 rounded-lg anilist-card-static group"
                 >
                   {/* Poster */}
                   <Link
                     to={`/anime/${anime.id}`}
-                    className="w-20 sm:w-24 aspect-[3/4] rounded-lg overflow-hidden bg-[#080d1a] flex-shrink-0 block relative"
+                    className="w-20 sm:w-24 aspect-[185/265] rounded overflow-hidden bg-[#0b1622] flex-shrink-0 block relative"
                   >
                     <img
                       src={anime.coverImage.large || anime.coverImage.medium}
@@ -507,7 +506,7 @@ export const WatchlistPage: React.FC = () => {
                     />
                     {anime.averageScore && (
                       <div
-                        className={`absolute top-1 left-1 px-1.5 py-0.5 rounded text-[10px] font-black ${getScoreBadgeClass(
+                        className={`absolute top-1 left-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${getScoreBadgeClass(
                           anime.averageScore
                         )}`}
                       >
@@ -521,12 +520,12 @@ export const WatchlistPage: React.FC = () => {
                     <div>
                       <Link
                         to={`/anime/${anime.id}`}
-                        className="font-bold text-xs sm:text-sm text-slate-100 group-hover:text-[#818cf8] line-clamp-1 transition"
+                        className="font-semibold text-xs sm:text-sm text-[#edf1f5] group-hover:text-[#3db4f2] line-clamp-1 transition"
                         title={title}
                       >
                         {title}
                       </Link>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-[#8ba0b2]">
                         {anime.format?.replace('_', ' ')} · {anime.seasonYear || 'TBA'}
                       </p>
                     </div>
@@ -550,7 +549,7 @@ export const WatchlistPage: React.FC = () => {
 
                       <button
                         onClick={() => removeFromWatchlist(anime.id)}
-                        className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-rose-950/30 transition"
+                        className="p-1 rounded text-[#8ba0b2] hover:text-[#e85d75] hover:bg-[#e85d75]/15 transition"
                         title="Remove"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -559,7 +558,7 @@ export const WatchlistPage: React.FC = () => {
 
                     {/* Episode Progress Counter */}
                     <div className="flex items-center justify-between text-xs pt-1 border-t border-white/10">
-                      <span className="text-slate-400">Episode:</span>
+                      <span className="text-[#8ba0b2]">Episode:</span>
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() =>
@@ -568,12 +567,12 @@ export const WatchlistPage: React.FC = () => {
                               Math.max(0, (item.currentEpisode || 0) - 1)
                             )
                           }
-                          className="p-1 rounded bg-[#080d1a] hover:bg-[#141f38] text-slate-200 border border-white/10"
+                          className="p-1 rounded bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10"
                           title="Decrement"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="font-mono font-bold text-[#818cf8] min-w-[2.5rem] text-center text-xs">
+                        <span className="font-mono font-bold text-[#3db4f2] min-w-[2.5rem] text-center text-xs">
                           {item.currentEpisode || 0} / {anime.episodes || '??'}
                         </span>
                         <button
@@ -583,7 +582,7 @@ export const WatchlistPage: React.FC = () => {
                               Math.min(maxEpisodes, (item.currentEpisode || 0) + 1)
                             )
                           }
-                          className="p-1 rounded bg-[#080d1a] hover:bg-[#141f38] text-slate-200 border border-white/10"
+                          className="p-1 rounded bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10"
                           title="Increment"
                         >
                           <Plus className="w-3 h-3" />
@@ -593,11 +592,11 @@ export const WatchlistPage: React.FC = () => {
 
                     {/* Rating Selector */}
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-400">Rating:</span>
+                      <span className="text-[#8ba0b2]">Rating:</span>
                       <select
                         value={item.userRating || 0}
                         onChange={(e) => updateRating(anime.id, Number(e.target.value))}
-                        className="anilist-input text-xs px-1.5 py-0.5 font-bold text-[#fbbf24]"
+                        className="anilist-input text-xs px-1.5 py-0.5 font-bold text-[#e4a834]"
                       >
                         <option value="0">Unrated</option>
                         {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
@@ -614,17 +613,17 @@ export const WatchlistPage: React.FC = () => {
           </div>
         )
       ) : (
-        <div className="p-12 rounded-2xl royal-card-static text-center space-y-3">
-          <Bookmark className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-base font-bold text-white">List is empty</h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+        <div className="p-12 rounded-xl anilist-card-static text-center space-y-3">
+          <Bookmark className="w-10 h-10 text-[#8ba0b2] mx-auto" />
+          <h3 className="text-base font-bold text-[#edf1f5]">List is empty</h3>
+          <p className="text-xs text-[#8ba0b2] max-w-sm mx-auto">
             {filterStatus === 'all'
               ? 'No anime saved in your list yet. Explore trending anime or search titles to build your list.'
               : `No anime currently marked as "${filterStatus.replace('_', ' ')}".`}
           </p>
           <Link
             to="/discover"
-            className="royal-btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold"
+            className="anilist-btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold"
           >
             <Compass className="w-4 h-4" />
             <span>Discover Anime</span>

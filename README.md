@@ -1,51 +1,62 @@
-# ⚡ Voltaku — Full-Stack Anime Discovery & Recommendation Platform
+# ⚡ AnimeSenpai (`animesenpai.online`) — Full-Stack Anime Discovery Platform
 
 <p align="center">
-  <img src="frontend/public/logo.svg" alt="Voltaku Logo" width="90" height="90" />
+  <img src="frontend/public/logo.svg" alt="AnimeSenpai Logo" width="100" height="100" />
 </p>
 
 <p align="center">
-  <strong>A modern, high-performance 3-tier anime discovery, real-time schedule tracking, and personalized recommendation platform.</strong>
+  <strong>A high-performance anime discovery, catalog search, and watchlist tracking platform connecting directly to 20,000+ anime titles via AniList GraphQL.</strong>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/React-19.0-61DAFB?logo=react&logoColor=black" alt="React 19" />
-  <img src="https://img.shields.io/badge/Vite-8.0-646CFF?logo=vite&logoColor=white" alt="Vite 8" />
-  <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/TailwindCSS-v4-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/Node.js-Express-000000?logo=express&logoColor=white" alt="Express" />
-  <img src="https://img.shields.io/badge/ORM-Prisma-2D3748?logo=prisma&logoColor=white" alt="Prisma" />
-  <img src="https://img.shields.io/badge/Database-SQLite%20%2F%20Postgres-003B57?logo=sqlite&logoColor=white" alt="SQLite" />
-  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License" />
+  <img src="https://img.shields.io/badge/Domain-animesenpai.online-38bdf8?style=flat-square&logo=googlechrome&logoColor=white" alt="Domain" />
+  <img src="https://img.shields.io/badge/React-19.0-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React 19" />
+  <img src="https://img.shields.io/badge/Vite-8.0-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite 8" />
+  <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/TailwindCSS-v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Node.js-Express-000000?style=flat-square&logo=express&logoColor=white" alt="Express" />
+  <img src="https://img.shields.io/badge/Database-SQLite%20%2F%20Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white" alt="Prisma ORM" />
+  <img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" />
 </p>
+
+---
+
+## ✨ Features at a Glance
+
+* **🎨 AniList-Inspired Clean Glassmorphic UI:** Deep navy background (`#0b1622`), slate card elevated surfaces (`#151f2e`), and vibrant electric blue accents (`#3db4f2`).
+* **🔍 Real-Time Catalog Search (20,000+ Anime):** Instant autocomplete search in the upper navigation bar (`/` or `⌘K` keyboard shortcuts) with poster previews, format indicators, score pills, and genre tags.
+* **🏷️ Horizontally Scrollable Category Ribbon:** Interactive preset ribbon with smooth horizontal scrolling navigation buttons (`All Anime`, `🔥 Trending`, `🌸 This Season`, `🌟 Popular`, `🏆 Top 100`, `🚀 Upcoming`, `🎬 Movies`, `📺 TV Series`, `⚡ OVA / Shorts`, and comprehensive genre filters).
+* **📱 Touch & Hover Preview Popups:** Instant interactive anime preview cards displaying releasing status, season/year, studio names, format & episode counts, score smiley badges, and clickable genre pills.
+* **📊 Smart Catalog Counter & Pagination:** Dynamic counter displaying `5,000+ available (from 20,000+ database)` on broad queries with informative API limit modal, and exact counts when filters are applied.
+* **📋 Full Watchlist Management:** Track anime across `Watching`, `Planning`, `Completed`, `Rewatching`, `Paused`, and `Dropped` statuses with episode progress incrementing and JSON import/export.
+* **🎲 Anime Randomizer "Roll" Modal:** Roll random high-rated anime based on customized genre and format selections.
+* **🎬 Rich Anime Details:** High-resolution banners, synopses, characters & voice actors, related franchise anime, community recommendations, episode grids, and official YouTube trailer overlays.
 
 ---
 
 ## 🏛️ 3-Tier System Architecture
 
-The project is cleanly decoupled into three independent tiers:
-
 ```mermaid
 graph TD
-    User([User Browser - Desktop / Mobile]) <-->|HTTPS / React 19 UI| Frontend["Frontend Tier (React + Vite + Tailwind)"]
-    Frontend <-->|REST API + JWT Bearer| Backend["Backend Tier (Node.js + Express + TypeScript)"]
-    Backend <-->|Prisma ORM| Database[("Database Tier (SQLite / PostgreSQL)")]
-    Backend <-->|GraphQL with In-Memory TTL Cache| AniList["AniList Public GraphQL API"]
-    Frontend <-->|Direct Privacy Embed| YouTube["YouTube Nocookie Embed"]
+    User([User Browser - Desktop / Mobile]) <-->|HTTPS / React 19 UI| Frontend["Frontend Tier (React 19 + Vite + Tailwind v4)"]
+    Frontend <-->|REST API on Port 5001 + JWT| Backend["Backend Tier (Node.js + Express + TypeScript)"]
+    Backend <-->|Prisma ORM| Database[("Database Tier (SQLite / dev.db)")]
+    Backend <-->|GraphQL with In-Memory TTL Cache| AniList["AniList Public GraphQL v2 API"]
+    Frontend <-->|Direct Privacy Embed| YouTube["YouTube Nocookie Player"]
 ```
 
 ```
 anime-watch-recommendation/
-├── 📱 frontend/              # React 19 + TypeScript + Vite + Tailwind CSS
+├── 📱 frontend/              # React 19 + TypeScript + Vite + Tailwind CSS v4
 │   ├── src/                 # UI components, contexts, pages, hooks, styling
 │   │   ├── api/             # AniList GraphQL client & Backend API service
-│   │   ├── components/      # Apple-inspired UI, Carousels, Player, Navbar
+│   │   ├── components/      # Glassmorphic UI, AnimeCard, Popovers, Navbar, Footer
 │   │   ├── context/         # Watchlist & Auth state providers
-│   │   └── pages/           # Home, Discover, Anime Details, Watchlist, Auth
-│   ├── public/              # Static assets, logos, SVG icons
+│   │   └── pages/           # HomePage, DiscoverPage, AnimeDetailsPage, WatchlistPage, AuthPage
+│   ├── public/              # Static assets, logos, favicon
 │   ├── package.json         # Frontend scripts & dependencies
 │   ├── vite.config.ts       # Vite bundler configuration
-│   └── .env.example         # Environment configuration (VITE_API_BASE_URL)
+│   └── .env                 # Frontend environment config (VITE_API_BASE_URL)
 │
 ├── ⚙️ backend/               # Node.js + Express + TypeScript REST API Server
 │   ├── src/
@@ -54,22 +65,18 @@ anime-watch-recommendation/
 │   │   ├── middleware/      # JWT authentication, error handling, request logger
 │   │   ├── routes/          # REST route handlers (/api/auth, /api/anime, /api/watchlist)
 │   │   ├── services/        # AniList proxy with TTL caching & Genre affinity algorithms
-│   │   ├── scripts/         # Database seed script
-│   │   └── server.ts        # Express server entry point
+│   │   └── server.ts        # Express server entry point (Port 5001)
 │   ├── package.json         # Backend dependencies & Prisma scripts
 │   ├── tsconfig.json        # Backend TypeScript configuration
-│   └── .env.example         # Environment variables template
+│   └── .env                 # Backend environment variables
 │
-├── 🗄️ database/              # Database Schema, Migrations, Seed Data & Docs
+├── 🗄️ database/              # Database Schema, Migrations & SQLite storage
 │   ├── prisma/
-│   │   └── schema.prisma    # Prisma SQLite schema definition
+│   │   └── schema.prisma    # Prisma schema definition
 │   ├── schema.sql           # Standard SQL DDL migration file
-│   ├── seeds.sql            # Initial sample demo users, watchlists, & reviews
-│   ├── docker-compose.yml   # Optional PostgreSQL & Redis containerization
-│   └── README.md            # Schema ERD and database documentation
+│   └── dev.db               # SQLite database file
 │
 ├── package.json             # Root monorepo workspace & orchestration commands
-├── PRD.md                   # Product Requirements Document v2.0
 └── README.md                # Main repository documentation
 ```
 
@@ -86,15 +93,18 @@ From the repository root:
 ```bash
 npm run setup
 ```
-*(Installs all dependencies across workspaces, generates the Prisma client, pushes the SQLite schema, and seeds demo data).*
+*(Installs all dependencies across workspaces, generates the Prisma client, pushes the database schema, and seeds initial data).*
 
 ### 2. Start Both Frontend & Backend Concurrently
 ```bash
 npm run dev
 ```
 * 🌐 **Frontend Web App:** [http://localhost:5173](http://localhost:5173)
-* ⚙️ **Backend REST API:** [http://localhost:5000](http://localhost:5000)
-* 🩺 **API Health Check:** [http://localhost:5000/api/health](http://localhost:5000/api/health)
+* ⚙️ **Backend REST API:** [http://localhost:5001](http://localhost:5001)
+* 🩺 **API Health Check:** [http://localhost:5001/api/health](http://localhost:5001/api/health)
+
+> [!NOTE]
+> The backend operates on port `5001` to prevent conflicts with macOS AirPlay Receiver on port `5000`.
 
 ---
 
@@ -117,49 +127,12 @@ npm run dev        # Run API server with hot-reload (tsx)
 npm run build      # Compile TypeScript to JavaScript
 npm run start      # Launch compiled production server
 npm run db:push    # Push Prisma schema changes to SQLite (dev.db)
-npm run db:seed    # Populate database with demo users & sample watchlists
 npm run db:studio  # Open Prisma Studio visual database browser
 ```
 
-### Database Tier (`/database`)
-```bash
-# Launch visual database GUI
-npm run db:studio
-
-# (Optional) Spin up Docker PostgreSQL & Redis containers
-docker compose -f database/docker-compose.yml up -d
-```
-
 ---
 
-## 🚀 GitHub Pages Deployment
-
-Voltaku is configured to deploy directly to **GitHub Pages** with automated GitHub Actions CI/CD!
-
-### Option 1: Automatic Deployment with GitHub Actions (Recommended)
-1. Push your changes to the `main` branch on GitHub.
-2. In your GitHub repository, go to **Settings** → **Pages**.
-3. Under **Build and deployment** → **Source**, select **GitHub Actions**.
-4. The workflow in `.github/workflows/deploy.yml` will automatically build the frontend and deploy it to:
-   ```
-   https://<your-username>.github.io/anime-watch-recommendation/
-   ```
-
-### Option 2: Manual CLI Deployment
-You can deploy directly to the `gh-pages` branch using the `deploy` script:
-```bash
-# From the root directory:
-npm run deploy
-
-# Or from the frontend directory:
-cd frontend
-npm run deploy
-```
-Then under **Settings** → **Pages**, select **Deploy from a branch** and choose `gh-pages` branch / `root`.
-
----
-
-## 📡 API Endpoints Overview
+## 📡 API Endpoints Reference
 
 | Module | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- | :--- |
@@ -168,7 +141,6 @@ Then under **Settings** → **Pages**, select **Deploy from a branch** and choos
 | **Auth** | `POST` | `/api/auth/login` | Login with credentials | No |
 | **Auth** | `POST` | `/api/auth/demo` | Instant demo login session | No |
 | **Auth** | `GET` | `/api/auth/me` | Fetch authenticated user profile | Yes (Bearer) |
-| **Auth** | `PUT` | `/api/auth/profile` | Update profile avatar/bio/genres | Yes (Bearer) |
 | **Anime** | `GET` | `/api/anime/trending` | Top community trending titles | No |
 | **Anime** | `GET` | `/api/anime/seasonal` | Airing seasonal releases | No |
 | **Anime** | `GET` | `/api/anime/top` | Top 100 highest rated anime | No |
@@ -182,22 +154,18 @@ Then under **Settings** → **Pages**, select **Deploy from a branch** and choos
 | **Watchlist** | `POST` | `/api/watchlist/export` | Export watchlist JSON payload | Optional |
 | **Watchlist** | `POST` | `/api/watchlist/import` | Import watchlist items | Optional |
 | **Recommendations** | `GET` | `/api/recommendations/personalized` | AI/Genre-affinity recommendations | Optional |
-| **Recommendations** | `GET` | `/api/recommendations/anime/:id` | Similar & related franchise anime | Optional |
-| **Reviews** | `GET` | `/api/reviews/anime/:animeId` | Fetch community reviews for an anime | Optional |
-| **Reviews** | `POST` | `/api/reviews` | Post a community review & rating | Optional |
-| **Reviews** | `POST` | `/api/reviews/:id/like` | Upvote a review | Optional |
 
 ---
 
-## 🔒 Security & Privacy
+## 🔒 Security & Performance
 
-* **Data Portability:** Full one-click JSON backup export and import.
-* **Password Protection:** Salted `bcrypt` hashing with JWT authentication.
-* **Intelligent Caching:** High-speed in-memory TTL caching prevents external AniList API rate limits.
-* **Zero Tracking:** No invasive tracking scripts or telemetry.
+* **Fast In-Memory Caching:** In-memory TTL caching layer mitigates rate limits on external upstream APIs.
+* **Password Hashing:** Salted `bcrypt` hashing with signed JWT authentication tokens.
+* **Client-Side Resilience:** LocalStorage sync with automatic fallback ensures watchlists and preferences remain available offline.
+* **Zero Tracking:** Clean, privacy-first interface without telemetry scripts.
 
 ---
 
 ## 📄 License
 
-This project is open-source and available under the [MIT License](LICENSE).
+This project is open-source under the [MIT License](LICENSE).

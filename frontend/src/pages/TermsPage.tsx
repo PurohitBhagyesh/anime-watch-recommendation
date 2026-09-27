@@ -5,7 +5,7 @@ export const TermsPage: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 animate-fadeIn text-slate-300">
       <div className="space-y-3 pb-6 border-b border-white/10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#c59b27]/10 border border-[#c59b27]/30 text-[#e2b744] text-xs font-bold">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3db4f2]/10 border border-[#3db4f2]/30 text-[#3db4f2] text-xs font-bold">
           <FileText className="w-3.5 h-3.5" />
           <span>Terms & Conditions</span>
         </div>
@@ -24,7 +24,7 @@ export const TermsPage: React.FC = () => {
             1. Acceptance of Terms
           </h2>
           <p>
-            By accessing and using Voltaku, you agree to comply with and be bound by these Terms of Service. If you do not agree to these terms, please discontinue use of the site.
+            By accessing and using this application, you agree to comply with and be bound by these Terms of Service. If you do not agree to these terms, please discontinue use of the site.
           </p>
         </section>
 
@@ -34,27 +34,28 @@ export const TermsPage: React.FC = () => {
             2. Intellectual Property & Fair Use
           </h2>
           <p>
-            All anime titles, artwork, character images, studio names, and video materials displayed on Voltaku remain the property of their respective copyright holders, authors, and production studios.
+            All anime titles, artwork, character images, studio names, and video materials displayed remain the property of their respective copyright holders, authors, and production studios.
           </p>
           <p>
-            Voltaku is a non-commercial index and personal tracker created for educational, research, and entertainment purposes under fair use guidelines.
+            This application is a non-commercial index and personal tracker created for educational, research, and entertainment purposes utilizing public APIs.
           </p>
         </section>
 
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-white">3. Third-Party Links & Streaming Providers</h2>
           <p>
-            Voltaku indexes official streaming links (such as Crunchyroll, Netflix, Hulu, Disney+, Amazon Prime Video). We do not host, store, or stream copyrighted video files on our own servers. Clicking external streaming links will redirect you to third-party services governed by their respective terms.
+            We index official streaming links (such as Crunchyroll, Netflix, Hulu, Disney+, Amazon Prime Video). We do not host, store, or stream copyrighted video files on our own servers. Clicking external streaming links will redirect you to third-party services governed by their respective terms.
           </p>
         </section>
 
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-white">4. User Watchlist Responsibility</h2>
           <p>
-            You are solely responsible for maintaining backups of your local watchlist data via the Export Backup feature.
+            You can maintain backups of your local watchlist data via the Export Backup feature at any time.
           </p>
         </section>
       </div>
     </div>
   );
 };
+

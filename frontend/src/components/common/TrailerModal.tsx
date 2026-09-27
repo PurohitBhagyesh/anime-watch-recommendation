@@ -45,11 +45,11 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
       {/* Click outside backdrop */}
       <div className="fixed inset-0" onClick={onClose} />
 
-      <div className="relative w-full max-w-4xl royal-card-static border border-white/15 rounded-2xl overflow-hidden shadow-2xl z-10">
+      <div className="relative w-full max-w-4xl anilist-card-static border border-white/15 rounded-2xl overflow-hidden shadow-2xl z-10">
         {/* Header bar */}
-        <div className="flex items-center justify-between px-4 py-3 bg-[#07090f] border-b border-white/10">
+        <div className="flex items-center justify-between px-4 py-3 bg-[#0b1622] border-b border-white/10">
           <div className="flex items-center gap-2 truncate pr-4">
-            <Play className="w-4 h-4 text-[#e2b744] fill-[#e2b744] flex-shrink-0" />
+            <Play className="w-4 h-4 text-[#3db4f2] fill-[#3db4f2] flex-shrink-0" />
             <h3 className="text-sm font-bold text-white truncate">
               {title} — Official Trailer
             </h3>
@@ -79,7 +79,7 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
               <p className="text-slate-300 text-sm font-medium">No video trailer available for this anime.</p>
               <button
                 onClick={onClose}
-                className="royal-btn-gold px-4 py-1.5 text-xs font-bold"
+                className="anilist-btn-primary px-4 py-1.5 text-xs font-bold cursor-pointer"
               >
                 Close
               </button>
@@ -90,3 +90,4 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
     </div>
   );
 };
+

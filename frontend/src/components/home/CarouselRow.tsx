@@ -40,13 +40,13 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
       <div className="flex items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            {Icon && <Icon className="w-4 h-4 text-[#818cf8] flex-shrink-0" />}
-            <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
+            {Icon && <Icon className="w-4 h-4 text-[#3db4f2] flex-shrink-0" />}
+            <h2 className="text-base sm:text-lg font-bold text-[#edf1f5] uppercase tracking-wider">
               {title}
             </h2>
           </div>
           {subtitle && (
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-[#8ba0b2] mt-0.5">
               {subtitle}
             </p>
           )}
@@ -56,9 +56,9 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
           {viewAllLink && (
             <Link
               to={viewAllLink}
-              className="text-xs font-bold text-[#818cf8] hover:text-[#c084fc] flex items-center gap-1 transition pr-1"
+              className="text-xs font-bold text-[#3db4f2] hover:text-[#2ba2e0] flex items-center gap-1 transition pr-1"
             >
-              <span>View all</span>
+              <span>View All</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           )}
@@ -67,14 +67,14 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
           <div className="hidden sm:flex items-center gap-1">
             <button
               onClick={() => scroll('left')}
-              className="p-1.5 rounded-lg royal-btn-secondary text-slate-300 hover:text-white transition"
+              className="p-1.5 rounded anilist-btn-secondary text-[#edf1f5] hover:text-[#3db4f2] transition"
               aria-label="Scroll left"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => scroll('right')}
-              className="p-1.5 rounded-lg royal-btn-secondary text-slate-300 hover:text-white transition"
+              className="p-1.5 rounded anilist-btn-secondary text-[#edf1f5] hover:text-[#3db4f2] transition"
               aria-label="Scroll right"
             >
               <ChevronRight className="w-4 h-4" />

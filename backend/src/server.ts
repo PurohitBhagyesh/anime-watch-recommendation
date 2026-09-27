@@ -30,7 +30,7 @@ app.use((req, _res, next) => {
 // Root Welcome Endpoint
 app.get('/', (_req, res) => {
   res.json({
-    name: 'Voltaku Anime Recommendation & Discovery API',
+    name: 'AnimeSenpai API (animesenpai.online)',
     version: '1.0.0',
     status: 'online',
     docs: '/api/health',
