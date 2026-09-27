@@ -90,7 +90,7 @@ export async function fetchAniListGraphQL<T = any>(
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        timeout: 10000,
+        timeout: 20000,
       }
     );
 
