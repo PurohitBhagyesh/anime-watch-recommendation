@@ -17,6 +17,8 @@
     "build:pages": "npm run build --workspace=frontend",
     "deploy": "npm run deploy --workspace=frontend",
     "build:backend": "npm run build --workspace=backend",
+    "start": "node backend/dist/server.js",
+    "start:backend": "node backend/dist/server.js",
     "db:push": "npm run db:push --workspace=backend",
     "db:seed": "npm run db:seed --workspace=backend",
     "db:studio": "npm run db:studio --workspace=backend",

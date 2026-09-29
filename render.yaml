@@ -3,8 +3,8 @@ services:
     name: animesenpai-backend
     env: node
     plan: free
-    buildCommand: npm install && npm run build --workspace=backend
-    startCommand: npm run dev:backend # or node backend/dist/server.js
+    buildCommand: npm install && npm run build:backend
+    startCommand: node backend/dist/server.js
     envVars:
       - key: NODE_ENV
         value: production
