@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: animesenpai-backend
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build --workspace=backend
+    startCommand: npm run dev:backend # or node backend/dist/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        value: file:../../database/dev.db
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_ORIGIN
+        value: https://animesenpai.online,https://www.animesenpai.online,http://localhost:5173
