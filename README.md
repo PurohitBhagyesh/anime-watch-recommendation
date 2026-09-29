@@ -1,7 +1,7 @@
-# ⚡ AnimeSenpai (`animesenpai.online`) — Full-Stack Anime Discovery Platform
+# ⚡ AnimeSenpai — Full-Stack Anime Discovery Platform
 
 <p align="center">
-  <img src="frontend/public/logo.svg" alt="AnimeSenpai Logo" width="100" height="100" />
+  <img src="frontend/public/animesenpai-banner.svg" alt="AnimeSenpai Logo Banner" width="480" />
 </p>
 
 <p align="center">
@@ -9,7 +9,21 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Domain-animesenpai.online-38bdf8?style=flat-square&logo=googlechrome&logoColor=white" alt="Domain" />
+  <a href="https://animesenpai.online" target="_blank">
+    <img src="https://img.shields.io/badge/Live%20Website-animesenpai.online-38bdf8?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live Website" />
+  </a>
+  <a href="https://vercel.com" target="_blank">
+    <img src="https://img.shields.io/badge/Frontend-Vercel%20Edge-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
+  </a>
+  <a href="https://render.com" target="_blank">
+    <img src="https://img.shields.io/badge/Backend-Render%20Cloud-46E3B7?style=for-the-badge&logo=render&logoColor=white" alt="Render" />
+  </a>
+  <a href="https://uptimerobot.com" target="_blank">
+    <img src="https://img.shields.io/badge/Uptime-100%25%20(24%2F7)-2ecc71?style=for-the-badge&logo=uptimerobot&logoColor=white" alt="Uptime" />
+  </a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/React-19.0-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React 19" />
   <img src="https://img.shields.io/badge/Vite-8.0-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite 8" />
   <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
@@ -18,6 +32,14 @@
   <img src="https://img.shields.io/badge/Database-SQLite%20%2F%20Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white" alt="Prisma ORM" />
   <img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" />
 </p>
+
+---
+
+## 🌐 Live Production Links
+
+* 🌐 **Production Web Application:** [https://animesenpai.online](https://animesenpai.online)
+* ⚙️ **Production Backend API:** [https://anime-watch-recommendation.onrender.com/api](https://anime-watch-recommendation.onrender.com/api)
+* 🩺 **Backend Health & Ping:** [https://anime-watch-recommendation.onrender.com/ping](https://anime-watch-recommendation.onrender.com/ping)
 
 ---
 
@@ -34,15 +56,16 @@
 
 ---
 
-## 🏛️ 3-Tier System Architecture
+## 🏛️ System Architecture
 
 ```mermaid
 graph TD
-    User([User Browser - Desktop / Mobile]) <-->|HTTPS / React 19 UI| Frontend["Frontend Tier (React 19 + Vite + Tailwind v4)"]
-    Frontend <-->|REST API on Port 5001 + JWT| Backend["Backend Tier (Node.js + Express + TypeScript)"]
-    Backend <-->|Prisma ORM| Database[("Database Tier (SQLite / dev.db)")]
-    Backend <-->|GraphQL with In-Memory TTL Cache| AniList["AniList Public GraphQL v2 API"]
-    Frontend <-->|Direct Privacy Embed| YouTube["YouTube Nocookie Player"]
+    User([User Browser - Desktop / Mobile]) <-->|HTTPS / animesenpai.online| Vercel["Frontend Tier (Vercel Edge - React 19 + Vite + Tailwind v4)"]
+    Vercel <-->|Direct GraphQL for Fast Discovery| AniList["AniList Public GraphQL v2 API"]
+    Vercel <-->|REST API + JWT Auth / Sync| Render["Backend Tier (Render Node.js + Express + Prisma)"]
+    Render <-->|Self-Contained DB Engine| Database[("Database Tier (SQLite / dev.db)")]
+    UptimeRobot(["⏱️ UptimeRobot (5m Keep-Alive)"]) -->|GET /ping| Render
+    Vercel <-->|Privacy Embed| YouTube["YouTube Nocookie Player"]
 ```
 
 ```
@@ -53,9 +76,10 @@ anime-watch-recommendation/
 │   │   ├── components/      # Glassmorphic UI, AnimeCard, Popovers, Navbar, Footer
 │   │   ├── context/         # Watchlist & Auth state providers
 │   │   └── pages/           # HomePage, DiscoverPage, AnimeDetailsPage, WatchlistPage, AuthPage
-│   ├── public/              # Static assets, logos, favicon
+│   ├── public/              # Static assets, logos (SVG / Favicon)
 │   ├── package.json         # Frontend scripts & dependencies
 │   ├── vite.config.ts       # Vite bundler configuration
+│   ├── vercel.json          # Vercel SPA routing configuration
 │   └── .env                 # Frontend environment config (VITE_API_BASE_URL)
 │
 ├── ⚙️ backend/               # Node.js + Express + TypeScript REST API Server
@@ -65,7 +89,7 @@ anime-watch-recommendation/
 │   │   ├── middleware/      # JWT authentication, error handling, request logger
 │   │   ├── routes/          # REST route handlers (/api/auth, /api/anime, /api/watchlist)
 │   │   ├── services/        # AniList proxy with TTL caching & Genre affinity algorithms
-│   │   └── server.ts        # Express server entry point (Port 5001)
+│   │   └── server.ts        # Express server entry point with /ping keep-alive
 │   ├── package.json         # Backend dependencies & Prisma scripts
 │   ├── tsconfig.json        # Backend TypeScript configuration
 │   └── .env                 # Backend environment variables
@@ -76,13 +100,15 @@ anime-watch-recommendation/
 │   ├── schema.sql           # Standard SQL DDL migration file
 │   └── dev.db               # SQLite database file
 │
+├── render.yaml              # Render blueprint infrastructure definition
+├── vercel.json              # Monorepo root Vercel configuration
 ├── package.json             # Root monorepo workspace & orchestration commands
 └── README.md                # Main repository documentation
 ```
 
 ---
 
-## ⚡ Quick Start Guide
+## ⚡ Local Development Quick Start
 
 ### Prerequisites
 - **Node.js**: `v18.0+` or `v20.0+`
@@ -100,11 +126,8 @@ npm run setup
 npm run dev
 ```
 * 🌐 **Frontend Web App:** [http://localhost:5173](http://localhost:5173)
-* ⚙️ **Backend REST API:** [http://localhost:5001](http://localhost:5001)
-* 🩺 **API Health Check:** [http://localhost:5001/api/health](http://localhost:5001/api/health)
-
-> [!NOTE]
-> The backend operates on port `5001` to prevent conflicts with macOS AirPlay Receiver on port `5000`.
+* ⚙️ **Backend REST API:** [http://localhost:5000](http://localhost:5000)
+* 🩺 **API Health Check:** [http://localhost:5000/api/health](http://localhost:5000/api/health)
 
 ---
 
@@ -136,7 +159,8 @@ npm run db:studio  # Open Prisma Studio visual database browser
 
 | Module | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- | :--- |
-| **Health** | `GET` | `/api/health` | Service uptime and status | No |
+| **Ping** | `GET` | `/ping` | Lightweight 200 OK for UptimeRobot keep-alive | No |
+| **Health** | `GET` | `/api/health` | Service uptime and status metadata | No |
 | **Auth** | `POST` | `/api/auth/register` | Register new account | No |
 | **Auth** | `POST` | `/api/auth/login` | Login with credentials | No |
 | **Auth** | `POST` | `/api/auth/demo` | Instant demo login session | No |
@@ -154,14 +178,17 @@ npm run db:studio  # Open Prisma Studio visual database browser
 | **Watchlist** | `POST` | `/api/watchlist/export` | Export watchlist JSON payload | Optional |
 | **Watchlist** | `POST` | `/api/watchlist/import` | Import watchlist items | Optional |
 | **Recommendations** | `GET` | `/api/recommendations/personalized` | AI/Genre-affinity recommendations | Optional |
+| **Reviews** | `GET` | `/api/reviews/anime/:id` | Fetch community reviews for anime | No |
+| **Reviews** | `POST` | `/api/reviews` | Post a user review and rating | Yes (Bearer) |
 
 ---
 
 ## 🔒 Security & Performance
 
-* **Fast In-Memory Caching:** In-memory TTL caching layer mitigates rate limits on external upstream APIs.
+* **Edge CDN Caching:** Lightning-fast global page loads via Vercel Edge Network.
+* **In-Memory Query Caching:** Smart TTL cache prevents hitting upstream rate limits.
 * **Password Hashing:** Salted `bcrypt` hashing with signed JWT authentication tokens.
-* **Client-Side Resilience:** LocalStorage sync with automatic fallback ensures watchlists and preferences remain available offline.
+* **Client-Side Resilience:** LocalStorage sync with automatic fallback ensures watchlists remain available offline.
 * **Zero Tracking:** Clean, privacy-first interface without telemetry scripts.
 
 ---
