@@ -69,7 +69,7 @@ app.use(errorHandler);
 async function startServer() {
   await connectDB();
 
-  app.listen(PORT, () => {
+  app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`
 🚀 ===================================================
    Voltaku Backend API Server Running
