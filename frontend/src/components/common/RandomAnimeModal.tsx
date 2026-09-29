@@ -46,11 +46,12 @@ export const RandomAnimeModal: React.FC<RandomAnimeModalProps> = ({ isOpen, onCl
         />
 
         {/* Modal Window */}
-        <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-2xl anilist-card-static border border-white/10 shadow-2xl z-10 space-y-5 animate-fadeIn">
+        <div className="relative w-full max-w-lg p-5 sm:p-8 rounded-2xl anilist-card-static border border-white/10 shadow-2xl z-10 space-y-4 sm:space-y-5 max-h-[90dvh] overflow-y-auto animate-fadeIn">
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+            className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+            aria-label="Close randomizer modal"
           >
             <X className="w-5 h-5" />
           </button>

@@ -175,7 +175,7 @@ export const Navbar: React.FC = () => {
                   <input
                     ref={searchInputRef}
                     type="text"
-                    placeholder="Search 20,000+ anime... (/ or ⌘K)"
+                    placeholder="Search 20,000+ anime..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => {

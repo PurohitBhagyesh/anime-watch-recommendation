@@ -235,3 +235,84 @@
 .animate-fadeIn {
   animation: fadeIn 0.25s cubic-bezier(0.2, 0, 0, 1) forwards;
 }
+
+/* Auto-Adjustable Responsive Helpers for Mobile, Tablet & Desktop */
+html {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  scroll-behavior: smooth;
+}
+
+.safe-area-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
+}
+
+.safe-area-top {
+  padding-top: max(env(safe-area-inset-top, 0px), 0px);
+}
+
+.touch-scroll-smooth {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+}
+
+/* Auto-Adjusting Grid: Automatically scales from 2 cols on mobile (320px+), 3-4 on tablet, 5-6 on desktop */
+.grid-auto-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+  gap: 0.65rem;
+}
+
+@media (min-width: 480px) {
+  .grid-auto-cards {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .grid-auto-cards {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-auto-cards {
+    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+/* Responsive Modal Containers with dynamic viewport height */
+.modal-responsive-container {
+  max-height: calc(100dvh - 2rem);
+  width: min(94vw, 48rem);
+  overscroll-behavior: contain;
+}
+
+/* Responsive Touch Targets (42px min for comfortable tapping on phones) */
+@media (max-width: 640px) {
+  .touch-target-min {
+    min-height: 42px;
+    min-width: 42px;
+  }
+}
+
+/* Smooth horizontal drag/swipe row */
+.horizontal-swipe-row {
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  gap: 0.75rem;
+  padding-bottom: 0.5rem;
+}
+
+.horizontal-swipe-row > * {
+  scroll-snap-align: start;
+}
+

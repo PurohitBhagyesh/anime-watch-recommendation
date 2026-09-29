@@ -574,7 +574,7 @@ export const DiscoverPage: React.FC = () => {
         {/* Scrollable Container */}
         <div
           ref={categoryBarRef}
-          className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar pt-1 scroll-smooth px-1"
+          className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar touch-scroll-smooth pt-1 scroll-smooth px-1"
         >
           {[
             {

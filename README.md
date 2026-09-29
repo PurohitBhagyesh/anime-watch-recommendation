@@ -1,11 +1,11 @@
-# ⚡ AnimeSenpai — Full-Stack Anime Discovery Platform
+# ⚡ AnimeSenpai — Full-Stack Anime Discovery & Watchlist Platform
 
 <p align="center">
   <img src="frontend/public/animesenpai-banner.svg" alt="AnimeSenpai Logo Banner" width="480" />
 </p>
 
 <p align="center">
-  <strong>A high-performance anime discovery, catalog search, and watchlist tracking platform connecting directly to 20,000+ anime titles via AniList GraphQL.</strong>
+  <strong>A high-performance, cross-device auto-adjustable anime discovery and watchlist tracking platform connecting directly to 20,000+ anime titles via AniList GraphQL.</strong>
 </p>
 
 <p align="center">
@@ -30,12 +30,13 @@
   <img src="https://img.shields.io/badge/TailwindCSS-v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/Node.js-Express-000000?style=flat-square&logo=express&logoColor=white" alt="Express" />
   <img src="https://img.shields.io/badge/Database-SQLite%20%2F%20Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white" alt="Prisma ORM" />
+  <img src="https://img.shields.io/badge/Responsive-Mobile%20%7C%20Tablet%20%7C%20Desktop-38bdf8?style=flat-square" alt="Responsive" />
   <img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" />
 </p>
 
 ---
 
-## 🌐 Live Production Links
+## 🌐 Live Production Deployments
 
 * 🌐 **Production Web Application:** [https://animesenpai.online](https://animesenpai.online)
 * ⚙️ **Production Backend API:** [https://anime-watch-recommendation.onrender.com/api](https://anime-watch-recommendation.onrender.com/api)
@@ -43,15 +44,27 @@
 
 ---
 
+## 📱 Cross-Device Auto-Adjustable Design
+
+AnimeSenpai is fully optimized and auto-adjusts fluidly across all screen sizes and form factors:
+
+| Device Category | Target Viewports | Responsive Behavior & Auto-Adjustments |
+| :--- | :--- | :--- |
+| **📱 Mobile Phones** | `320px – 480px`<br>(iPhone SE, 13/14/15/16 Pro, Galaxy, Pixel) | • 2-column adaptive card grid with touch momentum scrolling<br>• Bottom navigation bar with iOS safe-area notch padding (`safe-area-inset-bottom`)<br>• Horizontally swipeable category ribbons and status filter tabs<br>• Compact mobile card stack for watchlist and details<br>• 42px+ minimum touch hit targets |
+| **📟 Tablets & Foldables** | `640px – 1024px`<br>(iPad Mini, iPad Air, iPad Pro, Surface) | • 3 to 4-column balanced card grid layout<br>• Fluid two-column split on Anime Details page (Sidebar + Content)<br>• 12-column structured watchlist table view<br>• Full-featured horizontal carousels with smooth arrow controls |
+| **💻 Laptops & Desktops** | `1024px – 2560px+`<br>(MacBook, Ultra-wide, 4K Monitors) | • 5 to 6-column expansive catalog grids<br>• Instant keyboard shortcuts (`/` or `⌘K` search focus, `ESC` modal dismiss)<br>• Hover preview floating cards with studio names and score breakdowns<br>• Full glassmorphic navigation header with live autocomplete dropdown |
+
+---
+
 ## ✨ Features at a Glance
 
 * **🎨 AniList-Inspired Clean Glassmorphic UI:** Deep navy background (`#0b1622`), slate card elevated surfaces (`#151f2e`), and vibrant electric blue accents (`#3db4f2`).
-* **🔍 Real-Time Catalog Search (20,000+ Anime):** Instant autocomplete search in the upper navigation bar (`/` or `⌘K` keyboard shortcuts) with poster previews, format indicators, score pills, and genre tags.
-* **🏷️ Horizontally Scrollable Category Ribbon:** Interactive preset ribbon with smooth horizontal scrolling navigation buttons (`All Anime`, `🔥 Trending`, `🌸 This Season`, `🌟 Popular`, `🏆 Top 100`, `🚀 Upcoming`, `🎬 Movies`, `📺 TV Series`, `⚡ OVA / Shorts`, and comprehensive genre filters).
+* **🔍 Real-Time Catalog Search (20,000+ Anime):** Instant autocomplete search in the navigation bar with poster previews, format indicators, score pills, and genre tags.
+* **🏷️ Horizontally Scrollable Category Ribbon:** Interactive preset ribbon with smooth horizontal touch-swiping (`All Anime`, `🔥 Trending`, `🌸 This Season`, `🌟 Popular`, `🏆 Top 100`, `🚀 Upcoming`, `🎬 Movies`, `📺 TV Series`, `⚡ OVA / Shorts`, and comprehensive genre filters).
 * **📱 Touch & Hover Preview Popups:** Instant interactive anime preview cards displaying releasing status, season/year, studio names, format & episode counts, score smiley badges, and clickable genre pills.
 * **📊 Smart Catalog Counter & Pagination:** Dynamic counter displaying `5,000+ available (from 20,000+ database)` on broad queries with informative API limit modal, and exact counts when filters are applied.
-* **📋 Full Watchlist Management:** Track anime across `Watching`, `Planning`, `Completed`, `Rewatching`, `Paused`, and `Dropped` statuses with episode progress incrementing and JSON import/export.
-* **🎲 Anime Randomizer "Roll" Modal:** Roll random high-rated anime based on customized genre and format selections.
+* **📋 Full Watchlist Management:** Track anime across `Watching`, `Planning`, `Completed`, `Rewatching`, `Paused`, and `Dropped` statuses with episode progress incrementing, rating distribution analytics, and JSON import/export.
+* **🎲 Anime Randomizer "Roll" Modal:** Roll random high-rated anime based on customized genre and format selections with responsive dialog scaling (`max-h-[90dvh]`).
 * **🎬 Rich Anime Details:** High-resolution banners, synopses, characters & voice actors, related franchise anime, community recommendations, episode grids, and official YouTube trailer overlays.
 
 ---
@@ -60,7 +73,7 @@
 
 ```mermaid
 graph TD
-    User([User Browser - Desktop / Mobile]) <-->|HTTPS / animesenpai.online| Vercel["Frontend Tier (Vercel Edge - React 19 + Vite + Tailwind v4)"]
+    User([User Browser - Mobile / Tablet / Desktop]) <-->|HTTPS / animesenpai.online| Vercel["Frontend Tier (Vercel Edge - React 19 + Vite + Tailwind v4)"]
     Vercel <-->|Direct GraphQL for Fast Discovery| AniList["AniList Public GraphQL v2 API"]
     Vercel <-->|REST API + JWT Auth / Sync| Render["Backend Tier (Render Node.js + Express + Prisma)"]
     Render <-->|Self-Contained DB Engine| Database[("Database Tier (SQLite / dev.db)")]
@@ -73,10 +86,10 @@ anime-watch-recommendation/
 ├── 📱 frontend/              # React 19 + TypeScript + Vite + Tailwind CSS v4
 │   ├── src/                 # UI components, contexts, pages, hooks, styling
 │   │   ├── api/             # AniList GraphQL client & Backend API service
-│   │   ├── components/      # Glassmorphic UI, AnimeCard, Popovers, Navbar, Footer
+│   │   ├── components/      # Glassmorphic UI, AnimeCard, Popovers, Navbar, Footer, BottomTabBar
 │   │   ├── context/         # Watchlist & Auth state providers
 │   │   └── pages/           # HomePage, DiscoverPage, AnimeDetailsPage, WatchlistPage, AuthPage
-│   ├── public/              # Static assets, logos (SVG / Favicon)
+│   ├── public/              # Static assets, official vector logos (SVG / Favicon)
 │   ├── package.json         # Frontend scripts & dependencies
 │   ├── vite.config.ts       # Vite bundler configuration
 │   ├── vercel.json          # Vercel SPA routing configuration

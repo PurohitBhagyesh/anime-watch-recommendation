@@ -28,7 +28,7 @@ export const BottomTabBar: React.FC = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden anilist-nav border-t border-white/[0.08] backdrop-blur-xl">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden anilist-nav border-t border-white/[0.08] backdrop-blur-xl pb-[max(env(safe-area-inset-bottom),6px)]">
       <div className="grid grid-cols-4 h-14 max-w-md mx-auto items-center px-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;

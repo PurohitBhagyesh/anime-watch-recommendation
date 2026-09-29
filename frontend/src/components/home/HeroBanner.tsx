@@ -59,7 +59,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
 
   return (
     <>
-      <div className="relative w-full overflow-hidden min-h-[440px] sm:min-h-[500px] md:min-h-[560px] lg:min-h-[620px] flex items-end border-b border-white/[0.06] bg-[#0b1622] group">
+      <div className="relative w-full overflow-hidden min-h-[380px] sm:min-h-[480px] md:min-h-[560px] lg:min-h-[620px] flex items-end border-b border-white/[0.06] bg-[#0b1622] group">
         {/* Background Image Banner */}
         <div className="absolute inset-0 z-0">
           <img
@@ -74,28 +74,30 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
 
         {/* Carousel Controls */}
         {spotlights.length > 1 && (
-          <div className="absolute top-8 right-6 sm:right-10 lg:right-16 z-20 hidden sm:flex items-center gap-2">
+          <div className="absolute top-4 sm:top-8 right-4 sm:right-10 lg:right-16 z-20 flex items-center gap-1.5 sm:gap-2">
             <button
               onClick={() =>
                 setCurrentIndex((prev) => (prev - 1 + spotlights.length) % spotlights.length)
               }
-              className="p-2 rounded bg-[#151f2e]/80 hover:bg-[#3db4f2] text-white border border-white/10 backdrop-blur-md transition"
+              className="p-1.5 sm:p-2 rounded-lg bg-[#151f2e]/80 hover:bg-[#3db4f2] text-white border border-white/10 backdrop-blur-md transition active:scale-95"
               title="Previous Spotlight"
+              aria-label="Previous Spotlight"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
             <button
               onClick={() => setCurrentIndex((prev) => (prev + 1) % spotlights.length)}
-              className="p-2 rounded bg-[#151f2e]/80 hover:bg-[#3db4f2] text-white border border-white/10 backdrop-blur-md transition"
+              className="p-1.5 sm:p-2 rounded-lg bg-[#151f2e]/80 hover:bg-[#3db4f2] text-white border border-white/10 backdrop-blur-md transition active:scale-95"
               title="Next Spotlight"
+              aria-label="Next Spotlight"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
           </div>
         )}
 
         {/* Hero Content Box */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 md:py-16">
           <div className="max-w-3xl space-y-4">
             {/* Top Badges */}
             <div className="flex flex-wrap items-center gap-2">

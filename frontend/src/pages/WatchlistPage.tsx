@@ -323,8 +323,8 @@ export const WatchlistPage: React.FC = () => {
         </div>
       )}
 
-      {/* Status Filter Tabs */}
-      <div className="flex flex-wrap gap-1.5 border-b border-white/10 pb-3">
+      {/* Status Filter Tabs (Horizontally swipeable on mobile) */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 no-scrollbar touch-scroll-smooth flex-nowrap sm:flex-wrap border-b border-white/10">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const count =
@@ -337,13 +337,13 @@ export const WatchlistPage: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setFilterStatus(tab.id)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded text-xs font-bold transition ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition flex-shrink-0 whitespace-nowrap active:scale-95 ${
                 isActive
                   ? 'anilist-btn-primary'
                   : 'bg-[#151f2e] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10'
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className="w-3.5 h-3.5 flex-shrink-0" />
               <span>{tab.label}</span>
               <span className="px-1.5 py-0.2 text-[10px] rounded bg-black/40 font-mono">
                 {count}
@@ -356,8 +356,9 @@ export const WatchlistPage: React.FC = () => {
       {/* Watchlist Content */}
       {filteredItems.length > 0 ? (
         viewMode === 'table' ? (
-          /* Table View */
-          <div className="space-y-1.5">
+          /* Responsive Table View (Card stack on mobile, 12-col table on tablet & desktop) */
+          <div className="space-y-2 sm:space-y-1.5">
+            {/* Desktop Table Header */}
             <div className="hidden sm:grid grid-cols-12 gap-3 px-4 py-2 text-[10px] uppercase font-bold text-[#8ba0b2]">
               <span className="col-span-6">Anime Title</span>
               <span className="col-span-2 text-center">Score</span>
@@ -374,107 +375,213 @@ export const WatchlistPage: React.FC = () => {
               return (
                 <div
                   key={anime.id}
-                  className="flex flex-col sm:grid sm:grid-cols-12 gap-3 items-center p-3 rounded-lg anilist-table-row"
+                  className="p-3 sm:p-3 rounded-xl anilist-table-row border border-white/5 sm:border-transparent"
                 >
-                  {/* Title & Cover */}
-                  <div className="flex items-center gap-3 w-full sm:col-span-6 min-w-0">
-                    <Link
-                      to={`/anime/${anime.id}`}
-                      className="w-10 sm:w-12 aspect-[3/4] rounded overflow-hidden flex-shrink-0 bg-[#0b1622]"
-                    >
-                      <img
-                        src={anime.coverImage.medium || anime.coverImage.large}
-                        alt={title}
-                        className="w-full h-full object-cover"
-                      />
-                    </Link>
-
-                    <div className="min-w-0 flex-1">
+                  {/* Mobile Layout (< 640px) */}
+                  <div className="sm:hidden space-y-3">
+                    <div className="flex items-center gap-3">
                       <Link
                         to={`/anime/${anime.id}`}
-                        className="font-semibold text-xs sm:text-sm text-[#edf1f5] hover:text-[#3db4f2] truncate block"
-                        title={title}
+                        className="w-12 aspect-[3/4] rounded-lg overflow-hidden flex-shrink-0 bg-[#0b1622] shadow-sm"
                       >
-                        {title}
+                        <img
+                          src={anime.coverImage.medium || anime.coverImage.large}
+                          alt={title}
+                          className="w-full h-full object-cover"
+                        />
                       </Link>
-                      <p className="text-[10px] text-[#8ba0b2] mt-0.5">
-                        {anime.format?.replace('_', ' ')} · {anime.seasonYear || 'TBA'} ·{' '}
-                        {anime.episodes ? `${anime.episodes} eps` : 'Airing'}
-                      </p>
+
+                      <div className="min-w-0 flex-1">
+                        <Link
+                          to={`/anime/${anime.id}`}
+                          className="font-bold text-xs text-[#edf1f5] hover:text-[#3db4f2] line-clamp-1 block"
+                          title={title}
+                        >
+                          {title}
+                        </Link>
+                        <p className="text-[11px] text-[#8ba0b2] mt-0.5">
+                          {anime.format?.replace('_', ' ') || 'Anime'} · {anime.seasonYear || 'TBA'} ·{' '}
+                          {anime.episodes ? `${anime.episodes} eps` : 'Airing'}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => removeFromWatchlist(anime.id)}
+                        className="p-1.5 rounded-lg text-[#8ba0b2] hover:text-[#e85d75] hover:bg-[#e85d75]/15 transition"
+                        title="Remove from list"
+                        aria-label="Remove"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Mobile Controls Row */}
+                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/5 items-center">
+                      {/* Status */}
+                      <select
+                        value={item.status}
+                        onChange={(e) =>
+                          updateStatus(anime.id, e.target.value as WatchlistStatus)
+                        }
+                        className="anilist-input text-[11px] px-2 py-1 font-semibold capitalize w-full"
+                      >
+                        <option value="watching">Watching</option>
+                        <option value="plan_to_watch">Planning</option>
+                        <option value="completed">Completed</option>
+                        <option value="rewatching">Rewatching</option>
+                        <option value="paused">Paused</option>
+                        <option value="dropped">Dropped</option>
+                      </select>
+
+                      {/* Episode Counter */}
+                      <div className="flex items-center justify-center gap-1 bg-[#0b1622] py-0.5 px-1 rounded-lg border border-white/5">
+                        <button
+                          onClick={() =>
+                            updateProgress(
+                              anime.id,
+                              Math.max(0, (item.currentEpisode || 0) - 1)
+                            )
+                          }
+                          className="p-1 text-[#edf1f5] hover:text-[#3db4f2]"
+                          title="Minus episode"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="font-mono font-bold text-[#3db4f2] text-[11px] min-w-[2.2rem] text-center">
+                          {item.currentEpisode || 0}/{anime.episodes || '??'}
+                        </span>
+                        <button
+                          onClick={() =>
+                            updateProgress(
+                              anime.id,
+                              Math.min(maxEpisodes, (item.currentEpisode || 0) + 1)
+                            )
+                          }
+                          className="p-1 text-[#edf1f5] hover:text-[#3db4f2]"
+                          title="Plus episode"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+
+                      {/* Rating */}
+                      <select
+                        value={item.userRating || 0}
+                        onChange={(e) => updateRating(anime.id, Number(e.target.value))}
+                        className="anilist-input text-[11px] px-1.5 py-1 font-bold text-[#e4a834] w-full text-center"
+                      >
+                        <option value="0">★ Unrated</option>
+                        {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
+                          <option key={r} value={r}>
+                            ★ {r}/10
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 
-                  {/* Personal Rating */}
-                  <div className="flex items-center justify-center w-full sm:col-span-2">
-                    <select
-                      value={item.userRating || 0}
-                      onChange={(e) => updateRating(anime.id, Number(e.target.value))}
-                      className="anilist-input text-xs px-2 py-1 font-bold text-[#e4a834]"
-                    >
-                      <option value="0">Unrated</option>
-                      {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
-                        <option key={r} value={r}>
-                          {r} / 10 ({r * 10}%)
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {/* Tablet & Desktop Layout (>= 640px) */}
+                  <div className="hidden sm:grid sm:grid-cols-12 gap-3 items-center">
+                    {/* Title & Cover */}
+                    <div className="flex items-center gap-3 col-span-6 min-w-0">
+                      <Link
+                        to={`/anime/${anime.id}`}
+                        className="w-10 sm:w-12 aspect-[3/4] rounded-lg overflow-hidden flex-shrink-0 bg-[#0b1622]"
+                      >
+                        <img
+                          src={anime.coverImage.medium || anime.coverImage.large}
+                          alt={title}
+                          className="w-full h-full object-cover"
+                        />
+                      </Link>
 
-                  {/* Episode Progress Counter */}
-                  <div className="flex items-center justify-center gap-1.5 w-full sm:col-span-2">
-                    <button
-                      onClick={() =>
-                        updateProgress(
-                          anime.id,
-                          Math.max(0, (item.currentEpisode || 0) - 1)
-                        )
-                      }
-                      className="p-1 rounded bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10"
-                      title="Decrement"
-                    >
-                      <Minus className="w-3 h-3" />
-                    </button>
-                    <span className="font-mono font-bold text-[#3db4f2] min-w-[3rem] text-center text-xs">
-                      {item.currentEpisode || 0} / {anime.episodes || '??'}
-                    </span>
-                    <button
-                      onClick={() =>
-                        updateProgress(
-                          anime.id,
-                          Math.min(maxEpisodes, (item.currentEpisode || 0) + 1)
-                        )
-                      }
-                      className="p-1 rounded bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10"
-                      title="Increment"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </button>
-                  </div>
+                      <div className="min-w-0 flex-1">
+                        <Link
+                          to={`/anime/${anime.id}`}
+                          className="font-semibold text-xs sm:text-sm text-[#edf1f5] hover:text-[#3db4f2] truncate block"
+                          title={title}
+                        >
+                          {title}
+                        </Link>
+                        <p className="text-[10px] text-[#8ba0b2] mt-0.5">
+                          {anime.format?.replace('_', ' ') || 'Anime'} · {anime.seasonYear || 'TBA'} ·{' '}
+                          {anime.episodes ? `${anime.episodes} eps` : 'Airing'}
+                        </p>
+                      </div>
+                    </div>
 
-                  {/* Status & Delete */}
-                  <div className="flex items-center justify-end gap-2 w-full sm:col-span-2">
-                    <select
-                      value={item.status}
-                      onChange={(e) =>
-                        updateStatus(anime.id, e.target.value as WatchlistStatus)
-                      }
-                      className="anilist-input text-xs px-2 py-1 font-semibold capitalize"
-                    >
-                      <option value="watching">Watching</option>
-                      <option value="plan_to_watch">Planning</option>
-                      <option value="completed">Completed</option>
-                      <option value="rewatching">Rewatching</option>
-                      <option value="paused">Paused</option>
-                      <option value="dropped">Dropped</option>
-                    </select>
+                    {/* Personal Rating */}
+                    <div className="flex items-center justify-center col-span-2">
+                      <select
+                        value={item.userRating || 0}
+                        onChange={(e) => updateRating(anime.id, Number(e.target.value))}
+                        className="anilist-input text-xs px-2 py-1 font-bold text-[#e4a834]"
+                      >
+                        <option value="0">Unrated</option>
+                        {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
+                          <option key={r} value={r}>
+                            {r} / 10 ({r * 10}%)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                    <button
-                      onClick={() => removeFromWatchlist(anime.id)}
-                      className="p-1.5 rounded text-[#8ba0b2] hover:text-[#e85d75] hover:bg-[#e85d75]/15 transition"
-                      title="Remove"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {/* Episode Progress Counter */}
+                    <div className="flex items-center justify-center gap-1.5 col-span-2">
+                      <button
+                        onClick={() =>
+                          updateProgress(
+                            anime.id,
+                            Math.max(0, (item.currentEpisode || 0) - 1)
+                          )
+                        }
+                        className="p-1 rounded bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10"
+                        title="Decrement"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </button>
+                      <span className="font-mono font-bold text-[#3db4f2] min-w-[3rem] text-center text-xs">
+                        {item.currentEpisode || 0} / {anime.episodes || '??'}
+                      </span>
+                      <button
+                        onClick={() =>
+                          updateProgress(
+                            anime.id,
+                            Math.min(maxEpisodes, (item.currentEpisode || 0) + 1)
+                          )
+                        }
+                        className="p-1 rounded bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10"
+                        title="Increment"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+                    </div>
+
+                    {/* Status & Delete */}
+                    <div className="flex items-center justify-end gap-2 col-span-2">
+                      <select
+                        value={item.status}
+                        onChange={(e) =>
+                          updateStatus(anime.id, e.target.value as WatchlistStatus)
+                        }
+                        className="anilist-input text-xs px-2 py-1 font-semibold capitalize"
+                      >
+                        <option value="watching">Watching</option>
+                        <option value="plan_to_watch">Planning</option>
+                        <option value="completed">Completed</option>
+                        <option value="rewatching">Rewatching</option>
+                        <option value="paused">Paused</option>
+                        <option value="dropped">Dropped</option>
+                      </select>
+
+                      <button
+                        onClick={() => removeFromWatchlist(anime.id)}
+                        className="p-1.5 rounded text-[#8ba0b2] hover:text-[#e85d75] hover:bg-[#e85d75]/15 transition"
+                        title="Remove"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );

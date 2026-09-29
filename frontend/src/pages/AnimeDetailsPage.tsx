@@ -137,7 +137,7 @@ export const AnimeDetailsPage: React.FC = () => {
   return (
     <div className="space-y-8 pb-16 animate-fadeIn">
       {/* Top Banner Header */}
-      <div className="relative w-full h-64 sm:h-80 md:h-96 overflow-hidden bg-[#0b1622]">
+      <div className="relative w-full h-48 min-[480px]:h-60 sm:h-72 md:h-84 lg:h-96 overflow-hidden bg-[#0b1622]">
         <img
           src={banner}
           alt=""
@@ -149,7 +149,7 @@ export const AnimeDetailsPage: React.FC = () => {
         <div className="absolute top-4 left-4 sm:left-8 z-10">
           <Link
             to={-1 as any}
-            className="anilist-btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold shadow-md border border-white/10"
+            className="anilist-btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold shadow-md border border-white/10 active:scale-95"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back</span>
@@ -158,12 +158,12 @@ export const AnimeDetailsPage: React.FC = () => {
       </div>
 
       {/* Main Content Layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-28 sm:-mt-40 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 min-[480px]:-mt-28 sm:-mt-36 lg:-mt-44 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
           {/* Left Column: Poster, Status Tracker & Metadata Sidebar */}
-          <div className="lg:col-span-4 xl:col-span-3 space-y-4">
+          <div className="md:col-span-5 lg:col-span-4 xl:col-span-3 space-y-4">
             {/* Poster Card */}
-            <div className="relative rounded-lg overflow-hidden border border-white/10 bg-[#11161d] aspect-[185/265] max-w-xs mx-auto lg:max-w-none shadow-2xl">
+            <div className="relative rounded-xl overflow-hidden border border-white/10 bg-[#11161d] aspect-[185/265] max-w-[240px] md:max-w-none mx-auto shadow-2xl">
               <img
                 src={anime.coverImage.extraLarge || anime.coverImage.large}
                 alt={title}
@@ -463,8 +463,8 @@ export const AnimeDetailsPage: React.FC = () => {
               )}
             </div>
 
-            {/* Content Tabs */}
-            <div className="flex flex-wrap gap-1 p-1 rounded-lg bg-[#151f2e] border border-white/10">
+            {/* Content Tabs (Swipeable on mobile, flex-wrap on tablet/desktop) */}
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-[#151f2e] border border-white/10 overflow-x-auto no-scrollbar touch-scroll-smooth flex-nowrap sm:flex-wrap">
               {[
                 { id: 'overview', label: 'Overview', icon: Sparkles },
                 { id: 'characters', label: `Characters (${anime.characters?.edges?.length || 0})`, icon: Users },
@@ -477,13 +477,13 @@ export const AnimeDetailsPage: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded text-xs font-bold transition ${
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition flex-shrink-0 whitespace-nowrap active:scale-95 ${
                       active
                         ? 'bg-[#3db4f2] text-white shadow-sm'
                         : 'text-[#8ba0b2] hover:text-white hover:bg-white/[0.04]'
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5" />
+                    <Icon className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>{tab.label}</span>
                   </button>
                 );

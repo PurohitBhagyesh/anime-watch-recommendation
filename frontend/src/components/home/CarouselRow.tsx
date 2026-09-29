@@ -86,12 +86,12 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
       {/* Horizontal Carousel */}
       <div
         ref={scrollContainerRef}
-        className="flex gap-3 sm:gap-4 overflow-x-auto pb-3 pt-1 no-scrollbar scroll-smooth"
+        className="flex gap-2.5 sm:gap-4 overflow-x-auto pb-3 pt-1 no-scrollbar touch-scroll-smooth scroll-smooth"
       >
         {animes.map((anime) => (
           <div
             key={anime.id}
-            className="flex-shrink-0 w-36 sm:w-44 md:w-48"
+            className="flex-shrink-0 w-32 min-[400px]:w-36 sm:w-44 md:w-48"
           >
             <AnimeCard anime={anime} />
           </div>
