@@ -103,8 +103,9 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
     }, 150);
   };
 
-  const handleTouchToggle = () => {
-    // Only toggle if not clicking quick add
+  const handleTouchToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     calculatePlacement();
     setShowTouchPopup((prev) => !prev);
   };
@@ -123,25 +124,28 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={`group relative flex flex-col anilist-card h-full transition-all duration-200 ${
-        isPopupVisible ? 'z-40' : 'z-10'
+        isPopupVisible || showStatusMenu ? 'z-40' : 'z-10'
       }`}
     >
       {/* Poster Image Container */}
-      <Link
-        to={`/anime/${anime.id}`}
-        className="relative aspect-[185/265] w-full overflow-hidden bg-[#11161d] block rounded-t-[6px]"
-      >
-        <img
-          src={anime.coverImage.extraLarge || anime.coverImage.large}
-          alt={title}
-          loading="lazy"
-          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300 ease-out"
-        />
+      <div className="relative aspect-[185/265] w-full bg-[#11161d] rounded-t-[6px]">
+        <Link
+          to={`/anime/${anime.id}`}
+          className="block w-full h-full overflow-hidden rounded-t-[6px]"
+          aria-label={`View details for ${title}`}
+        >
+          <img
+            src={anime.coverImage.extraLarge || anime.coverImage.large}
+            alt={title}
+            loading="lazy"
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300 ease-out"
+          />
+        </Link>
 
         {/* Top Badges */}
         <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none z-10">
           {anime.format ? (
-            <div className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#0b1622]/85 text-[#edf1f5] backdrop-blur-md uppercase tracking-tight">
+            <div className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#0b1622]/85 text-[#edf1f5] backdrop-blur-md uppercase tracking-tight shadow">
               {anime.format.replace('_', ' ')}
             </div>
           ) : (
@@ -162,10 +166,10 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
 
         {/* Next Airing Episode Banner */}
         {anime.nextAiringEpisode && (
-          <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#0b1622]/90 border border-[#7bd555]/40 text-[#7bd555] text-[10px] font-bold backdrop-blur-md">
-              <Clock className="w-2.5 h-2.5" />
-              <span>
+          <div className="absolute bottom-2 left-2 z-10 pointer-events-none max-w-[calc(100%-3rem)]">
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#0b1622]/90 border border-[#7bd555]/40 text-[#7bd555] text-[10px] font-bold backdrop-blur-md truncate shadow">
+              <Clock className="w-2.5 h-2.5 flex-shrink-0" />
+              <span className="truncate">
                 Ep {anime.nextAiringEpisode.episode} in{' '}
                 {formatTimeUntilAiring(anime.nextAiringEpisode.timeUntilAiring)}
               </span>
@@ -173,10 +177,22 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
           </div>
         )}
 
-        {/* Quick Add Button & Popover */}
-        <div className="absolute bottom-2 right-2 pointer-events-auto z-20">
+        {/* Touch Preview Trigger Button (Mobile visible) */}
+        <button
+          type="button"
+          onClick={handleTouchToggle}
+          className="sm:hidden absolute top-2 right-2 z-20 w-6 h-6 rounded-full bg-[#0b1622]/80 text-[#3db4f2] flex items-center justify-center text-[11px] font-bold border border-white/10"
+          aria-label="Preview anime details"
+          title="Tap for details"
+        >
+          <Sparkles className="w-3 h-3" />
+        </button>
+
+        {/* Quick Add Button & Popover (Positioned outside Link, safe from overflow clipping) */}
+        <div className="absolute bottom-2 right-2 z-30 pointer-events-auto">
           <div className="relative">
             <button
+              type="button"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -184,59 +200,62 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
                 setIsHovered(false);
                 setShowTouchPopup(false);
               }}
-              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-md flex items-center justify-center backdrop-blur-md transition-all shadow-md ${
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-md flex items-center justify-center backdrop-blur-md transition-all shadow-md active:scale-95 cursor-pointer ${
                 inWatchlist
                   ? 'bg-[#7bd555] text-[#0b1622] font-bold'
                   : 'bg-[#0b1622]/85 text-[#edf1f5] hover:text-white hover:bg-[#3db4f2] border border-white/10'
               }`}
               title={inWatchlist ? `In List (${currentItem?.status})` : 'Add to List'}
+              aria-label="Manage watchlist status"
             >
               {inWatchlist ? <Check className="w-4 h-4 stroke-[3]" /> : <Plus className="w-4 h-4" />}
             </button>
 
-            {/* Status Selector Popover */}
+            {/* Status Selector Dropdown */}
             {showStatusMenu && (
               <>
                 <div
-                  className="fixed inset-0 z-30"
+                  className="fixed inset-0 z-40"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowStatusMenu(false);
                   }}
                 />
-                <div className="absolute bottom-10 right-0 z-40 w-44 p-1.5 rounded-lg anilist-surface-elevated border border-white/10 shadow-2xl space-y-0.5 animate-fadeIn">
+                <div className="absolute bottom-10 right-0 z-50 w-36 sm:w-40 p-1.5 rounded-xl bg-[#151f2e] border border-white/15 shadow-2xl space-y-0.5 animate-fadeIn">
                   <div className="text-[10px] uppercase font-bold text-[#8ba0b2] px-2 py-1 tracking-wider border-b border-white/10">
                     Set Status
                   </div>
                   {statusLabels.map((st) => (
                     <button
                       key={st.id}
+                      type="button"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         addToWatchlist(anime, st.id);
                         setShowStatusMenu(false);
                       }}
-                      className={`w-full text-left px-2.5 py-1.5 text-xs rounded flex items-center justify-between font-semibold transition ${
+                      className={`w-full text-left px-2.5 py-1.5 text-xs rounded-lg flex items-center justify-between font-semibold transition cursor-pointer ${
                         currentItem?.status === st.id
-                          ? 'bg-[#3db4f2] text-white'
+                          ? 'bg-[#3db4f2] text-white shadow-sm'
                           : 'text-[#edf1f5] hover:bg-white/10'
                       }`}
                     >
                       <span>{st.label}</span>
-                      {currentItem?.status === st.id && <Check className="w-3 h-3 text-white" />}
+                      {currentItem?.status === st.id && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
                     </button>
                   ))}
                   {inWatchlist && (
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         removeFromWatchlist(anime.id);
                         setShowStatusMenu(false);
                       }}
-                      className="w-full text-left px-2.5 py-1 text-xs text-[#e85d75] hover:bg-[#e85d75]/20 rounded transition font-medium border-t border-white/10 mt-1"
+                      className="w-full text-left px-2.5 py-1.5 text-xs text-[#e85d75] hover:bg-[#e85d75]/20 rounded-lg transition font-medium border-t border-white/10 mt-1 cursor-pointer"
                     >
                       Remove from list
                     </button>
@@ -246,7 +265,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
             )}
           </div>
         </div>
-      </Link>
+      </div>
 
       {/* Info Card Content */}
       <div className="p-3 flex flex-col flex-1 justify-between gap-1.5">
@@ -284,17 +303,6 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
           </div>
         </div>
       </div>
-
-      {/* Touch Preview Trigger Button (Mobile visible) */}
-      <button
-        type="button"
-        onClick={handleTouchToggle}
-        className="sm:hidden absolute top-2 right-2 z-20 w-6 h-6 rounded-full bg-[#0b1622]/80 text-[#3db4f2] flex items-center justify-center text-[11px] font-bold border border-white/10"
-        aria-label="Preview anime details"
-        title="Tap for details"
-      >
-        <Sparkles className="w-3 h-3" />
-      </button>
 
       {/* Floating Hover/Touch AniList Preview Popup Card */}
       {isPopupVisible && (
