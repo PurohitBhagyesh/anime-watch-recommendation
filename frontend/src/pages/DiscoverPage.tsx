@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams, Link } from 'react-router-dom';
 import {
   Search,
@@ -1207,90 +1208,93 @@ export const DiscoverPage: React.FC = () => {
       )}
 
       {/* All Genre Statistics Breakdown Modal */}
-      {showGenreStatsModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-          <div
-            className="fixed inset-0"
-            onClick={() => setShowGenreStatsModal(false)}
-          />
-          <div className="relative w-full max-w-2xl bg-[#0e1726] border border-white/15 rounded-2xl p-5 shadow-2xl z-10 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <div className="flex items-center gap-2">
-                <BarChart2 className="w-5 h-5 text-[#3db4f2]" />
-                <h3 className="text-base font-bold text-white">
-                  AniList Database: Anime Genre Counts
-                </h3>
+      {showGenreStatsModal &&
+        createPortal(
+          <div className="fixed inset-0 z-[99990] flex items-center justify-center p-4 overscroll-contain animate-fadeIn">
+            <div
+              className="fixed inset-0 bg-black/80 backdrop-blur-md cursor-pointer transition-opacity"
+              onClick={() => setShowGenreStatsModal(false)}
+              aria-hidden="true"
+            />
+            <div className="relative w-full max-w-2xl bg-[#0e1726] border border-white/15 rounded-2xl p-5 shadow-2xl z-10 space-y-4 max-h-[90vh] overflow-y-auto my-auto pointer-events-auto">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <BarChart2 className="w-5 h-5 text-[#3db4f2]" />
+                  <h3 className="text-base font-bold text-white">
+                    AniList Database: Anime Genre Counts
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowGenreStatsModal(false)}
+                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                onClick={() => setShowGenreStatsModal(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            <p className="text-xs text-slate-300">
-              The catalog indexes over <strong>20,000+ total anime entries</strong>. Below is the total count per genre. Select any genre to browse:
-            </p>
+              <p className="text-xs text-slate-300">
+                The catalog indexes over <strong>20,000+ total anime entries</strong>. Below is the total count per genre. Select any genre to browse:
+              </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-              {Object.values(GENRE_METADATA).map((meta) => {
-                const isCurrent = selectedGenre.toLowerCase() === meta.name.toLowerCase();
-                return (
-                  <button
-                    key={meta.name}
-                    type="button"
-                    onClick={() => {
-                      setSelectedGenre(meta.name);
-                      updateFiltersInUrl({ genre: meta.name });
-                      setShowGenreStatsModal(false);
-                    }}
-                    className={`p-3 rounded-xl border text-left transition-all group cursor-pointer ${
-                      isCurrent
-                        ? 'bg-[#3db4f2] text-white border-[#3db4f2] shadow-md shadow-[#3db4f2]/30'
-                        : 'bg-[#151f2e] border-white/10 hover:border-[#3db4f2]/50 hover:bg-[#1a273b]'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`text-xs font-bold ${
-                          isCurrent ? 'text-white' : 'text-slate-100 group-hover:text-[#3db4f2]'
-                        }`}
-                      >
-                        {meta.name}
-                      </span>
-                      <span
-                        className={`text-xs font-mono font-black px-2 py-0.5 rounded-full ${
-                          isCurrent ? 'bg-white/20 text-white' : 'bg-[#3db4f2]/15 text-[#3db4f2]'
-                        }`}
-                      >
-                        {meta.formattedCount}
-                      </span>
-                    </div>
-                    <p
-                      className={`text-[10px] mt-1 line-clamp-1 ${
-                        isCurrent ? 'text-white/80' : 'text-slate-400'
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                {Object.values(GENRE_METADATA).map((meta) => {
+                  const isCurrent = selectedGenre.toLowerCase() === meta.name.toLowerCase();
+                  return (
+                    <button
+                      key={meta.name}
+                      type="button"
+                      onClick={() => {
+                        setSelectedGenre(meta.name);
+                        updateFiltersInUrl({ genre: meta.name });
+                        setShowGenreStatsModal(false);
+                      }}
+                      className={`p-3 rounded-xl border text-left transition-all group cursor-pointer ${
+                        isCurrent
+                          ? 'bg-[#3db4f2] text-white border-[#3db4f2] shadow-md shadow-[#3db4f2]/30'
+                          : 'bg-[#151f2e] border-white/10 hover:border-[#3db4f2]/50 hover:bg-[#1a273b]'
                       }`}
                     >
-                      {meta.description}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`text-xs font-bold ${
+                            isCurrent ? 'text-white' : 'text-slate-100 group-hover:text-[#3db4f2]'
+                          }`}
+                        >
+                          {meta.name}
+                        </span>
+                        <span
+                          className={`text-xs font-mono font-black px-2 py-0.5 rounded-full ${
+                            isCurrent ? 'bg-white/20 text-white' : 'bg-[#3db4f2]/15 text-[#3db4f2]'
+                          }`}
+                        >
+                          {meta.formattedCount}
+                        </span>
+                      </div>
+                      <p
+                        className={`text-[10px] mt-1 line-clamp-1 ${
+                          isCurrent ? 'text-white/80' : 'text-slate-400'
+                        }`}
+                      >
+                        {meta.description}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-white/10 text-[11px] text-slate-400">
-              <span>* Note: Anime can belong to multiple genres.</span>
-              <button
-                onClick={() => setShowGenreStatsModal(false)}
-                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white font-semibold cursor-pointer"
-              >
-                Close
-              </button>
+              <div className="flex items-center justify-between pt-2 border-t border-white/10 text-[11px] text-slate-400">
+                <span>* Note: Anime can belong to multiple genres.</span>
+                <button
+                  onClick={() => setShowGenreStatsModal(false)}
+                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white font-semibold cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

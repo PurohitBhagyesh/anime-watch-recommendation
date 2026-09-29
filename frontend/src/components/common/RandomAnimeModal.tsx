@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { Dices, X, Play, Plus, Check, ArrowRight, Sparkles } from 'lucide-react';
 import { fetchRandomAnime } from '../../api/anilist';
@@ -36,17 +37,18 @@ export const RandomAnimeModal: React.FC<RandomAnimeModalProps> = ({ isOpen, onCl
     : '';
   const inWatchlist = rolledAnime ? isInWatchlist(rolledAnime.id) : false;
 
-  return (
+  const modalContent = (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[99990] flex items-center justify-center p-4 overscroll-contain animate-fadeIn">
         {/* Backdrop */}
         <div
-          className="fixed inset-0 bg-black/80 backdrop-blur-md animate-fadeIn"
+          className="fixed inset-0 bg-black/80 backdrop-blur-md cursor-pointer transition-opacity"
           onClick={onClose}
+          aria-hidden="true"
         />
 
         {/* Modal Window */}
-        <div className="relative w-full max-w-lg p-5 sm:p-8 rounded-2xl anilist-card-static border border-white/10 shadow-2xl z-10 space-y-4 sm:space-y-5 max-h-[90dvh] overflow-y-auto animate-fadeIn">
+        <div className="relative w-full max-w-lg p-5 sm:p-8 rounded-2xl bg-[#151f2e] border border-white/15 shadow-2xl z-10 space-y-4 sm:space-y-5 max-h-[90dvh] overflow-y-auto my-auto pointer-events-auto">
           {/* Close button */}
           <button
             onClick={onClose}
@@ -206,5 +208,7 @@ export const RandomAnimeModal: React.FC<RandomAnimeModalProps> = ({ isOpen, onCl
       )}
     </>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
