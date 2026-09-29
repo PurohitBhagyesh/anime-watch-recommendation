@@ -29,6 +29,9 @@
     "prisma": "^6.19.3"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.3"
+    "@prisma/client": "^6.19.3",
+    "@types/node": "^22.13.9",
+    "prisma": "^6.19.3",
+    "typescript": "^5.8.2"
   }
 }
