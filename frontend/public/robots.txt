@@ -3,4 +3,5 @@ User-agent: *
 Allow: /
 
 # Sitemaps
+Sitemap: https://www.animesenpai.online/sitemap.xml
 Sitemap: https://animesenpai.online/sitemap.xml
