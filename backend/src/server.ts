@@ -27,6 +27,11 @@ app.use((req, _res, next) => {
   next();
 });
 
+// Lightweight Health/Ping Endpoints for Keep-Alive & Monitoring (UptimeRobot, etc.)
+app.get(['/ping', '/healthz'], (_req, res) => {
+  res.status(200).send('pong');
+});
+
 // Root Welcome Endpoint
 app.get('/', (_req, res) => {
   res.json({
