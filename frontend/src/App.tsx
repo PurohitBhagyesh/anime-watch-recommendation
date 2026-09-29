@@ -18,7 +18,7 @@ export const App: React.FC = () => {
     <AuthProvider>
       <WatchlistProvider>
         <HashRouter>
-          <div className="flex flex-col min-h-screen bg-[#0b1622] text-[#bcbedc] selection:bg-[#3db4f2] selection:text-white pb-16 md:pb-0">
+          <div className="flex flex-col min-h-screen bg-[#0b1622] text-[#bcbedc] selection:bg-[#3db4f2] selection:text-white pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
             <Navbar />
             <main className="flex-1">
               <Routes>

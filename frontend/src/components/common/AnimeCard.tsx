@@ -253,14 +253,18 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
         <div>
           <Link
             to={`/anime/${anime.id}`}
-            className="font-semibold text-xs sm:text-sm text-[#edf1f5] group-hover:text-[#3db4f2] line-clamp-2 transition leading-snug"
+            className="font-semibold text-xs sm:text-sm text-[#edf1f5] group-hover:text-[#3db4f2] line-clamp-2 transition leading-snug min-h-[2.2rem] sm:min-h-[2.5rem]"
             title={title}
           >
             {title}
           </Link>
-          {studioName && (
+          {studioName ? (
             <p className="text-[11px] text-[#8ba0b2] mt-0.5 truncate font-medium">
               {studioName}
+            </p>
+          ) : (
+            <p className="text-[11px] text-transparent mt-0.5 truncate font-medium select-none pointer-events-none">
+              &nbsp;
             </p>
           )}
         </div>

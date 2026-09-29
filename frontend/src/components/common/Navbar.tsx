@@ -208,7 +208,7 @@ export const Navbar: React.FC = () => {
 
                 {/* Autocomplete Dropdown Popover */}
                 {showAutocomplete && (
-                  <div className="absolute top-full left-0 right-0 mt-2 p-1.5 rounded-xl bg-[#111927]/98 backdrop-blur-2xl shadow-2xl border border-white/15 z-50 max-h-96 overflow-y-auto space-y-1 animate-fadeIn">
+                  <div className="absolute top-full right-0 w-[min(88vw,360px)] sm:w-full sm:left-0 sm:right-auto mt-2 p-2 rounded-xl bg-[#111927]/98 backdrop-blur-2xl shadow-2xl border border-white/15 z-50 max-h-96 overflow-y-auto space-y-1 animate-fadeIn">
                     {isSearching ? (
                       <div className="p-4 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
                         <div className="w-3.5 h-3.5 border-2 border-[#3db4f2] border-t-transparent rounded-full animate-spin" />
