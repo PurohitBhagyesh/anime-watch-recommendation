@@ -67,6 +67,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
             src={bgImage}
             alt={title}
             className="w-full h-full object-cover object-center filter brightness-[0.45] contrast-[1.08] transition-all duration-700 ease-out"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0b1622] via-[#0b1622]/70 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0b1622] via-[#0b1622]/80 to-transparent" />

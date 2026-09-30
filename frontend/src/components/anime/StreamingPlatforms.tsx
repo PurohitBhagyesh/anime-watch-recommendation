@@ -78,7 +78,7 @@ export const StreamingPlatforms: React.FC<StreamingPlatformsProps> = ({ links })
             >
               <div className="flex items-center gap-2">
                 {link.icon ? (
-                  <img src={link.icon} alt="" className="w-4 h-4 rounded object-contain" />
+                  <img src={link.icon} alt="" className="w-4 h-4 rounded object-contain" loading="lazy" />
                 ) : (
                   <PlayCircle className="w-4 h-4" />
                 )}
@@ -107,7 +107,7 @@ export const StreamingPlatforms: React.FC<StreamingPlatformsProps> = ({ links })
                 rel="noopener noreferrer"
                 className="text-xs px-3 py-1.5 rounded-lg bg-[#151f2e] hover:bg-[#1f2c3f] text-slate-200 hover:text-[#3db4f2] border border-white/10 flex items-center gap-1.5 transition font-semibold"
               >
-                {link.icon && <img src={link.icon} alt="" className="w-3.5 h-3.5 rounded object-contain" />}
+                {link.icon && <img src={link.icon} alt="" className="w-3.5 h-3.5 rounded object-contain" loading="lazy" />}
                 <span>{link.site}</span>
                 <ExternalLink className="w-3 h-3 opacity-60" />
               </a>

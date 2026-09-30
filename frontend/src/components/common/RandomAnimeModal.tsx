@@ -106,6 +106,7 @@ export const RandomAnimeModal: React.FC<RandomAnimeModalProps> = ({ isOpen, onCl
                   <img
                     src={rolledAnime.coverImage.large || rolledAnime.coverImage.medium}
                     alt={title}
+                    loading="lazy"
                     className="w-full h-full object-cover"
                   />
                   {rolledAnime.averageScore && (

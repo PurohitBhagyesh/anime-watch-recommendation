@@ -388,6 +388,7 @@ export const WatchlistPage: React.FC = () => {
                           src={anime.coverImage.medium || anime.coverImage.large}
                           alt={title}
                           className="w-full h-full object-cover"
+                          loading="lazy"
                         />
                       </Link>
 
@@ -492,6 +493,7 @@ export const WatchlistPage: React.FC = () => {
                           src={anime.coverImage.medium || anime.coverImage.large}
                           alt={title}
                           className="w-full h-full object-cover"
+                          loading="lazy"
                         />
                       </Link>
 
@@ -610,6 +612,7 @@ export const WatchlistPage: React.FC = () => {
                       src={anime.coverImage.large || anime.coverImage.medium}
                       alt={title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      loading="lazy"
                     />
                     {anime.averageScore && (
                       <div

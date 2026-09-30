@@ -240,6 +240,7 @@ export const Navbar: React.FC = () => {
                               <img
                                 src={item.coverImage.medium || item.coverImage.large}
                                 alt={itemTitle}
+                                loading="lazy"
                                 className="w-8 h-11 object-cover rounded bg-[#0b1622] flex-shrink-0 shadow-sm group-hover:ring-1 group-hover:ring-[#3db4f2]"
                               />
                               <div className="min-w-0 flex-1">
@@ -316,6 +317,7 @@ export const Navbar: React.FC = () => {
                     <img
                       src={user.avatar}
                       alt={user.username}
+                      loading="lazy"
                       className="w-6 h-6 rounded-md object-cover bg-[#0b1622] ring-1 ring-white/10"
                     />
                     <span className="text-xs font-bold text-slate-200 group-hover:text-white max-w-[80px] sm:max-w-[110px] truncate hidden sm:inline-block">
@@ -336,6 +338,7 @@ export const Navbar: React.FC = () => {
                           <img
                             src={user.avatar}
                             alt={user.username}
+                            loading="lazy"
                             className="w-8 h-8 rounded-lg object-cover ring-2 ring-[#3db4f2]/40"
                           />
                           <div className="min-w-0 flex-1">

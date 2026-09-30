@@ -46,6 +46,7 @@ export const BottomTabBar: React.FC = () => {
                   <img
                     src={tab.avatarUrl}
                     alt={tab.label}
+                    loading="lazy"
                     className={`w-5 h-5 rounded-full object-cover ring-1 ${
                       active ? 'ring-[#3db4f2]' : 'ring-white/20'
                     }`}

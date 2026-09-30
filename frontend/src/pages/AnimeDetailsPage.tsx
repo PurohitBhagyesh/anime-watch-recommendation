@@ -142,6 +142,7 @@ export const AnimeDetailsPage: React.FC = () => {
           src={banner}
           alt=""
           className="w-full h-full object-cover object-center filter brightness-[0.45] contrast-[1.08]"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0b1622] via-[#0b1622]/60 to-transparent" />
 
