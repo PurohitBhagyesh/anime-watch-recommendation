@@ -217,7 +217,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: true };
     } catch (error: any) {
       console.error("Google sign in error:", error);
-      let errorMessage = 'Failed to sign in with Google.';
+      let errorMessage = `Failed to sign in with Google. (${error.code || 'Unknown Error'}): ${error.message || 'No details available.'}`;
       if (error.code === 'auth/popup-closed-by-user') {
         errorMessage = 'Sign-in window closed before completing.';
       } else if (error.code === 'auth/cancelled-popup-request') {
