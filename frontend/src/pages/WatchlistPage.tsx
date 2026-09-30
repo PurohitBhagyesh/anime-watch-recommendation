@@ -19,9 +19,12 @@ import {
   BarChart3,
 } from 'lucide-react';
 import { useWatchlist } from '../context/WatchlistContext';
+import { useAuth } from '../context/AuthContext';
 import type { WatchlistStatus } from '../api/types';
 
 export const WatchlistPage: React.FC = () => {
+  const { user } = useAuth();
+
   const {
     watchlist,
     removeFromWatchlist,
@@ -125,6 +128,36 @@ export const WatchlistPage: React.FC = () => {
     if (score >= 60) return 'score-pill-med';
     return 'score-pill-low';
   };
+
+  if (!user) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 space-y-6 animate-fadeIn flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <div className="w-20 h-20 bg-[#151f2e] rounded-2xl flex items-center justify-center mb-4 shadow-lg border border-white/5">
+          <Bookmark className="w-10 h-10 text-[#3db4f2]" />
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-[#edf1f5] tracking-tight">
+          Track Your Anime
+        </h1>
+        <p className="text-[#8ba0b2] max-w-md mx-auto text-sm sm:text-base leading-relaxed">
+          Sign in or create an account to start building your personal watchlist, track episode progress, rate series, and never lose your place again.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full sm:w-auto pt-4">
+          <Link
+            to="/login"
+            className="anilist-btn-primary px-8 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#3db4f2]/20"
+          >
+            Sign In to Continue
+          </Link>
+          <Link
+            to="/signup"
+            className="anilist-btn-secondary px-8 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 border border-white/10"
+          >
+            Create an Account
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fadeIn">

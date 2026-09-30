@@ -65,7 +65,7 @@ AnimeSenpai is fully optimized and auto-adjusts fluidly across all screen sizes 
 * **🏷️ Horizontally Scrollable Category Ribbon:** Interactive preset ribbon with smooth horizontal touch-swiping (`All Anime`, `🔥 Trending`, `🌸 This Season`, `🌟 Popular`, `🏆 Top 100`, `🚀 Upcoming`, `🎬 Movies`, `📺 TV Series`, `⚡ OVA / Shorts`, and comprehensive genre filters).
 * **📱 Touch & Hover Preview Popups:** Instant interactive anime preview cards displaying releasing status, season/year, studio names, format & episode counts, score smiley badges, and clickable genre pills.
 * **📊 Smart Catalog Counter & Pagination:** Dynamic counter displaying `5,000+ available (from 20,000+ database)` on broad queries with informative API limit modal, and exact counts when filters are applied.
-* **📋 Full Watchlist Management:** Track anime across `Watching`, `Planning`, `Completed`, `Rewatching`, `Paused`, and `Dropped` statuses with episode progress incrementing, rating distribution analytics, and JSON import/export.
+* **📋 Authenticated Watchlist Management:** Securely track anime across `Watching`, `Planning`, `Completed`, `Rewatching`, `Paused`, and `Dropped` statuses. Requires login to build your personal watchlist, track episode progress, and sync across devices.
 * **🎲 Anime Randomizer "Roll" Modal:** Roll random high-rated anime based on customized genre and format selections with responsive dialog scaling (`max-h-[90dvh]`).
 * **🎬 Rich Anime Details:** High-resolution banners, synopses, characters & voice actors, related franchise anime, community recommendations, episode grids, and official YouTube trailer overlays.
 
