@@ -11,6 +11,8 @@ import {
   ChevronDown,
   Sparkles,
   Menu,
+  User,
+  Settings,
 } from 'lucide-react';
 import { useWatchlist } from '../../context/WatchlistContext';
 import { useAuth } from '../../context/AuthContext';
@@ -365,6 +367,24 @@ export const Navbar: React.FC = () => {
                       >
                         <Compass className="w-3.5 h-3.5 text-[#3db4f2]" />
                         <span>Browse Catalog</span>
+                      </Link>
+
+                      <Link
+                        to="/account"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition"
+                      >
+                        <User className="w-3.5 h-3.5 text-[#3db4f2]" />
+                        <span>Account</span>
+                      </Link>
+
+                      <Link
+                        to="/settings"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition"
+                      >
+                        <Settings className="w-3.5 h-3.5 text-[#3db4f2]" />
+                        <span>Settings</span>
                       </Link>
 
                       <div className="border-t border-white/10 my-1" />

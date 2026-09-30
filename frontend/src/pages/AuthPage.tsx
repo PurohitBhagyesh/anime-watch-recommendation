@@ -6,15 +6,13 @@ import {
   Mail,
   Lock,
   User,
-  Sparkles,
   ArrowRight,
   ShieldCheck,
   Check,
   Eye,
   EyeOff,
-  Zap,
 } from 'lucide-react';
-import { useAuth, AVATAR_PRESETS } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { AppLogo } from '../components/common/AppLogo';
 
 interface AuthPageProps {
@@ -23,7 +21,7 @@ interface AuthPageProps {
 
 export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => {
   const navigate = useNavigate();
-  const { user, login, signup, loginWithGoogle, quickDemoLogin } = useAuth();
+  const { user, login, signup, loginWithGoogle } = useAuth();
 
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
   const [emailOrUsername, setEmailOrUsername] = useState('');
@@ -31,7 +29,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
   const [signupUsername, setSignupUsername] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState(AVATAR_PRESETS[0].url);
   const [rememberMe, setRememberMe] = useState(true);
   const [agreeTerms, setAgreeTerms] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -39,6 +36,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
   useEffect(() => {
     if (initialMode) {
@@ -61,15 +59,15 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
     try {
       const res = await login(emailOrUsername, password);
       if (res.success) {
-        setSuccessMsg('Welcome back to AniList!');
+        setSuccessMsg('Welcome back to AnimeSenpai!');
         setTimeout(() => {
           navigate('/');
         }, 800);
       } else {
-        setError(res.error || 'Login failed. Please try again.');
+        setError(res.error || 'Login failed. Please check your credentials.');
       }
     } catch {
-      setError('An unexpected error occurred.');
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -90,11 +88,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
         username: signupUsername,
         email: signupEmail,
         password: signupPassword,
-        avatar: selectedAvatar,
       });
 
       if (res.success) {
-        setSuccessMsg('Account created successfully! Welcome to AniList.');
+        setSuccessMsg('Account created successfully! Welcome to AnimeSenpai.');
         setTimeout(() => {
           navigate('/');
         }, 800);
@@ -102,27 +99,19 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
         setError(res.error || 'Sign up failed. Please try again.');
       }
     } catch {
-      setError('An unexpected error occurred.');
+      setError('An unexpected error occurred during signup.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDemoClick = () => {
-    quickDemoLogin();
-    setSuccessMsg('Logged in as OtakuMaster!');
-    setTimeout(() => {
-      navigate('/');
-    }, 600);
-  };
-
   const handleGoogleSignIn = async () => {
     setError(null);
-    setIsSubmitting(true);
+    setIsGoogleSubmitting(true);
     try {
       const res = await loginWithGoogle();
       if (res.success) {
-        setSuccessMsg('Signed in with Google!');
+        setSuccessMsg('Successfully connected with Google!');
         setTimeout(() => {
           navigate('/');
         }, 600);
@@ -130,9 +119,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
         setError(res.error);
       }
     } catch {
-      setError('An unexpected error occurred during Google sign-in.');
+      setError('Google sign-in could not be completed. Please try again.');
     } finally {
-      setIsSubmitting(false);
+      setIsGoogleSubmitting(false);
     }
   };
 
@@ -145,7 +134,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
       <div className="w-full max-w-md relative z-10 space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2 flex flex-col items-center">
-          <Link to="/" className="inline-flex items-center">
+          <Link to="/" className="inline-flex items-center transform hover:scale-105 transition-transform duration-200">
             <AppLogo size="lg" subtitle="" />
           </Link>
           <p className="text-xs sm:text-sm text-slate-400">
@@ -156,24 +145,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
         </div>
 
         {/* Main Card Container */}
-        <div className="anilist-card-static p-6 sm:p-8 rounded-2xl border border-white/10 shadow-2xl relative">
-          {/* Quick Demo Login Banner */}
-          <div className="mb-6 p-3 rounded-xl bg-[#1f2c3f]/80 border border-[#3db4f2]/30 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs">
-              <Zap className="w-4 h-4 text-[#3db4f2] flex-shrink-0 animate-pulse" />
-              <span className="text-slate-200 font-medium">Want to test right away?</span>
-            </div>
-            <button
-              onClick={handleDemoClick}
-              type="button"
-              className="px-3 py-1.5 rounded-lg anilist-btn-primary text-white text-xs font-bold transition shadow-sm whitespace-nowrap flex items-center gap-1.5"
-            >
-              <span>1-Click Demo</span>
-              <Sparkles className="w-3 h-3 text-amber-300" />
-            </button>
-          </div>
-
-          {/* Mode Tabs */}
+        <div className="anilist-card-static p-6 sm:p-8 rounded-2xl border border-white/10 shadow-2xl relative backdrop-blur-xl bg-[#151f2e]/90">
+          
+          {/* Mode Switcher Tabs */}
           <div className="grid grid-cols-2 p-1 rounded-xl bg-[#0b1622] border border-white/10 mb-6">
             <button
               type="button"
@@ -222,6 +196,44 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
             </div>
           )}
 
+          {/* Primary 1-Click Google Sign-In */}
+          <button
+            type="button"
+            disabled={isGoogleSubmitting || isSubmitting}
+            onClick={handleGoogleSignIn}
+            className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-800 text-xs sm:text-sm font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-3 active:scale-[0.99] disabled:opacity-60 cursor-pointer"
+          >
+            <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+              />
+            </svg>
+            <span>{isGoogleSubmitting ? 'Connecting with Google...' : 'Continue with Google'}</span>
+          </button>
+
+          {/* Clean Divider */}
+          <div className="relative my-5 text-center">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-white/10" />
+            </div>
+            <span className="relative px-3 bg-[#151f2e] text-[11px] text-slate-400 font-medium uppercase tracking-wider">
+              or continue with email
+            </span>
+          </div>
+
           {/* Login Form */}
           {mode === 'login' ? (
             <form onSubmit={handleLoginSubmit} className="space-y-4">
@@ -235,23 +247,16 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                     required
                     value={emailOrUsername}
                     onChange={(e) => setEmailOrUsername(e.target.value)}
-                    placeholder="e.g. OtakuMaster or user@anilist.co"
-                    className="anilist-input w-full pl-10 pr-4 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100"
+                    placeholder="Enter email or username"
+                    className="anilist-input w-full pl-10 pr-4 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100 placeholder:text-slate-500"
                   />
-                  <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-3 pointer-events-none" />
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
                 </div>
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-semibold text-slate-300">Password</label>
-                  <button
-                    type="button"
-                    onClick={() => alert('Password recovery: Enter any email/username to sign in or use the 1-Click Demo.')}
-                    className="text-[11px] text-[#3db4f2] hover:underline"
-                  >
-                    Forgot password?
-                  </button>
                 </div>
                 <div className="relative">
                   <input
@@ -260,9 +265,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="anilist-input w-full pl-10 pr-10 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100"
+                    className="anilist-input w-full pl-10 pr-10 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100 placeholder:text-slate-500"
                   />
-                  <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3 pointer-events-none" />
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -287,8 +292,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
 
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3 rounded-xl anilist-btn-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-2 mt-2 shadow-lg shadow-[#3db4f2]/25"
+                disabled={isSubmitting || isGoogleSubmitting}
+                className="w-full py-3 rounded-xl anilist-btn-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-2 mt-2 shadow-lg shadow-[#3db4f2]/25 cursor-pointer disabled:opacity-50"
               >
                 <span>{isSubmitting ? 'Signing In...' : 'Sign In'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -298,34 +303,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
             /* Sign Up Form */
             <form onSubmit={handleSignupSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Choose an Avatar</label>
-                <div className="flex items-center gap-2.5 overflow-x-auto py-1 no-scrollbar">
-                  {AVATAR_PRESETS.map((preset) => {
-                    const isSelected = selectedAvatar === preset.url;
-                    return (
-                      <button
-                        key={preset.id}
-                        type="button"
-                        onClick={() => setSelectedAvatar(preset.url)}
-                        className={`relative rounded-xl overflow-hidden p-0.5 transition flex-shrink-0 ${
-                          isSelected
-                            ? 'ring-2 ring-[#3db4f2] scale-105 shadow-md shadow-[#3db4f2]/30'
-                            : 'opacity-70 hover:opacity-100'
-                        }`}
-                        title={preset.name}
-                      >
-                        <img
-                          src={preset.url}
-                          alt={preset.name}
-                          className="w-10 h-10 object-cover rounded-lg"
-                        />
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-300">Username</label>
                 <div className="relative">
                   <input
@@ -334,9 +311,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                     value={signupUsername}
                     onChange={(e) => setSignupUsername(e.target.value)}
                     placeholder="e.g. TanjiroFan"
-                    className="anilist-input w-full pl-10 pr-4 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100"
+                    className="anilist-input w-full pl-10 pr-4 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100 placeholder:text-slate-500"
                   />
-                  <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-3 pointer-events-none" />
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
                 </div>
               </div>
 
@@ -349,9 +326,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                     value={signupEmail}
                     onChange={(e) => setSignupEmail(e.target.value)}
                     placeholder="you@domain.com"
-                    className="anilist-input w-full pl-10 pr-4 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100"
+                    className="anilist-input w-full pl-10 pr-4 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100 placeholder:text-slate-500"
                   />
-                  <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3 pointer-events-none" />
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
                 </div>
               </div>
 
@@ -361,12 +338,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
+                    minLength={6}
                     value={signupPassword}
                     onChange={(e) => setSignupPassword(e.target.value)}
                     placeholder="At least 6 characters"
-                    className="anilist-input w-full pl-10 pr-10 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100"
+                    className="anilist-input w-full pl-10 pr-10 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100 placeholder:text-slate-500"
                   />
-                  <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3 pointer-events-none" />
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -377,105 +355,44 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                 </div>
               </div>
 
-              <div className="pt-1">
-                <label className="flex items-start gap-2 cursor-pointer text-xs text-slate-400 hover:text-slate-200">
-                  <input
-                    type="checkbox"
-                    checked={agreeTerms}
-                    onChange={(e) => setAgreeTerms(e.target.checked)}
-                    className="rounded border-white/20 bg-[#0b1622] text-[#3db4f2] focus:ring-0 mt-0.5"
-                  />
-                  <span>
-                    I agree to the{' '}
-                    <Link to="/terms" className="text-[#3db4f2] hover:underline">
-                      Terms of Service
-                    </Link>{' '}
-                    and{' '}
-                    <Link to="/privacy" className="text-[#3db4f2] hover:underline">
-                      Privacy Policy
-                    </Link>
-                  </span>
+              <div className="flex items-start gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="agree"
+                  checked={agreeTerms}
+                  onChange={(e) => setAgreeTerms(e.target.checked)}
+                  className="rounded border-white/20 bg-[#0b1622] text-[#3db4f2] focus:ring-0 mt-0.5"
+                />
+                <label htmlFor="agree" className="text-[11px] text-slate-400 leading-tight">
+                  I agree to the{' '}
+                  <Link to="/terms" className="text-[#3db4f2] hover:underline">
+                    Terms of Service
+                  </Link>{' '}
+                  and{' '}
+                  <Link to="/privacy" className="text-[#3db4f2] hover:underline">
+                    Privacy Policy
+                  </Link>
                 </label>
               </div>
 
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3 rounded-xl anilist-btn-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-2 mt-2 shadow-lg shadow-[#3db4f2]/25"
+                disabled={isSubmitting || isGoogleSubmitting}
+                className="w-full py-3 rounded-xl anilist-btn-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-2 mt-2 shadow-lg shadow-[#3db4f2]/25 cursor-pointer disabled:opacity-50"
               >
                 <span>{isSubmitting ? 'Creating Account...' : 'Create Account'}</span>
-                <Sparkles className="w-4 h-4 text-amber-300" />
+                <ArrowRight className="w-4 h-4" />
               </button>
             </form>
           )}
-
-          {/* Social Sign In Divider */}
-          <div className="relative my-6 text-center">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
-            </div>
-            <span className="relative px-3 bg-[#151f2e] text-[11px] text-slate-500 font-medium uppercase tracking-wider">
-              Or connect with
-            </span>
-          </div>
-
-          {/* Social Demo Buttons */}
-          <div className="grid grid-cols-3 gap-2.5">
-            <button
-              type="button"
-              onClick={handleDemoClick}
-              className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#0b1622] hover:bg-[#1f2c3f] border border-white/10 text-xs font-semibold text-slate-300 hover:text-white transition"
-              title="Sign in with Discord"
-            >
-              <span className="text-[#5865F2] font-black text-sm">✦</span>
-              <span>Discord</span>
-            </button>
-            <button
-              type="button"
-              disabled={isSubmitting}
-              onClick={handleGoogleSignIn}
-              className="flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold transition shadow-sm hover:shadow active:scale-95 disabled:opacity-50"
-              title="Sign in with Google"
-            >
-              <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                />
-              </svg>
-              <span>Google</span>
-            </button>
-            <button
-              type="button"
-              onClick={handleDemoClick}
-              className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#0b1622] hover:bg-[#1f2c3f] border border-white/10 text-xs font-semibold text-slate-300 hover:text-white transition"
-              title="Sign in with AniList"
-            >
-              <span className="text-[#3db4f2] font-black text-sm">AL</span>
-              <span>AniList</span>
-            </button>
-          </div>
         </div>
 
         {/* Security badge footer */}
         <div className="flex items-center justify-center gap-2 text-[11px] text-slate-500">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Secured client session & SQLite local storage backup</span>
+          <span>Secured by Firebase Authentication & Google Cloud</span>
         </div>
       </div>
     </div>
   );
 };
-

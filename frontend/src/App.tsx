@@ -10,6 +10,7 @@ import { DiscoverPage } from './pages/DiscoverPage';
 import { AnimeDetailsPage } from './pages/AnimeDetailsPage';
 import { WatchlistPage } from './pages/WatchlistPage';
 import { AuthPage } from './pages/AuthPage';
+import { AccountPage } from './pages/AccountPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
 
@@ -26,6 +27,8 @@ export const App: React.FC = () => {
                 <Route path="/discover" element={<DiscoverPage />} />
                 <Route path="/anime/:id" element={<AnimeDetailsPage />} />
                 <Route path="/watchlist" element={<WatchlistPage />} />
+                <Route path="/account" element={<AccountPage defaultTab="account" />} />
+                <Route path="/settings" element={<AccountPage defaultTab="settings" />} />
                 <Route path="/login" element={<AuthPage initialMode="login" />} />
                 <Route path="/signup" element={<AuthPage initialMode="signup" />} />
                 <Route path="/auth" element={<AuthPage />} />
