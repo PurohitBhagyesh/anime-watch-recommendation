@@ -2,6 +2,12 @@
 User-agent: *
 Allow: /
 
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
 # Sitemaps
-Sitemap: https://www.animesenpai.online/sitemap.xml
 Sitemap: https://animesenpai.online/sitemap.xml
+Sitemap: https://www.animesenpai.online/sitemap.xml
