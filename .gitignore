@@ -40,3 +40,4 @@ database/*.db
 *.njsproj
 *.sln
 *.sw?
+lighthouse_mobile2.json
