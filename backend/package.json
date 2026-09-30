@@ -1,7 +1,7 @@
 {
-  "name": "@voltaku/backend",
+  "name": "@animesenpai/backend",
   "version": "1.0.0",
-  "description": "Voltaku Anime Discovery & Recommendation Engine API Server",
+  "description": "AnimeSenpai Anime Discovery & Recommendation Engine API Server",
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",

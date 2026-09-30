@@ -1,8 +1,8 @@
 {
-  "name": "voltaku-platform",
+  "name": "animesenpai-platform",
   "version": "1.0.0",
   "private": true,
-  "description": "Voltaku — Full-Stack Anime Discovery, Tracking & Recommendation Platform",
+  "description": "AnimeSenpai — Full-Stack Anime Discovery, Tracking & Recommendation Platform",
   "workspaces": [
     "frontend",
     "backend"

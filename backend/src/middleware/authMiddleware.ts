@@ -9,7 +9,7 @@ export interface AuthRequest extends Request {
   };
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'voltaku_jwt_secret_dev_key_2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'animesenpai_jwt_secret_dev_key_2026';
 
 export const requireAuth = (
   req: AuthRequest,

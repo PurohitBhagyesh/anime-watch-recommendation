@@ -1,5 +1,5 @@
 -- =========================================================
--- Voltaku Anime Discovery & Recommendation Engine Database DDL
+-- AnimeSenpai Anime Discovery & Recommendation Engine Database DDL
 -- Target: SQLite 3 / PostgreSQL Compatible Schema
 -- =========================================================
 

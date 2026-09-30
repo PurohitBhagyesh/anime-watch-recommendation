@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../config/db';
 import { AuthRequest } from '../middleware/authMiddleware';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'voltaku_jwt_secret_dev_key_2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'animesenpai_jwt_secret_dev_key_2026';
 
 const generateToken = (userId: string, username: string, email: string) => {
   return jwt.sign({ id: userId, username, email }, JWT_SECRET, {
@@ -42,7 +42,7 @@ export const authController = {
           email: email.trim().toLowerCase(),
           passwordHash,
           avatar: avatar || 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150&auto=format&fit=crop&q=80',
-          bio: bio || 'Anime enthusiast tracking anime with Voltaku.',
+          bio: bio || 'Anime enthusiast tracking anime with AnimeSenpai.',
           favoriteGenre: favoriteGenre || 'Action',
         },
       });
@@ -140,7 +140,7 @@ export const authController = {
           data: {
             id: 'usr_demo_101',
             username: 'OtakuMaster',
-            email: 'otakumaster@voltaku.io',
+            email: 'otakumaster@animesenpai.io',
             avatar: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150&auto=format&fit=crop&q=80',
             banner: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200&auto=format&fit=crop&q=80',
             bio: 'Anime enthusiast exploring new seasonal gems and 90s classics.',

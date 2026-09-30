@@ -28,6 +28,7 @@
   <img src="https://img.shields.io/badge/Vite-8.0-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite 8" />
   <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/TailwindCSS-v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Firebase-Auth%20%26%20Firestore-FFCA28?style=flat-square&logo=firebase&logoColor=black" alt="Firebase" />
   <img src="https://img.shields.io/badge/Node.js-Express-000000?style=flat-square&logo=express&logoColor=white" alt="Express" />
   <img src="https://img.shields.io/badge/Database-SQLite%20%2F%20Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white" alt="Prisma ORM" />
   <img src="https://img.shields.io/badge/Responsive-Mobile%20%7C%20Tablet%20%7C%20Desktop-38bdf8?style=flat-square" alt="Responsive" />
@@ -59,6 +60,7 @@ AnimeSenpai is fully optimized and auto-adjusts fluidly across all screen sizes 
 ## ✨ Features at a Glance
 
 * **🎨 AniList-Inspired Clean Glassmorphic UI:** Deep navy background (`#0b1622`), slate card elevated surfaces (`#151f2e`), and vibrant electric blue accents (`#3db4f2`).
+* **🔐 Firebase Authentication & Cloud Firestore:** Native Firebase Auth supporting Email/Password sign-up/login and 1-Click Google Sign-In, coupled with real-time Cloud Firestore synchronization for persistent user profile stats and custom avatars.
 * **🔍 Real-Time Catalog Search (20,000+ Anime):** Instant autocomplete search in the navigation bar with poster previews, format indicators, score pills, and genre tags.
 * **🏷️ Horizontally Scrollable Category Ribbon:** Interactive preset ribbon with smooth horizontal touch-swiping (`All Anime`, `🔥 Trending`, `🌸 This Season`, `🌟 Popular`, `🏆 Top 100`, `🚀 Upcoming`, `🎬 Movies`, `📺 TV Series`, `⚡ OVA / Shorts`, and comprehensive genre filters).
 * **📱 Touch & Hover Preview Popups:** Instant interactive anime preview cards displaying releasing status, season/year, studio names, format & episode counts, score smiley badges, and clickable genre pills.
@@ -75,6 +77,7 @@ AnimeSenpai is fully optimized and auto-adjusts fluidly across all screen sizes 
 graph TD
     User([User Browser - Mobile / Tablet / Desktop]) <-->|HTTPS / animesenpai.online| Vercel["Frontend Tier (Vercel Edge - React 19 + Vite + Tailwind v4)"]
     Vercel <-->|Direct GraphQL for Fast Discovery| AniList["AniList Public GraphQL v2 API"]
+    Vercel <-->|Auth & Cloud DB Sync| Firebase["Firebase (Auth + Cloud Firestore)"]
     Vercel <-->|REST API + JWT Auth / Sync| Render["Backend Tier (Render Node.js + Express + Prisma)"]
     Render <-->|Self-Contained DB Engine| Database[("Database Tier (SQLite / dev.db)")]
     UptimeRobot(["⏱️ UptimeRobot (5m Keep-Alive)"]) -->|GET /ping| Render

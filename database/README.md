@@ -1,4 +1,4 @@
-# Voltaku — Database Layer
+# AnimeSenpai — Database Layer
 
 This directory contains the database definitions, Prisma ORM schema, SQL DDL migrations, initial seed datasets, and optional Docker orchestration.
 

@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD)
 
-## Project: Voltaku — Anime Discovery, Tracking & Streaming Recommendation Platform
+## Project: AnimeSenpai — Anime Discovery, Tracking & Streaming Recommendation Platform
 **Document Version:** 2.0.0 (3-Tier Full-Stack Architecture)  
 **Status:** Active / Production-Ready  
 **Date:** September 26, 2026  
@@ -10,7 +10,7 @@
 
 ## 1. Executive Summary & Vision
 
-Voltaku is a modern, full-stack anime discovery and tracking web application. It aggregates real-time broadcasting schedules, community ratings, character cast profiles, official legal streaming platform links (Crunchyroll, Netflix, Hulu, Disney+, Amazon Prime Video), and official trailers into a single unified Apple Human Interface-inspired interface.
+AnimeSenpai is a modern, full-stack anime discovery and tracking web application. It aggregates real-time broadcasting schedules, community ratings, character cast profiles, official legal streaming platform links (Crunchyroll, Netflix, Hulu, Disney+, Amazon Prime Video), and official trailers into a single unified Apple Human Interface-inspired interface.
 
 ### Key Objectives
 * **Zero-friction discovery:** Deliver real-time catalog search and multi-parameter filtering.

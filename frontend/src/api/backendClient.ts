@@ -1,5 +1,5 @@
 /**
- * Voltaku Backend Client
+ * AnimeSenpai Backend Client
  * Connects to the Express + SQLite backend service, with automated fallback
  */
 
@@ -7,7 +7,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001
 
 function getAuthHeader(): Record<string, string> {
   try {
-    const sessionStr = localStorage.getItem('voltaku_user_session');
+    const sessionStr = localStorage.getItem('animesenpai_user_session');
     if (sessionStr) {
       const session = JSON.parse(sessionStr);
       if (session.token) {

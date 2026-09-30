@@ -17,7 +17,7 @@ interface WatchlistContextType {
 
 const WatchlistContext = createContext<WatchlistContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'voltaku_watchlist_v1';
+const LOCAL_STORAGE_KEY = 'animesenpai_watchlist_v1';
 
 export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>(() => {
@@ -110,7 +110,7 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(watchlist, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', dataStr);
-    downloadAnchor.setAttribute('download', `voltaku-watchlist-${new Date().toISOString().slice(0, 10)}.json`);
+    downloadAnchor.setAttribute('download', `animesenpai-watchlist-${new Date().toISOString().slice(0, 10)}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();

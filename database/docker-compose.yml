@@ -4,12 +4,12 @@ services:
   # Optional PostgreSQL instance (if switching provider from SQLite to Postgres)
   postgres:
     image: postgres:16-alpine
-    container_name: voltaku_postgres
+    container_name: animesenpai_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: voltaku_user
-      POSTGRES_PASSWORD: voltaku_password
-      POSTGRES_DB: voltaku_db
+      POSTGRES_USER: animesenpai_user
+      POSTGRES_PASSWORD: animesenpai_password
+      POSTGRES_DB: animesenpai_db
     ports:
       - "5432:5432"
     volumes:
@@ -20,7 +20,7 @@ services:
   # Optional Redis instance for fast recommendation caching
   redis:
     image: redis:7-alpine
-    container_name: voltaku_redis
+    container_name: animesenpai_redis
     restart: unless-stopped
     ports:
       - "6379:6379"

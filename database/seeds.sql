@@ -1,5 +1,5 @@
 -- =========================================================
--- Voltaku Database Seed Data
+-- AnimeSenpai Database Seed Data
 -- =========================================================
 
 -- Demo Users
@@ -8,7 +8,7 @@ VALUES
 (
     'usr_demo_101',
     'OtakuMaster',
-    'otakumaster@voltaku.io',
+    'otakumaster@animesenpai.io',
     '$2a$10$wN3H0978943719873948712398712938712938172938712938712', -- bcrypt hash for demo pass
     'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150&auto=format&fit=crop&q=80',
     'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200&auto=format&fit=crop&q=80',
@@ -19,7 +19,7 @@ VALUES
 (
     'usr_demo_102',
     'CyberSakura',
-    'sakura@voltaku.io',
+    'sakura@animesenpai.io',
     '$2a$10$wN3H0978943719873948712398712938712938172938712938712',
     'https://images.unsplash.com/photo-1563089145-599997674d42?w=150&auto=format&fit=crop&q=80',
     'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80',

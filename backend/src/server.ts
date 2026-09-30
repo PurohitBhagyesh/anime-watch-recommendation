@@ -72,7 +72,7 @@ async function startServer() {
   app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`
 🚀 ===================================================
-   Voltaku Backend API Server Running
+   AnimeSenpai Backend API Server Running
    URL:     http://localhost:${PORT}
    Health:  http://localhost:${PORT}/api/health
    Mode:    ${process.env.NODE_ENV || 'development'}
@@ -82,7 +82,7 @@ async function startServer() {
 }
 
 startServer().catch((err) => {
-  console.error('Failed to launch Voltaku server:', err);
+  console.error('Failed to launch AnimeSenpai server:', err);
   process.exit(1);
 });
 

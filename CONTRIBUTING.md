@@ -1,6 +1,6 @@
-# Contributing to Voltaku
+# Contributing to AnimeSenpai
 
-Thank you for your interest in contributing to Voltaku! We welcome bug reports, feature suggestions, and code contributions.
+Thank you for your interest in contributing to AnimeSenpai! We welcome bug reports, feature suggestions, and code contributions.
 
 ---
 

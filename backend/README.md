@@ -1,4 +1,4 @@
-# Voltaku — Backend API Server
+# AnimeSenpai — Backend API Server
 
 A modular, high-performance Node.js & Express REST API server with TypeScript, Prisma ORM, and AniList GraphQL integration.
 

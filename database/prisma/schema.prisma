@@ -1,4 +1,4 @@
-// Prisma Schema for Voltaku Anime Discovery & Recommendation Engine
+// Prisma Schema for AnimeSenpai Anime Discovery & Recommendation Engine
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")

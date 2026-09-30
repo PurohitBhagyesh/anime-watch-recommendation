@@ -10,7 +10,7 @@ async function main() {
     create: {
       id: 'usr_demo_101',
       username: 'OtakuMaster',
-      email: 'otakumaster@voltaku.io',
+      email: 'otakumaster@animesenpai.io',
       passwordHash: '$2a$10$wN3H0978943719873948712398712938712938172938712938712',
       avatar: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150&auto=format&fit=crop&q=80',
       banner: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200&auto=format&fit=crop&q=80',
