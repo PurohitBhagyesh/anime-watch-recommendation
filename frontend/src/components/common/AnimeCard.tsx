@@ -333,13 +333,13 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
             }`}
             style={{ filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.6))' }}
           >
-            {/* Header: Season & Year on left, Score on right */}
-            <div className="flex items-center justify-between gap-2">
-              <span className="font-extrabold text-sm text-[#edf1f5] tracking-tight">
-                {formatSeasonText()}
+            {/* Header: Anime Name on left, Score on right */}
+            <div className="flex items-start justify-between gap-2">
+              <span className="font-extrabold text-sm text-[#edf1f5] tracking-tight line-clamp-2 leading-snug" title={title}>
+                {title}
               </span>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0 pt-0.5">
                 {anime.averageScore ? (
                   <div className="flex items-center gap-1.5 text-xs font-bold text-[#7bd555]">
                     <Smile className="w-4 h-4 fill-[#7bd555]/20 stroke-[#7bd555]" />
@@ -360,16 +360,22 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
 
             {/* Studio row in cyan */}
             {studioName ? (
-              <div className="text-xs font-bold text-[#00c4d6] hover:underline cursor-pointer">
+              <div className="text-xs font-bold text-[#00c4d6] hover:underline cursor-pointer truncate">
                 {studioName}
               </div>
             ) : null}
 
-            {/* Format and Episodes */}
-            <div className="text-xs text-[#8ba0b2] font-medium flex items-center gap-1.5">
+            {/* Format, Episodes & Season */}
+            <div className="text-xs text-[#8ba0b2] font-medium flex items-center flex-wrap gap-1.5">
               <span>{formatLabel}</span>
               <span>•</span>
               <span>{episodeLabel}</span>
+              {formatSeasonText() && (
+                <>
+                  <span>•</span>
+                  <span>{formatSeasonText()}</span>
+                </>
+              )}
             </div>
 
             {/* Interactive Genre Pills */}
