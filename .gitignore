@@ -41,3 +41,6 @@ database/*.db
 *.sln
 *.sw?
 lighthouse_mobile2.json
+
+# Added by ggshield
+.cache_ggshield

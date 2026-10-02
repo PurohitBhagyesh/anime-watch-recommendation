@@ -1,0 +1,5 @@
+secret:
+  ignored_matches:
+  - match: 8c3e3d6c596ebc1d6673ded3f6169069e254c8f9ab6cbf6a88b15356057ff362
+    name: Google API Key - commit://c3241d8b514b82a53b555780a70994ebf21c5416/frontend/lighthouse_mobile2.json
+version: 2
