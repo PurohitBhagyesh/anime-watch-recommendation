@@ -37,7 +37,7 @@ To configure the environment variables, copy `.env.example` to `.env`:
 VITE_API_BASE_URL=http://localhost:5001/api
 
 # Firebase Authentication & Firestore Config
-VITE_FIREBASE_API_KEY="AIzaSy..."
+VITE_FIREBASE_API_KEY="your-firebase-api-key"
 VITE_FIREBASE_AUTH_DOMAIN="your-app.firebaseapp.com"
 VITE_FIREBASE_PROJECT_ID="your-project-id"
 VITE_FIREBASE_STORAGE_BUCKET="your-app.firebasestorage.app"

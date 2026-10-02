@@ -40,9 +40,13 @@ database/*.db
 *.njsproj
 *.sln
 *.sw?
-lighthouse*.json
-psi_*.json
-latest_psi_result.json
+# PageSpeed, Lighthouse & Performance Audit files
+*lighthouse*
+*pagespeed*
+*psi*
+PageSpeed*
+*.lighthouse*
+*.psi*
 check_psi.py
 parse_lh.py
 parse_pagespeed.py
