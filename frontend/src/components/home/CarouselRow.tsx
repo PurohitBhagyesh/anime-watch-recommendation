@@ -92,7 +92,7 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
       >
         {animes.map((anime, idx) => (
           <div
-            key={anime.id}
+            key={anime?.id || idx}
             className="flex-shrink-0 w-32 min-[400px]:w-36 sm:w-44 md:w-48"
           >
             <AnimeCard anime={anime} priority={priority && idx < 3} />

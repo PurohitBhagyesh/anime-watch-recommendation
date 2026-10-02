@@ -40,22 +40,24 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
   if (!currentAnime) return null;
 
   const title =
-    currentAnime.title.userPreferred ||
-    currentAnime.title.english ||
-    currentAnime.title.romaji;
-  const inWatchlist = isInWatchlist(currentAnime.id);
+    currentAnime?.title?.userPreferred ||
+    currentAnime?.title?.english ||
+    currentAnime?.title?.romaji ||
+    'Featured Anime';
+  const inWatchlist = currentAnime?.id ? isInWatchlist(currentAnime.id) : false;
 
-  const cleanDescription = currentAnime.description
+  const cleanDescription = currentAnime?.description
     ? currentAnime.description
         .replace(/<[^>]*>?/gm, '')
         .replace(/&quot;/g, '"')
         .replace(/&#039;/g, "'")
-    : 'No description available for this title.';
+    : 'Discover 20,000+ anime titles, track your watchlist, and explore trailers on AnimeSenpai.';
 
   const bgImage =
-    currentAnime.bannerImage ||
-    currentAnime.coverImage.extraLarge ||
-    currentAnime.coverImage.large;
+    currentAnime?.bannerImage ||
+    currentAnime?.coverImage?.extraLarge ||
+    currentAnime?.coverImage?.large ||
+    '/animesenpai-banner.svg';
 
   return (
     <>

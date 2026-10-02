@@ -25,10 +25,19 @@ export const HomePage: React.FC = () => {
   const [data, setData] = useState<HomeSectionsData>(() => {
     try {
       const cached = localStorage.getItem('animesenpai_home_data');
-      return cached ? JSON.parse(cached) : (initialHomeData as unknown as HomeSectionsData);
-    } catch {
-      return initialHomeData as unknown as HomeSectionsData;
-    }
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (
+          parsed &&
+          Array.isArray(parsed.trending) &&
+          parsed.trending.length >= 3 &&
+          parsed.spotlight
+        ) {
+          return parsed as HomeSectionsData;
+        }
+      }
+    } catch {}
+    return initialHomeData as unknown as HomeSectionsData;
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,23 +47,32 @@ export const HomePage: React.FC = () => {
       if (!isBackground) setLoading(true);
       setError(null);
       const res = await fetchHomeData();
-      setData(res);
-      try {
-        localStorage.setItem('animesenpai_home_data', JSON.stringify(res));
-      } catch {}
+      if (res && Array.isArray(res.trending) && res.trending.length > 0) {
+        setData(res);
+        try {
+          localStorage.setItem('animesenpai_home_data', JSON.stringify(res));
+        } catch {}
+      }
     } catch (err: any) {
-      console.error(err);
-      if (!data) setError(err.message || 'Failed to fetch anime data from AniList');
+      console.warn('AniList live fetch warning, retaining bundled fallback catalog:', err);
+      setData((prev) => {
+        if (prev && Array.isArray(prev.trending) && prev.trending.length > 0) return prev;
+        return initialHomeData as unknown as HomeSectionsData;
+      });
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    // If state data is missing or empty, immediately force bundled data
+    if (!data || !Array.isArray(data.trending) || data.trending.length === 0) {
+      setData(initialHomeData as unknown as HomeSectionsData);
+    }
     // Refresh fresh anime data in background after initial paint completes
     const timer = setTimeout(() => {
       loadData(true);
-    }, 2500);
+    }, 1500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -126,7 +144,10 @@ export const HomePage: React.FC = () => {
   return (
     <div className="w-full pb-20 animate-fadeIn">
       {/* Interactive Hero Spotlight Slider */}
-      <HeroBanner animeList={data.spotlights} anime={data.spotlight} />
+      <HeroBanner
+        animeList={data?.spotlights?.length ? data.spotlights : (initialHomeData as any).spotlights}
+        anime={data?.spotlight || (initialHomeData as any).spotlight}
+      />
 
       {/* Main Body Sections */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16 pt-8">
@@ -149,14 +170,13 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
 
-
         {/* Trending Now */}
         <div id="trending" className="scroll-mt-24">
           <CarouselRow
             title="Trending Now"
             subtitle="Top active and discussed anime right now"
             icon={Flame}
-            animes={data.trending}
+            animes={data?.trending?.length ? data.trending : (initialHomeData as any).trending}
             viewAllLink="/discover?sort=TRENDING_DESC"
             priority={false}
           />
@@ -168,7 +188,7 @@ export const HomePage: React.FC = () => {
             title={`Popular This Season • ${season} ${year}`}
             subtitle="Currently broadcasting weekly anime series"
             icon={PlaySquare}
-            animes={data.seasonal}
+            animes={data?.seasonal?.length ? data.seasonal : (initialHomeData as any).seasonal}
             viewAllLink={`/discover?season=${season}&year=${year}`}
           />
         </div>
@@ -182,7 +202,7 @@ export const HomePage: React.FC = () => {
             title="All-Time Popular"
             subtitle="Most popular and recognized anime across the globe"
             icon={TrendingUp}
-            animes={data.popularAllTime}
+            animes={data?.popularAllTime?.length ? data.popularAllTime : (initialHomeData as any).popularAllTime}
             viewAllLink="/discover?sort=POPULARITY_DESC"
           />
         </div>
@@ -193,7 +213,7 @@ export const HomePage: React.FC = () => {
             title="Top 100 Anime"
             subtitle="Highest scoring anime of all time"
             icon={Trophy}
-            animes={data.topRated}
+            animes={data?.topRated?.length ? data.topRated : (initialHomeData as any).topRated}
             viewAllLink="/discover?sort=SCORE_DESC"
           />
         </div>
@@ -204,7 +224,7 @@ export const HomePage: React.FC = () => {
             title="Upcoming Next Season"
             subtitle="Confirmed anime scheduled for future seasons"
             icon={Clock}
-            animes={data.upcoming}
+            animes={data?.upcoming?.length ? data.upcoming : (initialHomeData as any).upcoming}
             viewAllLink="/discover?status=NOT_YET_RELEASED"
           />
         </div>

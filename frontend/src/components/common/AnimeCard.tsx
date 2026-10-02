@@ -18,9 +18,9 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
   const cardRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const title = anime.title.userPreferred || anime.title.english || anime.title.romaji;
-  const inWatchlist = isInWatchlist(anime.id);
-  const currentItem = getItem(anime.id);
+  const title = anime?.title?.userPreferred || anime?.title?.english || anime?.title?.romaji || 'Anime';
+  const inWatchlist = anime?.id ? isInWatchlist(anime.id) : false;
+  const currentItem = anime?.id ? getItem(anime.id) : undefined;
 
   const getScoreBadgeClass = (score: number | null) => {
     if (!score) return '';
@@ -142,6 +142,8 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
 
   const isPopupVisible = (isHovered || showTouchPopup) && !showStatusMenu;
 
+  if (!anime || !anime.id) return null;
+
   return (
     <div
       ref={cardRef}
@@ -160,7 +162,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
         >
           {isVisible ? (
             <img
-              src={anime.coverImage.large || anime.coverImage.medium || anime.coverImage.extraLarge}
+              src={anime.coverImage?.large || anime.coverImage?.medium || anime.coverImage?.extraLarge || '/animesenpai-banner.svg'}
               alt={title}
               width={185}
               height={265}
