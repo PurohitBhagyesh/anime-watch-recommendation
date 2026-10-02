@@ -23,11 +23,25 @@
         { "key": "Content-Type", "value": "application/json" },
         { "key": "Access-Control-Allow-Origin", "value": "*" }
       ]
+    },
+    {
+      "source": "/site.webmanifest",
+      "headers": [
+        { "key": "Content-Type", "value": "application/manifest+json" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    },
+    {
+      "source": "/favicon.ico",
+      "headers": [
+        { "key": "Content-Type", "value": "image/x-icon" },
+        { "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=2592000" }
+      ]
     }
   ],
   "rewrites": [
     {
-      "source": "/((?!\\.well-known|ai-catalog\\.json|ard\\.json|llms\\.txt|robots\\.txt|sitemap\\.xml|assets).*)",
+      "source": "/((?!\\.well-known|ai-catalog\\.json|ard\\.json|llms\\.txt|robots\\.txt|sitemap\\.xml|site\\.webmanifest|favicon.*|apple-touch-icon.*|logo.*|animesenpai-banner.*|assets).*)",
       "destination": "/index.html"
     }
   ]
