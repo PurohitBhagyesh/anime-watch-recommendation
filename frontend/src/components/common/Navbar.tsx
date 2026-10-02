@@ -117,7 +117,6 @@ export const Navbar: React.FC = () => {
     { label: 'Home', path: '/', icon: TrendingUp },
     { label: 'Discover', path: '/discover', icon: Compass },
     { label: 'Watchlist', path: '/watchlist', icon: Bookmark, badge: watchlist.length },
-    { label: 'About', path: '/about', icon: Sparkles },
   ];
 
   const isActive = (path: string) => {
