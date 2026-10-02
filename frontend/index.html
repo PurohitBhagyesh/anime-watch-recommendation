@@ -9,15 +9,19 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>AnimeSenpai • Discover, Track & Watch Anime</title>
 
-  <!-- Primary Favicons for Google Search & Browsers (Multiple of 48px square) -->
-  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="shortcut icon" href="/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <!-- Google Search Site Name & Branding Meta Tags -->
+  <meta name="application-name" content="AnimeSenpai" />
+  <meta name="apple-mobile-web-app-title" content="AnimeSenpai" />
+
+  <!-- Primary Favicons for Google Search & Browsers (Multiple of 48px square with absolute URLs) -->
+  <link rel="icon" href="https://www.animesenpai.online/favicon.ico" sizes="16x16 32x32 48x48" />
+  <link rel="icon" type="image/png" sizes="48x48" href="https://www.animesenpai.online/favicon-48x48.png" />
+  <link rel="icon" type="image/png" sizes="96x96" href="https://www.animesenpai.online/favicon-96x96.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="https://www.animesenpai.online/favicon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="https://www.animesenpai.online/favicon-512x512.png" />
+  <link rel="icon" type="image/svg+xml" href="https://www.animesenpai.online/favicon.svg" />
+  <link rel="shortcut icon" href="https://www.animesenpai.online/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="https://www.animesenpai.online/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
 
   <!-- SEO Meta Tags (Optimized for Google SERP display) -->
@@ -352,7 +356,21 @@
 
 <body
   class="bg-[#0b1622] text-[#bcbedc] font-sans antialiased selection:bg-[#3db4f2] selection:text-white min-h-screen overflow-x-hidden">
-  <div id="root"></div>
+  <div id="root">
+    <!-- Static semantic fallback for search engine crawlers (hydrated by React) -->
+    <header style="display:none;" aria-hidden="true">
+      <img src="https://www.animesenpai.online/logo-512.png" alt="AnimeSenpai Logo" width="512" height="512" />
+      <h1>AnimeSenpai • Independent Anime Catalog, Watchlist & Discovery Platform</h1>
+      <p>AnimeSenpai is an independent, ad-free anime catalog and personal watchlist tracking platform powered by the AniList GraphQL API and official YouTube trailer embeds.</p>
+      <nav>
+        <a href="/about">About AnimeSenpai & Platform Transparency</a>
+        <a href="/discover">Discover Anime Catalog</a>
+        <a href="/watchlist">Personal Watchlist Tracker</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+      </nav>
+    </header>
+  </div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 
