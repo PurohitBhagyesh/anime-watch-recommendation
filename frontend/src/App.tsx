@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { WatchlistProvider } from './context/WatchlistContext';
 import { AuthProvider } from './context/AuthContext';
 import { Navbar } from './components/common/Navbar';
@@ -26,11 +26,17 @@ const LoadingFallback = () => (
   </div>
 );
 
+// Seamlessly migrate legacy hash routes (e.g. /#/about -> /about) to clean URLs
+if (typeof window !== 'undefined' && window.location.hash.startsWith('#/')) {
+  const cleanPath = window.location.hash.slice(1);
+  window.history.replaceState(null, '', cleanPath);
+}
+
 export const App: React.FC = () => {
   return (
     <AuthProvider>
       <WatchlistProvider>
-        <HashRouter>
+        <BrowserRouter>
           <div className="flex flex-col min-h-screen bg-[#0b1622] text-[#bcbedc] selection:bg-[#3db4f2] selection:text-white pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
             <Navbar />
             <main className="flex-1 flex flex-col min-h-screen">
@@ -57,7 +63,7 @@ export const App: React.FC = () => {
             <Footer />
             <BottomTabBar />
           </div>
-        </HashRouter>
+        </BrowserRouter>
       </WatchlistProvider>
     </AuthProvider>
   );

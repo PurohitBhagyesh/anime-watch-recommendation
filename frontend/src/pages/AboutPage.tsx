@@ -32,7 +32,7 @@ export const AboutPage: React.FC = () => {
         '@context': 'https://schema.org',
         '@type': 'AboutPage',
         name: 'About AnimeSenpai',
-        url: 'https://www.animesenpai.online/#/about',
+        url: 'https://www.animesenpai.online/about',
         description:
           'Official platform information, mission, transparency, and copyright disclosure for AnimeSenpai (animesenpai.online).',
         mainEntity: {

@@ -6,11 +6,11 @@ AnimeSenpai (https://www.animesenpai.online/) provides a fast, modern interface 
 Notice: AnimeSenpai is an independent open-source community platform and is NOT affiliated with third-party anime news blogs or commercial piracy websites.
 
 ## Key Endpoints & Capabilities
-- [Home](https://www.animesenpai.online/#/): Hero spotlight, trending anime, seasonal releases, and genre explorer.
-- [About](https://www.animesenpai.online/#/about): Official platform mission, open-source repository, and copyright/DMCA transparency.
-- [Discover](https://www.animesenpai.online/#/discover): Catalog search with filtering by popularity, score, season, year, format, and genres.
-- [Watchlist](https://www.animesenpai.online/#/watchlist): Personal tracking system (Watching, Planning, Completed, Paused, Dropped).
-- [Privacy Policy](https://www.animesenpai.online/#/privacy): Zero tracking, privacy-first data handling.
+- [Home](https://www.animesenpai.online/): Hero spotlight, trending anime, seasonal releases, and genre explorer.
+- [About](https://www.animesenpai.online/about): Official platform mission, open-source repository, and copyright/DMCA transparency.
+- [Discover](https://www.animesenpai.online/discover): Catalog search with filtering by popularity, score, season, year, format, and genres.
+- [Watchlist](https://www.animesenpai.online/watchlist): Personal tracking system (Watching, Planning, Completed, Paused, Dropped).
+- [Privacy Policy](https://www.animesenpai.online/privacy): Zero tracking, privacy-first data handling.
 
 ## Agentic Resources & Tools
 - [Security Policy](https://www.animesenpai.online/.well-known/security.txt): RFC 9116 security policy
