@@ -247,6 +247,37 @@
   animation: fadeIn 0.25s cubic-bezier(0.2, 0, 0, 1) forwards;
 }
 
+/* Hero Slide In Animations */
+@keyframes heroSlideInRight {
+  from {
+    opacity: 0;
+    transform: translate3d(36px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes heroSlideInLeft {
+  from {
+    opacity: 0;
+    transform: translate3d(-36px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-hero-slide-right {
+  animation: heroSlideInRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-hero-slide-left {
+  animation: heroSlideInLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Auto-Adjustable Responsive Helpers for Mobile, Tablet & Desktop */
 html {
   -webkit-tap-highlight-color: transparent;
