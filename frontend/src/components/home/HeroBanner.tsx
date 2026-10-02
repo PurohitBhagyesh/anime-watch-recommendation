@@ -66,8 +66,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
             key={currentAnime.id}
             src={bgImage}
             alt={title}
-            className="w-full h-full object-cover object-center filter brightness-[0.45] contrast-[1.08] transition-all duration-700 ease-out"
+            loading="eager"
+            decoding="sync"
             fetchPriority="high"
+            className="w-full h-full object-cover object-center filter brightness-[0.45] contrast-[1.08] transition-all duration-700 ease-out"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0b1622] via-[#0b1622]/70 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0b1622] via-[#0b1622]/80 to-transparent" />
@@ -197,18 +199,18 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
 
             {/* Slide Indicators */}
             {spotlights.length > 1 && (
-              <div className="flex items-center gap-2 pt-2">
+              <div className="flex items-center gap-3 pt-3">
                 {spotlights.map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentIndex(idx)}
-                    className="p-2 -m-2 flex items-center justify-center group"
+                    className="w-7 h-7 flex items-center justify-center group rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3db4f2]"
                     aria-label={`Go to slide ${idx + 1}`}
                   >
-                    <div className={`h-1.5 rounded-full transition-all ${
+                    <div className={`h-2 rounded-full transition-all duration-300 ${
                       idx === currentIndex
                         ? 'w-8 bg-[#3db4f2]'
-                        : 'w-2 bg-white/20 group-hover:bg-white/40'
+                        : 'w-2 bg-white/30 group-hover:bg-white/60'
                     }`} />
                   </button>
                 ))}

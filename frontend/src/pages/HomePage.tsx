@@ -47,14 +47,32 @@ export const HomePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="w-full pb-20 space-y-10">
+      <div className="w-full pb-20 space-y-12 min-h-screen">
         <HeroSkeleton />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-          <div className="h-6 bg-[#151f2e] rounded w-40 shimmer-loading" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <CardSkeleton key={i} />
-            ))}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pt-8">
+          <div className="space-y-4">
+            <div className="h-6 bg-[#151f2e] rounded w-40 shimmer-loading" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <CardSkeleton key={`row1-${i}`} />
+              ))}
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div className="h-6 bg-[#151f2e] rounded w-48 shimmer-loading" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <CardSkeleton key={`row2-${i}`} />
+              ))}
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div className="h-6 bg-[#151f2e] rounded w-44 shimmer-loading" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <CardSkeleton key={`row3-${i}`} />
+              ))}
+            </div>
           </div>
         </div>
       </div>

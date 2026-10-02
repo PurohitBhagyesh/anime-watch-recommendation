@@ -147,7 +147,7 @@ export const Navbar: React.FC = () => {
                       to={link.path}
                       className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all relative ${
                         active
-                          ? 'bg-[#3db4f2] text-white shadow-sm'
+                          ? 'bg-[#3db4f2] text-[#0b1622] shadow-sm font-extrabold'
                           : 'text-slate-300 hover:text-white hover:bg-white/[0.06]'
                       }`}
                     >
@@ -156,7 +156,7 @@ export const Navbar: React.FC = () => {
                       {typeof link.badge === 'number' && link.badge > 0 && (
                         <span
                           className={`px-1.5 py-0.2 text-[10px] font-bold rounded-full ${
-                            active ? 'bg-white text-[#3db4f2]' : 'bg-[#3db4f2] text-white'
+                            active ? 'bg-[#0b1622] text-[#3db4f2]' : 'bg-[#3db4f2] text-[#0b1622]'
                           }`}
                         >
                           {link.badge}
@@ -433,7 +433,7 @@ export const Navbar: React.FC = () => {
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg text-xs font-bold transition-all ${
                       active
-                        ? 'bg-[#3db4f2] text-white shadow-sm'
+                        ? 'bg-[#3db4f2] text-[#0b1622] shadow-sm font-extrabold'
                         : 'bg-[#151f2e] text-slate-300 border border-white/5 hover:text-white'
                     }`}
                   >

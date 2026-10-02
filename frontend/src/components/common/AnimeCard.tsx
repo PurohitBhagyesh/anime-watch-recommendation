@@ -135,8 +135,10 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
           aria-label={`View details for ${title}`}
         >
           <img
-            src={anime.coverImage.extraLarge || anime.coverImage.large}
+            src={anime.coverImage.large || anime.coverImage.medium || anime.coverImage.extraLarge}
             alt={title}
+            width={185}
+            height={265}
             loading={priority ? 'eager' : 'lazy'}
             fetchPriority={priority ? 'high' : 'auto'}
             decoding={priority ? 'sync' : 'async'}
