@@ -110,6 +110,30 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
     setShowTouchPopup((prev) => !prev);
   };
 
+  const [isVisible, setIsVisible] = useState(priority || false);
+  const posterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (priority || isVisible) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setIsVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0] && entries[0].isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+    if (posterRef.current) {
+      observer.observe(posterRef.current);
+    }
+    return () => observer.disconnect();
+  }, [priority, isVisible]);
+
   useEffect(() => {
     return () => {
       if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
@@ -128,22 +152,26 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
       }`}
     >
       {/* Poster Image Container */}
-      <div className="relative aspect-[185/265] w-full bg-[#11161d] rounded-t-[6px]">
+      <div ref={posterRef} className="relative aspect-[185/265] w-full bg-[#11161d] rounded-t-[6px]">
         <Link
           to={`/anime/${anime.id}`}
           className="block w-full h-full overflow-hidden rounded-t-[6px]"
           aria-label={`View details for ${title}`}
         >
-          <img
-            src={anime.coverImage.large || anime.coverImage.medium || anime.coverImage.extraLarge}
-            alt={title}
-            width={185}
-            height={265}
-            loading={priority ? 'eager' : 'lazy'}
-            fetchPriority={priority ? 'high' : 'auto'}
-            decoding={priority ? 'sync' : 'async'}
-            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300 ease-out"
-          />
+          {isVisible ? (
+            <img
+              src={anime.coverImage.large || anime.coverImage.medium || anime.coverImage.extraLarge}
+              alt={title}
+              width={185}
+              height={265}
+              loading={priority ? 'eager' : 'lazy'}
+              fetchPriority={priority ? 'high' : 'auto'}
+              decoding={priority ? 'sync' : 'async'}
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300 ease-out"
+            />
+          ) : (
+            <div className="w-full h-full bg-[#11161d]" />
+          )}
         </Link>
 
         {/* Top Badges */}

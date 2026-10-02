@@ -41,6 +41,11 @@ database/*.db
 *.sln
 *.sw?
 lighthouse*.json
+psi_*.json
+latest_psi_result.json
+check_psi.py
+parse_lh.py
+parse_pagespeed.py
 
 # Added by ggshield
 .cache_ggshield

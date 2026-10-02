@@ -88,8 +88,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Sync auth state with Firebase
+  // Sync auth state with Firebase (only if an active session exists or on auth-related pages)
   useEffect(() => {
+    const hasExistingSession = () => {
+      try {
+        const hash = window.location.hash;
+        if (hash.includes('login') || hash.includes('signup') || hash.includes('account') || hash.includes('auth')) {
+          return true;
+        }
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i) || '';
+          if (k.startsWith('firebase:authUser') || k.startsWith('firebase:token')) {
+            return true;
+          }
+        }
+      } catch {}
+      return false;
+    };
+
+    if (!hasExistingSession()) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
@@ -98,7 +119,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (docSnap.exists()) {
             setUser({ id: firebaseUser.uid, ...docSnap.data() } as UserProfile);
           } else {
-            // Fallback if document is somehow missing
             setUser({
               id: firebaseUser.uid,
               username: firebaseUser.email?.split('@')[0] || 'User',

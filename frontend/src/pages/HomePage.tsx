@@ -19,28 +19,43 @@ import { HeroBanner } from '../components/home/HeroBanner';
 import { CarouselRow } from '../components/home/CarouselRow';
 import { GenreGrid } from '../components/home/GenreGrid';
 import { HeroSkeleton, CardSkeleton } from '../components/common/Skeleton';
+import initialHomeData from '../data/initialHomeData.json';
 
 export const HomePage: React.FC = () => {
-  const [data, setData] = useState<HomeSectionsData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<HomeSectionsData>(() => {
+    try {
+      const cached = localStorage.getItem('animesenpai_home_data');
+      return cached ? JSON.parse(cached) : (initialHomeData as unknown as HomeSectionsData);
+    } catch {
+      return initialHomeData as unknown as HomeSectionsData;
+    }
+  });
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadData = async () => {
+  const loadData = async (isBackground = false) => {
     try {
-      setLoading(true);
+      if (!isBackground) setLoading(true);
       setError(null);
       const res = await fetchHomeData();
       setData(res);
+      try {
+        localStorage.setItem('animesenpai_home_data', JSON.stringify(res));
+      } catch {}
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to fetch anime data from AniList');
+      if (!data) setError(err.message || 'Failed to fetch anime data from AniList');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadData();
+    // Refresh fresh anime data in background after initial paint completes
+    const timer = setTimeout(() => {
+      loadData(true);
+    }, 2500);
+    return () => clearTimeout(timer);
   }, []);
 
   const { season, year } = getCurrentSeason();
@@ -86,7 +101,7 @@ export const HomePage: React.FC = () => {
         <h2 className="text-lg font-bold text-[#edf1f5]">Connection Error</h2>
         <p className="text-xs text-[#8ba0b2]">{error || 'Unable to connect to AniList API.'}</p>
         <button
-          onClick={loadData}
+          onClick={() => loadData(false)}
           className="inline-flex items-center gap-2 px-4 py-2 rounded anilist-btn-primary text-xs font-semibold"
         >
           <RefreshCw className="w-3.5 h-3.5" />
@@ -143,7 +158,7 @@ export const HomePage: React.FC = () => {
             icon={Flame}
             animes={data.trending}
             viewAllLink="/discover?sort=TRENDING_DESC"
-            priority={true}
+            priority={false}
           />
         </div>
 

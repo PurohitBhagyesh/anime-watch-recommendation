@@ -6,8 +6,9 @@ import { Navbar } from './components/common/Navbar';
 import { BottomTabBar } from './components/common/BottomTabBar';
 import { Footer } from './components/common/Footer';
 
-// Lazy loaded pages for code splitting
-const HomePage = React.lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
+import { HomePage } from './pages/HomePage';
+
+// Lazy loaded secondary pages for code splitting
 const DiscoverPage = React.lazy(() => import('./pages/DiscoverPage').then(m => ({ default: m.DiscoverPage })));
 const AnimeDetailsPage = React.lazy(() => import('./pages/AnimeDetailsPage').then(m => ({ default: m.AnimeDetailsPage })));
 const WatchlistPage = React.lazy(() => import('./pages/WatchlistPage').then(m => ({ default: m.WatchlistPage })));
