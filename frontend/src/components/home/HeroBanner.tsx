@@ -472,11 +472,6 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                     </button>
                   ))}
                 </div>
-
-                <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] text-[#8ba0b2] select-none font-mono">
-                  <MoveHorizontal className="w-3.5 h-3.5 text-[#3db4f2]" />
-                  <span>Swipe or Trackpad gesture ⇄</span>
-                </span>
               </div>
             )}
           </div>
