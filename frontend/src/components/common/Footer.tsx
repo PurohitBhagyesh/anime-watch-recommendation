@@ -238,9 +238,13 @@ export const Footer: React.FC = () => {
             </div>
 
             <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 font-mono">
-              Legal & Policy
+              Transparency & Legal
             </h4>
-            <div className="flex items-center gap-4 text-xs text-slate-400">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400">
+              <Link to="/about" className="hover:text-[#3db4f2] transition font-medium text-slate-300">
+                About Platform
+              </Link>
+              <span>·</span>
               <Link to="/privacy" className="hover:text-[#3db4f2] transition">
                 Privacy Policy
               </Link>

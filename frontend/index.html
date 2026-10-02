@@ -7,9 +7,10 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>AnimeSenpai |Discover, Track & Watch Anime</title>
+  <title>AnimeSenpai • Discover, Track & Watch Anime</title>
 
-  <!-- Google Search Favicons & Icons (Multiples of 48px square PNGs + ICO + Manifest) -->
+  <!-- Primary Favicons for Google Search & Browsers (Multiple of 48px square) -->
+  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
@@ -19,81 +20,118 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
 
-  <!-- SEO Meta Tags (Optimized to 154 chars so Google never truncates with dangling commas) -->
+  <!-- SEO Meta Tags (Optimized for Google SERP display) -->
   <meta name="description"
-    content="Discover 20,000+ trending anime, track watchlists in real-time, view official trailers, explore voice actors, and find smart recommendations on AnimeSenpai." />
+    content="AnimeSenpai is an independent, ad-free anime catalog and watchlist tracker. Explore 20,000+ anime titles, track progress, and watch official trailers safely." />
   <meta name="keywords"
     content="anime, anime tracker, watch anime, anime discovery, anime recommendations, anilist, seasonal anime, top 100 anime, anime senpai, anime list online" />
   <meta name="author" content="AnimeSenpai Team" />
   <meta name="theme-color" content="#0b1622" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-  <link rel="canonical" href="https://animesenpai.online/" />
+  <link rel="canonical" href="https://www.animesenpai.online/" />
 
   <!-- Open Graph / Facebook / LinkedIn / Instagram Preview -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://animesenpai.online/" />
+  <meta property="og:url" content="https://www.animesenpai.online/" />
   <meta property="og:title" content="AnimeSenpai • Discover, Track & Watch Anime" />
   <meta property="og:description"
-    content="Discover 20,000+ anime titles in real-time, track personal watchlists, watch official trailers, and explore characters powered by AniList." />
-  <meta property="og:image" content="https://animesenpai.online/logo-512.png" />
+    content="AnimeSenpai is an independent, ad-free anime catalog and watchlist tracker. Explore 20,000+ anime titles, track progress, and watch official trailers safely." />
+  <meta property="og:image" content="https://www.animesenpai.online/logo-512.png" />
   <meta property="og:image:width" content="512" />
   <meta property="og:image:height" content="512" />
   <meta property="og:site_name" content="AnimeSenpai" />
 
   <!-- Twitter / X Card Preview -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:url" content="https://animesenpai.online/" />
+  <meta name="twitter:url" content="https://www.animesenpai.online/" />
   <meta name="twitter:title" content="AnimeSenpai • Discover, Track & Watch Anime" />
   <meta name="twitter:description"
     content="Real-time anime discovery, watchlist tracking, and recommendation platform connecting to 20,000+ anime titles." />
-  <meta name="twitter:image" content="https://animesenpai.online/animesenpai-banner.svg" />
+  <meta name="twitter:image" content="https://www.animesenpai.online/animesenpai-banner.svg" />
+
+  <!-- Google Structured Data (JSON-LD) - Organization (E-E-A-T & Google Knowledge Graph) -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "@id": "https://www.animesenpai.online/#organization",
+      "name": "AnimeSenpai",
+      "alternateName": ["Anime Senpai", "AnimeSenpai Online", "AnimeSenpai App"],
+      "legalName": "AnimeSenpai Open Source Project",
+      "url": "https://www.animesenpai.online/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.animesenpai.online/logo-512.png",
+        "caption": "AnimeSenpai Official Logo",
+        "width": 512,
+        "height": 512
+      },
+      "image": "https://www.animesenpai.online/logo-512.png",
+      "description": "AnimeSenpai is an independent, ad-free anime catalog and personal watchlist tracking platform powered by the AniList GraphQL API and official YouTube trailer embeds.",
+      "founder": {
+        "@type": "Person",
+        "name": "Bhagyesh Purohit",
+        "url": "https://github.com/PurohitBhagyesh"
+      },
+      "foundingDate": "2024",
+      "knowsAbout": [
+        "Anime Discovery",
+        "Japanese Animation",
+        "AniList GraphQL API",
+        "Anime Recommendations",
+        "Personal Watchlist Tracking"
+      ],
+      "sameAs": [
+        "https://github.com/PurohitBhagyesh/anime-watch-recommendation"
+      ],
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "contactType": "customer support",
+          "email": "contact@animesenpai.online",
+          "url": "https://www.animesenpai.online/#/about"
+        }
+      ]
+    }
+  </script>
 
   <!-- Google Structured Data (JSON-LD) - WebSite & Sitelinks Searchbox -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
+      "@id": "https://www.animesenpai.online/#website",
       "name": "AnimeSenpai",
       "alternateName": ["Anime Senpai", "AnimeSenpai Online", "AnimeSenpai App"],
-      "url": "https://animesenpai.online/",
+      "url": "https://www.animesenpai.online/",
+      "publisher": {
+        "@id": "https://www.animesenpai.online/#organization"
+      },
+      "about": {
+        "@id": "https://www.animesenpai.online/#organization"
+      },
       "potentialAction": {
         "@type": "SearchAction",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": "https://animesenpai.online/#/discover?search={search_term_string}"
+          "urlTemplate": "https://www.animesenpai.online/#/discover?search={search_term_string}"
         },
         "query-input": "required name=search_term_string"
       }
     }
-    </script>
-
-  <!-- Google Structured Data (JSON-LD) - Organization -->
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "AnimeSenpai",
-      "alternateName": "Anime Senpai",
-      "url": "https://animesenpai.online/",
-      "logo": "https://animesenpai.online/logo-512.png",
-      "image": "https://animesenpai.online/logo-512.png",
-      "description": "Modern anime discovery and personal watchlist tracking platform powered by AniList.",
-      "sameAs": [
-        "https://github.com/PurohitBhagyesh/anime-watch-recommendation"
-      ]
-    }
-    </script>
+  </script>
 
   <!-- Google Structured Data (JSON-LD) - WebApplication (Rich Review Rating & App Details) -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
+      "@id": "https://www.animesenpai.online/#webapp",
       "name": "AnimeSenpai",
-      "url": "https://animesenpai.online/",
-      "image": "https://animesenpai.online/logo-512.png",
-      "screenshot": "https://animesenpai.online/animesenpai-banner.svg",
+      "url": "https://www.animesenpai.online/",
+      "image": "https://www.animesenpai.online/logo-512.png",
+      "screenshot": "https://www.animesenpai.online/animesenpai-banner.svg",
       "description": "High-performance anime discovery and personal watchlist tracking platform powered by AniList GraphQL.",
       "applicationCategory": "EntertainmentApplication",
       "operatingSystem": "All",
@@ -128,7 +166,7 @@
         }
       ]
     }
-    </script>
+  </script>
 
   <!-- Google Structured Data (JSON-LD) - BreadcrumbList for SERP Hierarchy -->
   <script type="application/ld+json">
@@ -140,29 +178,35 @@
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://animesenpai.online/"
+          "item": "https://www.animesenpai.online/"
         },
         {
           "@type": "ListItem",
           "position": 2,
-          "name": "Discover Catalog",
-          "item": "https://animesenpai.online/#/discover"
+          "name": "About AnimeSenpai",
+          "item": "https://www.animesenpai.online/#/about"
         },
         {
           "@type": "ListItem",
           "position": 3,
-          "name": "Trending Anime",
-          "item": "https://animesenpai.online/#/discover?sort=TRENDING_DESC"
+          "name": "Discover Catalog",
+          "item": "https://www.animesenpai.online/#/discover"
         },
         {
           "@type": "ListItem",
           "position": 4,
+          "name": "Trending Anime",
+          "item": "https://www.animesenpai.online/#/discover?sort=TRENDING_DESC"
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
           "name": "Top 100 Anime",
-          "item": "https://animesenpai.online/#/discover?sort=SCORE_DESC"
+          "item": "https://www.animesenpai.online/#/discover?sort=SCORE_DESC"
         }
       ]
     }
-    </script>
+  </script>
 
   <!-- Google Structured Data (JSON-LD) - SiteNavigationElement for Sitelinks -->
   <script type="application/ld+json">
@@ -174,36 +218,43 @@
         {
           "@type": "SiteNavigationElement",
           "position": 1,
-          "name": "Trending Anime",
-          "description": "Browse today's most popular and trending anime series",
-          "url": "https://animesenpai.online/#/discover?sort=TRENDING_DESC"
+          "name": "About AnimeSenpai",
+          "description": "Learn about our platform mission, independence, and legal compliance",
+          "url": "https://www.animesenpai.online/#/about"
         },
         {
           "@type": "SiteNavigationElement",
           "position": 2,
-          "name": "Top 100 Anime",
-          "description": "All-time highest rated anime masterpieces",
-          "url": "https://animesenpai.online/#/discover?sort=SCORE_DESC"
+          "name": "Trending Anime",
+          "description": "Browse today's most popular and trending anime series",
+          "url": "https://www.animesenpai.online/#/discover?sort=TRENDING_DESC"
         },
         {
           "@type": "SiteNavigationElement",
           "position": 3,
-          "name": "Seasonal Airing",
-          "description": "Discover current and upcoming seasonal anime releases",
-          "url": "https://animesenpai.online/#/discover?seasonal=true"
+          "name": "Top 100 Anime",
+          "description": "All-time highest rated anime masterpieces",
+          "url": "https://www.animesenpai.online/#/discover?sort=SCORE_DESC"
         },
         {
           "@type": "SiteNavigationElement",
           "position": 4,
+          "name": "Seasonal Airing",
+          "description": "Discover current and upcoming seasonal anime releases",
+          "url": "https://www.animesenpai.online/#/discover?seasonal=true"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 5,
           "name": "Watchlist Tracker",
           "description": "Track episodes, organize anime lists, and sync with cloud",
-          "url": "https://animesenpai.online/#/watchlist"
+          "url": "https://www.animesenpai.online/#/watchlist"
         }
       ]
     }
-    </script>
+  </script>
 
-  <!-- Google Structured Data (JSON-LD) - FAQPage Schema -->
+  <!-- Google Structured Data (JSON-LD) - FAQPage Schema (Answers for Google AI Overview & Rich Snippets) -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -214,15 +265,31 @@
           "name": "What is AnimeSenpai?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "AnimeSenpai is a modern, high-performance anime discovery and watchlist tracking platform. It aggregates live broadcasting schedules, community ratings, character voice actors, official streaming links, and official trailers across 20,000+ anime titles."
+            "text": "AnimeSenpai (animesenpai.online) is an independent, modern anime discovery and personal watchlist tracking platform. It aggregates live broadcasting schedules, community ratings, character voice actors, official streaming provider links, and official trailers across 20,000+ anime titles via the AniList GraphQL API."
           }
         },
         {
           "@type": "Question",
-          "name": "Is AnimeSenpai free to use?",
+          "name": "Is AnimeSenpai affiliated with anime news websites like animesenpai.net?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes, AnimeSenpai is completely free to use. You can browse trending seasonal anime, search the complete 20,000+ anime catalog, and organize your personal watchlist with zero fees."
+            "text": "No. AnimeSenpai (animesenpai.online) is an independent, non-commercial open-source anime database and personal watchlist tracking platform. It is not affiliated, endorsed by, or connected with third-party anime news blogs (such as animesenpai.net) or third-party streaming sites."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is AnimeSenpai legal and safe to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, 100%. AnimeSenpai does not host, store, or stream pirated video files. All trailers are played directly through official YouTube video embeds, all anime metadata is retrieved from the AniList public GraphQL API, and streaming buttons link only to licensed providers (like Crunchyroll, Netflix, and Hulu)."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is AnimeSenpai free and ad-free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. AnimeSenpai is completely free to use, 100% ad-free, and contains zero intrusive popups or tracking networks."
           }
         },
         {
@@ -232,18 +299,10 @@
             "@type": "Answer",
             "text": "AnimeSenpai lets you categorize anime into Watching, Plan to Watch, Completed, Rewatching, Paused, and Dropped lists with real-time episode progress incrementing and cloud synchronization via Firebase."
           }
-        },
-        {
-          "@type": "Question",
-          "name": "Where does AnimeSenpai get its anime catalog data?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "AnimeSenpai syncs directly with the public AniList GraphQL v2 API, ensuring up-to-the-minute episode airing times, scores, cast members, and official synopsis information."
-          }
         }
       ]
     }
-    </script>
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

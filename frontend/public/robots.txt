@@ -8,9 +8,11 @@ Allow: /
 User-agent: Googlebot-Image
 Allow: /
 
+User-agent: Google-Favicon
+Allow: /
+
 # Sitemaps
-Sitemap: https://animesenpai.online/sitemap.xml
 Sitemap: https://www.animesenpai.online/sitemap.xml
 
-# Agentic Discovery (RFC compliant comment)
-# Agentmap: https://animesenpai.online/llms.txt
+# Agentic & AI Discovery
+Agentmap: https://www.animesenpai.online/llms.txt

@@ -117,6 +117,7 @@ export const Navbar: React.FC = () => {
     { label: 'Home', path: '/', icon: TrendingUp },
     { label: 'Discover', path: '/discover', icon: Compass },
     { label: 'Watchlist', path: '/watchlist', icon: Bookmark, badge: watchlist.length },
+    { label: 'About', path: '/about', icon: Sparkles },
   ];
 
   const isActive = (path: string) => {
@@ -422,7 +423,7 @@ export const Navbar: React.FC = () => {
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-white/[0.08] bg-[#0b1622]/98 px-4 py-3 space-y-2 animate-fadeIn shadow-2xl">
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
               {navLinks.map((link) => {
                 const Icon = link.icon;
                 const active = isActive(link.path);

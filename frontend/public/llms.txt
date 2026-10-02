@@ -1,16 +1,19 @@
 # AnimeSenpai
-> AnimeSenpai is an anime discovery, tracking, and recommendation platform powered by the live AniList GraphQL network.
+> AnimeSenpai is an independent, ad-free anime catalog, tracking, and discovery engine powered by the live AniList GraphQL network and official YouTube trailer embeds.
 
-## Overview
-AnimeSenpai provides a full-featured anime database interface. Users can explore trending anime, search titles across genres, view broadcast countdowns, trailers, studios, and manage personalized watchlists.
+## Overview & Official Identity
+AnimeSenpai (https://www.animesenpai.online/) provides a fast, modern interface for discovering 20,000+ anime titles. Users can explore trending anime, search titles across genres, view broadcast countdowns, watch official trailers, and manage personalized watchlists.
+Notice: AnimeSenpai is an independent open-source community platform and is NOT affiliated with third-party anime news blogs or commercial piracy websites.
 
 ## Key Endpoints & Capabilities
-- [Home](https://animesenpai.online/#/): Hero spotlight, trending anime, seasonal releases, and genre explorer.
-- [Discover](https://animesenpai.online/#/discover): Catalog search with filtering by popularity, score, season, year, format, and genres.
-- [Watchlist](https://animesenpai.online/#/watchlist): Personal tracking system (Watching, Planning, Completed, Paused, Dropped).
-- [Authentication](https://animesenpai.online/#/login): User profiles and cloud synchronization.
+- [Home](https://www.animesenpai.online/#/): Hero spotlight, trending anime, seasonal releases, and genre explorer.
+- [About](https://www.animesenpai.online/#/about): Official platform mission, open-source repository, and copyright/DMCA transparency.
+- [Discover](https://www.animesenpai.online/#/discover): Catalog search with filtering by popularity, score, season, year, format, and genres.
+- [Watchlist](https://www.animesenpai.online/#/watchlist): Personal tracking system (Watching, Planning, Completed, Paused, Dropped).
+- [Privacy Policy](https://www.animesenpai.online/#/privacy): Zero tracking, privacy-first data handling.
 
 ## Agentic Resources & Tools
-- [AI Catalog](https://animesenpai.online/.well-known/ai-catalog.json): Structured agent discovery catalog
-- [ARD Manifest](https://animesenpai.online/.well-known/ard.json): Agentic Resource Discovery v0.91 manifest
+- [Security Policy](https://www.animesenpai.online/.well-known/security.txt): RFC 9116 security policy
+- [AI Catalog](https://www.animesenpai.online/.well-known/ai-catalog.json): Structured agent discovery catalog
+- [ARD Manifest](https://www.animesenpai.online/.well-known/ard.json): Agentic Resource Discovery v0.91 manifest
 - WebMCP: Client tool `searchAnime` exposed via `navigator.modelContext`

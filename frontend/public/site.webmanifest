@@ -1,7 +1,7 @@
 {
   "name": "AnimeSenpai • Discover, Track & Watch Anime Online",
   "short_name": "AnimeSenpai",
-  "description": "High-performance anime discovery and personal watchlist tracking platform.",
+  "description": "AnimeSenpai is an independent, ad-free anime catalog and watchlist tracker powered by AniList.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0b1622",
