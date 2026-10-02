@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Play,
@@ -6,8 +6,6 @@ import {
   Check,
   Plus,
   Tv,
-  ChevronLeft,
-  ChevronRight,
   Smile,
   Sparkles,
   MoveHorizontal,
@@ -32,25 +30,29 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
 
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
 
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const isPointerDownRef = useRef<boolean>(false);
   const hasMovedRef = useRef<boolean>(false);
   const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const accumulatedDeltaXRef = useRef<number>(0);
+  const isWheelLockedRef = useRef<boolean>(false);
+  const wheelResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentAnime = spotlights[currentIndex] || anime;
 
   // Slide navigation handlers
-  const goToNext = () => {
+  const goToNext = useCallback(() => {
     if (spotlights.length <= 1) return;
     setSlideDirection('next');
     setCurrentIndex((prev) => (prev + 1) % spotlights.length);
-  };
+  }, [spotlights.length]);
 
-  const goToPrev = () => {
+  const goToPrev = useCallback(() => {
     if (spotlights.length <= 1) return;
     setSlideDirection('prev');
     setCurrentIndex((prev) => (prev - 1 + spotlights.length) % spotlights.length);
-  };
+  }, [spotlights.length]);
 
   const goToSlide = (idx: number) => {
     if (idx === currentIndex) return;
@@ -65,7 +67,113 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
       goToNext();
     }, 6500);
     return () => clearInterval(interval);
-  }, [spotlights.length, isPaused, currentIndex]);
+  }, [spotlights.length, isPaused, goToNext]);
+
+  // macOS Trackpad two-finger horizontal gesture support
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || spotlights.length <= 1) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // Check if horizontal swipe intent dominates vertical page scroll
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        // Prevent native macOS browser history navigation (back/forward page swipe)
+        e.preventDefault();
+
+        // Pause auto-advance during gesture
+        setIsPaused(true);
+        if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+
+        // If locked during active slide animation, prevent multi-slide skipping
+        if (isWheelLockedRef.current) return;
+
+        accumulatedDeltaXRef.current += e.deltaX;
+
+        // Provide kinetic tactile feedback under finger motion
+        const clampedOffset = -Math.max(-75, Math.min(75, accumulatedDeltaXRef.current * 0.75));
+        setDragOffset(clampedOffset);
+        setIsDragging(true);
+
+        if (wheelResetTimeoutRef.current) {
+          clearTimeout(wheelResetTimeoutRef.current);
+        }
+
+        const GESTURE_THRESHOLD = 32;
+
+        if (accumulatedDeltaXRef.current > GESTURE_THRESHOLD) {
+          // Trackpad swipe left (two fingers moving left) -> Next Spotlight
+          isWheelLockedRef.current = true;
+          accumulatedDeltaXRef.current = 0;
+          setDragOffset(0);
+          setIsDragging(false);
+          goToNext();
+
+          setTimeout(() => {
+            isWheelLockedRef.current = false;
+          }, 550);
+
+          resumeTimerRef.current = setTimeout(() => {
+            setIsPaused(false);
+          }, 4000);
+        } else if (accumulatedDeltaXRef.current < -GESTURE_THRESHOLD) {
+          // Trackpad swipe right (two fingers moving right) -> Previous Spotlight
+          isWheelLockedRef.current = true;
+          accumulatedDeltaXRef.current = 0;
+          setDragOffset(0);
+          setIsDragging(false);
+          goToPrev();
+
+          setTimeout(() => {
+            isWheelLockedRef.current = false;
+          }, 550);
+
+          resumeTimerRef.current = setTimeout(() => {
+            setIsPaused(false);
+          }, 4000);
+        } else {
+          // Inertia dissipates without triggering threshold -> smoothly reset
+          wheelResetTimeoutRef.current = setTimeout(() => {
+            accumulatedDeltaXRef.current = 0;
+            setDragOffset(0);
+            setIsDragging(false);
+            resumeTimerRef.current = setTimeout(() => {
+              setIsPaused(false);
+            }, 3000);
+          }, 150);
+        }
+      }
+    };
+
+    // Note: { passive: false } is essential on macOS to allow e.preventDefault()
+    container.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener('wheel', handleWheel);
+      if (wheelResetTimeoutRef.current) clearTimeout(wheelResetTimeoutRef.current);
+    };
+  }, [spotlights.length, goToNext, goToPrev]);
+
+  // Keyboard left/right arrow navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeTag = document.activeElement?.tagName.toLowerCase();
+      if (activeTag === 'input' || activeTag === 'textarea') return;
+
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      if (!isVisible) return;
+
+      if (e.key === 'ArrowRight') {
+        goToNext();
+      } else if (e.key === 'ArrowLeft') {
+        goToPrev();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [goToNext, goToPrev]);
 
   // Touch Swipe Gesture Handlers
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -175,6 +283,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
   return (
     <>
       <div
+        ref={containerRef}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -210,63 +319,6 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-[#0b1622] via-[#0b1622]/70 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0b1622] via-[#0b1622]/80 to-transparent" />
         </div>
-
-        {/* Top-Right Secondary Controls */}
-        {spotlights.length > 1 && (
-          <div className="absolute top-4 sm:top-8 right-4 sm:right-10 lg:right-16 z-20 flex items-center gap-1.5 sm:gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                goToPrev();
-              }}
-              className="p-1.5 sm:p-2 rounded-lg bg-[#151f2e]/80 hover:bg-[#3db4f2] text-white border border-white/10 backdrop-blur-md transition active:scale-95 cursor-pointer shadow-md"
-              title="Previous Spotlight (Swipe Right)"
-              aria-label="Previous Spotlight"
-            >
-              <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                goToNext();
-              }}
-              className="p-1.5 sm:p-2 rounded-lg bg-[#151f2e]/80 hover:bg-[#3db4f2] text-white border border-white/10 backdrop-blur-md transition active:scale-95 cursor-pointer shadow-md"
-              title="Next Spotlight (Swipe Left)"
-              aria-label="Next Spotlight"
-            >
-              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </button>
-          </div>
-        )}
-
-        {/* Floating Side Edge Arrows for Effortless Desktop/Tablet Clicking */}
-        {spotlights.length > 1 && (
-          <>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                goToPrev();
-              }}
-              className="hidden md:flex absolute left-3 lg:left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-[#0b1622]/65 hover:bg-[#3db4f2] text-white/80 hover:text-[#0b1622] border border-white/15 hover:border-transparent items-center justify-center backdrop-blur-md transition-all duration-200 active:scale-95 shadow-xl opacity-0 group-hover:opacity-100 cursor-pointer"
-              title="Previous Slide (Swipe Right)"
-              aria-label="Previous Slide"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                goToNext();
-              }}
-              className="hidden md:flex absolute right-3 lg:right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-[#0b1622]/65 hover:bg-[#3db4f2] text-white/80 hover:text-[#0b1622] border border-white/15 hover:border-transparent items-center justify-center backdrop-blur-md transition-all duration-200 active:scale-95 shadow-xl opacity-0 group-hover:opacity-100 cursor-pointer"
-              title="Next Slide (Swipe Left)"
-              aria-label="Next Slide"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </>
-        )}
 
         {/* Hero Interactive Content Box */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 md:py-16 pointer-events-none">
@@ -421,8 +473,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                   ))}
                 </div>
 
-                <span className="hidden sm:inline-block text-[11px] text-[#8ba0b2] select-none font-mono">
-                  Swipe ⇄ or use arrows
+                <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] text-[#8ba0b2] select-none font-mono">
+                  <MoveHorizontal className="w-3.5 h-3.5 text-[#3db4f2]" />
+                  <span>Swipe or Trackpad gesture ⇄</span>
                 </span>
               </div>
             )}
