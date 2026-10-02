@@ -1,34 +1,86 @@
 {
-  "$schema": "https://json.schemastore.org/ard-0.91.json",
-  "name": "AnimeSenpai",
-  "version": "1.0.0",
-  "description": "Anime discovery, tracking, and recommendation platform powered by AniList GraphQL.",
-  "url": "https://animesenpai.online",
-  "documentation": "https://animesenpai.online/llms.txt",
-  "resources": [
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "AnimeSenpai",
+    "identifier": "did:web:animesenpai.online",
+    "documentationUrl": "https://animesenpai.online/llms.txt",
+    "logoUrl": "https://animesenpai.online/logo-512.png"
+  },
+  "entries": [
     {
-      "type": "webmcp",
-      "name": "searchAnime",
-      "description": "Search anime titles, genres, and seasonal releases on AnimeSenpai",
-      "url": "https://animesenpai.online/#/discover",
-      "methods": ["GET"]
+      "identifier": "urn:air:animesenpai.online:tools:searchAnime",
+      "displayName": "Search Anime",
+      "type": "application/json",
+      "description": "Search 20,000+ anime titles, genres, and seasonal releases on AnimeSenpai.",
+      "url": "https://animesenpai.online/llms.txt",
+      "tags": [
+        "anime",
+        "search",
+        "discovery",
+        "anilist"
+      ],
+      "capabilities": [
+        "AnimeSearch",
+        "FilterByGenre",
+        "SeasonalSchedule"
+      ],
+      "representativeQueries": [
+        "search trending anime series",
+        "find popular anime by genre",
+        "browse current seasonal anime releases"
+      ],
+      "version": "1.0.0",
+      "updatedAt": "2026-10-02T15:00:00Z"
     },
     {
-      "type": "agent-skill",
-      "name": "browseCatalog",
-      "description": "Browse trending, seasonal, and top rated anime collections.",
-      "url": "https://animesenpai.online/#/discover"
+      "identifier": "urn:air:animesenpai.online:tools:browseCatalog",
+      "displayName": "Browse Anime Catalog",
+      "type": "text/markdown",
+      "description": "Browse trending, seasonal, and top 100 rated anime collections with community ratings and episode tracking.",
+      "url": "https://animesenpai.online/llms.txt",
+      "tags": [
+        "anime",
+        "catalog",
+        "trending",
+        "top100"
+      ],
+      "capabilities": [
+        "BrowseCatalog",
+        "TopRatedAnime",
+        "TrendingAnime"
+      ],
+      "representativeQueries": [
+        "top 100 highest rated anime",
+        "explore trending anime this week",
+        "browse seasonal anime schedule"
+      ],
+      "version": "1.0.0",
+      "updatedAt": "2026-10-02T15:00:00Z"
     },
     {
-      "type": "agent-skill",
-      "name": "viewAnimeDetails",
+      "identifier": "urn:air:animesenpai.online:tools:viewAnimeDetails",
+      "displayName": "View Anime Details",
+      "type": "text/markdown",
       "description": "Retrieve comprehensive details, synopsis, trailer, studios, and scores for a specific anime.",
-      "url": "https://animesenpai.online/#/anime/:id"
+      "url": "https://animesenpai.online/llms.txt",
+      "tags": [
+        "anime",
+        "details",
+        "trailer",
+        "voice-actors"
+      ],
+      "capabilities": [
+        "AnimeDetails",
+        "WatchTrailer",
+        "VoiceActors"
+      ],
+      "representativeQueries": [
+        "view anime synopsis and episodes",
+        "check anime trailer and cast",
+        "find anime streaming platforms"
+      ],
+      "version": "1.0.0",
+      "updatedAt": "2026-10-02T15:00:00Z"
     }
-  ],
-  "capabilities": {
-    "search": true,
-    "catalog": true,
-    "tools": true
-  }
+  ]
 }
