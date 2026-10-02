@@ -1,0 +1,8 @@
+# AnimeSenpai
+
+AnimeSenpai is a platform for discovering and tracking anime, powered by the live AniList GraphQL network.
+
+## Features
+- Track your anime watching progress.
+- Discover new anime based on your preferences.
+- Explore trending and top-rated anime.

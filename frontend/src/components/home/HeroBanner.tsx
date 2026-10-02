@@ -154,7 +154,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                   onClick={() => setTrailerOpen(true)}
                   className="anilist-btn-primary flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold"
                 >
-                  <Play className="w-4 h-4 fill-white" />
+                  <Play className="w-4 h-4 fill-current" />
                   <span>Watch Trailer</span>
                 </button>
               )}
@@ -202,13 +202,15 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                   <button
                     key={idx}
                     onClick={() => setCurrentIndex(idx)}
-                    className={`h-1.5 rounded-full transition-all ${
+                    className="p-2 -m-2 flex items-center justify-center group"
+                    aria-label={`Go to slide ${idx + 1}`}
+                  >
+                    <div className={`h-1.5 rounded-full transition-all ${
                       idx === currentIndex
                         ? 'w-8 bg-[#3db4f2]'
-                        : 'w-2 bg-white/20 hover:bg-white/40'
-                    }`}
-                    aria-label={`Go to slide ${idx + 1}`}
-                  />
+                        : 'w-2 bg-white/20 group-hover:bg-white/40'
+                    }`} />
+                  </button>
                 ))}
               </div>
             )}

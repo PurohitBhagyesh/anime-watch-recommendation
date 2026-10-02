@@ -9,7 +9,7 @@ interface AnimeCardProps {
   priority?: boolean;
 }
 
-export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
+export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false }) => {
   const { isInWatchlist, getItem, addToWatchlist, removeFromWatchlist } = useWatchlist();
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -137,7 +137,9 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime }) => {
           <img
             src={anime.coverImage.extraLarge || anime.coverImage.large}
             alt={title}
-            loading="lazy"
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : 'auto'}
+            decoding={priority ? 'sync' : 'async'}
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300 ease-out"
           />
         </Link>

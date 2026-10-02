@@ -41,7 +41,7 @@ export const Footer: React.FC = () => {
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-200">AniList Powered</p>
-                <p className="text-[11px] text-slate-500">Real-time GraphQL sync</p>
+                <p className="text-[11px] text-slate-400">Real-time GraphQL sync</p>
               </div>
             </div>
 
@@ -51,7 +51,7 @@ export const Footer: React.FC = () => {
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-200">Smart Watchlist</p>
-                <p className="text-[11px] text-slate-500">Custom tracking & scores</p>
+                <p className="text-[11px] text-slate-400">Custom tracking & scores</p>
               </div>
             </div>
 
@@ -61,7 +61,7 @@ export const Footer: React.FC = () => {
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-200">Deep Discovery</p>
-                <p className="text-[11px] text-slate-500">Seasonal anime & voice cast</p>
+                <p className="text-[11px] text-slate-400">Seasonal anime & voice cast</p>
               </div>
             </div>
 
@@ -71,7 +71,7 @@ export const Footer: React.FC = () => {
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-200">Ad-Free & Fast</p>
-                <p className="text-[11px] text-slate-500">Clean, privacy-first UI</p>
+                <p className="text-[11px] text-slate-400">Clean, privacy-first UI</p>
               </div>
             </div>
           </div>
@@ -204,14 +204,14 @@ export const Footer: React.FC = () => {
             <div className="space-y-1.5 text-xs">
               <Link
                 to="/discover?format=TV"
-                className="flex items-center gap-1.5 text-slate-400 hover:text-slate-200 transition"
+                className="flex items-center gap-1.5 text-slate-400 hover:text-slate-200 transition py-1.5"
               >
                 <Tv className="w-3 h-3 text-[#3db4f2]" />
                 <span>TV Series</span>
               </Link>
               <Link
                 to="/discover?format=MOVIE"
-                className="flex items-center gap-1.5 text-slate-400 hover:text-slate-200 transition"
+                className="flex items-center gap-1.5 text-slate-400 hover:text-slate-200 transition py-1.5"
               >
                 <Film className="w-3 h-3 text-[#3db4f2]" />
                 <span>Anime Movies</span>
@@ -253,7 +253,7 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Sub-footer Bar */}
-        <div className="pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div className="pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <p>© {new Date().getFullYear()} AnimeSenpai (animesenpai.online). All anime data powered by AniList GraphQL.</p>
 
           <div className="flex items-center gap-6">

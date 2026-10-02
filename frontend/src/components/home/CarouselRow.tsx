@@ -10,6 +10,7 @@ interface CarouselRowProps {
   icon?: React.ElementType;
   animes: AnimeCardData[];
   viewAllLink?: string;
+  priority?: boolean;
 }
 
 export const CarouselRow: React.FC<CarouselRowProps> = ({
@@ -18,6 +19,7 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
   icon: Icon,
   animes,
   viewAllLink,
+  priority,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -56,7 +58,7 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
           {viewAllLink && (
             <Link
               to={viewAllLink}
-              className="text-xs font-bold text-[#3db4f2] hover:text-[#2ba2e0] flex items-center gap-1 transition pr-1"
+              className="text-xs font-bold text-[#3db4f2] hover:text-[#2ba2e0] flex items-center gap-1 transition p-2 -my-2"
             >
               <span>View All</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -88,12 +90,12 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
         ref={scrollContainerRef}
         className="flex gap-2.5 sm:gap-4 overflow-x-auto pb-3 pt-1 no-scrollbar touch-scroll-smooth scroll-smooth"
       >
-        {animes.map((anime) => (
+        {animes.map((anime, idx) => (
           <div
             key={anime.id}
             className="flex-shrink-0 w-32 min-[400px]:w-36 sm:w-44 md:w-48"
           >
-            <AnimeCard anime={anime} />
+            <AnimeCard anime={anime} priority={priority && idx < 3} />
           </div>
         ))}
       </div>

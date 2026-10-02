@@ -125,6 +125,7 @@ export const HomePage: React.FC = () => {
             icon={Flame}
             animes={data.trending}
             viewAllLink="/discover?sort=TRENDING_DESC"
+            priority={true}
           />
         </div>
 
