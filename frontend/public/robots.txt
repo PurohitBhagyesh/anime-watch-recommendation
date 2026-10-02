@@ -11,3 +11,7 @@ Allow: /
 # Sitemaps
 Sitemap: https://animesenpai.online/sitemap.xml
 Sitemap: https://www.animesenpai.online/sitemap.xml
+
+# Agentic Discovery
+Agentmap: https://animesenpai.online/llms.txt
+Agentmap: https://www.animesenpai.online/llms.txt

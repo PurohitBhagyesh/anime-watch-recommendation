@@ -119,6 +119,35 @@
     <link rel="preconnect" href="https://animesenpai-online.firebaseapp.com">
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=Roboto:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=Roboto:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"></noscript>
+    <link rel="agentmap" href="/llms.txt">
+    <link rel="ai-catalog" type="application/json" href="/.well-known/ai-catalog.json">
+    <link rel="ard" type="application/json" href="/.well-known/ard.json">
+    <script>
+      (function() {
+        if (typeof navigator !== 'undefined' && 'modelContext' in navigator && navigator.modelContext && typeof navigator.modelContext.registerTool === 'function') {
+          try {
+            navigator.modelContext.registerTool({
+              name: 'searchAnime',
+              description: 'Search for anime titles, genres, and seasonal releases on AnimeSenpai',
+              inputSchema: {
+                type: 'object',
+                properties: {
+                  query: { type: 'string', description: 'Search keywords or anime title' }
+                },
+                required: ['query']
+              },
+              execute: function(args) {
+                if (args && args.query) {
+                  window.location.hash = '#/discover?search=' + encodeURIComponent(args.query);
+                  return Promise.resolve({ success: true, url: window.location.href });
+                }
+                return Promise.reject(new Error('Missing query parameter'));
+              }
+            });
+          } catch (e) {}
+        }
+      })();
+    </script>
   </head>
   <body class="bg-[#0b1622] text-[#bcbedc] font-sans antialiased selection:bg-[#3db4f2] selection:text-white min-h-screen overflow-x-hidden">
     <div id="root"></div>

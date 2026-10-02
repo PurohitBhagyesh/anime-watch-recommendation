@@ -1,8 +1,16 @@
 # AnimeSenpai
+> AnimeSenpai is an anime discovery, tracking, and recommendation platform powered by the live AniList GraphQL network.
 
-AnimeSenpai is a platform for discovering and tracking anime, powered by the live AniList GraphQL network.
+## Overview
+AnimeSenpai provides a full-featured anime database interface. Users can explore trending anime, search titles across genres, view broadcast countdowns, trailers, studios, and manage personalized watchlists.
 
-## Features
-- Track your anime watching progress.
-- Discover new anime based on your preferences.
-- Explore trending and top-rated anime.
+## Key Endpoints & Capabilities
+- [Home](https://animesenpai.online/#/): Hero spotlight, trending anime, seasonal releases, and genre explorer.
+- [Discover](https://animesenpai.online/#/discover): Catalog search with filtering by popularity, score, season, year, format, and genres.
+- [Watchlist](https://animesenpai.online/#/watchlist): Personal tracking system (Watching, Planning, Completed, Paused, Dropped).
+- [Authentication](https://animesenpai.online/#/login): User profiles and cloud synchronization.
+
+## Agentic Resources & Tools
+- [AI Catalog](https://animesenpai.online/.well-known/ai-catalog.json): Structured agent discovery catalog
+- [ARD Manifest](https://animesenpai.online/.well-known/ard.json): Agentic Resource Discovery v0.91 manifest
+- WebMCP: Client tool `searchAnime` exposed via `navigator.modelContext`
