@@ -7,6 +7,9 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  ArrowUpDown,
   SlidersHorizontal,
   LayoutGrid,
   List,
@@ -36,6 +39,23 @@ import { AnimeCard } from '../components/common/AnimeCard';
 import { CardSkeleton } from '../components/common/Skeleton';
 import { useWatchlist } from '../context/WatchlistContext';
 
+// Helper to calculate responsive, windowed page numbers with ellipsis
+function getPaginationRange(current: number, total: number): (number | string)[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  if (current <= 4) {
+    return [1, 2, 3, 4, 5, '...', total];
+  }
+
+  if (current >= total - 3) {
+    return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+  }
+
+  return [1, '...', current - 1, current, current + 1, '...', total];
+}
+
 export const DiscoverPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isInWatchlist, getItem, addToWatchlist, removeFromWatchlist } = useWatchlist();
@@ -61,8 +81,28 @@ export const DiscoverPage: React.FC = () => {
   const [openStatusMenuId, setOpenStatusMenuId] = useState<number | null>(null);
   const [showCountInfo, setShowCountInfo] = useState(false);
   const [showGenreStatsModal, setShowGenreStatsModal] = useState(false);
+  const [jumpPageInput, setJumpPageInput] = useState('');
 
   const currentGenreMeta = selectedGenre ? GENRE_METADATA[selectedGenre] : null;
+
+  const goToPage = (pageNumber: number) => {
+    if (!pageInfo) return;
+    const target = Math.max(1, Math.min(pageNumber, pageInfo.lastPage || 1));
+    if (target === currentPage) return;
+    setCurrentPage(target);
+    updateFiltersInUrl({ page: target });
+    window.scrollTo({ top: 320, behavior: 'smooth' });
+  };
+
+  const handleJumpPage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pageInfo) return;
+    const val = parseInt(jumpPageInput.trim(), 10);
+    if (!isNaN(val) && val >= 1 && val <= pageInfo.lastPage) {
+      goToPage(val);
+      setJumpPageInput('');
+    }
+  };
 
   const categoryBarRef = useRef<HTMLDivElement>(null);
 
@@ -978,12 +1018,63 @@ export const DiscoverPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 self-end sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2.5 self-end sm:self-auto">
+          {/* Quick Sort Dropdown */}
+          <div className="flex items-center gap-1.5 bg-[#151f2e] px-2.5 py-1.5 rounded-lg border border-white/10 text-xs">
+            <ArrowUpDown className="w-3.5 h-3.5 text-[#3db4f2]" />
+            <span className="text-[11px] font-bold text-[#8ba0b2] hidden sm:inline">Sort:</span>
+            <select
+              value={selectedSort}
+              onChange={(e) => {
+                setSelectedSort(e.target.value);
+                setCurrentPage(1);
+                updateFiltersInUrl({ sort: e.target.value, page: 1 });
+              }}
+              className="bg-transparent text-xs font-bold text-[#edf1f5] outline-none cursor-pointer pr-1"
+            >
+              <option value="TRENDING_DESC" className="bg-[#0b1622] text-white">🔥 Trending</option>
+              <option value="POPULARITY_DESC" className="bg-[#0b1622] text-white">🌟 Popular</option>
+              <option value="SCORE_DESC" className="bg-[#0b1622] text-white">🏆 Top Rated</option>
+              <option value="START_DATE_DESC" className="bg-[#0b1622] text-white">📅 Release Date</option>
+              <option value="FAVOURITES_DESC" className="bg-[#0b1622] text-white">❤️ Most Favorited</option>
+              <option value="TITLE_ROMAJI" className="bg-[#0b1622] text-white">🔤 Title (A–Z)</option>
+            </select>
+          </div>
+
+          {/* Top Mini-Pagination Switcher */}
+          {pageInfo && pageInfo.lastPage > 1 && (
+            <div className="flex items-center gap-1 bg-[#151f2e] p-1 rounded-lg border border-white/10 text-xs font-mono">
+              <button
+                type="button"
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage <= 1 || loading}
+                className="p-1 rounded hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-[#8ba0b2] hover:text-white cursor-pointer"
+                title="Previous Page"
+                aria-label="Previous Page"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              <span className="px-1.5 text-[11px] text-slate-300">
+                <strong className="text-[#3db4f2]">{currentPage}</strong>/{pageInfo.lastPage}
+              </span>
+              <button
+                type="button"
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={!pageInfo.hasNextPage || loading}
+                className="p-1 rounded hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-[#8ba0b2] hover:text-white cursor-pointer"
+                title="Next Page"
+                aria-label="Next Page"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
           {/* View mode toggle */}
           <div className="flex items-center p-0.5 rounded bg-[#151f2e] border border-white/10">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded text-xs font-bold transition ${
+              className={`p-1.5 rounded text-xs font-bold transition cursor-pointer ${
                 viewMode === 'grid'
                   ? 'bg-[#3db4f2] text-white shadow-sm'
                   : 'text-[#8ba0b2] hover:text-white'
@@ -994,7 +1085,7 @@ export const DiscoverPage: React.FC = () => {
             </button>
             <button
               onClick={() => setViewMode('table')}
-              className={`p-1.5 rounded text-xs font-bold transition ${
+              className={`p-1.5 rounded text-xs font-bold transition cursor-pointer ${
                 viewMode === 'table'
                   ? 'bg-[#3db4f2] text-white shadow-sm'
                   : 'text-[#8ba0b2] hover:text-white'
@@ -1173,38 +1264,133 @@ export const DiscoverPage: React.FC = () => {
         </div>
       )}
 
-      {/* Pagination Bar */}
+      {/* Comprehensive Numbered Pagination & Range Stats */}
       {pageInfo && pageInfo.lastPage > 1 && (
-        <div className="flex items-center justify-center gap-2 pt-4">
-          <button
-            onClick={() => {
-              const newPage = Math.max(1, currentPage - 1);
-              setCurrentPage(newPage);
-              updateFiltersInUrl({ page: newPage });
-            }}
-            disabled={currentPage <= 1 || loading}
-            className="anilist-btn-secondary flex items-center gap-1 px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold border border-white/10"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-            <span>Previous</span>
-          </button>
+        <div className="pt-8 pb-6 border-t border-white/[0.06] flex flex-col items-center gap-4">
+          {/* Summary Text: Real range & real counts */}
+          <div className="text-xs text-[#8ba0b2] font-mono text-center flex flex-wrap items-center justify-center gap-2">
+            <span>
+              Showing <strong className="text-[#edf1f5] font-bold">{(currentPage - 1) * 24 + 1}–{Math.min(currentPage * 24, pageInfo.total >= 5000 ? 5000 : pageInfo.total)}</strong> of{' '}
+              <strong className="text-[#3db4f2] font-bold">
+                {pageInfo.total >= 5000 ? '5,000+' : pageInfo.total.toLocaleString()}
+              </strong>{' '}
+              anime
+            </span>
+            <span className="text-slate-600">•</span>
+            <span>
+              Page <strong className="text-[#edf1f5] font-bold">{currentPage}</strong> of{' '}
+              <strong className="text-[#edf1f5] font-bold">{pageInfo.lastPage}</strong>
+            </span>
+          </div>
 
-          <span className="px-3 py-1 rounded bg-[#151f2e] border border-white/10 text-xs font-mono text-[#edf1f5]">
-            {currentPage} / {pageInfo.lastPage}
-          </span>
+          {/* Numbered Controls Row */}
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+            {/* First Page */}
+            <button
+              onClick={() => goToPage(1)}
+              disabled={currentPage <= 1 || loading}
+              className="px-2.5 sm:px-3 py-2 rounded-lg bg-[#151f2e] border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition text-xs font-bold flex items-center gap-1 cursor-pointer"
+              title="First Page"
+              aria-label="First Page"
+            >
+              <ChevronsLeft className="w-4 h-4" />
+              <span className="hidden md:inline">First</span>
+            </button>
 
-          <button
-            onClick={() => {
-              const newPage = currentPage + 1;
-              setCurrentPage(newPage);
-              updateFiltersInUrl({ page: newPage });
-            }}
-            disabled={!pageInfo.hasNextPage || loading}
-            className="anilist-btn-secondary flex items-center gap-1 px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold border border-white/10"
-          >
-            <span>Next</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+            {/* Prev Page */}
+            <button
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage <= 1 || loading}
+              className="px-2.5 sm:px-3 py-2 rounded-lg bg-[#151f2e] border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition text-xs font-bold flex items-center gap-1 cursor-pointer"
+              title="Previous Page"
+              aria-label="Previous Page"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Prev</span>
+            </button>
+
+            {/* Page Number Buttons */}
+            <div className="flex items-center gap-1">
+              {getPaginationRange(currentPage, pageInfo.lastPage).map((item, idx) => {
+                if (item === '...') {
+                  return (
+                    <span
+                      key={`ellipsis-${idx}`}
+                      className="px-1.5 sm:px-2 py-1 text-slate-500 font-mono text-xs select-none"
+                    >
+                      …
+                    </span>
+                  );
+                }
+
+                const pageNum = item as number;
+                const isCurrent = pageNum === currentPage;
+
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => goToPage(pageNum)}
+                    disabled={loading}
+                    className={`min-w-[34px] sm:min-w-[38px] h-9 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center font-mono cursor-pointer ${
+                      isCurrent
+                        ? 'bg-[#3db4f2] text-white shadow-lg shadow-[#3db4f2]/30 scale-105 ring-1 ring-[#3db4f2]'
+                        : 'bg-[#151f2e] text-slate-300 hover:text-white hover:bg-white/10 border border-white/5'
+                    }`}
+                    aria-label={`Page ${pageNum}`}
+                    aria-current={isCurrent ? 'page' : undefined}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Next Page */}
+            <button
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={!pageInfo.hasNextPage || loading}
+              className="px-2.5 sm:px-3 py-2 rounded-lg bg-[#151f2e] border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition text-xs font-bold flex items-center gap-1 cursor-pointer"
+              title="Next Page"
+              aria-label="Next Page"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            {/* Last Page */}
+            <button
+              onClick={() => goToPage(pageInfo.lastPage)}
+              disabled={currentPage >= pageInfo.lastPage || loading}
+              className="px-2.5 sm:px-3 py-2 rounded-lg bg-[#151f2e] border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition text-xs font-bold flex items-center gap-1 cursor-pointer"
+              title="Last Page"
+              aria-label="Last Page"
+            >
+              <span className="hidden md:inline">Last</span>
+              <ChevronsRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Direct Jump to Page Form */}
+          {pageInfo.lastPage > 5 && (
+            <form onSubmit={handleJumpPage} className="flex items-center gap-2 text-xs text-slate-400 pt-1">
+              <span>Go to page:</span>
+              <input
+                type="number"
+                min={1}
+                max={pageInfo.lastPage}
+                value={jumpPageInput}
+                onChange={(e) => setJumpPageInput(e.target.value)}
+                placeholder={`${currentPage}`}
+                className="w-16 px-2.5 py-1 rounded-lg bg-[#151f2e] border border-white/10 text-[#edf1f5] text-xs font-mono text-center focus:border-[#3db4f2] outline-none"
+              />
+              <button
+                type="submit"
+                className="px-3 py-1 rounded-lg bg-[#3db4f2]/20 hover:bg-[#3db4f2] text-[#3db4f2] hover:text-white font-bold transition border border-[#3db4f2]/30 cursor-pointer text-xs"
+              >
+                Go
+              </button>
+            </form>
+          )}
         </div>
       )}
 
