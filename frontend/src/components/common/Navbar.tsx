@@ -13,6 +13,7 @@ import {
   Menu,
   User,
   Settings,
+  Tv,
 } from 'lucide-react';
 import { useWatchlist } from '../../context/WatchlistContext';
 import { useAuth } from '../../context/AuthContext';
@@ -117,6 +118,7 @@ export const Navbar: React.FC = () => {
     { label: 'Home', path: '/', icon: TrendingUp },
     { label: 'Discover', path: '/discover', icon: Compass },
     { label: 'Watchlist', path: '/watchlist', icon: Bookmark, badge: watchlist.length },
+    { label: 'Stream', path: '/stream', icon: Tv },
   ];
 
   const isActive = (path: string) => {

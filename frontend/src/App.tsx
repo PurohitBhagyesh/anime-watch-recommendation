@@ -12,6 +12,7 @@ import { HomePage } from './pages/HomePage';
 const DiscoverPage = React.lazy(() => import('./pages/DiscoverPage').then(m => ({ default: m.DiscoverPage })));
 const AnimeDetailsPage = React.lazy(() => import('./pages/AnimeDetailsPage').then(m => ({ default: m.AnimeDetailsPage })));
 const WatchlistPage = React.lazy(() => import('./pages/WatchlistPage').then(m => ({ default: m.WatchlistPage })));
+const StreamPage = React.lazy(() => import('./pages/StreamPage').then(m => ({ default: m.StreamPage })));
 const AuthPage = React.lazy(() => import('./pages/AuthPage').then(m => ({ default: m.AuthPage })));
 const AccountPage = React.lazy(() => import('./pages/AccountPage').then(m => ({ default: m.AccountPage })));
 const PrivacyPage = React.lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
@@ -48,6 +49,8 @@ export const App: React.FC = () => {
                   <Route path="/discover" element={<DiscoverPage />} />
                   <Route path="/anime/:id" element={<AnimeDetailsPage />} />
                   <Route path="/watchlist" element={<WatchlistPage />} />
+                  <Route path="/stream" element={<StreamPage />} />
+                  <Route path="/stream/:id" element={<StreamPage />} />
                   <Route path="/account" element={<AccountPage defaultTab="account" />} />
                   <Route path="/settings" element={<AccountPage defaultTab="settings" />} />
                   <Route path="/login" element={<AuthPage initialMode="login" />} />

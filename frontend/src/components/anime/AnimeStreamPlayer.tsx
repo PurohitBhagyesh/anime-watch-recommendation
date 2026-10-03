@@ -39,9 +39,16 @@ import {
   Radio,
   Keyboard,
 } from 'lucide-react';
+import Hls from 'hls.js';
 import type { AnimeDetailsData } from '../../api/types';
 import { useWatchlist } from '../../context/WatchlistContext';
 import { useAuth } from '../../context/AuthContext';
+import {
+  getStreamSettings,
+  saveStreamSettings,
+  lockStreamVault,
+  unlockStreamVault,
+} from '../../utils/streamSettings';
 
 interface AnimeStreamPlayerProps {
   anime: AnimeDetailsData;
@@ -101,34 +108,30 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
   const [passcodeError, setPasscodeError] = useState<string>('');
 
   // Episode & Server State
+  const savedSettings = useMemo(() => getStreamSettings(), []);
+
   const [currentEpisode, setCurrentEpisode] = useState<number>(initialEpisode);
   const [prevInitial, setPrevInitial] = useState<number>(initialEpisode);
   const [selectedServer, setSelectedServer] = useState<'direct' | 'official' | 'licensed' | 'custom'>('direct');
-  const [selectedLanguage, setSelectedLanguage] = useState<'sub' | 'dub'>('sub');
-  const [activeQuality, setActiveQuality] = useState<'1080p' | '720p' | '480p'>('1080p');
-  const [activeSpeed, setActiveSpeed] = useState<number>(1.0);
-  const [subtitlesEnabled, setSubtitlesEnabled] = useState<boolean>(true);
+  const [selectedLanguage, setSelectedLanguage] = useState<'sub' | 'dub'>(savedSettings.audioLanguage);
+  const [activeQuality, setActiveQuality] = useState<'1080p' | '720p' | '480p'>(savedSettings.quality);
+  const [activeSpeed, setActiveSpeed] = useState<number>(savedSettings.speed);
+  const [subtitlesEnabled, setSubtitlesEnabled] = useState<boolean>(savedSettings.subtitlesEnabled);
 
   // Settings Modal State
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
   const [activeSettingsTab, setActiveSettingsTab] = useState<'playback' | 'subtitles' | 'source' | 'shortcuts'>('playback');
 
   // Subtitle Customization Settings
-  const [subtitleSize, setSubtitleSize] = useState<'small' | 'medium' | 'large'>('medium');
-  const [subtitleColor, setSubtitleColor] = useState<string>('#facc15'); // default anime yellow
-  const [subtitleBg, setSubtitleBg] = useState<'transparent' | 'solid' | 'none'>('transparent');
-  const [subtitleLang, setSubtitleLang] = useState<string>('English');
+  const [subtitleSize, setSubtitleSize] = useState<'small' | 'medium' | 'large'>(savedSettings.subtitleSize);
+  const [subtitleColor, setSubtitleColor] = useState<string>(savedSettings.subtitleColor);
+  const [subtitleBg, setSubtitleBg] = useState<'transparent' | 'solid' | 'none'>(savedSettings.subtitleBg);
+  const [subtitleLang, setSubtitleLang] = useState<string>(savedSettings.subtitleLang);
 
   // Playback Features
-  const [autoPlayNext, setAutoPlayNext] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('animesenpai_autoplay') !== 'false';
-    } catch {
-      return true;
-    }
-  });
-  const [autoSkipIntro, setAutoSkipIntro] = useState<boolean>(false);
-  const [autoMarkWatched, setAutoMarkWatched] = useState<boolean>(true);
+  const [autoPlayNext, setAutoPlayNext] = useState<boolean>(savedSettings.autoPlayNext);
+  const [autoSkipIntro, setAutoSkipIntro] = useState<boolean>(savedSettings.autoSkipIntro);
+  const [autoMarkWatched, setAutoMarkWatched] = useState<boolean>(savedSettings.autoMarkWatched);
 
   // Custom Real Anime Stream URL
   const [customStreamInput, setCustomStreamInput] = useState<string>('');
@@ -188,10 +191,7 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
   // Handle Passcode Unlock
   const handlePasscodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passcode.trim() === '111111') {
-      try {
-        sessionStorage.setItem('animesenpai_stream_unlocked', 'true');
-      } catch {}
+    if (unlockStreamVault(passcode)) {
       setIsUnlocked(true);
       setPasscodeError('');
     } else {
@@ -201,9 +201,7 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
 
   // Re-lock
   const handleLock = () => {
-    try {
-      sessionStorage.removeItem('animesenpai_stream_unlocked');
-    } catch {}
+    lockStreamVault();
     setIsUnlocked(false);
     setPasscode('');
     setPasscodeError('');
@@ -212,6 +210,38 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
     }
     setShowSettingsModal(false);
   };
+
+  // HLS.js streaming support for .m3u8 playlists
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !currentVideoSrc) return;
+
+    let hls: Hls | null = null;
+
+    if (currentVideoSrc.includes('.m3u8')) {
+      if (Hls.isSupported()) {
+        hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+        });
+        hls.loadSource(currentVideoSrc);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (isPlaying) video.play().catch(() => {});
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = currentVideoSrc;
+      }
+    } else {
+      video.src = currentVideoSrc;
+    }
+
+    return () => {
+      if (hls) {
+        hls.destroy();
+      }
+    };
+  }, [currentVideoSrc]);
 
   // 1-Click Direct Download Handler
   const handleOneClickDownload = () => {
@@ -304,6 +334,7 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
 
   const handleSpeedChange = (speed: number) => {
     setActiveSpeed(speed);
+    saveStreamSettings({ speed });
     if (videoRef.current) {
       videoRef.current.playbackRate = speed;
     }
@@ -314,6 +345,7 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
     const currentPos = videoRef.current.currentTime;
     const wasPlaying = !videoRef.current.paused;
     setActiveQuality(quality);
+    saveStreamSettings({ quality });
 
     setTimeout(() => {
       if (videoRef.current) {

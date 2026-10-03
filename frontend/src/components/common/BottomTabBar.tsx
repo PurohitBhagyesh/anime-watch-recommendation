@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { TrendingUp, Compass, Bookmark, User, LogIn } from 'lucide-react';
+import { TrendingUp, Compass, Bookmark, Tv, User, LogIn } from 'lucide-react';
 import { useWatchlist } from '../../context/WatchlistContext';
 import { useAuth } from '../../context/AuthContext';
 
@@ -13,9 +13,10 @@ export const BottomTabBar: React.FC = () => {
     { label: 'Home', path: '/', icon: TrendingUp },
     { label: 'Discover', path: '/discover', icon: Compass },
     { label: 'Watchlist', path: '/watchlist', icon: Bookmark, badge: watchlist.length },
+    { label: 'Stream', path: '/stream', icon: Tv },
     {
       label: isAuthenticated ? (user?.username || 'Profile') : 'Login',
-      path: isAuthenticated ? '/watchlist' : '/login',
+      path: isAuthenticated ? '/account' : '/login',
       icon: isAuthenticated ? User : LogIn,
       isAvatar: isAuthenticated && !!user?.avatar,
       avatarUrl: user?.avatar,
@@ -29,7 +30,7 @@ export const BottomTabBar: React.FC = () => {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden anilist-nav border-t border-white/[0.08] backdrop-blur-xl pb-[max(env(safe-area-inset-bottom),6px)]">
-      <div className="grid grid-cols-4 h-14 max-w-md mx-auto items-center px-2">
+      <div className="grid grid-cols-5 h-14 max-w-md mx-auto items-center px-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = isActive(tab.path);
