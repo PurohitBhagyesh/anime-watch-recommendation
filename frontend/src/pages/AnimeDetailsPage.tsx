@@ -27,6 +27,7 @@ import { CharacterGrid } from '../components/anime/CharacterGrid';
 import { EpisodesGrid } from '../components/anime/EpisodesGrid';
 import { RelationsGrid } from '../components/anime/RelationsGrid';
 import { RecommendationsGrid } from '../components/anime/RecommendationsGrid';
+import { AnimeStreamPlayer } from '../components/anime/AnimeStreamPlayer';
 import { DetailsSkeleton } from '../components/common/Skeleton';
 import { useWatchlist } from '../context/WatchlistContext';
 import { useSEO, SITE_URL } from '../utils/seo';
@@ -39,7 +40,8 @@ export const AnimeDetailsPage: React.FC = () => {
   const [showFullSynopsis, setShowFullSynopsis] = useState(false);
   const [trailerModalOpen, setTrailerModalOpen] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'characters' | 'episodes' | 'relations' | 'recommendations'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'stream' | 'characters' | 'episodes' | 'relations' | 'recommendations'>('overview');
+  const [selectedStreamEpisode, setSelectedStreamEpisode] = useState<number>(1);
 
   const {
     isInWatchlist,
@@ -508,10 +510,24 @@ export const AnimeDetailsPage: React.FC = () => {
 
               {/* Action Buttons Bar */}
               <div className="flex flex-wrap items-center gap-2.5 pt-2">
+                <button
+                  onClick={() => {
+                    setActiveTab('stream');
+                    setTimeout(() => {
+                      const el = document.getElementById('anime-stream-section');
+                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }, 50);
+                  }}
+                  className="anilist-btn-primary flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-black shadow-lg shadow-[#3db4f2]/20 hover:shadow-[#3db4f2]/40 transition active:scale-95"
+                >
+                  <Tv className="w-4 h-4" />
+                  <span>Stream Anime</span>
+                </button>
+
                 {anime.trailer?.id && (
                   <button
                     onClick={() => setTrailerModalOpen(true)}
-                    className="anilist-btn-primary flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold"
+                    className="anilist-btn-secondary flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-bold border border-white/10"
                   >
                     <Play className="w-4 h-4 fill-white" />
                     <span>Watch Trailer</span>
@@ -565,6 +581,7 @@ export const AnimeDetailsPage: React.FC = () => {
             <div className="flex items-center gap-1 p-1 rounded-xl bg-[#151f2e] border border-white/10 overflow-x-auto no-scrollbar touch-scroll-smooth flex-nowrap sm:flex-wrap">
               {[
                 { id: 'overview', label: 'Overview', icon: Sparkles },
+                { id: 'stream', label: 'Watch Stream', icon: Tv },
                 { id: 'characters', label: `Characters (${anime.characters?.edges?.length || 0})`, icon: Users },
                 { id: 'episodes', label: `Episodes (${anime.streamingEpisodes?.length || anime.episodes || 0})`, icon: Tv },
                 { id: 'relations', label: `Relations (${anime.relations?.edges?.length || 0})`, icon: GitFork },
@@ -605,6 +622,16 @@ export const AnimeDetailsPage: React.FC = () => {
               </div>
             )}
 
+            {activeTab === 'stream' && (
+              <div id="anime-stream-section" className="space-y-6 animate-fadeIn">
+                <AnimeStreamPlayer
+                  anime={anime}
+                  initialEpisode={selectedStreamEpisode}
+                  onEpisodeChange={setSelectedStreamEpisode}
+                />
+              </div>
+            )}
+
             {activeTab === 'characters' && (
               <div className="space-y-6 animate-fadeIn">
                 <CharacterGrid characters={anime.characters?.edges || []} />
@@ -616,6 +643,14 @@ export const AnimeDetailsPage: React.FC = () => {
                 <EpisodesGrid
                   episodes={anime.streamingEpisodes || []}
                   totalEpisodes={anime.episodes}
+                  onSelectEpisode={(ep) => {
+                    setSelectedStreamEpisode(ep);
+                    setActiveTab('stream');
+                    setTimeout(() => {
+                      const el = document.getElementById('anime-stream-section');
+                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }, 50);
+                  }}
                 />
               </div>
             )}
