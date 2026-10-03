@@ -25,6 +25,7 @@ export function getCurrentSeason(): { season: AnimeSeason; year: number } {
 // Common Fragment for Anime Cards
 const CARD_FRAGMENT = `
   id
+  idMal
   title {
     romaji
     english

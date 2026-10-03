@@ -5,9 +5,10 @@ import type { StreamingEpisode } from '../../api/types';
 interface EpisodesGridProps {
   episodes: StreamingEpisode[];
   totalEpisodes?: number | null;
+  onSelectEpisode?: (episodeNumber: number) => void;
 }
 
-export const EpisodesGrid: React.FC<EpisodesGridProps> = ({ episodes, totalEpisodes }) => {
+export const EpisodesGrid: React.FC<EpisodesGridProps> = ({ episodes, totalEpisodes, onSelectEpisode }) => {
   if (!episodes || episodes.length === 0) {
     return (
       <div className="space-y-3">
@@ -41,12 +42,10 @@ export const EpisodesGrid: React.FC<EpisodesGridProps> = ({ episodes, totalEpiso
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {episodes.map((ep, idx) => (
-          <a
+          <div
             key={`${ep.url}-${idx}`}
-            href={ep.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group block rounded-xl anilist-card overflow-hidden transition-all"
+            onClick={() => onSelectEpisode ? onSelectEpisode(idx + 1) : window.open(ep.url, '_blank')}
+            className="group block rounded-xl anilist-card overflow-hidden transition-all cursor-pointer"
           >
             {/* Episode Thumbnail */}
             <div className="relative aspect-video w-full bg-[#0b1622] overflow-hidden">
@@ -87,7 +86,7 @@ export const EpisodesGrid: React.FC<EpisodesGridProps> = ({ episodes, totalEpiso
                 <ExternalLink className="w-3 h-3 opacity-60" />
               </div>
             </div>
-          </a>
+          </div>
         ))}
       </div>
     </div>

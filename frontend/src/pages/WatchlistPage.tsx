@@ -17,6 +17,7 @@ import {
   LayoutGrid,
   List,
   BarChart3,
+  Tv,
 } from 'lucide-react';
 import { useWatchlist } from '../context/WatchlistContext';
 import { useAuth } from '../context/AuthContext';
@@ -520,6 +521,17 @@ export const WatchlistPage: React.FC = () => {
                         ))}
                       </select>
                     </div>
+
+                    {/* Quick Stream Action (Mobile) */}
+                    <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-2">
+                      <Link
+                        to={`/anime/${anime.id}?tab=stream&episode=${item.currentEpisode || 1}`}
+                        className="flex-1 py-1.5 px-3 rounded-lg bg-[#3db4f2]/15 hover:bg-[#3db4f2] text-[#3db4f2] hover:text-black font-bold text-xs flex items-center justify-center gap-1.5 transition border border-[#3db4f2]/30 active:scale-95"
+                      >
+                        <Tv className="w-3.5 h-3.5" />
+                        <span>Stream Ep {item.currentEpisode || 1} (Ad-Free)</span>
+                      </Link>
+                    </div>
                   </div>
 
                   {/* Tablet & Desktop Layout (>= 640px) */}
@@ -546,10 +558,20 @@ export const WatchlistPage: React.FC = () => {
                         >
                           {title}
                         </Link>
-                        <p className="text-[10px] text-[#8ba0b2] mt-0.5">
-                          {anime.format?.replace('_', ' ') || 'Anime'} · {anime.seasonYear || 'TBA'} ·{' '}
-                          {anime.episodes ? `${anime.episodes} eps` : 'Airing'}
-                        </p>
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <p className="text-[10px] text-[#8ba0b2]">
+                            {anime.format?.replace('_', ' ') || 'Anime'} · {anime.seasonYear || 'TBA'} ·{' '}
+                            {anime.episodes ? `${anime.episodes} eps` : 'Airing'}
+                          </p>
+                          <Link
+                            to={`/anime/${anime.id}?tab=stream&episode=${item.currentEpisode || 1}`}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#3db4f2]/15 hover:bg-[#3db4f2] text-[#3db4f2] hover:text-black font-bold text-[10px] transition border border-[#3db4f2]/30 active:scale-95"
+                            title="Stream episode without ads"
+                          >
+                            <Tv className="w-2.5 h-2.5" />
+                            <span>Stream Ep {item.currentEpisode || 1}</span>
+                          </Link>
+                        </div>
                       </div>
                     </div>
 
@@ -757,6 +779,16 @@ export const WatchlistPage: React.FC = () => {
                         ))}
                       </select>
                     </div>
+
+                    {/* Stream Action (Grid) */}
+                    <Link
+                      to={`/anime/${anime.id}?tab=stream&episode=${item.currentEpisode || 1}`}
+                      className="w-full mt-2 py-1.5 px-2 rounded-lg bg-gradient-to-r from-[#3db4f2] to-[#2ba2e0] hover:brightness-110 text-black font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-[#3db4f2]/20 active:scale-95 transition"
+                      title="Stream episode without ads"
+                    >
+                      <Tv className="w-3.5 h-3.5" />
+                      <span>Stream Ep {item.currentEpisode || 1}</span>
+                    </Link>
                   </div>
                 </div>
               );

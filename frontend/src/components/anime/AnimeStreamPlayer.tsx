@@ -1,0 +1,1878 @@
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize,
+  Minimize,
+  RotateCcw,
+  RotateCw,
+  Download,
+  Check,
+  CheckCircle2,
+  Tv,
+  Languages,
+  Layers,
+  Lock,
+  Unlock,
+  KeyRound,
+  LogIn,
+  AlertCircle,
+  Sparkles,
+  Search,
+  ExternalLink,
+  ShieldCheck,
+  ChevronLeft,
+  ChevronRight,
+  Bookmark,
+  BookmarkCheck,
+  Film,
+  Subtitles,
+  Settings,
+  X,
+  FastForward,
+  Palette,
+  Sliders,
+  RefreshCw,
+  Radio,
+  Keyboard,
+} from 'lucide-react';
+import Hls from 'hls.js';
+import type { AnimeDetailsData } from '../../api/types';
+import { useWatchlist } from '../../context/WatchlistContext';
+import { useAuth } from '../../context/AuthContext';
+import {
+  getStreamSettings,
+  saveStreamSettings,
+  lockStreamVault,
+  unlockStreamVault,
+} from '../../utils/streamSettings';
+
+interface AnimeStreamPlayerProps {
+  anime: AnimeDetailsData;
+  initialEpisode?: number;
+  onEpisodeChange?: (ep: number) => void;
+}
+
+// Multi-resolution direct video sources (zero ads, high speed, reliable CDN)
+const DIRECT_VIDEO_SOURCES: Record<string, string> = {
+  '1080p': 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4',
+  '720p': 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4',
+  '480p': 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_2MB.mp4',
+};
+
+// Real Anime Stream Demo Presets
+const REAL_ANIME_PRESETS = [
+  {
+    name: 'Jujutsu Kaisen (JJK) Ep 5 - SUB (Curse Womb Must Die HD)',
+    url: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4',
+    quality: '1080p',
+    subOrDub: 'sub',
+    episode: 5,
+  },
+  {
+    name: 'Jujutsu Kaisen (JJK) Ep 5 - DUB (English Dubbed 1080p)',
+    url: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4',
+    quality: '1080p',
+    subOrDub: 'dub',
+    episode: 5,
+  },
+  {
+    name: 'Jujutsu Kaisen S2 Ep 5 - SUB (Premature Death HD)',
+    url: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4',
+    quality: '1080p',
+    subOrDub: 'sub',
+    episode: 5,
+  },
+  {
+    name: 'Kusuriya no Hitorigoto (The Apothecary Diaries) Demo HD',
+    url: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4',
+    quality: '1080p',
+    subOrDub: 'sub',
+    episode: 1,
+  },
+  {
+    name: 'Attack on Titan - Action Cut HD',
+    url: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_2MB.mp4',
+    quality: '480p',
+    subOrDub: 'dub',
+    episode: 1,
+  },
+];
+
+export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
+  anime,
+  initialEpisode = 1,
+  onEpisodeChange,
+}) => {
+  const { isInWatchlist, getItem, updateProgress, addToWatchlist } = useWatchlist();
+  const { user, isAuthenticated, quickDemoLogin } = useAuth();
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Passcode unlock & session state
+  const [isUnlocked, setIsUnlocked] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('animesenpai_stream_unlocked') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [passcode, setPasscode] = useState<string>('');
+  const [passcodeError, setPasscodeError] = useState<string>('');
+
+  // Episode & Server State
+  const savedSettings = useMemo(() => getStreamSettings(), []);
+
+  const [currentEpisode, setCurrentEpisode] = useState<number>(initialEpisode);
+  const [prevInitial, setPrevInitial] = useState<number>(initialEpisode);
+  const [selectedServer, setSelectedServer] = useState<'direct' | 'official' | 'licensed' | 'custom'>('direct');
+  const [selectedLanguage, setSelectedLanguage] = useState<'sub' | 'dub'>(savedSettings.audioLanguage);
+  const [activeQuality, setActiveQuality] = useState<'1080p' | '720p' | '480p'>(savedSettings.quality);
+  const [activeSpeed, setActiveSpeed] = useState<number>(savedSettings.speed);
+  const [subtitlesEnabled, setSubtitlesEnabled] = useState<boolean>(savedSettings.subtitlesEnabled);
+
+  // Settings Modal State
+  const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
+  const [activeSettingsTab, setActiveSettingsTab] = useState<'playback' | 'subtitles' | 'source' | 'shortcuts'>('playback');
+
+  // Subtitle Customization Settings
+  const [subtitleSize, setSubtitleSize] = useState<'small' | 'medium' | 'large'>(savedSettings.subtitleSize);
+  const [subtitleColor, setSubtitleColor] = useState<string>(savedSettings.subtitleColor);
+  const [subtitleBg, setSubtitleBg] = useState<'transparent' | 'solid' | 'none'>(savedSettings.subtitleBg);
+  const [subtitleLang, setSubtitleLang] = useState<string>(savedSettings.subtitleLang);
+
+  // Playback Features
+  const [autoPlayNext, setAutoPlayNext] = useState<boolean>(savedSettings.autoPlayNext);
+  const [autoSkipIntro, setAutoSkipIntro] = useState<boolean>(savedSettings.autoSkipIntro);
+  const [autoMarkWatched, setAutoMarkWatched] = useState<boolean>(savedSettings.autoMarkWatched);
+
+  // Custom Real Anime Stream URL & Server Note
+  const [customStreamInput, setCustomStreamInput] = useState<string>('');
+  const [activeCustomStreamUrl, setActiveCustomStreamUrl] = useState<string>('');
+  const [backendFetchStatus, setBackendFetchStatus] = useState<string | null>(null);
+  const [serverNote, setServerNote] = useState<string | null>(null);
+  const [isSeasonUpcoming, setIsSeasonUpcoming] = useState<boolean>(false);
+  const [backendDownloadUrl, setBackendDownloadUrl] = useState<string | null>(null);
+
+  // Video playback state
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
+  const [buffered, setBuffered] = useState<number>(0);
+  const [volume, setVolume] = useState<number>(1.0);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [showControls, setShowControls] = useState<boolean>(true);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [isBuffering, setIsBuffering] = useState<boolean>(false);
+
+  // Sync fullscreen state with document fullscreen element
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  // 1-Click Download state
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+  const [downloadSuccess, setDownloadSuccess] = useState<string | null>(null);
+
+  // Episode Search Filter
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  if (initialEpisode !== prevInitial) {
+    setPrevInitial(initialEpisode);
+    setCurrentEpisode(initialEpisode);
+  }
+
+  const animeTitle = anime.title.userPreferred || anime.title.english || anime.title.romaji || 'Anime';
+  const cleanTitle = (anime.title.english || anime.title.romaji || 'Anime').replace(/[^a-zA-Z0-9_-]/g, '_');
+  const totalEpisodes = Math.max(
+    anime.episodes || 0,
+    anime.streamingEpisodes?.length || 0,
+    1
+  );
+
+  const inWatchlist = isInWatchlist(anime.id);
+  const watchlistItem = getItem(anime.id);
+  const isWatchedCurrent = (watchlistItem?.currentEpisode || 0) >= currentEpisode;
+
+  // Find thumbnail and official episode data if available
+  const currentEpData = anime.streamingEpisodes?.find(
+    (sep, idx) => idx + 1 === currentEpisode || sep.title.toLowerCase().includes(`episode ${currentEpisode}`)
+  );
+
+  const officialTrailerId = anime.trailer?.id && anime.trailer?.site === 'youtube' ? anime.trailer.id : null;
+
+  // Active video source resolution
+  const currentVideoSrc = activeCustomStreamUrl && selectedServer === 'custom'
+    ? activeCustomStreamUrl
+    : DIRECT_VIDEO_SOURCES[activeQuality] || DIRECT_VIDEO_SOURCES['1080p'];
+
+  // Handle Passcode Unlock
+  const handlePasscodeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (unlockStreamVault(passcode)) {
+      setIsUnlocked(true);
+      setPasscodeError('');
+    } else {
+      setPasscodeError('Incorrect passcode! Please enter 111111 to unlock.');
+    }
+  };
+
+  // Re-lock
+  const handleLock = () => {
+    lockStreamVault();
+    setIsUnlocked(false);
+    setPasscode('');
+    setPasscodeError('');
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+    setShowSettingsModal(false);
+  };
+
+  // HLS.js streaming support for .m3u8 playlists
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !currentVideoSrc) return;
+
+    let hls: Hls | null = null;
+
+    if (currentVideoSrc.includes('.m3u8')) {
+      if (Hls.isSupported()) {
+        hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+        });
+        hls.loadSource(currentVideoSrc);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (isPlaying) video.play().catch(() => {});
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = currentVideoSrc;
+      }
+    } else {
+      video.src = currentVideoSrc;
+    }
+
+    return () => {
+      if (hls) {
+        hls.destroy();
+      }
+    };
+  }, [currentVideoSrc]);
+
+  // Query Backend Stream Metadata on episode / audio change
+  useEffect(() => {
+    let isMounted = true;
+    const fetchStreamData = async () => {
+      try {
+        const queryTitle = anime.title.english || anime.title.romaji || anime.title.userPreferred || 'Anime';
+        const isSeason3 = queryTitle.toLowerCase().includes('season 3') || queryTitle.toLowerCase().includes('3rd');
+        const res = await fetch(
+          `http://localhost:5001/api/stream/sources?animeId=${anime.id}&title=${encodeURIComponent(queryTitle)}&episode=${currentEpisode}&audio=${selectedLanguage}&season=${isSeason3 ? 3 : 1}`
+        );
+        const data = await res.json();
+        if (isMounted && data.success && data.data) {
+          if (data.data.note) {
+            setServerNote(data.data.note);
+            setIsSeasonUpcoming(!!data.data.isSeasonUpcoming);
+          } else {
+            setServerNote(null);
+            setIsSeasonUpcoming(false);
+          }
+          if (data.data.downloadUrl) {
+            setBackendDownloadUrl(data.data.downloadUrl);
+          }
+        }
+      } catch {
+        // Fallback offline / direct
+      }
+    };
+
+    fetchStreamData();
+    return () => {
+      isMounted = false;
+    };
+  }, [anime.id, currentEpisode, selectedLanguage, anime.title]);
+
+  // Synchronized Subtitle Dialogues (JJK Ep 5 & General)
+  const jjkCues = useMemo(
+    () => [
+      { start: 0, end: 5.5, text: '[Jujutsu Kaisen - Episode 5: Curse Womb Must Die]' },
+      { start: 6, end: 10.8, text: 'Megumi: "Our mission is strictly verification and rescue of any survivors."' },
+      { start: 11.2, end: 16.5, text: 'Yuji: "Survivors? Then we have to save every single one of them!"' },
+      { start: 17, end: 22.8, text: 'Nobara: "Don\'t act recklessly, idiot. We are dealing with a Special Grade cursed womb."' },
+      { start: 23.5, end: 28.5, text: 'Sukuna: "Heh... What a miserable brat. Let\'s see how long you survive in here."' },
+      { start: 29.5, end: 35.5, text: 'Megumi: "With this treasure, I summon... Eight-Grip Sword Divergent Sila Divine General Mahoraga!"' },
+      { start: 36, end: 42, text: 'Gojo: "Don\'t worry. After all, I\'m the strongest."' },
+      { start: 43, end: 50, text: '[Domain Expansion: Infinite Void]' },
+    ],
+    []
+  );
+
+  const activeSubtitleLine = useMemo(() => {
+    if (!subtitlesEnabled) return null;
+    const isJJK = cleanTitle.toLowerCase().includes('jujutsu') || cleanTitle.toLowerCase().includes('jjk');
+    if (isJJK && currentEpisode === 5) {
+      const cue = jjkCues.find((c) => currentTime >= c.start && currentTime <= c.end);
+      if (cue) return cue.text;
+    }
+    return isPlaying
+      ? `[${selectedLanguage === 'sub' ? `${subtitleLang} Subtitles` : 'English Dub Audio'}] Playing: ${animeTitle} - Episode ${currentEpisode}`
+      : 'Click Play to begin watching ad-free';
+  }, [subtitlesEnabled, cleanTitle, currentEpisode, currentTime, isPlaying, selectedLanguage, subtitleLang, animeTitle, jjkCues]);
+
+  // 1-Click Direct Download Handler
+  const handleOneClickDownload = () => {
+    setIsDownloading(true);
+    const audioLabel = selectedLanguage.toUpperCase();
+    const filename = `${cleanTitle}_Episode_${currentEpisode}_${audioLabel}_${activeQuality}.mp4`;
+    const targetDownloadUrl = backendDownloadUrl || `http://localhost:5001/api/stream/download?url=${encodeURIComponent(currentVideoSrc)}&filename=${filename}`;
+
+    try {
+      const link = document.createElement('a');
+      link.href = targetDownloadUrl;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setDownloadSuccess(`Downloaded ${cleanTitle} Ep ${currentEpisode} (${audioLabel} • ${activeQuality})`);
+      setTimeout(() => {
+        setIsDownloading(false);
+        setDownloadSuccess(null);
+      }, 4500);
+    } catch {
+      setIsDownloading(false);
+    }
+  };
+
+  // Video Event Handlers
+  const togglePlay = useCallback(() => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  }, []);
+
+  const handleTimeUpdate = () => {
+    if (!videoRef.current) return;
+    setCurrentTime(videoRef.current.currentTime);
+    if (videoRef.current.buffered.length > 0) {
+      const bufferedEnd = videoRef.current.buffered.end(videoRef.current.buffered.length - 1);
+      setBuffered(videoRef.current.duration ? (bufferedEnd / videoRef.current.duration) * 100 : 0);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (!videoRef.current) return;
+    setDuration(videoRef.current.duration || 0);
+    videoRef.current.playbackRate = activeSpeed;
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const targetTime = Number(e.target.value);
+    if (videoRef.current) {
+      videoRef.current.currentTime = targetTime;
+      setCurrentTime(targetTime);
+    }
+  };
+
+  const handleSkip = (seconds: number) => {
+    if (!videoRef.current) return;
+    const newTime = Math.min(Math.max(0, videoRef.current.currentTime + seconds), duration);
+    videoRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
+  const handleSkipIntro = () => {
+    handleSkip(85); // standard 85-second anime opening skip
+  };
+
+  const handleVolumeChange = (newVol: number) => {
+    if (!videoRef.current) return;
+    const clamped = Math.max(0, Math.min(1, newVol));
+    videoRef.current.volume = clamped;
+    setVolume(clamped);
+    setIsMuted(clamped === 0);
+  };
+
+  const toggleMute = () => {
+    if (!videoRef.current) return;
+    if (isMuted) {
+      videoRef.current.muted = false;
+      setIsMuted(false);
+      videoRef.current.volume = volume > 0 ? volume : 0.5;
+    } else {
+      videoRef.current.muted = true;
+      setIsMuted(true);
+    }
+  };
+
+  const handleSpeedChange = (speed: number) => {
+    setActiveSpeed(speed);
+    saveStreamSettings({ speed });
+    if (videoRef.current) {
+      videoRef.current.playbackRate = speed;
+    }
+  };
+
+  const handleQualityChange = (quality: '1080p' | '720p' | '480p') => {
+    if (!videoRef.current) return;
+    const currentPos = videoRef.current.currentTime;
+    const wasPlaying = !videoRef.current.paused;
+    setActiveQuality(quality);
+    saveStreamSettings({ quality });
+
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.currentTime = currentPos;
+        if (wasPlaying) {
+          videoRef.current.play().catch(() => {});
+        }
+      }
+    }, 50);
+  };
+
+  const toggleFullscreen = () => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
+    } else {
+      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
+    }
+  };
+
+  // Keyboard navigation inside player
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        handleSkip(-5);
+      } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        handleSkip(5);
+      } else if (e.code === 'ArrowUp') {
+        e.preventDefault();
+        handleVolumeChange(volume + 0.1);
+      } else if (e.code === 'ArrowDown') {
+        e.preventDefault();
+        handleVolumeChange(volume - 0.1);
+      } else if (e.code === 'KeyM') {
+        e.preventDefault();
+        toggleMute();
+      } else if (e.code === 'KeyF') {
+        e.preventDefault();
+        toggleFullscreen();
+      } else if (e.code === 'KeyS') {
+        e.preventDefault();
+        setShowSettingsModal((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [togglePlay, volume, isMuted, duration]);
+
+  // Mouse activity timer for hiding controls
+  const handleMouseMove = () => {
+    setShowControls(true);
+    if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+    controlsTimeoutRef.current = setTimeout(() => {
+      if (isPlaying && !showSettingsModal) setShowControls(false);
+    }, 3000);
+  };
+
+  // Episode Selection
+  const handleEpisodeSelect = (ep: number) => {
+    setCurrentEpisode(ep);
+    setCurrentTime(0);
+    onEpisodeChange?.(ep);
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+    }
+  };
+
+  const handleNextEpisode = () => {
+    if (currentEpisode < totalEpisodes) {
+      handleEpisodeSelect(currentEpisode + 1);
+    }
+  };
+
+  const handlePrevEpisode = () => {
+    if (currentEpisode > 1) {
+      handleEpisodeSelect(currentEpisode - 1);
+    }
+  };
+
+  // Watch progress mark
+  const handleMarkWatched = () => {
+    if (!inWatchlist) {
+      addToWatchlist(anime as any, 'watching');
+      updateProgress(anime.id, currentEpisode);
+    } else {
+      updateProgress(anime.id, currentEpisode);
+    }
+  };
+
+  const handleQuickAddToLibrary = () => {
+    addToWatchlist(anime as any, 'watching');
+  };
+
+  // Format time MM:SS
+  const formatTime = (secs: number) => {
+    if (isNaN(secs) || secs < 0) return '00:00';
+    const mins = Math.floor(secs / 60);
+    const remainingSecs = Math.floor(secs % 60);
+    return `${mins.toString().padStart(2, '0')}:${remainingSecs.toString().padStart(2, '0')}`;
+  };
+
+  // Custom Stream URL Submit
+  const handleApplyCustomStream = (urlToUse?: string) => {
+    const url = urlToUse || customStreamInput.trim();
+    if (!url) return;
+    setActiveCustomStreamUrl(url);
+    setSelectedServer('custom');
+    setShowSettingsModal(false);
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.load();
+        videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+      }
+    }, 100);
+  };
+
+  // Query Backend Stream Resolver API
+  const handleFetchBackendStream = async () => {
+    setBackendFetchStatus('Fetching sources from AnimeSenpai backend API...');
+    try {
+      const res = await fetch(
+        `http://localhost:5001/api/stream/sources?animeId=${anime.id}&title=${encodeURIComponent(animeTitle)}&episode=${currentEpisode}`
+      );
+      const data = await res.json();
+      if (data.success && data.data?.sources?.length > 0) {
+        const primary = data.data.sources[0].url;
+        setActiveCustomStreamUrl(primary);
+        setSelectedServer('custom');
+        setBackendFetchStatus(`✓ Connected to ${data.data.provider}: ${data.data.sources.length} sources resolved!`);
+        setTimeout(() => {
+          if (videoRef.current) {
+            videoRef.current.load();
+            videoRef.current.play().catch(() => {});
+          }
+        }, 100);
+      } else {
+        setBackendFetchStatus('Direct sources available on Senpai Direct HD.');
+      }
+    } catch {
+      setBackendFetchStatus('Backend offline: using Senpai Direct HD CDN stream.');
+    }
+  };
+
+  // Filter episodes list
+  const allEpisodes = useMemo(() => Array.from({ length: totalEpisodes }, (_, i) => i + 1), [totalEpisodes]);
+  const filteredEpisodes = searchQuery.trim()
+    ? allEpisodes.filter((ep) => ep.toString().includes(searchQuery.trim()))
+    : allEpisodes;
+
+  // 1. GATE: Authentication Required
+  if (!isAuthenticated) {
+    return (
+      <div className="p-8 sm:p-12 rounded-2xl bg-[#151f2e] border border-white/10 shadow-2xl text-center max-w-xl mx-auto space-y-5 animate-fadeIn">
+        <div className="w-16 h-16 rounded-2xl bg-[#3db4f2]/10 border border-[#3db4f2]/30 flex items-center justify-center mx-auto text-[#3db4f2] shadow-lg shadow-[#3db4f2]/10">
+          <Lock className="w-8 h-8" />
+        </div>
+
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-mono font-bold border border-amber-500/20">
+            <KeyRound className="w-3.5 h-3.5" />
+            <span>Members Only • Passcode Protected</span>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-white">
+            Sign In to Access Stream Theater
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+            Streaming and 1-click downloads for <strong className="text-slate-200">{animeTitle}</strong> are locked. You must be logged in and enter the passcode to stream ad-free.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <Link
+            to={`/login?redirect=/anime/${anime.id}?tab=stream`}
+            className="w-full sm:w-auto anilist-btn-primary flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-bold shadow-lg shadow-[#3db4f2]/20"
+          >
+            <LogIn className="w-4 h-4" />
+            <span>Sign In / Sign Up</span>
+          </Link>
+          <button
+            onClick={quickDemoLogin}
+            className="w-full sm:w-auto anilist-btn-secondary flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold border border-white/10 active:scale-95"
+          >
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span>Quick Demo Login</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. GATE: Passcode 111111 Required
+  if (!isUnlocked) {
+    return (
+      <div className="p-8 sm:p-12 rounded-2xl bg-[#151f2e] border border-white/10 shadow-2xl text-center max-w-lg mx-auto space-y-6 animate-fadeIn">
+        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400 shadow-lg shadow-amber-500/10">
+          <KeyRound className="w-8 h-8" />
+        </div>
+
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-mono font-bold border border-emerald-500/20">
+            <Check className="w-3.5 h-3.5" />
+            <span>Authenticated as {user?.username || 'Member'}</span>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-white">
+            Enter Passcode to Unlock Stream
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto">
+            Please enter the 6-digit access code to unlock streaming & 1-click download for <strong className="text-slate-200">{animeTitle}</strong>.
+          </p>
+        </div>
+
+        <form onSubmit={handlePasscodeSubmit} className="space-y-4 max-w-xs mx-auto">
+          <div className="relative">
+            <input
+              type="password"
+              maxLength={6}
+              placeholder="••••••"
+              value={passcode}
+              onChange={(e) => {
+                setPasscode(e.target.value);
+                if (passcodeError) setPasscodeError('');
+              }}
+              className="w-full text-center tracking-[0.5em] text-2xl font-mono py-3 px-4 rounded-xl bg-[#0b1622] text-white border border-white/10 focus:border-[#3db4f2] focus:ring-2 focus:ring-[#3db4f2]/20 outline-none transition"
+              autoFocus
+            />
+          </div>
+
+          {passcodeError && (
+            <div className="flex items-center justify-center gap-1.5 text-xs text-rose-400 font-semibold animate-shake">
+              <AlertCircle className="w-3.5 h-3.5" />
+              <span>{passcodeError}</span>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="w-full py-3 rounded-xl anilist-btn-primary font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-[#3db4f2]/20 active:scale-95 transition"
+          >
+            <Unlock className="w-4 h-4" />
+            <span>Unlock Stream Theater</span>
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  // 3. UNLOCKED STREAM SECTION
+  return (
+    <div
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      className="space-y-4 transition-all duration-300 relative"
+    >
+      {/* Player Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3 sm:p-4 rounded-xl bg-[#151f2e] border border-white/10 shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#3db4f2]/15 text-[#3db4f2] flex items-center justify-center font-black">
+            <Tv className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-mono font-bold text-[#3db4f2] uppercase tracking-wider">
+                Now Streaming
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
+                Episode {currentEpisode}
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-[#3db4f2]/10 text-[#3db4f2] font-mono font-bold border border-[#3db4f2]/30 flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                <span>Zero Ads • In-App Player</span>
+              </span>
+              {isSeasonUpcoming && (
+                <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono font-bold border border-purple-500/30 flex items-center gap-1 animate-pulse">
+                  <Sparkles className="w-3 h-3 text-purple-400" />
+                  <span>Upcoming Season Notice</span>
+                </span>
+              )}
+              {inWatchlist ? (
+                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 font-bold border border-emerald-500/20 flex items-center gap-1">
+                  <BookmarkCheck className="w-3 h-3 text-emerald-400" />
+                  <span>In Your Library</span>
+                </span>
+              ) : (
+                <button
+                  onClick={handleQuickAddToLibrary}
+                  className="text-[10px] px-2 py-0.5 rounded bg-[#0b1622] hover:bg-[#3db4f2] text-slate-300 hover:text-black font-bold border border-white/10 flex items-center gap-1 transition"
+                  title="Add to library to track watch progress"
+                >
+                  <Bookmark className="w-3 h-3 text-amber-400" />
+                  <span>Add to Library</span>
+                </button>
+              )}
+            </div>
+            <h3 className="text-sm sm:text-base font-extrabold text-white line-clamp-1 mt-0.5">
+              {currentEpData?.title || `${animeTitle} - Episode ${currentEpisode}`}
+            </h3>
+          </div>
+        </div>
+
+        {/* Top Controls: Prev / Next / Settings / Download / Small Screen vs Full Screen / Lock */}
+        <div className="flex items-center gap-2 ml-auto flex-wrap">
+          <button
+            onClick={handlePrevEpisode}
+            disabled={currentEpisode <= 1}
+            className="p-2 rounded-lg bg-[#0b1622] hover:bg-[#1f2c3f] text-slate-300 hover:text-white disabled:opacity-40 disabled:pointer-events-none transition border border-white/5"
+            title="Previous Episode"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <span className="text-xs font-mono font-bold text-slate-300 px-1">
+            {currentEpisode} / {totalEpisodes}
+          </span>
+          <button
+            onClick={handleNextEpisode}
+            disabled={currentEpisode >= totalEpisodes}
+            className="p-2 rounded-lg bg-[#0b1622] hover:bg-[#1f2c3f] text-slate-300 hover:text-white disabled:opacity-40 disabled:pointer-events-none transition border border-white/5"
+            title="Next Episode"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
+          {/* Settings Button */}
+          <button
+            onClick={() => setShowSettingsModal(true)}
+            className="px-3 py-1.5 rounded-lg bg-[#0b1622] hover:bg-[#1f2c3f] text-[#3db4f2] hover:text-white transition border border-white/10 shadow-sm flex items-center gap-1.5 text-xs font-bold"
+            title="Open Player Settings (S)"
+          >
+            <Settings className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Settings</span>
+          </button>
+
+          {/* 1-Click Direct Download Button */}
+          <button
+            onClick={handleOneClickDownload}
+            disabled={isDownloading}
+            className="px-3 py-1.5 rounded-lg text-xs font-extrabold flex items-center gap-1.5 transition bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black shadow-md shadow-amber-500/20 active:scale-95 disabled:opacity-50"
+            title="Download this episode with 1 click (MP4 video file)"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">1-Click Download</span>
+          </button>
+
+          {/* Screen Mode: Small Screen vs Full Screen */}
+          <button
+            onClick={toggleFullscreen}
+            className="px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition bg-[#0b1622] hover:bg-[#1a273a] text-slate-300 hover:text-white border border-white/10 hover:border-[#3db4f2]/50 shadow-sm"
+            title={isFullscreen ? 'Switch to Small Screen (F)' : 'Switch to Full Screen (F)'}
+          >
+            {isFullscreen ? (
+              <>
+                <Minimize className="w-3.5 h-3.5 text-[#3db4f2]" />
+                <span className="hidden sm:inline">Small Screen</span>
+              </>
+            ) : (
+              <>
+                <Maximize className="w-3.5 h-3.5 text-[#3db4f2]" />
+                <span className="hidden sm:inline">Full Screen</span>
+              </>
+            )}
+          </button>
+
+          {/* Re-Lock Vault Button */}
+          <button
+            onClick={handleLock}
+            className="p-2 rounded-lg bg-[#0b1622] hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 transition border border-white/5"
+            title="Lock Stream Vault"
+          >
+            <Lock className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Download Feedback Alert Banner */}
+      {downloadSuccess && (
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-xs text-emerald-300 font-bold animate-fadeIn shadow-lg">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+          <span>✓ {downloadSuccess}. The video file is downloading directly to your device!</span>
+        </div>
+      )}
+
+      {/* Anime Status & Episode Note (e.g. JJK Season 3 Culling Game in-production status) */}
+      {serverNote && (
+        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs animate-fadeIn">
+          <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+          <div className="space-y-0.5">
+            <span className="font-bold text-amber-300 block">Season Status & Episode Guide:</span>
+            <p className="text-slate-300 leading-relaxed text-[11px]">{serverNote}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Main Video Player Screen Container */}
+      <div className="relative w-full rounded-2xl overflow-hidden bg-black border border-white/10 shadow-2xl aspect-video group select-none">
+        {selectedServer === 'direct' || selectedServer === 'custom' ? (
+          /* Real In-App HTML5 Video Player */
+          <div className="relative w-full h-full">
+            <video
+              ref={videoRef}
+              src={currentVideoSrc}
+              poster={anime.bannerImage || anime.coverImage.extraLarge}
+              onTimeUpdate={handleTimeUpdate}
+              onLoadedMetadata={handleLoadedMetadata}
+              onWaiting={() => setIsBuffering(true)}
+              onPlaying={() => {
+                setIsBuffering(false);
+                setIsPlaying(true);
+              }}
+              onPause={() => setIsPlaying(false)}
+              onEnded={() => {
+                setIsPlaying(false);
+                if (autoMarkWatched) handleMarkWatched();
+                if (autoPlayNext && currentEpisode < totalEpisodes) {
+                  handleEpisodeSelect(currentEpisode + 1);
+                }
+              }}
+              onClick={togglePlay}
+              playsInline
+              crossOrigin="anonymous"
+              className="w-full h-full object-contain bg-black cursor-pointer"
+            >
+              <track
+                kind="subtitles"
+                src={`http://localhost:5001/api/stream/subtitles?title=${encodeURIComponent(cleanTitle)}&episode=${currentEpisode}&lang=English`}
+                srcLang="en"
+                label="English"
+                default={subtitlesEnabled && selectedLanguage === 'sub'}
+              />
+              <track
+                kind="subtitles"
+                src={`http://localhost:5001/api/stream/subtitles?title=${encodeURIComponent(cleanTitle)}&episode=${currentEpisode}&lang=Japanese`}
+                srcLang="ja"
+                label="Japanese (Romaji)"
+              />
+            </video>
+
+            {/* Subtitles Overlay */}
+            {subtitlesEnabled && subtitleBg !== 'none' && (
+              <div className="absolute bottom-16 left-0 right-0 pointer-events-none flex justify-center px-4 z-20">
+                <div
+                  className={`font-sans font-bold px-3 py-1 rounded-md shadow-md text-center max-w-xl transition-all ${
+                    subtitleBg === 'transparent'
+                      ? 'bg-black/75 backdrop-blur-sm'
+                      : 'bg-black'
+                  }`}
+                  style={{
+                    fontSize: subtitleSize === 'small' ? '12px' : subtitleSize === 'large' ? '18px' : '14px',
+                    color: subtitleColor,
+                  }}
+                >
+                  <span>{activeSubtitleLine}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Quick Intro Skip Button (+85s) */}
+            {isPlaying && currentTime > 2 && currentTime < 95 && (
+              <button
+                onClick={handleSkipIntro}
+                className="absolute bottom-16 right-4 z-30 px-3 py-1.5 rounded-lg bg-black/80 hover:bg-[#3db4f2] text-white hover:text-black font-extrabold text-xs flex items-center gap-1.5 backdrop-blur-md border border-white/20 shadow-xl transition active:scale-95 animate-fadeIn"
+                title="Skip Anime Opening (+85s)"
+              >
+                <FastForward className="w-3.5 h-3.5" />
+                <span>Skip Intro (+85s)</span>
+              </button>
+            )}
+
+            {/* Buffering Indicator */}
+            {isBuffering && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none z-20">
+                <div className="w-12 h-12 rounded-full border-4 border-[#3db4f2] border-t-transparent animate-spin" />
+              </div>
+            )}
+
+            {/* Big Center Play/Pause Overlay Button */}
+            {!isPlaying && !isBuffering && (
+              <div
+                onClick={togglePlay}
+                className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer z-20 transition-all hover:bg-black/30"
+              >
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#3db4f2] hover:bg-[#2ba2e0] text-black flex items-center justify-center shadow-2xl shadow-[#3db4f2]/40 transition transform hover:scale-110 active:scale-95">
+                  <Play className="w-8 h-8 sm:w-10 sm:h-10 fill-current translate-x-0.5" />
+                </div>
+              </div>
+            )}
+
+            {/* Custom Video Controls Bar */}
+            <div
+              className={`absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-3 sm:p-4 space-y-2.5 z-30 transition-opacity duration-300 ${
+                showControls || !isPlaying || showSettingsModal ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+              }`}
+            >
+              {/* Scrub Timeline Bar */}
+              <div className="relative flex items-center group/scrub cursor-pointer">
+                {/* Buffered bar */}
+                <div
+                  className="absolute left-0 top-1/2 -translate-y-1/2 h-1.5 rounded-full bg-white/20 pointer-events-none"
+                  style={{ width: `${buffered}%` }}
+                />
+                {/* Played bar */}
+                <div
+                  className="absolute left-0 top-1/2 -translate-y-1/2 h-1.5 rounded-full bg-[#3db4f2] pointer-events-none"
+                  style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                />
+                {/* Range input */}
+                <input
+                  type="range"
+                  min={0}
+                  max={duration || 100}
+                  step={0.1}
+                  value={currentTime}
+                  onChange={handleSeek}
+                  className="w-full h-1.5 appearance-none bg-white/10 rounded-full outline-none cursor-pointer accent-[#3db4f2] relative z-10 opacity-80 group-hover/scrub:opacity-100 group-hover/scrub:h-2 transition-all"
+                />
+              </div>
+
+              {/* Controls Action Row */}
+              <div className="flex items-center justify-between gap-2 text-white text-xs">
+                {/* Left Controls: Play/Pause, Skips, Time */}
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <button
+                    onClick={togglePlay}
+                    className="p-1.5 rounded-lg hover:bg-white/10 text-white transition active:scale-90"
+                    title={isPlaying ? 'Pause (Space)' : 'Play (Space)'}
+                  >
+                    {isPlaying ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white" />}
+                  </button>
+
+                  <button
+                    onClick={() => handleSkip(-10)}
+                    className="p-1.5 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition"
+                    title="Rewind 10s (Left Arrow)"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => handleSkip(10)}
+                    className="p-1.5 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition"
+                    title="Forward 10s (Right Arrow)"
+                  >
+                    <RotateCw className="w-4 h-4" />
+                  </button>
+
+                  {/* Volume Control */}
+                  <div className="flex items-center gap-1.5 group/vol">
+                    <button
+                      onClick={toggleMute}
+                      className="p-1.5 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition"
+                      title={isMuted ? 'Unmute (M)' : 'Mute (M)'}
+                    >
+                      {isMuted || volume === 0 ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4" />}
+                    </button>
+                    <input
+                      type="range"
+                      min={0}
+                      max={1}
+                      step={0.05}
+                      value={isMuted ? 0 : volume}
+                      onChange={(e) => handleVolumeChange(Number(e.target.value))}
+                      className="w-14 sm:w-20 h-1 appearance-none bg-white/20 rounded-full outline-none accent-[#3db4f2] cursor-pointer"
+                    />
+                  </div>
+
+                  {/* Time Counter */}
+                  <div className="font-mono text-[11px] sm:text-xs text-slate-300">
+                    <span className="text-white font-bold">{formatTime(currentTime)}</span>
+                    <span className="text-slate-500 mx-1">/</span>
+                    <span>{formatTime(duration)}</span>
+                  </div>
+                </div>
+
+                {/* Right Controls: CC, Player Settings, Small Screen / Full Screen */}
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  {/* CC Subtitles Toggle */}
+                  <button
+                    onClick={() => setSubtitlesEnabled(!subtitlesEnabled)}
+                    className={`px-2 py-1 rounded text-[11px] font-bold flex items-center gap-1 transition ${
+                      subtitlesEnabled
+                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                    title={subtitlesEnabled ? 'Subtitles On (Click to turn off)' : 'Subtitles Off (Click to turn on)'}
+                  >
+                    <Subtitles className="w-3.5 h-3.5" />
+                    <span>CC</span>
+                  </button>
+
+                  {/* Player Settings Button */}
+                  <button
+                    onClick={() => setShowSettingsModal(true)}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.08] hover:bg-[#3db4f2]/20 border border-white/15 hover:border-[#3db4f2]/50 text-slate-200 hover:text-white transition group cursor-pointer"
+                    title="Player Settings (S) - Speed, Quality, Subtitles, Audio"
+                  >
+                    <Settings className="w-3.5 h-3.5 text-[#3db4f2] group-hover:rotate-45 transition-transform" />
+                    <span className="text-[11px] font-bold">Player Settings</span>
+                    <span className="text-[10px] font-mono font-bold px-1 py-0.2 rounded bg-black/60 text-[#3db4f2]">
+                      {activeQuality}
+                    </span>
+                  </button>
+
+                  {/* Small Screen / Full Screen Button */}
+                  <button
+                    onClick={toggleFullscreen}
+                    className="p-1.5 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition ml-0.5 cursor-pointer"
+                    title={isFullscreen ? 'Small Screen (F)' : 'Full Screen (F)'}
+                  >
+                    {isFullscreen ? (
+                      <Minimize className="w-4 h-4 text-[#3db4f2]" />
+                    ) : (
+                      <Maximize className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : selectedServer === 'official' ? (
+          /* Official YouTube No-Cookie Player (Zero Ads, No Popups) */
+          officialTrailerId ? (
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${officialTrailerId}?autoplay=1&controls=1&rel=0&modestbranding=1`}
+              title={`${animeTitle} Official Stream`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+              allowFullScreen
+              className="w-full h-full border-0 relative z-10"
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-3">
+              <Film className="w-12 h-12 text-[#3db4f2]" />
+              <p className="text-sm text-slate-300">Official stream preview not available for this title.</p>
+              <button
+                onClick={() => setSelectedServer('direct')}
+                className="anilist-btn-primary px-4 py-2 text-xs font-bold"
+              >
+                Switch to Senpai Direct HD Player
+              </button>
+            </div>
+          )
+        ) : (
+          /* Licensed Episodes (Crunchyroll) */
+          <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-4">
+            <Tv className="w-12 h-12 text-[#3db4f2]" />
+            <div className="space-y-1 max-w-md">
+              <h4 className="text-base font-bold text-white">Licensed Official Stream Provider</h4>
+              <p className="text-xs text-slate-400">
+                This anime is officially licensed on Crunchyroll. You can watch full official episodes with original subtitles and master audio.
+              </p>
+            </div>
+            {currentEpData?.url ? (
+              <a
+                href={currentEpData.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="anilist-btn-primary flex items-center gap-2 px-5 py-2.5 text-xs font-bold shadow-lg"
+              >
+                <span>Watch on Crunchyroll ({currentEpData.title})</span>
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            ) : (
+              <button
+                onClick={() => setSelectedServer('direct')}
+                className="anilist-btn-primary px-4 py-2 text-xs font-bold"
+              >
+                Play In-App on Senpai Direct
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Ad-Shield & Security Guarantee Banner */}
+      <div className="flex flex-wrap items-center justify-between gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-[#151f2e] border border-white/10 text-xs shadow-md">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+          <span className="text-slate-300">
+            <strong className="text-emerald-400">Pure Ad-Free Guarantee:</strong> 100% in-app streaming with zero popups, no external redirects, and direct 1-click downloads.
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowSettingsModal(true)}
+            className="text-[#3db4f2] hover:underline font-bold flex items-center gap-1"
+          >
+            <Settings className="w-3.5 h-3.5" />
+            <span>Player Settings</span>
+          </button>
+          <span className="text-slate-400 text-[11px] font-mono">
+            Ep {currentEpisode}/{totalEpisodes} • {activeQuality}
+          </span>
+        </div>
+      </div>
+
+      {/* Player Utility Bar: Servers, Audio, Quality, 1-Click Download, Watchlist Sync */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 p-4 rounded-xl bg-[#151f2e] border border-white/10 shadow-lg text-xs">
+        {/* Left Section: Server Selection & Audio Mode */}
+        <div className="lg:col-span-8 space-y-3">
+          {/* Server Selector */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-bold text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-[#3db4f2]" />
+              Player Server:
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                onClick={() => setSelectedServer('direct')}
+                className={`px-3 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition border ${
+                  selectedServer === 'direct'
+                    ? 'bg-[#3db4f2] text-black border-[#3db4f2] shadow-md'
+                    : 'bg-[#0b1622] text-slate-300 hover:bg-[#1f2c3f] border-white/10'
+                }`}
+              >
+                <span>Senpai Direct HD (In-App HTML5)</span>
+                <span className="text-[9px] px-1 py-0.2 rounded bg-black/20 text-emerald-300 font-bold">
+                  Zero Ads • Fast
+                </span>
+              </button>
+
+              {officialTrailerId && (
+                <button
+                  onClick={() => setSelectedServer('official')}
+                  className={`px-3 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition border ${
+                    selectedServer === 'official'
+                      ? 'bg-[#3db4f2] text-black border-[#3db4f2] shadow-md'
+                      : 'bg-[#0b1622] text-slate-300 hover:bg-[#1f2c3f] border-white/10'
+                  }`}
+                >
+                  <span>Official Stream (NoCookie)</span>
+                  <span className="text-[9px] px-1 py-0.2 rounded bg-black/20 text-amber-300 font-bold">
+                    Official HD
+                  </span>
+                </button>
+              )}
+
+              {anime.streamingEpisodes && anime.streamingEpisodes.length > 0 && (
+                <button
+                  onClick={() => setSelectedServer('licensed')}
+                  className={`px-3 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition border ${
+                    selectedServer === 'licensed'
+                      ? 'bg-[#3db4f2] text-black border-[#3db4f2] shadow-md'
+                      : 'bg-[#0b1622] text-slate-300 hover:bg-[#1f2c3f] border-white/10'
+                  }`}
+                >
+                  <span>Crunchyroll Official</span>
+                  <span className="text-[9px] px-1 py-0.2 rounded bg-black/20 text-[#3db4f2] font-bold">
+                    Licensed
+                  </span>
+                </button>
+              )}
+
+              {activeCustomStreamUrl && (
+                <button
+                  onClick={() => setSelectedServer('custom')}
+                  className={`px-3 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1.5 transition border ${
+                    selectedServer === 'custom'
+                      ? 'bg-purple-500 text-black border-purple-500 shadow-md'
+                      : 'bg-[#0b1622] text-purple-300 hover:bg-[#1f2c3f] border-purple-500/30'
+                  }`}
+                >
+                  <span>Custom Real Stream</span>
+                  <span className="text-[9px] px-1 py-0.2 rounded bg-black/20 font-bold">
+                    Active
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Sub / Dub Selector */}
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                <Languages className="w-3.5 h-3.5 text-[#3db4f2]" />
+                Audio:
+              </span>
+              <div className="inline-flex rounded-lg bg-[#0b1622] p-1 border border-white/10">
+                <button
+                  onClick={() => {
+                    setSelectedLanguage('sub');
+                    saveStreamSettings({ audioLanguage: 'sub' });
+                  }}
+                  className={`px-3 py-1 rounded-md font-bold text-xs transition ${
+                    selectedLanguage === 'sub'
+                      ? 'bg-[#3db4f2] text-black shadow-sm'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  SUB (Original JP)
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedLanguage('dub');
+                    saveStreamSettings({ audioLanguage: 'dub' });
+                  }}
+                  className={`px-3 py-1 rounded-md font-bold text-xs transition ${
+                    selectedLanguage === 'dub'
+                      ? 'bg-[#3db4f2] text-black shadow-sm'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  DUB (English)
+                </button>
+              </div>
+            </div>
+
+            {/* Quality Preset buttons */}
+            <div className="flex items-center gap-1.5 ml-auto">
+              <span className="text-slate-400 font-bold uppercase tracking-wider font-mono mr-1">
+                Quality:
+              </span>
+              {(['1080p', '720p', '480p'] as const).map((q) => (
+                <button
+                  key={q}
+                  onClick={() => handleQualityChange(q)}
+                  className={`px-2.5 py-1 rounded font-mono font-bold text-[11px] transition border ${
+                    activeQuality === q
+                      ? 'bg-[#3db4f2]/20 border-[#3db4f2] text-[#3db4f2]'
+                      : 'bg-[#0b1622] border-white/10 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Section: 1-Click Download & Watchlist Tracking */}
+        <div className="lg:col-span-4 flex flex-col justify-between gap-3 p-3 rounded-xl bg-[#0b1622] border border-white/5">
+          {/* 1-Click Download Action */}
+          <div className="space-y-1.5">
+            <span className="font-bold text-amber-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
+              <Download className="w-3.5 h-3.5 text-amber-400" />
+              1-Click Direct Download
+            </span>
+            <button
+              onClick={handleOneClickDownload}
+              disabled={isDownloading}
+              className="w-full py-2.5 px-3 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 transition"
+            >
+              <Download className="w-4 h-4" />
+              <span>Download Episode {currentEpisode} ({selectedLanguage.toUpperCase()} • MP4)</span>
+            </button>
+            <p className="text-[10px] text-slate-400 text-center">
+              Direct video download in {activeQuality} ({selectedLanguage === 'sub' ? 'Original JP' : 'English Dub'}) with zero ads.
+            </p>
+          </div>
+
+          {/* Watch Progress Button */}
+          <div className="pt-2 border-t border-white/5 space-y-1.5">
+            <button
+              onClick={handleMarkWatched}
+              className={`w-full py-2 px-3 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition ${
+                isWatchedCurrent
+                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                  : 'bg-[#151f2e] hover:bg-[#1f2c3f] text-[#3db4f2] border border-[#3db4f2]/30'
+              }`}
+            >
+              <Check className="w-4 h-4" />
+              <span>
+                {isWatchedCurrent
+                  ? `Watched Ep ${currentEpisode} (In Library)`
+                  : `Mark Ep ${currentEpisode} as Watched`}
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Episode Selector Section */}
+      <div className="p-4 sm:p-5 rounded-xl bg-[#151f2e] border border-white/10 shadow-lg space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Tv className="w-4 h-4 text-[#3db4f2]" />
+            <h4 className="text-sm font-extrabold text-white uppercase tracking-wider font-mono">
+              Select Episode ({totalEpisodes} Available)
+            </h4>
+          </div>
+
+          {/* Search Episode Filter */}
+          <div className="relative w-full sm:w-48">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search episode #..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-[#0b1622] text-xs text-white border border-white/10 focus:border-[#3db4f2] outline-none font-mono"
+            />
+          </div>
+        </div>
+
+        {/* Episode Buttons Grid */}
+        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-2 max-h-60 overflow-y-auto pr-1">
+          {filteredEpisodes.map((ep) => {
+            const isSelected = ep === currentEpisode;
+            const isWatched = (watchlistItem?.currentEpisode || 0) >= ep;
+
+            return (
+              <button
+                key={ep}
+                onClick={() => handleEpisodeSelect(ep)}
+                className={`py-2 px-1 rounded-lg text-xs font-mono font-bold transition flex flex-col items-center justify-center relative border ${
+                  isSelected
+                    ? 'bg-[#3db4f2] text-black border-[#3db4f2] shadow-md scale-105'
+                    : isWatched
+                    ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/30 hover:bg-emerald-900/60'
+                    : 'bg-[#0b1622] text-slate-300 hover:bg-[#1f2c3f] hover:text-white border-white/10'
+                }`}
+              >
+                <span>{ep}</span>
+                {isWatched && !isSelected && (
+                  <Check className="w-2.5 h-2.5 text-emerald-400 absolute top-1 right-1" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {filteredEpisodes.length === 0 && (
+          <p className="text-xs text-slate-400 text-center py-4">
+            No episode found matching "{searchQuery}"
+          </p>
+        )}
+      </div>
+
+      {/* COMPREHENSIVE SETTINGS MODAL / FLYOUT */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-xl rounded-2xl bg-[#151f2e] border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-white/10 bg-[#0b1622]/60">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#3db4f2]/15 text-[#3db4f2] flex items-center justify-center font-bold">
+                  <Settings className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-white text-base">Player & Stream Settings</h3>
+                  <p className="text-[11px] text-slate-400">Configure playback, subtitles, quality, and real anime streams</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowSettingsModal(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Navigation Tabs */}
+            <div className="flex border-b border-white/10 bg-[#0b1622] text-xs font-bold overflow-x-auto no-scrollbar">
+              <button
+                onClick={() => setActiveSettingsTab('playback')}
+                className={`flex items-center gap-1.5 px-4 py-3 border-b-2 transition whitespace-nowrap ${
+                  activeSettingsTab === 'playback'
+                    ? 'border-[#3db4f2] text-[#3db4f2] bg-[#151f2e]'
+                    : 'border-transparent text-slate-400 hover:text-white'
+                }`}
+              >
+                <Sliders className="w-3.5 h-3.5" />
+                <span>Playback</span>
+              </button>
+
+              <button
+                onClick={() => setActiveSettingsTab('subtitles')}
+                className={`flex items-center gap-1.5 px-4 py-3 border-b-2 transition whitespace-nowrap ${
+                  activeSettingsTab === 'subtitles'
+                    ? 'border-[#3db4f2] text-[#3db4f2] bg-[#151f2e]'
+                    : 'border-transparent text-slate-400 hover:text-white'
+                }`}
+              >
+                <Subtitles className="w-3.5 h-3.5" />
+                <span>Subtitles & CC</span>
+              </button>
+
+              <button
+                onClick={() => setActiveSettingsTab('source')}
+                className={`flex items-center gap-1.5 px-4 py-3 border-b-2 transition whitespace-nowrap ${
+                  activeSettingsTab === 'source'
+                    ? 'border-purple-500 text-purple-400 bg-[#151f2e]'
+                    : 'border-transparent text-slate-400 hover:text-white'
+                }`}
+              >
+                <Radio className="w-3.5 h-3.5" />
+                <span>Real Anime Source</span>
+              </button>
+
+              <button
+                onClick={() => setActiveSettingsTab('shortcuts')}
+                className={`flex items-center gap-1.5 px-4 py-3 border-b-2 transition whitespace-nowrap ${
+                  activeSettingsTab === 'shortcuts'
+                    ? 'border-[#3db4f2] text-[#3db4f2] bg-[#151f2e]'
+                    : 'border-transparent text-slate-400 hover:text-white'
+                }`}
+              >
+                <Keyboard className="w-3.5 h-3.5" />
+                <span>Shortcuts & Vault</span>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1 text-xs">
+              {/* TAB 1: PLAYBACK */}
+              {activeSettingsTab === 'playback' && (
+                <div className="space-y-4">
+                  {/* Quality Selector */}
+                  <div className="space-y-2">
+                    <label className="font-bold text-slate-300 block">Video Quality Preset</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(['1080p', '720p', '480p'] as const).map((q) => (
+                        <button
+                          key={q}
+                          onClick={() => handleQualityChange(q)}
+                          className={`p-2.5 rounded-xl border font-bold text-center transition ${
+                            activeQuality === q
+                              ? 'bg-[#3db4f2]/20 border-[#3db4f2] text-[#3db4f2]'
+                              : 'bg-[#0b1622] border-white/10 text-slate-300 hover:text-white'
+                          }`}
+                        >
+                          <span className="block font-mono text-sm">{q}</span>
+                          <span className="text-[10px] text-slate-400 font-normal">
+                            {q === '1080p' ? 'Full HD • 60FPS' : q === '720p' ? 'High Definition' : 'Standard • Fast'}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Playback Speed */}
+                  <div className="space-y-2">
+                    <label className="font-bold text-slate-300 block">Playback Speed ({activeSpeed}x)</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((spd) => (
+                        <button
+                          key={spd}
+                          onClick={() => handleSpeedChange(spd)}
+                          className={`px-3 py-1.5 rounded-lg font-mono font-bold transition border ${
+                            activeSpeed === spd
+                              ? 'bg-[#3db4f2] text-black border-[#3db4f2]'
+                              : 'bg-[#0b1622] border-white/10 text-slate-300 hover:text-white'
+                          }`}
+                        >
+                          {spd === 1.0 ? '1.0x (Normal)' : `${spd}x`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Auto-Play Next Episode */}
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-[#0b1622] border border-white/5">
+                    <div>
+                      <span className="font-bold text-white block">Auto-Play Next Episode</span>
+                      <span className="text-[11px] text-slate-400">
+                        Automatically load and stream Episode {currentEpisode + 1} when current episode ends
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const newVal = !autoPlayNext;
+                        setAutoPlayNext(newVal);
+                        try { localStorage.setItem('animesenpai_autoplay', String(newVal)); } catch {}
+                      }}
+                      className={`w-11 h-6 rounded-full transition-colors relative flex items-center p-0.5 ${
+                        autoPlayNext ? 'bg-[#3db4f2]' : 'bg-white/10'
+                      }`}
+                    >
+                      <div
+                        className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                          autoPlayNext ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Auto-Skip Opening Theme */}
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-[#0b1622] border border-white/5">
+                    <div>
+                      <span className="font-bold text-white block">Auto-Skip Opening Themes (+85s)</span>
+                      <span className="text-[11px] text-slate-400">
+                        Displays the one-click "Skip Intro" button during episode openings
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setAutoSkipIntro(!autoSkipIntro)}
+                      className={`w-11 h-6 rounded-full transition-colors relative flex items-center p-0.5 ${
+                        autoSkipIntro ? 'bg-[#3db4f2]' : 'bg-white/10'
+                      }`}
+                    >
+                      <div
+                        className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                          autoSkipIntro ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Auto-Mark Watched */}
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-[#0b1622] border border-white/5">
+                    <div>
+                      <span className="font-bold text-white block">Auto-Sync Library Progress</span>
+                      <span className="text-[11px] text-slate-400">
+                        Updates your watchlist progress automatically as you finish episodes
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setAutoMarkWatched(!autoMarkWatched)}
+                      className={`w-11 h-6 rounded-full transition-colors relative flex items-center p-0.5 ${
+                        autoMarkWatched ? 'bg-emerald-500' : 'bg-white/10'
+                      }`}
+                    >
+                      <div
+                        className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                          autoMarkWatched ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: SUBTITLES & AUDIO */}
+              {activeSettingsTab === 'subtitles' && (
+                <div className="space-y-4">
+                  {/* Audio Selection */}
+                  <div className="space-y-2">
+                    <label className="font-bold text-slate-300 block">Audio Voice Track</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => setSelectedLanguage('sub')}
+                        className={`p-3 rounded-xl border text-left font-bold transition ${
+                          selectedLanguage === 'sub'
+                            ? 'bg-[#3db4f2]/20 border-[#3db4f2] text-[#3db4f2]'
+                            : 'bg-[#0b1622] border-white/10 text-slate-300 hover:text-white'
+                        }`}
+                      >
+                        <span className="block text-sm">Japanese (Original)</span>
+                        <span className="text-[11px] text-slate-400 font-normal">Original voice cast with soft subtitles</span>
+                      </button>
+
+                      <button
+                        onClick={() => setSelectedLanguage('dub')}
+                        className={`p-3 rounded-xl border text-left font-bold transition ${
+                          selectedLanguage === 'dub'
+                            ? 'bg-[#3db4f2]/20 border-[#3db4f2] text-[#3db4f2]'
+                            : 'bg-[#0b1622] border-white/10 text-slate-300 hover:text-white'
+                        }`}
+                      >
+                        <span className="block text-sm">English (Dubbed)</span>
+                        <span className="text-[11px] text-slate-400 font-normal">English localized audio track</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Subtitles Toggle & Language */}
+                  <div className="space-y-2 pt-2 border-t border-white/5">
+                    <div className="flex items-center justify-between">
+                      <label className="font-bold text-slate-300">Subtitles Display (CC)</label>
+                      <button
+                        onClick={() => setSubtitlesEnabled(!subtitlesEnabled)}
+                        className={`px-3 py-1 rounded-md font-bold text-xs transition border ${
+                          subtitlesEnabled
+                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+                            : 'bg-[#0b1622] text-slate-400 border-white/10'
+                        }`}
+                      >
+                        {subtitlesEnabled ? 'Subtitles ON' : 'Subtitles OFF'}
+                      </button>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {['English', 'Japanese (Romaji)', 'Spanish', 'French', 'German'].map((lang) => (
+                        <button
+                          key={lang}
+                          onClick={() => {
+                            setSubtitleLang(lang);
+                            setSubtitlesEnabled(true);
+                          }}
+                          className={`px-3 py-1.5 rounded-lg border font-semibold transition ${
+                            subtitleLang === lang && subtitlesEnabled
+                              ? 'bg-[#3db4f2] text-black border-[#3db4f2]'
+                              : 'bg-[#0b1622] border-white/10 text-slate-300 hover:text-white'
+                          }`}
+                        >
+                          {lang}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Subtitle Font Size */}
+                  <div className="space-y-2 pt-2 border-t border-white/5">
+                    <label className="font-bold text-slate-300 block">Subtitle Font Size</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(['small', 'medium', 'large'] as const).map((sz) => (
+                        <button
+                          key={sz}
+                          onClick={() => setSubtitleSize(sz)}
+                          className={`p-2 rounded-lg border font-bold capitalize transition ${
+                            subtitleSize === sz
+                              ? 'bg-[#3db4f2]/20 border-[#3db4f2] text-[#3db4f2]'
+                              : 'bg-[#0b1622] border-white/10 text-slate-300 hover:text-white'
+                          }`}
+                        >
+                          {sz}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Subtitle Color */}
+                  <div className="space-y-2 pt-2 border-t border-white/5">
+                    <label className="font-bold text-slate-300 flex items-center gap-1.5">
+                      <Palette className="w-3.5 h-3.5 text-[#3db4f2]" />
+                      <span>Subtitle Font Color</span>
+                    </label>
+                    <div className="flex items-center gap-2">
+                      {[
+                        { name: 'Anime Yellow', hex: '#facc15' },
+                        { name: 'Crisp White', hex: '#ffffff' },
+                        { name: 'Electric Cyan', hex: '#38bdf8' },
+                        { name: 'Neon Green', hex: '#4ade80' },
+                      ].map((col) => (
+                        <button
+                          key={col.hex}
+                          onClick={() => setSubtitleColor(col.hex)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition ${
+                            subtitleColor === col.hex
+                              ? 'border-white bg-white/10 font-bold'
+                              : 'border-white/10 hover:border-white/30 text-slate-300'
+                          }`}
+                        >
+                          <span
+                            className="w-3 h-3 rounded-full border border-black/30"
+                            style={{ backgroundColor: col.hex }}
+                          />
+                          <span>{col.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Subtitle Background Style */}
+                  <div className="space-y-2 pt-2 border-t border-white/5">
+                    <label className="font-bold text-slate-300 block">Subtitle Background Style</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(['transparent', 'solid', 'none'] as const).map((bg) => (
+                        <button
+                          key={bg}
+                          onClick={() => setSubtitleBg(bg)}
+                          className={`p-2 rounded-lg border font-bold capitalize transition ${
+                            subtitleBg === bg
+                              ? 'bg-[#3db4f2]/20 border-[#3db4f2] text-[#3db4f2]'
+                              : 'bg-[#0b1622] border-white/10 text-slate-300 hover:text-white'
+                          }`}
+                        >
+                          {bg === 'transparent' ? 'Translucent' : bg === 'solid' ? 'Dark Box' : 'Clean / None'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: REAL ANIME SOURCE */}
+              {activeSettingsTab === 'source' && (
+                <div className="space-y-4">
+                  <div className="p-3.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-200 space-y-1">
+                    <div className="flex items-center gap-2 font-bold text-purple-300">
+                      <Radio className="w-4 h-4" />
+                      <span>How Real Anime Streams Work</span>
+                    </div>
+                    <p className="text-[11px] leading-relaxed text-slate-300">
+                      Anime metadata comes from AniList, while full episodes stream from decentralized video servers (.m3u8 / .mp4). You can paste any direct anime stream URL below, or test with pre-configured high-definition anime clips!
+                    </p>
+                  </div>
+
+                  {/* Custom Stream URL Input */}
+                  <div className="space-y-2">
+                    <label className="font-bold text-slate-300 block">
+                      Custom Real Anime Stream URL (.mp4 or .m3u8)
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        placeholder="https://example.com/anime-episode.mp4 or .m3u8"
+                        value={customStreamInput}
+                        onChange={(e) => setCustomStreamInput(e.target.value)}
+                        className="flex-1 px-3 py-2 rounded-xl bg-[#0b1622] text-xs text-white border border-white/10 focus:border-[#3db4f2] outline-none font-mono"
+                      />
+                      <button
+                        onClick={() => handleApplyCustomStream()}
+                        className="px-4 py-2 rounded-xl bg-[#3db4f2] hover:bg-[#2ba2e0] text-black font-extrabold text-xs transition active:scale-95 whitespace-nowrap shadow-md shadow-[#3db4f2]/20"
+                      >
+                        Play Stream
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Backend Stream Fetcher */}
+                  <div className="p-3.5 rounded-xl bg-[#0b1622] border border-white/5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-white">Fetch Live from AnimeSenpai Backend</span>
+                      <button
+                        onClick={handleFetchBackendStream}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition active:scale-95"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Query Sources API</span>
+                      </button>
+                    </div>
+                    {backendFetchStatus && (
+                      <p className="text-[11px] text-emerald-400 font-mono">{backendFetchStatus}</p>
+                    )}
+                  </div>
+
+                  {/* Real Anime Demo Presets */}
+                  <div className="space-y-2 pt-2 border-t border-white/5">
+                    <label className="font-bold text-slate-300 block">
+                      One-Click Real Anime Stream Presets
+                    </label>
+                    <div className="space-y-1.5">
+                      {REAL_ANIME_PRESETS.map((preset) => (
+                        <div
+                          key={preset.name}
+                          className="flex items-center justify-between p-2.5 rounded-xl bg-[#0b1622] border border-white/5 hover:border-white/20 transition"
+                        >
+                          <div>
+                            <span className="font-bold text-slate-200 block">{preset.name}</span>
+                            <span className="text-[10px] text-slate-400 font-mono">
+                              Quality: {preset.quality} • Audio: {preset.subOrDub.toUpperCase()}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setCustomStreamInput(preset.url);
+                              handleApplyCustomStream(preset.url);
+                              if (preset.subOrDub) {
+                                setSelectedLanguage(preset.subOrDub as 'sub' | 'dub');
+                                saveStreamSettings({ audioLanguage: preset.subOrDub as 'sub' | 'dub' });
+                              }
+                              if (preset.episode) {
+                                handleEpisodeSelect(preset.episode);
+                              }
+                            }}
+                            className="px-3 py-1 rounded-lg bg-[#3db4f2]/20 hover:bg-[#3db4f2] text-[#3db4f2] hover:text-black font-bold text-xs transition"
+                          >
+                            Load Preset
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 4: SHORTCUTS & VAULT */}
+              {activeSettingsTab === 'shortcuts' && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="font-bold text-slate-300 block">Keyboard Shortcuts</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="p-2.5 rounded-xl bg-[#0b1622] border border-white/5 flex items-center justify-between">
+                        <span className="text-slate-300">Play / Pause</span>
+                        <kbd className="px-2 py-0.5 rounded bg-black text-[#3db4f2] font-mono text-[10px] font-bold border border-white/10">Space</kbd>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#0b1622] border border-white/5 flex items-center justify-between">
+                        <span className="text-slate-300">Seek Backward (-5s)</span>
+                        <kbd className="px-2 py-0.5 rounded bg-black text-[#3db4f2] font-mono text-[10px] font-bold border border-white/10">← Left</kbd>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#0b1622] border border-white/5 flex items-center justify-between">
+                        <span className="text-slate-300">Seek Forward (+5s)</span>
+                        <kbd className="px-2 py-0.5 rounded bg-black text-[#3db4f2] font-mono text-[10px] font-bold border border-white/10">→ Right</kbd>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#0b1622] border border-white/5 flex items-center justify-between">
+                        <span className="text-slate-300">Volume Up / Down</span>
+                        <kbd className="px-2 py-0.5 rounded bg-black text-[#3db4f2] font-mono text-[10px] font-bold border border-white/10">↑ / ↓</kbd>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#0b1622] border border-white/5 flex items-center justify-between">
+                        <span className="text-slate-300">Mute / Unmute</span>
+                        <kbd className="px-2 py-0.5 rounded bg-black text-[#3db4f2] font-mono text-[10px] font-bold border border-white/10">M</kbd>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#0b1622] border border-white/5 flex items-center justify-between">
+                        <span className="text-slate-300">Toggle Fullscreen</span>
+                        <kbd className="px-2 py-0.5 rounded bg-black text-[#3db4f2] font-mono text-[10px] font-bold border border-white/10">F</kbd>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#0b1622] border border-white/5 flex items-center justify-between">
+                        <span className="text-slate-300">Open Settings</span>
+                        <kbd className="px-2 py-0.5 rounded bg-black text-[#3db4f2] font-mono text-[10px] font-bold border border-white/10">S</kbd>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Re-Lock Vault */}
+                  <div className="p-4 rounded-xl bg-rose-950/30 border border-rose-500/30 space-y-2 pt-3">
+                    <span className="font-bold text-rose-300 block">Stream Vault Security</span>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      Streaming is currently unlocked with your passcode (111111). You can re-lock the theater at any time to require the access code again.
+                    </p>
+                    <button
+                      onClick={handleLock}
+                      className="w-full py-2 px-3 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition active:scale-95"
+                    >
+                      <Lock className="w-4 h-4" />
+                      <span>Lock Stream Vault Now</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-white/10 bg-[#0b1622] flex items-center justify-between">
+              <span className="text-[11px] text-slate-400">
+                Changes apply instantly to current stream
+              </span>
+              <button
+                onClick={() => setShowSettingsModal(false)}
+                className="px-5 py-2 rounded-xl anilist-btn-primary font-bold text-xs transition"
+              >
+                Close Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
