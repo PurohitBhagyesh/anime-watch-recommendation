@@ -88,12 +88,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Sync auth state with Firebase (only if an active session exists or on auth-related pages)
+  // Sync auth state with Firebase (if active session exists or on auth-related pages)
   useEffect(() => {
     const hasExistingSession = () => {
       try {
-        const hash = window.location.hash;
-        if (hash.includes('login') || hash.includes('signup') || hash.includes('account') || hash.includes('auth')) {
+        const path = (window.location.pathname || '') + (window.location.hash || '');
+        if (path.includes('login') || path.includes('signup') || path.includes('account') || path.includes('auth')) {
           return true;
         }
         for (let i = 0; i < localStorage.length; i++) {
@@ -121,15 +121,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } else {
             setUser({
               id: firebaseUser.uid,
-              username: firebaseUser.email?.split('@')[0] || 'User',
+              username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
               email: firebaseUser.email || '',
-              avatar: AVATAR_PRESETS[0].url,
+              avatar: firebaseUser.photoURL || AVATAR_PRESETS[0].url,
               joinedDate: new Date().toLocaleDateString(),
             });
           }
         } catch (error) {
-          console.error("Error fetching user data from Firestore:", error);
-          setUser(null);
+          console.warn("Could not fetch user profile from Firestore, using auth profile:", error);
+          setUser({
+            id: firebaseUser.uid,
+            username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+            email: firebaseUser.email || '',
+            avatar: firebaseUser.photoURL || AVATAR_PRESETS[0].url,
+            joinedDate: new Date().toLocaleDateString(),
+          });
         }
       } else {
         setUser(null);
@@ -212,26 +218,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const result = await signInWithPopup(auth, provider);
       const firebaseUser = result.user;
 
-      const docRef = doc(db, 'users', firebaseUser.uid);
-      const docSnap = await getDoc(docRef);
+      const fallbackUser: UserProfile = {
+        id: firebaseUser.uid,
+        username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'AnimeFan',
+        email: firebaseUser.email || '',
+        avatar: firebaseUser.photoURL || AVATAR_PRESETS[0].url,
+        bio: 'Welcome to my AnimeSenpai profile!',
+        joinedDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        animeWatchedCount: 0,
+        episodesWatchedCount: 0,
+        daysWatched: 0,
+        favoriteGenre: 'All Genres',
+      };
 
-      if (!docSnap.exists()) {
-        const newUser: UserProfile = {
-          id: firebaseUser.uid,
-          username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'AnimeFan',
-          email: firebaseUser.email || '',
-          avatar: firebaseUser.photoURL || AVATAR_PRESETS[0].url,
-          bio: 'Welcome to my AnimeSenpai profile!',
-          joinedDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-          animeWatchedCount: 0,
-          episodesWatchedCount: 0,
-          daysWatched: 0,
-          favoriteGenre: 'All Genres',
-        };
-        await setDoc(docRef, newUser);
-        setUser(newUser);
-      } else {
-        setUser({ id: firebaseUser.uid, ...docSnap.data() } as UserProfile);
+      try {
+        const docRef = doc(db, 'users', firebaseUser.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+          await setDoc(docRef, fallbackUser);
+          setUser(fallbackUser);
+        } else {
+          setUser({ id: firebaseUser.uid, ...docSnap.data() } as UserProfile);
+        }
+      } catch (firestoreError) {
+        console.warn("Could not sync Firestore profile, defaulting to Google Auth profile:", firestoreError);
+        setUser(fallbackUser);
       }
 
       return { success: true };
