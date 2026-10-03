@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import {
   Play,
   Check,
@@ -42,6 +42,25 @@ export const AnimeDetailsPage: React.FC = () => {
   const [copiedShare, setCopiedShare] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'stream' | 'characters' | 'episodes' | 'relations' | 'recommendations'>('overview');
   const [selectedStreamEpisode, setSelectedStreamEpisode] = useState<number>(1);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'stream') {
+      setActiveTab('stream');
+      const epParam = searchParams.get('episode');
+      if (epParam) {
+        const epNum = parseInt(epParam, 10);
+        if (!isNaN(epNum) && epNum > 0) {
+          setSelectedStreamEpisode(epNum);
+        }
+      }
+      setTimeout(() => {
+        const el = document.getElementById('anime-stream-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [searchParams]);
 
   const {
     isInWatchlist,
@@ -202,6 +221,7 @@ export const AnimeDetailsPage: React.FC = () => {
   const hasStreamOption = Boolean(
     anime.status !== 'NOT_YET_RELEASED' &&
     (
+      inWatchlist ||
       (anime.episodes !== null && anime.episodes > 0) ||
       (anime.streamingEpisodes && anime.streamingEpisodes.length > 0) ||
       ['TV', 'MOVIE', 'OVA', 'ONA', 'SPECIAL'].includes(anime.format || '')

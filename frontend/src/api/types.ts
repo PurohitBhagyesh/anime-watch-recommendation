@@ -91,6 +91,7 @@ export interface NextAiringEpisode {
 
 export interface AnimeCardData {
   id: number;
+  idMal?: number | null;
   title: AnimeTitle;
   coverImage: AnimeCoverImage;
   bannerImage: string | null;
