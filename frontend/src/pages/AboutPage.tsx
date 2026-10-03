@@ -15,54 +15,47 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { AppLogo } from '../components/common/AppLogo';
+import { useSEO, SITE_URL } from '../utils/seo';
 
 export const AboutPage: React.FC = () => {
+  const aboutSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: 'About AnimeSenpai',
+    url: `${SITE_URL}/about`,
+    description:
+      'Official platform information, mission, transparency, and copyright disclosure for AnimeSenpai (animesenpai.online).',
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'AnimeSenpai',
+      alternateName: ['AnimeSenpai Online', 'Anime Senpai Tracker'],
+      url: `${SITE_URL}/`,
+      logo: `${SITE_URL}/logo-512.png`,
+      sameAs: [
+        'https://github.com/PurohitBhagyesh/anime-watch-recommendation',
+      ],
+      founder: {
+        '@type': 'Person',
+        name: 'Bhagyesh Purohit',
+      },
+      knowsAbout: [
+        'Anime tracking',
+        'AniList GraphQL API',
+        'Anime catalog discovery',
+        'Seasonal anime schedules',
+      ],
+    },
+  };
+
+  useSEO({
+    title: 'About AnimeSenpai • Independent Anime Catalog & Transparency',
+    description: 'Learn about AnimeSenpai\'s mission, platform independence, AniList GraphQL integration, and official streaming partnerships.',
+    canonicalUrl: `${SITE_URL}/about`,
+    jsonLd: aboutSchema,
+  });
+
   useEffect(() => {
-    document.title = 'About AnimeSenpai | Official Platform Info & Transparency';
     window.scrollTo(0, 0);
-
-    // Dynamic JSON-LD structured data for AboutPage
-    const scriptId = 'about-schema-jsonld';
-    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
-    if (!script) {
-      script = document.createElement('script');
-      script.id = scriptId;
-      script.type = 'application/ld+json';
-      script.text = JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'AboutPage',
-        name: 'About AnimeSenpai',
-        url: 'https://www.animesenpai.online/about',
-        description:
-          'Official platform information, mission, transparency, and copyright disclosure for AnimeSenpai (animesenpai.online).',
-        mainEntity: {
-          '@type': 'Organization',
-          name: 'AnimeSenpai',
-          alternateName: ['AnimeSenpai Online', 'Anime Senpai Tracker'],
-          url: 'https://www.animesenpai.online/',
-          logo: 'https://www.animesenpai.online/logo-512.png',
-          sameAs: [
-            'https://github.com/PurohitBhagyesh/anime-watch-recommendation',
-          ],
-          founder: {
-            '@type': 'Person',
-            name: 'Bhagyesh Purohit',
-          },
-          knowsAbout: [
-            'Anime tracking',
-            'AniList GraphQL API',
-            'Anime catalog discovery',
-            'Seasonal anime schedules',
-          ],
-        },
-      });
-      document.head.appendChild(script);
-    }
-
-    return () => {
-      const existing = document.getElementById(scriptId);
-      if (existing) existing.remove();
-    };
   }, []);
 
   return (

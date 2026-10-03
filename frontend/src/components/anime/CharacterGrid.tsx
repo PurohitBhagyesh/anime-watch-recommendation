@@ -13,9 +13,9 @@ export const CharacterGrid: React.FC<CharacterGridProps> = ({ characters }) => {
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Users className="w-4 h-4 text-[#3db4f2]" />
-        <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">
+        <h2 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">
           Characters & Voice Cast
-        </h3>
+        </h2>
         <span className="text-[11px] text-[#3db4f2] ml-auto font-semibold">Japanese Cast</span>
       </div>
 
@@ -33,7 +33,9 @@ export const CharacterGrid: React.FC<CharacterGridProps> = ({ characters }) => {
               <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-1.5">
                 <img
                   src={char.image.medium || char.image.large}
-                  alt={char.name.full}
+                  alt={`${char.name.full} character portrait`}
+                  width={44}
+                  height={56}
                   loading="lazy"
                   className="w-11 h-14 rounded-lg object-cover bg-[#0b1622] flex-shrink-0 shadow-sm"
                 />

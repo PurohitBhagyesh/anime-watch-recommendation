@@ -1,27 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="utf-8" />
-    <title>AnimeSenpai • Redirecting...</title>
-    <script>
-      // Single Page Apps for GitHub Pages
-      // Redirects non-hash URLs to hash URLs for seamless SPA navigation
-      (function() {
-        var path = window.location.pathname;
-        var search = window.location.search || '';
-        var hash = window.location.hash || '';
-
-        // Extract repository subdirectory if hosted under github.io/<repo>/
-        var segments = path.split('/').filter(Boolean);
-        var repoName = segments.length > 0 ? '/' + segments[0] : '';
-        var remainingPath = segments.length > 1 ? '/' + segments.slice(1).join('/') : '';
-
-        var redirectUrl = window.location.origin + repoName + '/#' + remainingPath + search + hash;
-        window.location.replace(redirectUrl);
-      })();
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page Not Found (404) • AnimeSenpai</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#0b1622" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background-color: #0b1622;
+        color: #bcbedc;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 1.5rem;
+      }
+      .card {
+        background-color: #11161d;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1rem;
+        padding: 2.5rem 2rem;
+        max-width: 32rem;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      }
+      .code {
+        color: #e85d75;
+        font-family: monospace;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+      }
+      h1 {
+        color: #edf1f5;
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+      }
+      p {
+        color: #8ba0b2;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 1.75rem;
+      }
+      .btn {
+        display: inline-block;
+        background-color: #3db4f2;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.85rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        transition: background-color 0.2s;
+      }
+      .btn:hover { background-color: #2b9ad8; }
+      .links {
+        margin-top: 1.5rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+      }
+      .links a {
+        color: #3db4f2;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+      .links a:hover { text-decoration: underline; }
+    </style>
   </head>
-  <body style="background-color: #0b1622; color: #bcbedc; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
-    <p>Redirecting to AnimeSenpai...</p>
+  <body>
+    <div class="card">
+      <div class="code">HTTP 404 Error</div>
+      <h1>Page Not Found</h1>
+      <p>The anime or page you are looking for doesn't exist, has been removed, or was relocated.</p>
+      <a href="/" class="btn">Return to Homepage</a>
+      <div class="links">
+        <a href="/discover">Browse Catalog</a>
+        <a href="/about">About Platform</a>
+      </div>
+    </div>
   </body>
 </html>

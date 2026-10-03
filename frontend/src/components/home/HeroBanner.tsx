@@ -304,7 +304,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
           <img
             key={currentAnime.id}
             src={bgImage}
-            alt={title}
+            alt={`${title} anime featured banner`}
             loading="eager"
             decoding="sync"
             fetchPriority="high"

@@ -13,9 +13,9 @@ export const EpisodesGrid: React.FC<EpisodesGridProps> = ({ episodes, totalEpiso
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Tv className="w-4 h-4 text-[#3db4f2]" />
-          <h3 className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-mono">
+          <h2 className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-mono">
             Episodes
-          </h3>
+          </h2>
           {totalEpisodes && (
             <span className="text-xs text-slate-400 font-mono">Total: {totalEpisodes}</span>
           )}
@@ -31,9 +31,9 @@ export const EpisodesGrid: React.FC<EpisodesGridProps> = ({ episodes, totalEpiso
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Tv className="w-4 h-4 text-[#3db4f2]" />
-        <h3 className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-mono">
+        <h2 className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-mono">
           Episodes & Streams
-        </h3>
+        </h2>
         <span className="text-xs text-[#3db4f2] ml-auto font-mono font-bold">
           {episodes.length} Available {totalEpisodes ? `of ${totalEpisodes}` : ''}
         </span>

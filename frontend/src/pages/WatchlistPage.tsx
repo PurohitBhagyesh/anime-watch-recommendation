@@ -21,8 +21,16 @@ import {
 import { useWatchlist } from '../context/WatchlistContext';
 import { useAuth } from '../context/AuthContext';
 import type { WatchlistStatus } from '../api/types';
+import { useSEO, SITE_URL } from '../utils/seo';
 
 export const WatchlistPage: React.FC = () => {
+  useSEO({
+    title: 'My Watchlist • Anime Tracker | AnimeSenpai',
+    description: 'Track your anime episode progress, organize watching status, and manage your personal anime list on AnimeSenpai.',
+    canonicalUrl: `${SITE_URL}/watchlist`,
+    robots: 'noindex, follow',
+  });
+
   const { user } = useAuth();
 
   const {

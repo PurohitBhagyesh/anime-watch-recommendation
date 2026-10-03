@@ -1,7 +1,14 @@
 import React from 'react';
 import { Shield, Lock, Eye, Database } from 'lucide-react';
+import { useSEO, SITE_URL } from '../utils/seo';
 
 export const PrivacyPage: React.FC = () => {
+  useSEO({
+    title: 'Privacy Policy • AnimeSenpai',
+    description: 'Read AnimeSenpai\'s privacy policy regarding user data ownership, cookies, and local storage usage.',
+    canonicalUrl: `${SITE_URL}/privacy`,
+  });
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 animate-fadeIn text-slate-300">
       <div className="space-y-3 pb-6 border-b border-white/10">

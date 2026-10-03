@@ -1,9 +1,22 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+Disallow: /watchlist
+Disallow: /account
+Disallow: /settings
+Disallow: /login
+Disallow: /signup
+Disallow: /auth
 
+# Explicit rules for Googlebot
 User-agent: Googlebot
 Allow: /
+Disallow: /watchlist
+Disallow: /account
+Disallow: /settings
+Disallow: /login
+Disallow: /signup
+Disallow: /auth
 
 User-agent: Googlebot-Image
 Allow: /
@@ -11,8 +24,8 @@ Allow: /
 User-agent: Google-Favicon
 Allow: /
 
-# Sitemaps
+# XML Sitemap
 Sitemap: https://www.animesenpai.online/sitemap.xml
 
-# Agentic & AI Discovery
+# Agentic & LLM Discoverability
 Agentmap: https://www.animesenpai.online/llms.txt

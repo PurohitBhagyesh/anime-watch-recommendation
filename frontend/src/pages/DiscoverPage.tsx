@@ -38,6 +38,7 @@ import type { AnimeCardData, PageInfo, WatchlistStatus } from '../api/types';
 import { AnimeCard } from '../components/common/AnimeCard';
 import { CardSkeleton } from '../components/common/Skeleton';
 import { useWatchlist } from '../context/WatchlistContext';
+import { useSEO, SITE_URL } from '../utils/seo';
 
 // Helper to calculate responsive, windowed page numbers with ellipsis
 function getPaginationRange(current: number, total: number): (number | string)[] {
@@ -82,6 +83,47 @@ export const DiscoverPage: React.FC = () => {
   const [showCountInfo, setShowCountInfo] = useState(false);
   const [showGenreStatsModal, setShowGenreStatsModal] = useState(false);
   const [jumpPageInput, setJumpPageInput] = useState('');
+
+  // Dynamic SEO metadata for catalog, genre, seasonal, and search views
+  let discoverTitle = 'Discover Anime • Explore Thousands of Titles | AnimeSenpai';
+  let discoverDesc = 'Discover anime, explore thousands of titles, filter by genre, seasonal releases, and ratings with AnimeSenpai.';
+  let discoverCanonical = `${SITE_URL}/discover`;
+  let discoverRobots: string | undefined = undefined;
+
+  if (searchQuery.trim()) {
+    discoverTitle = `Search: "${searchQuery.trim()}" • AnimeSenpai`;
+    discoverDesc = `Search results for "${searchQuery.trim()}" in AnimeSenpai's catalog of 20,000+ anime titles.`;
+    discoverCanonical = `${SITE_URL}/discover`;
+    // Prevent search index pollution with thin query parameters while allowing link following
+    discoverRobots = 'noindex, follow';
+  } else if (selectedGenre) {
+    discoverTitle = `${selectedGenre} Anime • AnimeSenpai`;
+    discoverDesc = `Explore top-rated and trending ${selectedGenre} anime series and movies on AnimeSenpai. Browse episodes, voice cast, and official trailers.`;
+    discoverCanonical = `${SITE_URL}/discover?genre=${encodeURIComponent(selectedGenre)}`;
+  } else if (selectedSeason && selectedYear) {
+    discoverTitle = `${selectedSeason} ${selectedYear} Anime Schedule • AnimeSenpai`;
+    discoverDesc = `Discover current and upcoming anime broadcasting in ${selectedSeason} ${selectedYear} with episode counters and live scores on AnimeSenpai.`;
+    discoverCanonical = `${SITE_URL}/discover?season=${selectedSeason}&year=${selectedYear}`;
+  } else if (selectedFormat) {
+    discoverTitle = `${selectedFormat.replace('_', ' ')} Anime Catalog • AnimeSenpai`;
+    discoverDesc = `Browse all ${selectedFormat.replace('_', ' ')} releases with official trailers and community ratings on AnimeSenpai.`;
+    discoverCanonical = `${SITE_URL}/discover?format=${selectedFormat}`;
+  } else if (selectedSort === 'SCORE_DESC') {
+    discoverTitle = 'Top 100 Highest Rated Anime • AnimeSenpai';
+    discoverDesc = 'Browse the top 100 highest rated anime series and movies of all time on AnimeSenpai.';
+    discoverCanonical = `${SITE_URL}/discover?sort=SCORE_DESC`;
+  } else if (selectedSort === 'POPULARITY_DESC') {
+    discoverTitle = 'All-Time Most Popular Anime • AnimeSenpai';
+    discoverDesc = 'Explore the most popular and recognized anime across the globe on AnimeSenpai.';
+    discoverCanonical = `${SITE_URL}/discover?sort=POPULARITY_DESC`;
+  }
+
+  useSEO({
+    title: discoverTitle,
+    description: discoverDesc,
+    canonicalUrl: discoverCanonical,
+    robots: discoverRobots,
+  });
 
   const currentGenreMeta = selectedGenre ? GENRE_METADATA[selectedGenre] : null;
 
@@ -907,7 +949,7 @@ export const DiscoverPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-white/[0.06]">
         <div>
           <div className="flex flex-wrap items-center gap-2.5">
-            <h2 className="text-base sm:text-lg font-black text-[#edf1f5] uppercase tracking-wider">
+            <h1 className="text-base sm:text-lg font-black text-[#edf1f5] uppercase tracking-wider">
               {selectedGenre
                 ? `${selectedGenre} Anime`
                 : searchQuery
@@ -925,7 +967,7 @@ export const DiscoverPage: React.FC = () => {
                 : selectedStatus === 'NOT_YET_RELEASED'
                 ? 'Upcoming Next Season'
                 : 'Anime Discovery'}
-            </h2>
+            </h1>
 
             {!loading && pageInfo && (
               <div className="relative inline-flex items-center">

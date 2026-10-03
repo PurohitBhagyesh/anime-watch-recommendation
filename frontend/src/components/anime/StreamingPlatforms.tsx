@@ -55,9 +55,9 @@ export const StreamingPlatforms: React.FC<StreamingPlatformsProps> = ({ links })
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <PlayCircle className="w-4 h-4 text-[#3db4f2]" />
-        <h3 className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-mono">
+        <h2 className="text-sm sm:text-base font-black text-white uppercase tracking-wider font-mono">
           Where to Stream
-        </h3>
+        </h2>
         <span className="flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 font-bold ml-auto">
           <ShieldCheck className="w-3 h-3" />
           Official Links

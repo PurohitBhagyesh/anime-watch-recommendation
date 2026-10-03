@@ -20,8 +20,15 @@ import { CarouselRow } from '../components/home/CarouselRow';
 import { GenreGrid } from '../components/home/GenreGrid';
 import { HeroSkeleton, CardSkeleton } from '../components/common/Skeleton';
 import initialHomeData from '../data/initialHomeData.json';
+import { useSEO, SITE_URL } from '../utils/seo';
 
 export const HomePage: React.FC = () => {
+  useSEO({
+    title: 'AnimeSenpai • Discover, Track & Watch Anime',
+    description: 'Discover anime, explore thousands of titles, track your watch progress, manage your watchlist, and find official trailers with AnimeSenpai.',
+    canonicalUrl: `${SITE_URL}/`,
+  });
+
   const [data, setData] = useState<HomeSectionsData>(() => {
     try {
       const cached = localStorage.getItem('animesenpai_home_data');

@@ -13,20 +13,22 @@
   <meta name="application-name" content="AnimeSenpai" />
   <meta name="apple-mobile-web-app-title" content="AnimeSenpai" />
 
-  <!-- Primary Favicons for Google Search & Browsers (Multiple of 48px square with absolute URLs) -->
-  <link rel="icon" href="https://www.animesenpai.online/favicon.ico" sizes="16x16 32x32 48x48" />
-  <link rel="icon" type="image/png" sizes="48x48" href="https://www.animesenpai.online/favicon-48x48.png" />
-  <link rel="icon" type="image/png" sizes="96x96" href="https://www.animesenpai.online/favicon-96x96.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="https://www.animesenpai.online/favicon-192x192.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="https://www.animesenpai.online/favicon-512x512.png" />
-  <link rel="icon" type="image/svg+xml" href="https://www.animesenpai.online/favicon.svg" />
-  <link rel="shortcut icon" href="https://www.animesenpai.online/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="https://www.animesenpai.online/apple-touch-icon.png" />
+  <!-- Primary Favicons for Google Search & Browsers -->
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
 
   <!-- SEO Meta Tags (Optimized for Google SERP display) -->
   <meta name="description"
-    content="AnimeSenpai is an independent, ad-free anime catalog and watchlist tracker. Explore 20,000+ anime titles, track progress, and watch official trailers safely." />
+    content="Discover anime, explore thousands of titles, track your watch progress, manage your watchlist, and find official trailers with AnimeSenpai." />
   <meta name="keywords"
     content="anime, anime tracker, watch anime, anime discovery, anime recommendations, anilist, seasonal anime, top 100 anime, anime senpai, anime list online" />
   <meta name="author" content="AnimeSenpai Team" />
@@ -35,12 +37,12 @@
   <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <link rel="canonical" href="https://www.animesenpai.online/" />
 
-  <!-- Open Graph / Facebook / LinkedIn / Instagram Preview -->
+  <!-- Open Graph / Social Sharing Preview -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.animesenpai.online/" />
   <meta property="og:title" content="AnimeSenpai • Discover, Track & Watch Anime" />
   <meta property="og:description"
-    content="AnimeSenpai is an independent, ad-free anime catalog and watchlist tracker. Explore 20,000+ anime titles, track progress, and watch official trailers safely." />
+    content="Discover anime, explore thousands of titles, track your watch progress, manage your watchlist, and find official trailers with AnimeSenpai." />
   <meta property="og:image" content="https://www.animesenpai.online/logo-512.png" />
   <meta property="og:image:width" content="512" />
   <meta property="og:image:height" content="512" />
@@ -51,7 +53,7 @@
   <meta name="twitter:url" content="https://www.animesenpai.online/" />
   <meta name="twitter:title" content="AnimeSenpai • Discover, Track & Watch Anime" />
   <meta name="twitter:description"
-    content="Real-time anime discovery, watchlist tracking, and recommendation platform connecting to 20,000+ anime titles." />
+    content="Discover anime, explore thousands of titles, track your watch progress, manage your watchlist, and find official trailers with AnimeSenpai." />
   <meta name="twitter:image" content="https://www.animesenpai.online/animesenpai-banner.svg" />
 
   <!-- Google Structured Data (JSON-LD) - Organization (E-E-A-T & Google Knowledge Graph) -->
@@ -126,7 +128,7 @@
     }
   </script>
 
-  <!-- Google Structured Data (JSON-LD) - WebApplication (Rich Review Rating & App Details) -->
+  <!-- Google Structured Data (JSON-LD) - WebApplication (App Details) -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -144,31 +146,7 @@
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "USD"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.9",
-        "bestRating": "5",
-        "worstRating": "1",
-        "ratingCount": "2840",
-        "reviewCount": "1950"
-      },
-      "review": [
-        {
-          "@type": "Review",
-          "author": {
-            "@type": "Person",
-            "name": "Kenji Sato"
-          },
-          "datePublished": "2026-09-01",
-          "reviewRating": {
-            "@type": "Rating",
-            "ratingValue": "5",
-            "bestRating": "5"
-          },
-          "reviewBody": "Best anime tracker with real-time AniList sync, trailer playback, and zero lag. Fast and modern."
-        }
-      ]
+      }
     }
   </script>
 
@@ -342,7 +320,7 @@
             },
             execute: function (args) {
               if (args && args.query) {
-                window.location.hash = '#/discover?search=' + encodeURIComponent(args.query);
+                window.location.href = '/discover?search=' + encodeURIComponent(args.query);
                 return Promise.resolve({ success: true, url: window.location.href });
               }
               return Promise.reject(new Error('Missing query parameter'));
@@ -356,21 +334,7 @@
 
 <body
   class="bg-[#0b1622] text-[#bcbedc] font-sans antialiased selection:bg-[#3db4f2] selection:text-white min-h-screen overflow-x-hidden">
-  <div id="root">
-    <!-- Static semantic fallback for search engine crawlers (hydrated by React) -->
-    <header style="display:none;" aria-hidden="true">
-      <img src="https://www.animesenpai.online/logo-512.png" alt="AnimeSenpai Logo" width="512" height="512" />
-      <h1>AnimeSenpai • Independent Anime Catalog, Watchlist & Discovery Platform</h1>
-      <p>AnimeSenpai is an independent, ad-free anime catalog and personal watchlist tracking platform powered by the AniList GraphQL API and official YouTube trailer embeds.</p>
-      <nav>
-        <a href="/about">About AnimeSenpai & Platform Transparency</a>
-        <a href="/discover">Discover Anime Catalog</a>
-        <a href="/watchlist">Personal Watchlist Tracker</a>
-        <a href="/privacy">Privacy Policy</a>
-        <a href="/terms">Terms of Service</a>
-      </nav>
-    </header>
-  </div>
+  <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 

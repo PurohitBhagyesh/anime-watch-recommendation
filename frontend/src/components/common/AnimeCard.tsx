@@ -163,7 +163,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
           {isVisible ? (
             <img
               src={anime.coverImage?.large || anime.coverImage?.medium || anime.coverImage?.extraLarge || '/animesenpai-banner.svg'}
-              alt={title}
+              alt={`${title} anime poster`}
               width={185}
               height={265}
               loading={priority ? 'eager' : 'lazy'}

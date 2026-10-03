@@ -19,12 +19,20 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useWatchlist } from '../context/WatchlistContext';
+import { useSEO, SITE_URL } from '../utils/seo';
 
 interface AccountPageProps {
   defaultTab?: 'account' | 'settings';
 }
 
 export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
+  useSEO({
+    title: 'User Profile & Settings • AnimeSenpai',
+    description: 'Manage your AnimeSenpai account preferences, profile settings, and watchlist data backups.',
+    canonicalUrl: `${SITE_URL}/account`,
+    robots: 'noindex, nofollow',
+  });
+
   const location = useLocation();
   const { user, updateProfile, logout } = useAuth();
   const { watchlist, exportWatchlist, clearWatchlist } = useWatchlist();

@@ -21,9 +21,9 @@ export const RelationsGrid: React.FC<RelationsGridProps> = ({ relations }) => {
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <GitFork className="w-4 h-4 text-[#3db4f2]" />
-        <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">
+        <h2 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">
           Franchise Relations
-        </h3>
+        </h2>
         <span className="text-[11px] text-[#3db4f2] ml-auto font-mono font-bold">{validRelations.length} Titles</span>
       </div>
 

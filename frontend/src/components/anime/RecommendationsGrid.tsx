@@ -22,9 +22,9 @@ export const RecommendationsGrid: React.FC<RecommendationsGridProps> = ({
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <ThumbsUp className="w-4 h-4 text-[#3db4f2]" />
-        <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">
+        <h2 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">
           Community Recommendations
-        </h3>
+        </h2>
         <span className="text-[11px] text-[#3db4f2] ml-auto font-bold">Similar Titles</span>
       </div>
 

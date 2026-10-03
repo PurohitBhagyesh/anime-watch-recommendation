@@ -1,7 +1,14 @@
 import React from 'react';
 import { FileText, CheckCircle, AlertCircle } from 'lucide-react';
+import { useSEO, SITE_URL } from '../utils/seo';
 
 export const TermsPage: React.FC = () => {
+  useSEO({
+    title: 'Terms of Service • AnimeSenpai',
+    description: 'Read the terms and conditions for using AnimeSenpai\'s anime discovery and personal watchlist platform.',
+    canonicalUrl: `${SITE_URL}/terms`,
+  });
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 animate-fadeIn text-slate-300">
       <div className="space-y-3 pb-6 border-b border-white/10">

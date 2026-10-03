@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { AppLogo } from '../components/common/AppLogo';
+import { useSEO, SITE_URL } from '../utils/seo';
 
 interface AuthPageProps {
   initialMode?: 'login' | 'signup';
@@ -24,6 +25,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
   const { user, login, signup, loginWithGoogle } = useAuth();
 
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
+
+  useSEO({
+    title: mode === 'login' ? 'Sign In • AnimeSenpai' : 'Create Account • AnimeSenpai',
+    description: 'Sign in to sync your AnimeSenpai watchlist across devices and track your favorite anime series.',
+    canonicalUrl: `${SITE_URL}/login`,
+    robots: 'noindex, nofollow',
+  });
   const [emailOrUsername, setEmailOrUsername] = useState('');
   const [password, setPassword] = useState('');
   const [signupUsername, setSignupUsername] = useState('');
