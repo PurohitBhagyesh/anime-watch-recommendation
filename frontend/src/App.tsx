@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { WatchlistProvider } from './context/WatchlistContext';
 import { AuthProvider } from './context/AuthContext';
 import { Navbar } from './components/common/Navbar';
@@ -64,6 +65,7 @@ export const App: React.FC = () => {
             <Footer />
             <BottomTabBar />
           </div>
+          <SpeedInsights />
         </BrowserRouter>
       </WatchlistProvider>
     </AuthProvider>
