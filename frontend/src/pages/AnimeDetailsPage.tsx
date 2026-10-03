@@ -199,6 +199,15 @@ export const AnimeDetailsPage: React.FC = () => {
   const title = anime.title.userPreferred || anime.title.english || anime.title.romaji;
   const banner = anime.bannerImage || anime.coverImage.extraLarge;
 
+  const hasStreamOption = Boolean(
+    anime.status !== 'NOT_YET_RELEASED' &&
+    (
+      (anime.episodes !== null && anime.episodes > 0) ||
+      (anime.streamingEpisodes && anime.streamingEpisodes.length > 0) ||
+      ['TV', 'MOVIE', 'OVA', 'ONA', 'SPECIAL'].includes(anime.format || '')
+    )
+  );
+
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopiedShare(true);
@@ -510,19 +519,21 @@ export const AnimeDetailsPage: React.FC = () => {
 
               {/* Action Buttons Bar */}
               <div className="flex flex-wrap items-center gap-2.5 pt-2">
-                <button
-                  onClick={() => {
-                    setActiveTab('stream');
-                    setTimeout(() => {
-                      const el = document.getElementById('anime-stream-section');
-                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    }, 50);
-                  }}
-                  className="anilist-btn-primary flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-black shadow-lg shadow-[#3db4f2]/20 hover:shadow-[#3db4f2]/40 transition active:scale-95"
-                >
-                  <Tv className="w-4 h-4" />
-                  <span>Stream Anime</span>
-                </button>
+                {hasStreamOption && (
+                  <button
+                    onClick={() => {
+                      setActiveTab('stream');
+                      setTimeout(() => {
+                        const el = document.getElementById('anime-stream-section');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }, 50);
+                    }}
+                    className="anilist-btn-primary flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-black shadow-lg shadow-[#3db4f2]/20 hover:shadow-[#3db4f2]/40 transition active:scale-95"
+                  >
+                    <Tv className="w-4 h-4" />
+                    <span>Stream Anime</span>
+                  </button>
+                )}
 
                 {anime.trailer?.id && (
                   <button
@@ -581,7 +592,7 @@ export const AnimeDetailsPage: React.FC = () => {
             <div className="flex items-center gap-1 p-1 rounded-xl bg-[#151f2e] border border-white/10 overflow-x-auto no-scrollbar touch-scroll-smooth flex-nowrap sm:flex-wrap">
               {[
                 { id: 'overview', label: 'Overview', icon: Sparkles },
-                { id: 'stream', label: 'Watch Stream', icon: Tv },
+                ...(hasStreamOption ? [{ id: 'stream', label: 'Watch Stream', icon: Tv }] : []),
                 { id: 'characters', label: `Characters (${anime.characters?.edges?.length || 0})`, icon: Users },
                 { id: 'episodes', label: `Episodes (${anime.streamingEpisodes?.length || anime.episodes || 0})`, icon: Tv },
                 { id: 'relations', label: `Relations (${anime.relations?.edges?.length || 0})`, icon: GitFork },

@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Tv,
   Languages,
@@ -15,9 +16,16 @@ import {
   RotateCcw,
   Shield,
   ShieldCheck,
+  Lock,
+  Unlock,
+  KeyRound,
+  LogIn,
+  AlertCircle,
+  Sparkles,
 } from 'lucide-react';
 import type { AnimeDetailsData } from '../../api/types';
 import { useWatchlist } from '../../context/WatchlistContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface AnimeStreamPlayerProps {
   anime: AnimeDetailsData;
@@ -38,7 +46,19 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
   onEpisodeChange,
 }) => {
   const { isInWatchlist, getItem, updateProgress, addToWatchlist } = useWatchlist();
+  const { user, isAuthenticated, quickDemoLogin } = useAuth();
   const playerRef = useRef<HTMLDivElement>(null);
+
+  // Passcode unlock & session state
+  const [isUnlocked, setIsUnlocked] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('animesenpai_stream_unlocked') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [passcode, setPasscode] = useState<string>('');
+  const [passcodeError, setPasscodeError] = useState<string>('');
 
   const [currentEpisode, setCurrentEpisode] = useState<number>(initialEpisode);
   const [selectedLanguage, setSelectedLanguage] = useState<'sub' | 'dub'>('sub');
@@ -132,6 +152,28 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
     }
   };
 
+  const handlePasscodeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passcode.trim() === '111111') {
+      try {
+        sessionStorage.setItem('animesenpai_stream_unlocked', 'true');
+      } catch {}
+      setIsUnlocked(true);
+      setPasscodeError('');
+    } else {
+      setPasscodeError('Incorrect passcode! Please enter 111111 to unlock.');
+    }
+  };
+
+  const handleLock = () => {
+    try {
+      sessionStorage.removeItem('animesenpai_stream_unlocked');
+    } catch {}
+    setIsUnlocked(false);
+    setPasscode('');
+    setPasscodeError('');
+  };
+
   // Filter episodes list
   const allEpisodes = Array.from({ length: totalEpisodes }, (_, i) => i + 1);
   const filteredEpisodes = searchQuery.trim()
@@ -143,6 +185,104 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
     (sep, idx) => idx + 1 === currentEpisode || sep.title.includes(`Episode ${currentEpisode}`)
   );
 
+  // 1. GATE: Authentication Required
+  if (!isAuthenticated) {
+    return (
+      <div className="p-8 sm:p-12 rounded-2xl bg-[#151f2e] border border-white/10 shadow-2xl text-center max-w-xl mx-auto space-y-5 animate-fadeIn">
+        <div className="w-16 h-16 rounded-2xl bg-[#3db4f2]/10 border border-[#3db4f2]/30 flex items-center justify-center mx-auto text-[#3db4f2] shadow-lg shadow-[#3db4f2]/10">
+          <Lock className="w-8 h-8" />
+        </div>
+
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-mono font-bold border border-amber-500/20">
+            <KeyRound className="w-3.5 h-3.5" />
+            <span>Members Only • Passcode Protected</span>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-white">
+            Sign In to Access Stream Theater
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+            Streaming for <strong className="text-slate-200">{animeTitle}</strong> is locked. You must be logged in and enter the passcode to watch episodes directly.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <Link
+            to={`/login?redirect=/anime/${anime.id}`}
+            className="w-full sm:w-auto anilist-btn-primary flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-bold shadow-lg shadow-[#3db4f2]/20"
+          >
+            <LogIn className="w-4 h-4" />
+            <span>Sign In / Sign Up</span>
+          </Link>
+          <button
+            onClick={quickDemoLogin}
+            className="w-full sm:w-auto anilist-btn-secondary flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold border border-white/10"
+          >
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span>Quick Demo Login</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. GATE: Passcode 111111 Required
+  if (!isUnlocked) {
+    return (
+      <div className="p-8 sm:p-12 rounded-2xl bg-[#151f2e] border border-white/10 shadow-2xl text-center max-w-lg mx-auto space-y-6 animate-fadeIn">
+        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400 shadow-lg shadow-amber-500/10">
+          <KeyRound className="w-8 h-8" />
+        </div>
+
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-mono font-bold border border-emerald-500/20">
+            <Check className="w-3.5 h-3.5" />
+            <span>Authenticated as {user?.username || 'Member'}</span>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-white">
+            Enter Passcode to Unlock Stream
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto">
+            Please enter the 6-digit access code to unlock streaming for <strong className="text-slate-200">{animeTitle}</strong>.
+          </p>
+        </div>
+
+        <form onSubmit={handlePasscodeSubmit} className="space-y-4 max-w-xs mx-auto">
+          <div className="relative">
+            <input
+              type="password"
+              maxLength={6}
+              placeholder="••••••"
+              value={passcode}
+              onChange={(e) => {
+                setPasscode(e.target.value);
+                if (passcodeError) setPasscodeError('');
+              }}
+              className="w-full text-center tracking-[0.5em] text-2xl font-mono py-3 px-4 rounded-xl bg-[#0b1622] text-white border border-white/10 focus:border-[#3db4f2] focus:ring-2 focus:ring-[#3db4f2]/20 outline-none transition"
+              autoFocus
+            />
+          </div>
+
+          {passcodeError && (
+            <div className="flex items-center justify-center gap-1.5 text-xs text-rose-400 font-semibold animate-shake">
+              <AlertCircle className="w-3.5 h-3.5" />
+              <span>{passcodeError}</span>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="w-full py-3 rounded-xl anilist-btn-primary font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-[#3db4f2]/20 active:scale-95 transition"
+          >
+            <Unlock className="w-4 h-4" />
+            <span>Unlock Stream Theater</span>
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  // 3. UNLOCKED STREAM THEATER SECTION
   return (
     <div
       ref={playerRef}
@@ -166,6 +306,10 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
                 Episode {currentEpisode}
               </span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono font-bold border border-emerald-500/30 hidden min-[480px]:inline-flex items-center gap-1">
+                <Unlock className="w-2.5 h-2.5" />
+                <span>Unlocked</span>
+              </span>
             </div>
             <h3 className="text-sm sm:text-base font-extrabold text-white line-clamp-1">
               {currentEpData?.title || `${animeTitle} - Episode ${currentEpisode}`}
@@ -173,7 +317,7 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
           </div>
         </div>
 
-        {/* Top Controls: Prev / Next / Theater */}
+        {/* Top Controls: Prev / Next / Theater / Lock */}
         <div className="flex items-center gap-2 ml-auto">
           <button
             onClick={handlePrevEpisode}
@@ -237,6 +381,15 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
                 <span className="hidden sm:inline">Theater Mode</span>
               </>
             )}
+          </button>
+
+          {/* Re-Lock Vault Button */}
+          <button
+            onClick={handleLock}
+            className="p-2 rounded-lg bg-[#0b1622] hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 transition border border-white/5"
+            title="Lock Stream Vault"
+          >
+            <Lock className="w-4 h-4" />
           </button>
         </div>
       </div>
