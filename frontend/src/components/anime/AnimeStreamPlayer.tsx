@@ -30,7 +30,7 @@ import {
   BookmarkCheck,
   Film,
   Subtitles,
-  Settings2,
+  Settings,
   X,
   FastForward,
   Palette,
@@ -146,9 +146,21 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
   const [volume, setVolume] = useState<number>(1.0);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [showControls, setShowControls] = useState<boolean>(true);
-  const [isTheaterMode, setIsTheaterMode] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [isBuffering, setIsBuffering] = useState<boolean>(false);
+
+  // Sync fullscreen state with document fullscreen element
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   // 1-Click Download state
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
@@ -601,16 +613,12 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
     );
   }
 
-  // 3. UNLOCKED STREAM THEATER SECTION
+  // 3. UNLOCKED STREAM SECTION
   return (
     <div
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      className={`space-y-4 transition-all duration-300 ${
-        isTheaterMode
-          ? 'fixed inset-0 z-50 bg-[#0b1622]/98 p-4 sm:p-6 overflow-y-auto'
-          : 'relative'
-      }`}
+      className="space-y-4 transition-all duration-300 relative"
     >
       {/* Player Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 p-3 sm:p-4 rounded-xl bg-[#151f2e] border border-white/10 shadow-lg">
@@ -652,7 +660,7 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
           </div>
         </div>
 
-        {/* Top Controls: Prev / Next / Settings / Download / Theater / Lock */}
+        {/* Top Controls: Prev / Next / Settings / Download / Small Screen vs Full Screen / Lock */}
         <div className="flex items-center gap-2 ml-auto flex-wrap">
           <button
             onClick={handlePrevEpisode}
@@ -677,10 +685,11 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
           {/* Settings Button */}
           <button
             onClick={() => setShowSettingsModal(true)}
-            className="p-2 rounded-lg bg-[#0b1622] hover:bg-[#1f2c3f] text-[#3db4f2] hover:text-white transition border border-white/10 shadow-sm"
+            className="px-3 py-1.5 rounded-lg bg-[#0b1622] hover:bg-[#1f2c3f] text-[#3db4f2] hover:text-white transition border border-white/10 shadow-sm flex items-center gap-1.5 text-xs font-bold"
             title="Open Player Settings (S)"
           >
-            <Settings2 className="w-4 h-4" />
+            <Settings className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Settings</span>
           </button>
 
           {/* 1-Click Direct Download Button */}
@@ -694,25 +703,21 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
             <span className="hidden sm:inline">1-Click Download</span>
           </button>
 
-          {/* Theater Mode Toggle */}
+          {/* Screen Mode: Small Screen vs Full Screen */}
           <button
-            onClick={() => setIsTheaterMode(!isTheaterMode)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition border ${
-              isTheaterMode
-                ? 'bg-[#3db4f2] text-black border-[#3db4f2]'
-                : 'bg-[#0b1622] text-slate-300 hover:text-white border-white/10'
-            }`}
-            title="Toggle Theater Mode"
+            onClick={toggleFullscreen}
+            className="px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition bg-[#0b1622] hover:bg-[#1a273a] text-slate-300 hover:text-white border border-white/10 hover:border-[#3db4f2]/50 shadow-sm"
+            title={isFullscreen ? 'Switch to Small Screen (F)' : 'Switch to Full Screen (F)'}
           >
-            {isTheaterMode ? (
+            {isFullscreen ? (
               <>
-                <Minimize className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Exit Theater</span>
+                <Minimize className="w-3.5 h-3.5 text-[#3db4f2]" />
+                <span className="hidden sm:inline">Small Screen</span>
               </>
             ) : (
               <>
-                <Maximize className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Theater</span>
+                <Maximize className="w-3.5 h-3.5 text-[#3db4f2]" />
+                <span className="hidden sm:inline">Full Screen</span>
               </>
             )}
           </button>
@@ -905,8 +910,8 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
                   </div>
                 </div>
 
-                {/* Right Controls: Subtitles, Speed, Quality, Settings, Fullscreen */}
-                <div className="flex items-center gap-1 sm:gap-2">
+                {/* Right Controls: CC, Player Settings, Small Screen / Full Screen */}
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   {/* CC Subtitles Toggle */}
                   <button
                     onClick={() => setSubtitlesEnabled(!subtitlesEnabled)}
@@ -915,62 +920,36 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                         : 'text-slate-400 hover:text-white'
                     }`}
-                    title="Toggle Subtitles"
+                    title={subtitlesEnabled ? 'Subtitles On (Click to turn off)' : 'Subtitles Off (Click to turn on)'}
                   >
                     <Subtitles className="w-3.5 h-3.5" />
-                    <span className="hidden md:inline">CC</span>
+                    <span>CC</span>
                   </button>
 
-                  {/* Speed Selector */}
-                  <div className="flex items-center gap-1">
-                    {[0.75, 1.0, 1.25, 1.5].map((spd) => (
-                      <button
-                        key={spd}
-                        onClick={() => handleSpeedChange(spd)}
-                        className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold transition ${
-                          activeSpeed === spd
-                            ? 'bg-[#3db4f2] text-black'
-                            : 'text-slate-400 hover:text-white'
-                        }`}
-                      >
-                        {spd}x
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Quality Selector */}
-                  <div className="flex items-center gap-1 ml-1">
-                    {(['1080p', '720p', '480p'] as const).map((q) => (
-                      <button
-                        key={q}
-                        onClick={() => handleQualityChange(q)}
-                        className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold transition ${
-                          activeQuality === q
-                            ? 'bg-[#3db4f2]/20 border border-[#3db4f2] text-[#3db4f2]'
-                            : 'text-slate-400 hover:text-white'
-                        }`}
-                      >
-                        {q}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Settings Gear Button */}
+                  {/* Player Settings Button */}
                   <button
                     onClick={() => setShowSettingsModal(true)}
-                    className="p-1.5 rounded-lg hover:bg-white/10 text-slate-300 hover:text-[#3db4f2] transition ml-1"
-                    title="All Player Settings (S)"
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.08] hover:bg-[#3db4f2]/20 border border-white/15 hover:border-[#3db4f2]/50 text-slate-200 hover:text-white transition group cursor-pointer"
+                    title="Player Settings (S) - Speed, Quality, Subtitles, Audio"
                   >
-                    <Settings2 className="w-4 h-4" />
+                    <Settings className="w-3.5 h-3.5 text-[#3db4f2] group-hover:rotate-45 transition-transform" />
+                    <span className="text-[11px] font-bold">Player Settings</span>
+                    <span className="text-[10px] font-mono font-bold px-1 py-0.2 rounded bg-black/60 text-[#3db4f2]">
+                      {activeQuality}
+                    </span>
                   </button>
 
-                  {/* Fullscreen Button */}
+                  {/* Small Screen / Full Screen Button */}
                   <button
                     onClick={toggleFullscreen}
-                    className="p-1.5 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition ml-0.5"
-                    title={isFullscreen ? 'Exit Fullscreen (F)' : 'Toggle Fullscreen (F)'}
+                    className="p-1.5 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition ml-0.5 cursor-pointer"
+                    title={isFullscreen ? 'Small Screen (F)' : 'Full Screen (F)'}
                   >
-                    {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                    {isFullscreen ? (
+                      <Minimize className="w-4 h-4 text-[#3db4f2]" />
+                    ) : (
+                      <Maximize className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -1043,7 +1022,7 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
             onClick={() => setShowSettingsModal(true)}
             className="text-[#3db4f2] hover:underline font-bold flex items-center gap-1"
           >
-            <Settings2 className="w-3.5 h-3.5" />
+            <Settings className="w-3.5 h-3.5" />
             <span>Player Settings</span>
           </button>
           <span className="text-slate-400 text-[11px] font-mono">
@@ -1287,7 +1266,7 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
             <div className="flex items-center justify-between p-4 sm:p-5 border-b border-white/10 bg-[#0b1622]/60">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-[#3db4f2]/15 text-[#3db4f2] flex items-center justify-center font-bold">
-                  <Settings2 className="w-4 h-4" />
+                  <Settings className="w-4 h-4" />
                 </div>
                 <div>
                   <h3 className="font-extrabold text-white text-base">Player & Stream Settings</h3>
