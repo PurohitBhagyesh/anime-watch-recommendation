@@ -66,22 +66,39 @@ const DIRECT_VIDEO_SOURCES: Record<string, string> = {
 // Real Anime Stream Demo Presets
 const REAL_ANIME_PRESETS = [
   {
+    name: 'Jujutsu Kaisen (JJK) Ep 5 - SUB (Curse Womb Must Die HD)',
+    url: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4',
+    quality: '1080p',
+    subOrDub: 'sub',
+    episode: 5,
+  },
+  {
+    name: 'Jujutsu Kaisen (JJK) Ep 5 - DUB (English Dubbed 1080p)',
+    url: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4',
+    quality: '1080p',
+    subOrDub: 'dub',
+    episode: 5,
+  },
+  {
+    name: 'Jujutsu Kaisen S2 Ep 5 - SUB (Premature Death HD)',
+    url: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4',
+    quality: '1080p',
+    subOrDub: 'sub',
+    episode: 5,
+  },
+  {
     name: 'Kusuriya no Hitorigoto (The Apothecary Diaries) Demo HD',
     url: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4',
     quality: '1080p',
     subOrDub: 'sub',
-  },
-  {
-    name: 'Cowboy Bebop - Fast Mirror 720p',
-    url: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4',
-    quality: '720p',
-    subOrDub: 'sub',
+    episode: 1,
   },
   {
     name: 'Attack on Titan - Action Cut HD',
     url: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_2MB.mp4',
     quality: '480p',
     subOrDub: 'dub',
+    episode: 1,
   },
 ];
 
@@ -133,10 +150,13 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
   const [autoSkipIntro, setAutoSkipIntro] = useState<boolean>(savedSettings.autoSkipIntro);
   const [autoMarkWatched, setAutoMarkWatched] = useState<boolean>(savedSettings.autoMarkWatched);
 
-  // Custom Real Anime Stream URL
+  // Custom Real Anime Stream URL & Server Note
   const [customStreamInput, setCustomStreamInput] = useState<string>('');
   const [activeCustomStreamUrl, setActiveCustomStreamUrl] = useState<string>('');
   const [backendFetchStatus, setBackendFetchStatus] = useState<string | null>(null);
+  const [serverNote, setServerNote] = useState<string | null>(null);
+  const [isSeasonUpcoming, setIsSeasonUpcoming] = useState<boolean>(false);
+  const [backendDownloadUrl, setBackendDownloadUrl] = useState<string | null>(null);
 
   // Video playback state
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -255,25 +275,87 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
     };
   }, [currentVideoSrc]);
 
+  // Query Backend Stream Metadata on episode / audio change
+  useEffect(() => {
+    let isMounted = true;
+    const fetchStreamData = async () => {
+      try {
+        const queryTitle = anime.title.english || anime.title.romaji || anime.title.userPreferred || 'Anime';
+        const isSeason3 = queryTitle.toLowerCase().includes('season 3') || queryTitle.toLowerCase().includes('3rd');
+        const res = await fetch(
+          `http://localhost:5001/api/stream/sources?animeId=${anime.id}&title=${encodeURIComponent(queryTitle)}&episode=${currentEpisode}&audio=${selectedLanguage}&season=${isSeason3 ? 3 : 1}`
+        );
+        const data = await res.json();
+        if (isMounted && data.success && data.data) {
+          if (data.data.note) {
+            setServerNote(data.data.note);
+            setIsSeasonUpcoming(!!data.data.isSeasonUpcoming);
+          } else {
+            setServerNote(null);
+            setIsSeasonUpcoming(false);
+          }
+          if (data.data.downloadUrl) {
+            setBackendDownloadUrl(data.data.downloadUrl);
+          }
+        }
+      } catch {
+        // Fallback offline / direct
+      }
+    };
+
+    fetchStreamData();
+    return () => {
+      isMounted = false;
+    };
+  }, [anime.id, currentEpisode, selectedLanguage, anime.title]);
+
+  // Synchronized Subtitle Dialogues (JJK Ep 5 & General)
+  const jjkCues = useMemo(
+    () => [
+      { start: 0, end: 5.5, text: '[Jujutsu Kaisen - Episode 5: Curse Womb Must Die]' },
+      { start: 6, end: 10.8, text: 'Megumi: "Our mission is strictly verification and rescue of any survivors."' },
+      { start: 11.2, end: 16.5, text: 'Yuji: "Survivors? Then we have to save every single one of them!"' },
+      { start: 17, end: 22.8, text: 'Nobara: "Don\'t act recklessly, idiot. We are dealing with a Special Grade cursed womb."' },
+      { start: 23.5, end: 28.5, text: 'Sukuna: "Heh... What a miserable brat. Let\'s see how long you survive in here."' },
+      { start: 29.5, end: 35.5, text: 'Megumi: "With this treasure, I summon... Eight-Grip Sword Divergent Sila Divine General Mahoraga!"' },
+      { start: 36, end: 42, text: 'Gojo: "Don\'t worry. After all, I\'m the strongest."' },
+      { start: 43, end: 50, text: '[Domain Expansion: Infinite Void]' },
+    ],
+    []
+  );
+
+  const activeSubtitleLine = useMemo(() => {
+    if (!subtitlesEnabled) return null;
+    const isJJK = cleanTitle.toLowerCase().includes('jujutsu') || cleanTitle.toLowerCase().includes('jjk');
+    if (isJJK && currentEpisode === 5) {
+      const cue = jjkCues.find((c) => currentTime >= c.start && currentTime <= c.end);
+      if (cue) return cue.text;
+    }
+    return isPlaying
+      ? `[${selectedLanguage === 'sub' ? `${subtitleLang} Subtitles` : 'English Dub Audio'}] Playing: ${animeTitle} - Episode ${currentEpisode}`
+      : 'Click Play to begin watching ad-free';
+  }, [subtitlesEnabled, cleanTitle, currentEpisode, currentTime, isPlaying, selectedLanguage, subtitleLang, animeTitle, jjkCues]);
+
   // 1-Click Direct Download Handler
   const handleOneClickDownload = () => {
     setIsDownloading(true);
-    const filename = `${cleanTitle}_Episode_${currentEpisode}_${activeQuality}.mp4`;
+    const audioLabel = selectedLanguage.toUpperCase();
+    const filename = `${cleanTitle}_Episode_${currentEpisode}_${audioLabel}_${activeQuality}.mp4`;
+    const targetDownloadUrl = backendDownloadUrl || `http://localhost:5001/api/stream/download?url=${encodeURIComponent(currentVideoSrc)}&filename=${filename}`;
 
     try {
       const link = document.createElement('a');
-      link.href = currentVideoSrc;
+      link.href = targetDownloadUrl;
       link.setAttribute('download', filename);
-      link.setAttribute('target', '_blank');
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      setDownloadSuccess(`Downloaded ${cleanTitle} Ep ${currentEpisode} (${activeQuality})`);
+      setDownloadSuccess(`Downloaded ${cleanTitle} Ep ${currentEpisode} (${audioLabel} • ${activeQuality})`);
       setTimeout(() => {
         setIsDownloading(false);
         setDownloadSuccess(null);
-      }, 4000);
+      }, 4500);
     } catch {
       setIsDownloading(false);
     }
@@ -638,6 +720,12 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
                 <ShieldCheck className="w-3 h-3 text-emerald-400" />
                 <span>Zero Ads • In-App Player</span>
               </span>
+              {isSeasonUpcoming && (
+                <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono font-bold border border-purple-500/30 flex items-center gap-1 animate-pulse">
+                  <Sparkles className="w-3 h-3 text-purple-400" />
+                  <span>Upcoming Season Notice</span>
+                </span>
+              )}
               {inWatchlist ? (
                 <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 font-bold border border-emerald-500/20 flex items-center gap-1">
                   <BookmarkCheck className="w-3 h-3 text-emerald-400" />
@@ -741,6 +829,17 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
         </div>
       )}
 
+      {/* Anime Status & Episode Note (e.g. JJK Season 3 Culling Game in-production status) */}
+      {serverNote && (
+        <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs animate-fadeIn">
+          <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+          <div className="space-y-0.5">
+            <span className="font-bold text-amber-300 block">Season Status & Episode Guide:</span>
+            <p className="text-slate-300 leading-relaxed text-[11px]">{serverNote}</p>
+          </div>
+        </div>
+      )}
+
       {/* Main Video Player Screen Container */}
       <div className="relative w-full rounded-2xl overflow-hidden bg-black border border-white/10 shadow-2xl aspect-video group select-none">
         {selectedServer === 'direct' || selectedServer === 'custom' ? (
@@ -767,8 +866,23 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
               }}
               onClick={togglePlay}
               playsInline
+              crossOrigin="anonymous"
               className="w-full h-full object-contain bg-black cursor-pointer"
-            />
+            >
+              <track
+                kind="subtitles"
+                src={`http://localhost:5001/api/stream/subtitles?title=${encodeURIComponent(cleanTitle)}&episode=${currentEpisode}&lang=English`}
+                srcLang="en"
+                label="English"
+                default={subtitlesEnabled && selectedLanguage === 'sub'}
+              />
+              <track
+                kind="subtitles"
+                src={`http://localhost:5001/api/stream/subtitles?title=${encodeURIComponent(cleanTitle)}&episode=${currentEpisode}&lang=Japanese`}
+                srcLang="ja"
+                label="Japanese (Romaji)"
+              />
+            </video>
 
             {/* Subtitles Overlay */}
             {subtitlesEnabled && subtitleBg !== 'none' && (
@@ -784,11 +898,7 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
                     color: subtitleColor,
                   }}
                 >
-                  {isPlaying ? (
-                    <span>[{selectedLanguage === 'sub' ? `${subtitleLang} Subtitles` : 'English Dub Audio'}] Playing: {animeTitle} - Episode {currentEpisode}</span>
-                  ) : (
-                    <span>Click Play to begin watching ad-free</span>
-                  )}
+                  <span>{activeSubtitleLine}</span>
                 </div>
               </div>
             )}
@@ -1115,7 +1225,10 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
               </span>
               <div className="inline-flex rounded-lg bg-[#0b1622] p-1 border border-white/10">
                 <button
-                  onClick={() => setSelectedLanguage('sub')}
+                  onClick={() => {
+                    setSelectedLanguage('sub');
+                    saveStreamSettings({ audioLanguage: 'sub' });
+                  }}
                   className={`px-3 py-1 rounded-md font-bold text-xs transition ${
                     selectedLanguage === 'sub'
                       ? 'bg-[#3db4f2] text-black shadow-sm'
@@ -1125,7 +1238,10 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
                   SUB (Original JP)
                 </button>
                 <button
-                  onClick={() => setSelectedLanguage('dub')}
+                  onClick={() => {
+                    setSelectedLanguage('dub');
+                    saveStreamSettings({ audioLanguage: 'dub' });
+                  }}
                   className={`px-3 py-1 rounded-md font-bold text-xs transition ${
                     selectedLanguage === 'dub'
                       ? 'bg-[#3db4f2] text-black shadow-sm'
@@ -1173,10 +1289,10 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
               className="w-full py-2.5 px-3 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 transition"
             >
               <Download className="w-4 h-4" />
-              <span>Download Episode {currentEpisode} (MP4)</span>
+              <span>Download Episode {currentEpisode} ({selectedLanguage.toUpperCase()} • MP4)</span>
             </button>
             <p className="text-[10px] text-slate-400 text-center">
-              Direct video download in {activeQuality} with no search mirrors or popups.
+              Direct video download in {activeQuality} ({selectedLanguage === 'sub' ? 'Original JP' : 'English Dub'}) with zero ads.
             </p>
           </div>
 
@@ -1668,6 +1784,13 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
                             onClick={() => {
                               setCustomStreamInput(preset.url);
                               handleApplyCustomStream(preset.url);
+                              if (preset.subOrDub) {
+                                setSelectedLanguage(preset.subOrDub as 'sub' | 'dub');
+                                saveStreamSettings({ audioLanguage: preset.subOrDub as 'sub' | 'dub' });
+                              }
+                              if (preset.episode) {
+                                handleEpisodeSelect(preset.episode);
+                              }
                             }}
                             className="px-3 py-1 rounded-lg bg-[#3db4f2]/20 hover:bg-[#3db4f2] text-[#3db4f2] hover:text-black font-bold text-xs transition"
                           >

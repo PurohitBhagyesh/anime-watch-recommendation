@@ -26,6 +26,20 @@ import { useSEO } from '../utils/seo';
 // Curated popular anime for instant 1-click streaming
 const CURATED_STREAM_PICKS: Array<{ id: number; title: string; episodes: number; format: string; cover: string }> = [
   {
+    id: 113415,
+    title: 'Jujutsu Kaisen (JJK)',
+    episodes: 24,
+    format: 'TV',
+    cover: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx113415-bbBWj4pEFBgM.jpg',
+  },
+  {
+    id: 145064,
+    title: 'Jujutsu Kaisen 2nd Season',
+    episodes: 23,
+    format: 'TV',
+    cover: 'https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx145064-iQp8n1BP3i19.jpg',
+  },
+  {
     id: 195516,
     title: 'Kusuriya no Hitorigoto 3rd Season',
     episodes: 12,
