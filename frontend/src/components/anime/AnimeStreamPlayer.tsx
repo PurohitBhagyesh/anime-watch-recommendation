@@ -13,6 +13,8 @@ import {
   ExternalLink,
   Layers,
   RotateCcw,
+  Shield,
+  ShieldCheck,
 } from 'lucide-react';
 import type { AnimeDetailsData } from '../../api/types';
 import { useWatchlist } from '../../context/WatchlistContext';
@@ -49,6 +51,7 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
   const [showDownloadModal, setShowDownloadModal] = useState<boolean>(false);
   const [iframeKey, setIframeKey] = useState<number>(0);
   const [prevInitial, setPrevInitial] = useState<number>(initialEpisode);
+  const [adShield, setAdShield] = useState<boolean>(true);
 
   if (initialEpisode !== prevInitial) {
     setPrevInitial(initialEpisode);
@@ -65,29 +68,35 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
   const watchlistItem = getItem(anime.id);
   const isWatchedCurrent = (watchlistItem?.currentEpisode || 0) >= currentEpisode;
 
-  // Streaming server sources
+  // Streaming server sources (cleanest multi-provider setup)
   const servers: ServerOption[] = [
     {
       id: 'server-1',
-      name: 'Server 1 (AutoEmbed HD)',
-      badge: 'Fast • Multi-Res',
-      getUrl: (id, ep) => `https://player.autoembed.cc/embed/anime/${id}/${ep}`,
+      name: 'Server 1 (Embed.su HD)',
+      badge: 'Clean • Fast',
+      getUrl: (id, ep) => `https://embed.su/embed/anime/${id}/${ep}`,
     },
     {
       id: 'server-2',
-      name: 'Server 2 (2Embed Stream)',
+      name: 'Server 2 (AutoEmbed HD)',
+      badge: 'Multi-Res',
+      getUrl: (id, ep) => `https://player.autoembed.cc/embed/anime/${id}/${ep}`,
+    },
+    {
+      id: 'server-3',
+      name: 'Server 3 (2Embed Stream)',
       badge: '1080p • Stable',
       getUrl: (id, ep) => `https://www.2embed.cc/embed/anime/${id}/${ep}`,
     },
     {
-      id: 'server-3',
-      name: 'Server 3 (MultiEmbed)',
+      id: 'server-4',
+      name: 'Server 4 (MultiEmbed)',
       badge: 'Multi-Source',
       getUrl: (id, ep) => `https://multiembed.mov/?video_id=${id}&anime=1&s=${ep}`,
     },
     {
-      id: 'server-4',
-      name: 'Server 4 (VidSrc Anime)',
+      id: 'server-5',
+      name: 'Server 5 (VidSrc Anime)',
       badge: 'Backup',
       getUrl: (id, ep) => `https://vidsrc.me/embed/anime?id=${id}&ep=${ep}`,
     },
@@ -186,6 +195,27 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
             <ChevronRight className="w-4 h-4" />
           </button>
 
+          {/* Ad-Shield Toggle */}
+          <button
+            onClick={() => {
+              setAdShield(!adShield);
+              setIframeKey((prev) => prev + 1);
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition border ${
+              adShield
+                ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-400 shadow-sm'
+                : 'bg-[#0b1622] text-slate-400 border-white/10 hover:text-white'
+            }`}
+            title={adShield ? 'Ad-Shield Active: Popups and redirects are blocked' : 'Ad-Shield Disabled'}
+          >
+            {adShield ? (
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            ) : (
+              <Shield className="w-3.5 h-3.5 text-slate-400" />
+            )}
+            <span className="hidden sm:inline">{adShield ? 'Ad-Shield: ON' : 'Ad-Shield: OFF'}</span>
+          </button>
+
           {/* Theater Mode Toggle */}
           <button
             onClick={() => setIsTheaterMode(!isTheaterMode)}
@@ -214,11 +244,17 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
       {/* Main Video Screen Container */}
       <div className="relative w-full rounded-2xl overflow-hidden bg-black border border-white/10 shadow-2xl aspect-video group">
         <iframe
-          key={`${selectedServer}-${currentEpisode}-${selectedLanguage}-${iframeKey}`}
+          key={`${selectedServer}-${currentEpisode}-${selectedLanguage}-${iframeKey}-${adShield}`}
           src={streamUrl}
           title={`${animeTitle} Episode ${currentEpisode} Stream`}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          sandbox={
+            adShield
+              ? 'allow-scripts allow-same-origin allow-forms allow-presentation'
+              : 'allow-scripts allow-same-origin allow-forms allow-presentation allow-popups'
+          }
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
           allowFullScreen
+          referrerPolicy="no-referrer"
           className="w-full h-full border-0 relative z-10"
         />
 
@@ -233,6 +269,19 @@ export const AnimeStreamPlayer: React.FC<AnimeStreamPlayerProps> = ({
             <span className="text-[11px] font-bold">Reload</span>
           </button>
         </div>
+      </div>
+
+      {/* Ad-Shield & Tips Notice Banner */}
+      <div className="flex flex-wrap items-center justify-between gap-2 px-3 sm:px-4 py-2 rounded-xl bg-[#151f2e] border border-white/10 text-xs">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+          <span className="text-slate-300">
+            <strong className="text-emerald-400">Ad-Shield Active:</strong> All annoying popups, new window spawns, and redirects are strictly blocked.
+          </span>
+        </div>
+        <span className="text-slate-400 text-[11px]">
+          If a video buffers, switch to Server 2 or Server 3 below.
+        </span>
       </div>
 
       {/* Player Utility Bar: Language, Server, Quality, Speed, Subtitles, Download, Watchlist */}
