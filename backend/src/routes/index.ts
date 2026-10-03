@@ -4,6 +4,7 @@ import animeRoutes from './animeRoutes';
 import watchlistRoutes from './watchlistRoutes';
 import recommendationRoutes from './recommendationRoutes';
 import reviewRoutes from './reviewRoutes';
+import streamRoutes from './streamRoutes';
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use('/anime', animeRoutes);
 router.use('/watchlist', watchlistRoutes);
 router.use('/recommendations', recommendationRoutes);
 router.use('/reviews', reviewRoutes);
+router.use('/stream', streamRoutes);
 
 export default router;
