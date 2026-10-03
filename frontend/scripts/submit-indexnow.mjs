@@ -59,6 +59,7 @@ async function submitToIndexNow(endpointUrl, endpointName) {
 async function run() {
   await submitToIndexNow('https://api.indexnow.org/indexnow', 'IndexNow API');
   await submitToIndexNow('https://www.bing.com/indexnow', 'Bing IndexNow');
+  await submitToIndexNow('https://yandex.com/indexnow', 'Yandex IndexNow');
 }
 
 run();
