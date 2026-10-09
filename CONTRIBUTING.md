@@ -20,7 +20,7 @@ Please be respectful, constructive, and kind in all issues, pull requests, and d
 
 2. **Install Dependencies:**
    ```bash
-   npm install
+   npm run setup
    ```
 
 3. **Start the Local Development Server:**
@@ -34,9 +34,11 @@ Please be respectful, constructive, and kind in all issues, pull requests, and d
    ```
 
 5. **Test Your Changes:**
-   Ensure the TypeScript compilation and production build pass with zero errors:
+   Ensure compilation, production build, tests, and linters pass with zero errors:
    ```bash
    npm run build
+   npm test
+   npm run lint
    ```
 
 6. **Submit a Pull Request:**

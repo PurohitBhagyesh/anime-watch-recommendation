@@ -23,7 +23,8 @@
     "db:seed": "npm run db:seed --workspace=backend",
     "db:studio": "npm run db:studio --workspace=backend",
     "indexnow": "npm run indexnow --workspace=frontend",
-    "lint": "npm run lint --workspace=frontend"
+    "lint": "npm run lint --workspace=frontend",
+    "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {
     "concurrently": "^9.2.4",
@@ -32,7 +33,6 @@
   "dependencies": {
     "@prisma/client": "^6.19.3",
     "@types/node": "^22.13.9",
-    "prisma": "^6.19.3",
     "typescript": "^5.8.2"
   }
 }
