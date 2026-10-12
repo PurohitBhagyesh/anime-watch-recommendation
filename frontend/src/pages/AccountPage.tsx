@@ -52,7 +52,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
   const [preferredAudio, setPreferredAudio] = useState<'sub' | 'dub'>('sub');
   const [contentFilter, setContentFilter] = useState(true);
   const [autoTrailer, setAutoTrailer] = useState(false);
-  const [streamingPriority, setStreamingPriority] = useState('crunchyroll');
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -337,7 +336,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                 <span>Anime Browsing Preferences</span>
               </h2>
               <p className="text-xs text-slate-400 mt-1">
-                Customize your audio, streaming platform priorities, and catalog filters.
+                Customize your audio language and catalog filters.
               </p>
             </div>
 
@@ -370,23 +369,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                     English (Dub)
                   </button>
                 </div>
-              </div>
-
-              {/* Streaming Platform Priority */}
-              <div className="p-4 rounded-xl bg-white/[0.04] border border-white/5 space-y-2">
-                <span className="text-xs font-semibold text-slate-200 block">Default Streaming Platform</span>
-                <p className="text-[11px] text-slate-400">Quick-link priority when viewing anime watch links.</p>
-                <select
-                  value={streamingPriority}
-                  onChange={(e) => setStreamingPriority(e.target.value)}
-                  className="anilist-input w-full px-3 py-1.5 rounded-lg text-xs text-slate-200 bg-[#0b1622] mt-1"
-                >
-                  <option value="crunchyroll">Crunchyroll</option>
-                  <option value="netflix">Netflix</option>
-                  <option value="hulu">Hulu</option>
-                  <option value="disney">Disney+</option>
-                  <option value="prime">Amazon Prime Video</option>
-                </select>
               </div>
 
               {/* Content Safety Filter */}

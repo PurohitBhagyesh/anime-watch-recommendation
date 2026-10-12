@@ -38,13 +38,6 @@ export interface ExternalLink {
   color: string | null;
 }
 
-export interface StreamingEpisode {
-  title: string;
-  thumbnail: string | null;
-  url: string;
-  site: string;
-}
-
 export interface CharacterVoiceActor {
   id: number;
   name: {
@@ -128,7 +121,6 @@ export interface AnimeDetailsData extends AnimeCardData {
     day: number | null;
   };
   externalLinks: ExternalLink[];
-  streamingEpisodes: StreamingEpisode[];
   characters: {
     edges: CharacterEdge[];
   };

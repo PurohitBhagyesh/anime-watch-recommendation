@@ -49,7 +49,7 @@ export const AboutPage: React.FC = () => {
 
   useSEO({
     title: 'About AnimeSenpai • Independent Anime Catalog & Transparency',
-    description: 'Learn about AnimeSenpai\'s mission, platform independence, AniList GraphQL integration, and official streaming partnerships.',
+    description: 'Learn about AnimeSenpai\'s mission, platform independence, AniList GraphQL integration, and media discovery features.',
     canonicalUrl: `${SITE_URL}/about`,
     jsonLd: aboutSchema,
   });
@@ -153,7 +153,7 @@ export const AboutPage: React.FC = () => {
             <div className="flex items-start gap-3">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
               <div>
-                <strong className="text-white">Zero Video File Hosting:</strong> AnimeSenpai does not store, upload, or broadcast full anime episodes or video files on its servers. All streaming pointers link exclusively to authorized licensors (Crunchyroll, Netflix, Hulu, Disney+) as indexed by AniList.
+                <strong className="text-white">Zero Video File Hosting:</strong> AnimeSenpai is an informational anime discovery and tracking catalog. It does not store, upload, or broadcast full anime episodes or video files on its servers.
               </div>
             </div>
             <div className="flex items-start gap-3">

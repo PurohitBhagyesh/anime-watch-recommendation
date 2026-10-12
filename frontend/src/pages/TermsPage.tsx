@@ -49,9 +49,9 @@ export const TermsPage: React.FC = () => {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-bold text-white">3. Third-Party Links & Streaming Providers</h2>
+          <h2 className="text-lg font-bold text-white">3. Third-Party Links & External Resources</h2>
           <p>
-            We index official streaming links (such as Crunchyroll, Netflix, Hulu, Disney+, Amazon Prime Video). We do not host, store, or stream copyrighted video files on our own servers. Clicking external streaming links will redirect you to third-party services governed by their respective terms.
+            We may index official external links (such as official production websites, promotional trailers, and external database entries). We do not host, store, or stream copyrighted video files on our own servers. Clicking external links will redirect you to third-party services governed by their respective terms.
           </p>
         </section>
 

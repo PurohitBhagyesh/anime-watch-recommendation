@@ -15,16 +15,14 @@ import {
   Clock,
   Sparkles,
   Users,
-  Tv,
   GitFork,
   Smile,
 } from 'lucide-react';
 import { fetchAnimeDetails } from '../api/anilist';
 import type { AnimeDetailsData, WatchlistStatus } from '../api/types';
 import { TrailerModal } from '../components/common/TrailerModal';
-import { StreamingPlatforms } from '../components/anime/StreamingPlatforms';
+import { OfficialResources } from '../components/anime/OfficialResources';
 import { CharacterGrid } from '../components/anime/CharacterGrid';
-import { EpisodesGrid } from '../components/anime/EpisodesGrid';
 import { RelationsGrid } from '../components/anime/RelationsGrid';
 import { RecommendationsGrid } from '../components/anime/RecommendationsGrid';
 import { DetailsSkeleton } from '../components/common/Skeleton';
@@ -39,7 +37,7 @@ export const AnimeDetailsPage: React.FC = () => {
   const [showFullSynopsis, setShowFullSynopsis] = useState(false);
   const [trailerModalOpen, setTrailerModalOpen] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'characters' | 'episodes' | 'relations' | 'recommendations'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'characters' | 'relations' | 'recommendations'>('overview');
 
   const {
     isInWatchlist,
@@ -77,7 +75,7 @@ export const AnimeDetailsPage: React.FC = () => {
       const excerpt = cleanSynopsis.length > 150 ? `${cleanSynopsis.slice(0, 147)}...` : cleanSynopsis;
       pageDesc += ` ${excerpt}`;
     }
-    pageDesc += ` Genre: ${genresStr}. View release details, character cast, episodes, streaming platforms, and track watch progress.`;
+    pageDesc += ` Genre: ${genresStr}. View release details, character cast, official links, and track watch progress.`;
   } else if (error) {
     pageDesc = 'Could not find details for this anime on AnimeSenpai.';
   }
@@ -566,7 +564,6 @@ export const AnimeDetailsPage: React.FC = () => {
               {[
                 { id: 'overview', label: 'Overview', icon: Sparkles },
                 { id: 'characters', label: `Characters (${anime.characters?.edges?.length || 0})`, icon: Users },
-                { id: 'episodes', label: `Episodes (${anime.streamingEpisodes?.length || anime.episodes || 0})`, icon: Tv },
                 { id: 'relations', label: `Relations (${anime.relations?.edges?.length || 0})`, icon: GitFork },
               ].map((tab) => {
                 const Icon = tab.icon;
@@ -591,8 +588,8 @@ export const AnimeDetailsPage: React.FC = () => {
             {/* Tab Panels */}
             {activeTab === 'overview' && (
               <div className="space-y-6 animate-fadeIn">
-                {/* Where to Stream */}
-                <StreamingPlatforms links={anime.externalLinks || []} />
+                {/* Official Links & Resources */}
+                <OfficialResources links={anime.externalLinks || []} />
 
                 {/* Characters Spotlight */}
                 <CharacterGrid characters={(anime.characters?.edges || []).slice(0, 6)} />
@@ -611,14 +608,6 @@ export const AnimeDetailsPage: React.FC = () => {
               </div>
             )}
 
-            {activeTab === 'episodes' && (
-              <div className="space-y-6 animate-fadeIn">
-                <EpisodesGrid
-                  episodes={anime.streamingEpisodes || []}
-                  totalEpisodes={anime.episodes}
-                />
-              </div>
-            )}
 
             {activeTab === 'relations' && (
               <div className="space-y-6 animate-fadeIn">

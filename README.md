@@ -172,7 +172,7 @@ npm run db:studio  # Open Prisma Studio visual database browser
 | **Anime** | `GET` | `/api/anime/top` | Top 100 highest rated anime | No |
 | **Anime** | `GET` | `/api/anime/popular` | All-time most popular anime | No |
 | **Anime** | `GET` | `/api/anime/search` | Multi-parameter search with filters | No |
-| **Anime** | `GET` | `/api/anime/:id` | Full details, cast, streaming links, trailer | No |
+| **Anime** | `GET` | `/api/anime/:id` | Full details, cast, official links, trailer | No |
 | **Watchlist** | `GET` | `/api/watchlist` | Fetch user watchlist | Optional |
 | **Watchlist** | `POST` | `/api/watchlist` | Add or update watchlist item | Optional |
 | **Watchlist** | `PATCH`| `/api/watchlist/:id/progress` | Quick episode count increment | Optional |

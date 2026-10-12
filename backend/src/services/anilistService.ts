@@ -247,12 +247,6 @@ export const anilistService = {
             icon
             color
           }
-          streamingEpisodes {
-            title
-            thumbnail
-            url
-            site
-          }
           characters(sort: [ROLE, RELEVANCE], perPage: 12) {
             edges {
               role

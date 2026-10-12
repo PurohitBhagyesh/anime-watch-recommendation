@@ -315,12 +315,6 @@ export async function fetchAnimeDetails(id: number): Promise<AnimeDetailsData> {
           icon
           color
         }
-        streamingEpisodes {
-          title
-          thumbnail
-          url
-          site
-        }
         rankings {
           id
           rank

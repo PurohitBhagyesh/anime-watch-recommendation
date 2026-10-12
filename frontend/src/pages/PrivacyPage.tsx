@@ -55,12 +55,12 @@ export const PrivacyPage: React.FC = () => {
             3. Third-Party Services & API Queries
           </h2>
           <p>
-            To provide live anime metadata, schedules, streaming links, and official trailers, the application connects to the following endpoints:
+            To provide live anime metadata, schedules, external resources, and official trailers, the application connects to the following endpoints:
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             <div className="p-4 rounded-xl anilist-card-static">
               <h3 className="font-bold text-white text-xs uppercase tracking-wider mb-1 font-mono text-[#3db4f2]">AniList GraphQL API</h3>
-              <p className="text-xs text-slate-400">Used to fetch titles, descriptions, seasonal ranks, character cast, voice actors, and verified streaming provider links.</p>
+              <p className="text-xs text-slate-400">Used to fetch titles, descriptions, seasonal ranks, character cast, voice actors, and verified external resource links.</p>
             </div>
             <div className="p-4 rounded-xl anilist-card-static">
               <h3 className="font-bold text-white text-xs uppercase tracking-wider mb-1 font-mono text-[#3db4f2]">YouTube Privacy-Enhanced Player</h3>
