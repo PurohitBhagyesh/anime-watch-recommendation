@@ -24,8 +24,8 @@ import { useSEO, SITE_URL } from '../utils/seo';
 
 export const HomePage: React.FC = () => {
   useSEO({
-    title: 'AnimeSenpai • Discover, Track & Watch Anime',
-    description: 'Discover anime, explore thousands of titles, track your watch progress, manage your watchlist, and find official trailers with AnimeSenpai.',
+    title: 'AnimeSenpai • Anime Discovery, Tracker & Recommendations',
+    description: 'AnimeSenpai is your modern anime discovery & watchlist tracking platform. Explore trending releases, personalized recommendations, airing schedules, and official trailers.',
     canonicalUrl: `${SITE_URL}/`,
   });
 
@@ -150,6 +150,9 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="w-full pb-20 animate-fadeIn">
+      {/* Primary Semantic H1 for Search Engine Crawlers */}
+      <h1 className="sr-only">AnimeSenpai — Anime Discovery, Personal Watchlist Tracker & Recommendations</h1>
+
       {/* Interactive Hero Spotlight Slider */}
       <HeroBanner
         animeList={data?.spotlights?.length ? data.spotlights : (initialHomeData as any).spotlights}

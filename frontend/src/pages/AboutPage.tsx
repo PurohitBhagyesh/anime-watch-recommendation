@@ -47,11 +47,30 @@ export const AboutPage: React.FC = () => {
     },
   };
 
+  const aboutBreadcrumbs = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `${SITE_URL}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'About AnimeSenpai',
+        item: `${SITE_URL}/about`,
+      },
+    ],
+  };
+
   useSEO({
     title: 'About AnimeSenpai • Independent Anime Catalog & Transparency',
     description: 'Learn about AnimeSenpai\'s mission, platform independence, AniList GraphQL integration, and media discovery features.',
     canonicalUrl: `${SITE_URL}/about`,
-    jsonLd: aboutSchema,
+    jsonLd: [aboutSchema, aboutBreadcrumbs],
   });
 
   useEffect(() => {

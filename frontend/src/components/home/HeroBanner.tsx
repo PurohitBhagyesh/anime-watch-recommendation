@@ -368,9 +368,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
             </div>
 
             {/* Title */}
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-[#edf1f5] tracking-tight leading-tight drop-shadow-md">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-[#edf1f5] tracking-tight leading-tight drop-shadow-md">
               {title}
-            </h1>
+            </h2>
 
             {/* Genres */}
             {currentAnime.genres && currentAnime.genres.length > 0 && (

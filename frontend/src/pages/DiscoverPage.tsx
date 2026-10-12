@@ -118,11 +118,31 @@ export const DiscoverPage: React.FC = () => {
     discoverCanonical = `${SITE_URL}/discover?sort=POPULARITY_DESC`;
   }
 
+  const discoverBreadcrumbs = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `${SITE_URL}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: selectedGenre ? `${selectedGenre} Anime` : selectedSort === 'SCORE_DESC' ? 'Top 100 Anime' : 'Discover',
+        item: discoverCanonical,
+      },
+    ],
+  };
+
   useSEO({
     title: discoverTitle,
     description: discoverDesc,
     canonicalUrl: discoverCanonical,
     robots: discoverRobots,
+    jsonLd: discoverBreadcrumbs,
   });
 
   const currentGenreMeta = selectedGenre ? GENRE_METADATA[selectedGenre] : null;
