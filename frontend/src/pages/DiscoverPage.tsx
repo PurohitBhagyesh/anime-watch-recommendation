@@ -98,7 +98,7 @@ export const DiscoverPage: React.FC = () => {
     discoverRobots = 'noindex, follow';
   } else if (selectedGenre) {
     discoverTitle = `${selectedGenre} Anime • AnimeSenpai`;
-    discoverDesc = `Explore top-rated and trending ${selectedGenre} anime series and movies on AnimeSenpai. Browse episodes, voice cast, and official trailers.`;
+    discoverDesc = `Explore top-rated and trending ${selectedGenre} anime series and movies on AnimeSenpai. Browse characters, voice cast, and official trailers.`;
     discoverCanonical = `${SITE_URL}/discover?genre=${encodeURIComponent(selectedGenre)}`;
   } else if (selectedSeason && selectedYear) {
     discoverTitle = `${selectedSeason} ${selectedYear} Anime Schedule • AnimeSenpai`;
