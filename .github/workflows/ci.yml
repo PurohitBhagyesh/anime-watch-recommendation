@@ -1,0 +1,67 @@
+name: CI & Security Shield
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security-check:
+    name: Secret & Credential Leak Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Verify No Tracked .env Files
+        run: |
+          echo "Scanning for tracked environment or secret files..."
+          TRACKED_ENV=$(git ls-files | grep -E '\.env$|\.env\.local$|\.pem$|\.key$' || true)
+          if [ -n "$TRACKED_ENV" ]; then
+            echo "ERROR: Sensitive environment file found in repository:"
+            echo "$TRACKED_ENV"
+            exit 1
+          fi
+          echo "No tracked secret files found. PASS."
+
+      - name: Scan Codebase for Plaintext API Keys
+        run: |
+          echo "Scanning codebase for hardcoded Google/Firebase API keys..."
+          FOUND_KEYS=$(grep -rE "AIzaSy[A-Za-z0-9_-]{33}" frontend/src/ backend/src/ 2>/dev/null || true)
+          if [ -n "$FOUND_KEYS" ]; then
+            echo "ERROR: Plaintext Firebase/Google API key detected in source code:"
+            echo "$FOUND_KEYS"
+            exit 1
+          fi
+          echo "Zero plaintext API keys detected. PASS."
+
+  build-and-test:
+    name: Build, Lint & Type Integrity
+    runs-on: ubuntu-latest
+    needs: security-check
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Lint Code
+        run: npm run lint
+
+      - name: Verify Build
+        run: npm run build
