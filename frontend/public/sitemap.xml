@@ -19,12 +19,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.animesenpai.online/discover?sort=TRENDING_DESC</loc>
-    <lastmod>2026-10-12</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://www.animesenpai.online/discover?sort=POPULARITY_DESC</loc>
     <lastmod>2026-10-12</lastmod>
     <changefreq>weekly</changefreq>

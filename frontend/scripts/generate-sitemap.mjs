@@ -36,7 +36,6 @@ const staticRoutes = [
   { loc: `${SITE_URL}/`, changefreq: 'daily', priority: '1.0' },
   { loc: `${SITE_URL}/discover`, changefreq: 'daily', priority: '0.9' },
   { loc: `${SITE_URL}/about`, changefreq: 'weekly', priority: '0.8' },
-  { loc: `${SITE_URL}/discover?sort=TRENDING_DESC`, changefreq: 'daily', priority: '0.8' },
   { loc: `${SITE_URL}/discover?sort=POPULARITY_DESC`, changefreq: 'weekly', priority: '0.8' },
   { loc: `${SITE_URL}/discover?sort=SCORE_DESC`, changefreq: 'weekly', priority: '0.8' },
   { loc: `${SITE_URL}/discover?format=TV`, changefreq: 'weekly', priority: '0.7' },
