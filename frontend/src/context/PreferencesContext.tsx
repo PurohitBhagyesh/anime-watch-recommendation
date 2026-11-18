@@ -3,7 +3,7 @@ import type { AnimeTitle } from '../api/types';
 
 export type TitleLanguage = 'english' | 'romaji' | 'native';
 export type LayoutDensity = 'comfortable' | 'compact';
-export type TextSize = 'sm' | 'md' | 'lg' | 'xl';
+export type TextSize = 'sm' | 'md' | 'lg';
 
 export interface UserPreferences {
   titleLanguage: TitleLanguage;
@@ -39,8 +39,10 @@ function loadStoredPreferences(): UserPreferences {
             : 'english',
         density: parsed.density === 'compact' ? 'compact' : 'comfortable',
         textSize:
-          parsed.textSize === 'sm' || parsed.textSize === 'lg' || parsed.textSize === 'xl'
-            ? parsed.textSize
+          parsed.textSize === 'sm'
+            ? 'sm'
+            : parsed.textSize === 'lg' || parsed.textSize === 'xl'
+            ? 'lg'
             : 'md',
         preferredAudio: parsed.preferredAudio === 'dub' ? 'dub' : 'sub',
         contentFilter: typeof parsed.contentFilter === 'boolean' ? parsed.contentFilter : true,

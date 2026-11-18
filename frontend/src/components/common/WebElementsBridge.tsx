@@ -61,8 +61,8 @@ export const WebElementsBridge: React.FC = () => {
 
     const setupWidgets = async () => {
       await Promise.all([
-        loadExternalScript('/web-elements/buy-me-a-coffee/coffee-upi.js'),
-        loadExternalScript('/web-elements/share-link/share-link.js'),
+        loadExternalScript('/web-elements/buy-me-a-coffee/coffee-upi.js?v=2'),
+        loadExternalScript('/web-elements/share-link/share-link.js?v=2'),
       ]);
 
       if (cancelled) return;

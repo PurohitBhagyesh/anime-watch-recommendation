@@ -66,7 +66,6 @@ const TEXT_SIZE_STEPS: { id: TextSize; label: string; pct: string }[] = [
   { id: 'sm', label: 'Small', pct: '90%' },
   { id: 'md', label: 'Default', pct: '100%' },
   { id: 'lg', label: 'Large', pct: '112%' },
-  { id: 'xl', label: 'XL', pct: '124%' },
 ];
 
 const AppleIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
@@ -847,8 +846,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
           {/* SECTION 1: Display, Text Size & Playback */}
           {activeSection === 'preferences' && (
             <div className="space-y-4 animate-fadeIn">
-              {/* Apple-Style Text Size Card */}
-              <div className="anilist-card-static p-4 sm:p-5 space-y-4">
+              {/* Clean 3-Option Text Size Selector */}
+              <div className="anilist-card-static p-4 sm:p-5 space-y-3.5">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Type aria-hidden="true" className="w-4 h-4 text-[#f5f5f7]" />
@@ -859,45 +858,30 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   </span>
                 </div>
 
-                {/* Apple A ───●─── A Range Slider */}
-                <div className="flex items-center gap-3.5 px-1">
-                  <span className="text-xs font-semibold text-[#9a9aa6] select-none" aria-hidden="true">
-                    A
-                  </span>
-                  <input
-                    type="range"
-                    min={0}
-                    max={TEXT_SIZE_STEPS.length - 1}
-                    step={1}
-                    value={currentTextSizeIndex}
-                    aria-label="Text size"
-                    onChange={(e) => {
-                      const step = TEXT_SIZE_STEPS[Number(e.target.value)];
-                      if (step) handlePrefChange('textSize', step.id);
-                    }}
-                    className="senpai-range flex-1"
-                  />
-                  <span className="text-xl font-bold text-[#f5f5f7] select-none" aria-hidden="true">
-                    A
-                  </span>
-                </div>
-
-                {/* Quick Size Stops */}
-                <div className="grid grid-cols-4 gap-1.5">
-                  {TEXT_SIZE_STEPS.map((step) => (
-                    <button
-                      key={step.id}
-                      type="button"
-                      onClick={() => handlePrefChange('textSize', step.id)}
-                      className={`py-2 rounded-full text-xs font-semibold transition cursor-pointer ${
-                        preferences.textSize === step.id
-                          ? 'btn-accent-active'
-                          : 'bg-[#16161b] text-[#9a9aa6] hover:text-[#f5f5f7] border border-[#23232b]'
-                      }`}
-                    >
-                      {step.label}
-                    </button>
-                  ))}
+                <div
+                  role="radiogroup"
+                  aria-label="Text size"
+                  className="grid grid-cols-3 p-1 rounded-full bg-[#16161b] border border-[#23232b] gap-1"
+                >
+                  {TEXT_SIZE_STEPS.map((step) => {
+                    const isSelected = preferences.textSize === step.id;
+                    return (
+                      <button
+                        key={step.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={isSelected}
+                        onClick={() => handlePrefChange('textSize', step.id)}
+                        className={`py-2.5 rounded-full text-xs font-semibold transition cursor-pointer ${
+                          isSelected
+                            ? 'btn-accent-active'
+                            : 'text-[#9a9aa6] hover:text-[#f5f5f7]'
+                        }`}
+                      >
+                        {step.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

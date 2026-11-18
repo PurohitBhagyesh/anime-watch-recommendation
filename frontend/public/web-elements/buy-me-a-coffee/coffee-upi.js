@@ -18,6 +18,15 @@
     position: 'bottom-left' // 'bottom-left' | 'bottom-right'
   };
 
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   class CoffeeUPIWidget {
     constructor(userConfig = {}) {
       this.config = Object.assign({}, DEFAULT_CONFIG, userConfig);
@@ -150,6 +159,14 @@
     render() {
       const { upiId, payeeName, title, subtitle, presets, defaultAmount, position } = this.config;
       const isRight = position === 'bottom-right';
+      const safeTitle = escapeHtml(title);
+      const safeUpiId = escapeHtml(upiId);
+      const safePayeeName = escapeHtml(payeeName);
+      const safeSubtitle = escapeHtml(subtitle);
+      const safeDefaultAmount = Math.max(1, parseInt(defaultAmount, 10) || 50);
+      const safePresets = Array.isArray(presets)
+        ? presets.map((p) => Math.max(1, parseInt(p, 10) || 50))
+        : [20, 50, 100, 200];
 
       const widget = document.createElement('div');
       widget.className = 'cupi-widget';
@@ -159,7 +176,7 @@
       }
 
       widget.innerHTML = `
-        <button class="cupi-pill" type="button" aria-label="${title}" aria-expanded="false">
+        <button class="cupi-pill" type="button" aria-label="${safeTitle}" aria-expanded="false">
           <span class="cupi-pill-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
@@ -169,59 +186,38 @@
               <line x1="14" y1="1" x2="14" y2="4"/>
             </svg>
           </span>
-          <span class="cupi-pill-text">${title}</span>
+          <span class="cupi-pill-text">${safeTitle}</span>
         </button>
 
-        <div class="cupi-card" role="dialog" aria-modal="false" aria-label="${title}">
+        <div class="cupi-card" role="dialog" aria-modal="false" aria-label="${safeTitle}">
           <div class="cupi-header">
             <div class="cupi-title-group">
-              <h3 class="cupi-title">${title}</h3>
+              <h3 class="cupi-title">${safeTitle}</h3>
               <div class="cupi-id-row">
                 <button type="button" class="cupi-copy-id" title="Click to copy UPI ID">
-                  <code>${upiId}</code>
+                  <code>${safeUpiId}</code>
                   <span class="cupi-copy-label">Copy</span>
-                </button>
-                <button type="button" class="cupi-edit-btn" title="Edit UPI ID and Payee Name" aria-label="Edit details">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 20h9"/>
-                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                  </svg>
                 </button>
               </div>
             </div>
             <button class="cupi-close-btn" type="button" aria-label="Close">&times;</button>
           </div>
 
-          <div class="cupi-edit-drawer" style="display: none;">
-            <div class="cupi-edit-field">
-              <label>Payee Name</label>
-              <input type="text" class="cupi-edit-name-input" value="${payeeName}" placeholder="e.g. Developer Name" />
-            </div>
-            <div class="cupi-edit-field">
-              <label>UPI ID (VPA)</label>
-              <input type="text" class="cupi-edit-upi-input" value="${upiId}" placeholder="e.g. developer@upi" />
-            </div>
-            <div class="cupi-edit-actions">
-              <button type="button" class="cupi-edit-save-btn">Save</button>
-              <button type="button" class="cupi-edit-cancel-btn">Cancel</button>
-            </div>
-          </div>
-
           <div class="cupi-body">
             <div class="cupi-qr-wrapper">
               <div class="cupi-qr-pad">
-                <img class="cupi-qr-img" src="" alt="UPI QR Code" width="140" height="140" />
+                <img class="cupi-qr-img" src="" alt="UPI QR Code for ${safePayeeName}" width="140" height="140" />
               </div>
               <span class="cupi-qr-caption">Scan with any UPI App</span>
             </div>
 
             <div class="cupi-input-wrap">
               <span class="cupi-currency">&#8377;</span>
-              <input type="number" class="cupi-amount-input" min="1" max="100000" value="${defaultAmount}" placeholder="Enter amount" />
+              <input type="number" class="cupi-amount-input" min="1" max="100000" value="${safeDefaultAmount}" placeholder="Enter amount" />
             </div>
 
             <div class="cupi-presets">
-              ${presets.map(p => `<button type="button" class="cupi-preset-chip ${p === defaultAmount ? 'active' : ''}" data-amt="${p}">&#8377;${p}</button>`).join('')}
+              ${safePresets.map(p => `<button type="button" class="cupi-preset-chip ${p === safeDefaultAmount ? 'active' : ''}" data-amt="${p}">&#8377;${p}</button>`).join('')}
             </div>
 
             <div class="cupi-apps-section">
@@ -263,7 +259,7 @@
               <button type="button" class="cupi-alert-close">&times;</button>
             </div>
 
-            <p class="cupi-footer-note">${subtitle}</p>
+            <p class="cupi-footer-note">${safeSubtitle}</p>
           </div>
         </div>
       `;

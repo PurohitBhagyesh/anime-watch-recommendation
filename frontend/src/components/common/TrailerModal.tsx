@@ -39,15 +39,17 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
 
   if (!isOpen) return null;
 
-  const isYouTube = trailer?.site === 'youtube' && trailer?.id;
-  const isDailymotion = trailer?.site === 'dailymotion' && trailer?.id;
+  const safeTrailerId =
+    trailer?.id && /^[a-zA-Z0-9_-]{6,32}$/.test(trailer.id) ? trailer.id : null;
+  const isYouTube = trailer?.site === 'youtube' && Boolean(safeTrailerId);
+  const isDailymotion = trailer?.site === 'dailymotion' && Boolean(safeTrailerId);
 
   const autoPlayFlag = preferences.autoTrailer ? 1 : 0;
   let embedUrl: string | null = null;
-  if (isYouTube) {
-    embedUrl = `https://www.youtube-nocookie.com/embed/${trailer.id}?autoplay=${autoPlayFlag}&rel=0&modestbranding=1`;
-  } else if (isDailymotion) {
-    embedUrl = `https://www.dailymotion.com/embed/video/${trailer.id}?autoplay=${autoPlayFlag}`;
+  if (isYouTube && safeTrailerId) {
+    embedUrl = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(safeTrailerId)}?autoplay=${autoPlayFlag}&rel=0&modestbranding=1`;
+  } else if (isDailymotion && safeTrailerId) {
+    embedUrl = `https://www.dailymotion.com/embed/video/${encodeURIComponent(safeTrailerId)}?autoplay=${autoPlayFlag}`;
   }
 
   const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(
@@ -82,9 +84,9 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
-            {isYouTube && (
+            {isYouTube && safeTrailerId && (
               <a
-                href={`https://www.youtube.com/watch?v=${trailer.id}`}
+                href={`https://www.youtube.com/watch?v=${encodeURIComponent(safeTrailerId)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden min-[480px]:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#c8c8d2] hover:text-white bg-[#151519] hover:bg-[#1c1c22] rounded-full border border-[#232329] transition"
@@ -111,6 +113,8 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
             <iframe
               src={embedUrl}
               title={`${title} Official Trailer`}
+              sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+              referrerPolicy="strict-origin-when-cross-origin"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
               className="w-full h-full border-0 absolute inset-0"

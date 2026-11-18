@@ -6,8 +6,6 @@ import {
   Info,
   Check,
   Plus,
-  Tv,
-  Smile,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
@@ -259,8 +257,6 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     currentAnime?.coverImage?.large ||
     '/animesenpai-banner.svg';
 
-  const padIndex = (n: number) => String(n).padStart(2, '0');
-
   return (
     <>
       <section
@@ -324,29 +320,6 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                 : 'animate-hero-slide-left'
             }`}
           >
-            {/* Clean 2-Color UI Metadata Pills */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0c0c0f]/90 border border-[#23232b] text-[#f5f5f7] text-[11px] font-mono font-semibold tracking-wider uppercase tabular-nums shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#5360e6]" />
-                Spotlight {padIndex(currentIndex + 1)} / {padIndex(spotlights.length)}
-              </span>
-
-              {currentAnime.averageScore && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/12 border border-emerald-500/30 text-[#4ade80] text-[11px] sm:text-xs font-semibold tabular-nums">
-                  <Smile aria-hidden="true" className="w-3 h-3" />
-                  <span>{currentAnime.averageScore}%</span>
-                </span>
-              )}
-
-              {currentAnime.format && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0b0b0d]/85 border border-[#232329] text-[#c8c8d2] text-[11px] sm:text-xs font-medium tabular-nums">
-                  <Tv aria-hidden="true" className="w-3 h-3 text-[#9a9aa6]" />
-                  {currentAnime.format.replace('_', ' ')} ·{' '}
-                  {currentAnime.episodes ? `${currentAnime.episodes} eps` : 'Airing'}
-                </span>
-              )}
-            </div>
-
             {/* Editorial Title */}
             <h2
               title={title}

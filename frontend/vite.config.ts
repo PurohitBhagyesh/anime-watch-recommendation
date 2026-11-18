@@ -10,6 +10,7 @@ export default defineConfig({
     tailwindcss(),
   ],
   build: {
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks(id) {
