@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -6,6 +6,9 @@ import {
   onAuthStateChanged,
   signInWithPopup,
   GoogleAuthProvider,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  linkWithPhoneNumber,
   deleteUser,
   EmailAuthProvider,
   reauthenticateWithCredential,
@@ -21,6 +24,7 @@ import {
   browserLocalPersistence,
   browserSessionPersistence,
   type User as FirebaseUser,
+  type ConfirmationResult,
 } from 'firebase/auth';
 import {
   doc,
@@ -71,6 +75,7 @@ export interface PasswordStrength {
 
 const USERNAME_REGEX = /^[a-zA-Z0-9._-]{3,24}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const E164_PHONE_REGEX = /^\+[1-9]\d{6,14}$/;
 
 export function validateUsername(raw: string): string | null {
   const cleaned = raw.trim();
@@ -89,6 +94,27 @@ export function validateEmail(raw: string): string | null {
   if (!cleaned) return 'Email address is required.';
   if (cleaned.length > 254 || !EMAIL_REGEX.test(cleaned)) {
     return 'Please enter a valid email address.';
+  }
+  return null;
+}
+
+export function normalizePhoneE164(countryCode: string, localOrFull: string): string {
+  const raw = localOrFull.trim().replace(/[\s\-().]/g, '');
+  if (!raw) return '';
+  if (raw.startsWith('+')) {
+    return '+' + raw.slice(1).replace(/\D/g, '');
+  }
+  const ccDigits = countryCode.replace(/\D/g, '');
+  const localDigits = raw.replace(/^0+/, '').replace(/\D/g, '');
+  if (!ccDigits) return '+' + localDigits;
+  return `+${ccDigits}${localDigits}`;
+}
+
+export function validatePhoneNumber(e164: string): string | null {
+  const cleaned = e164.trim().replace(/[\s\-().]/g, '');
+  if (!cleaned) return 'Phone number is required.';
+  if (!E164_PHONE_REGEX.test(cleaned)) {
+    return 'Enter a valid phone number with country code (e.g. +919876543210).';
   }
   return null;
 }
@@ -139,17 +165,23 @@ const DEFAULT_DEMO_USER: UserProfile = {
   favoriteGenre: 'Action / Sci-Fi',
 };
 
-export type PrimaryAuthProvider = 'google' | 'password' | 'demo';
+export type PrimaryAuthProvider = 'google' | 'phone' | 'password' | 'demo';
 
 interface AuthContextType {
   user: UserProfile | null;
   isAuthenticated: boolean;
   emailVerified: boolean;
+  phoneNumber: string | null;
   linkedProviders: string[];
   authProvider: PrimaryAuthProvider;
   login: (emailOrUsername: string, password: string, rememberMe?: boolean) => Promise<AuthActionResult>;
   signup: (data: { username: string; email: string; password: string; avatar?: string }) => Promise<AuthActionResult>;
   loginWithGoogle: (rememberMe?: boolean) => Promise<AuthActionResult>;
+  sendPhoneSignInCode: (phoneE164: string, recaptchaContainerId: string, rememberMe?: boolean) => Promise<AuthActionResult>;
+  verifyPhoneSignInCode: (code: string) => Promise<AuthActionResult>;
+  sendPhoneLinkCode: (phoneE164: string, recaptchaContainerId: string) => Promise<AuthActionResult>;
+  verifyPhoneLinkCode: (code: string) => Promise<AuthActionResult>;
+  cancelPhoneFlow: () => void;
   sendPasswordReset: (email: string) => Promise<AuthActionResult>;
   resendVerificationEmail: () => Promise<AuthActionResult>;
   refreshAuthUser: () => Promise<void>;
@@ -171,6 +203,7 @@ function getPrimaryProviderFromUser(firebaseUser: FirebaseUser | null): PrimaryA
   const providers = firebaseUser.providerData.map((p) => p.providerId);
   if (providers.includes('password')) return 'password';
   if (providers.includes('google.com')) return 'google';
+  if (providers.includes('phone')) return 'phone';
   return 'password';
 }
 
@@ -194,9 +227,13 @@ async function buildAndSyncUserProfile(
   firebaseUser: FirebaseUser,
   defaultNameFallback = 'AnimeFan'
 ): Promise<UserProfile> {
+  const phoneSuffix = firebaseUser.phoneNumber
+    ? `User_${firebaseUser.phoneNumber.replace(/\D/g, '').slice(-4) || 'Fan'}`
+    : defaultNameFallback;
+
   const fallbackUsername = sanitizeOAuthUsername(
     firebaseUser.displayName || firebaseUser.email?.split('@')[0],
-    defaultNameFallback
+    phoneSuffix
   );
 
   const fallbackUser: UserProfile = {
@@ -248,19 +285,105 @@ async function buildAndSyncUserProfile(
   }
 }
 
+function mapPhoneAuthError(error: unknown, isLinking = false): string {
+  const code = (error as { code?: string })?.code;
+  if (code === 'auth/invalid-phone-number') {
+    return 'Invalid phone number. Include your country code (e.g. +919876543210).';
+  }
+  if (code === 'auth/missing-phone-number') {
+    return 'Please enter your phone number.';
+  }
+  if (code === 'auth/too-many-requests') {
+    return 'Too many SMS requests from this device. Please wait a few minutes and try again.';
+  }
+  if (code === 'auth/quota-exceeded') {
+    return 'Daily SMS verification limit reached. Please try again later or sign in with Google/Email.';
+  }
+  if (code === 'auth/billing-not-enabled') {
+    return 'Phone SMS requires Blaze billing in Firebase Console, or add a test phone number in Authentication → Sign-in method → Phone.';
+  }
+  if (code === 'auth/operation-not-allowed') {
+    return 'Phone sign-in is not enabled in Firebase Console (Authentication → Sign-in method → Phone).';
+  }
+  if (code === 'auth/captcha-check-failed') {
+    return 'reCAPTCHA verification failed. Please reload and try again.';
+  }
+  if (code === 'auth/invalid-verification-code') {
+    return 'Incorrect 6-digit verification code. Check your SMS and try again.';
+  }
+  if (code === 'auth/code-expired') {
+    return 'That verification code expired. Request a new code.';
+  }
+  if (code === 'auth/credential-already-in-use' || code === 'auth/account-exists-with-different-credential') {
+    return 'That phone number is already linked to another AnimeSenpai account.';
+  }
+  if (code === 'auth/provider-already-linked') {
+    return 'A phone number is already linked to your account.';
+  }
+  if (code === 'auth/unauthorized-domain') {
+    return 'This domain is not yet authorized in Firebase Authentication settings.';
+  }
+  return isLinking
+    ? 'Could not link phone number right now. Please try again.'
+    : 'Could not complete phone verification right now. Please try again.';
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [emailVerified, setEmailVerified] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
   const [linkedProviders, setLinkedProviders] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Managed Firebase Phone Auth reCAPTCHA & ConfirmationResult refs
+  const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
+  const phoneConfirmationRef = useRef<ConfirmationResult | null>(null);
+
+  const clearRecaptcha = useCallback(() => {
+    if (recaptchaRef.current) {
+      try {
+        recaptchaRef.current.clear();
+      } catch {
+        // Ignore cleanup errors if DOM container already unmounted
+      }
+      recaptchaRef.current = null;
+    }
+  }, []);
+
+  const cancelPhoneFlow = useCallback(() => {
+    phoneConfirmationRef.current = null;
+    clearRecaptcha();
+  }, [clearRecaptcha]);
+
+  const initInvisibleRecaptcha = useCallback(
+    (containerId: string): RecaptchaVerifier => {
+      clearRecaptcha();
+      const container = document.getElementById(containerId);
+      if (container) {
+        container.innerHTML = '';
+      }
+      auth.useDeviceLanguage();
+      const verifier = new RecaptchaVerifier(auth, containerId, {
+        size: 'invisible',
+        'expired-callback': () => {
+          clearRecaptcha();
+        },
+      });
+      recaptchaRef.current = verifier;
+      return verifier;
+    },
+    [clearRecaptcha]
+  );
 
   const syncFirebaseSecurityMeta = useCallback((firebaseUser: FirebaseUser | null) => {
     if (!firebaseUser) {
       setEmailVerified(false);
+      setPhoneNumber(null);
       setLinkedProviders([]);
       return;
     }
     setEmailVerified(Boolean(firebaseUser.emailVerified));
+    setPhoneNumber(firebaseUser.phoneNumber || null);
     setLinkedProviders(firebaseUser.providerData.map((p) => p.providerId));
   }, []);
 
@@ -279,8 +402,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    return () => unsubscribe();
-  }, [syncFirebaseSecurityMeta]);
+    return () => {
+      unsubscribe();
+      clearRecaptcha();
+    };
+  }, [syncFirebaseSecurityMeta, clearRecaptcha]);
 
   const applyPersistence = async (rememberMe: boolean) => {
     try {
@@ -514,6 +640,101 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Phone Auth Step 1: Send SMS OTP via Firebase RecaptchaVerifier + signInWithPhoneNumber
+  const sendPhoneSignInCode = async (
+    phoneE164: string,
+    recaptchaContainerId: string,
+    rememberMe = true
+  ): Promise<AuthActionResult> => {
+    const cleanPhone = phoneE164.trim().replace(/[\s\-().]/g, '');
+    const phoneErr = validatePhoneNumber(cleanPhone);
+    if (phoneErr) return { success: false, error: phoneErr };
+
+    try {
+      await applyPersistence(rememberMe);
+      const verifier = initInvisibleRecaptcha(recaptchaContainerId);
+      const confirmation = await signInWithPhoneNumber(auth, cleanPhone, verifier);
+      phoneConfirmationRef.current = confirmation;
+      return { success: true };
+    } catch (error: unknown) {
+      clearRecaptcha();
+      return { success: false, error: mapPhoneAuthError(error, false) };
+    }
+  };
+
+  // Phone Auth Step 2: Confirm 6-digit SMS OTP
+  const verifyPhoneSignInCode = async (code: string): Promise<AuthActionResult> => {
+    const confirmation = phoneConfirmationRef.current;
+    if (!confirmation) {
+      return { success: false, error: 'Verification session expired. Request a new SMS code.' };
+    }
+
+    const cleanCode = code.replace(/\s+/g, '');
+    if (!/^\d{6}$/.test(cleanCode)) {
+      return { success: false, error: 'Enter the 6-digit SMS verification code.' };
+    }
+
+    try {
+      const cred = await confirmation.confirm(cleanCode);
+      phoneConfirmationRef.current = null;
+      clearRecaptcha();
+
+      syncFirebaseSecurityMeta(cred.user);
+      const profile = await buildAndSyncUserProfile(cred.user, 'AnimeFan');
+      setUser(profile);
+      return { success: true };
+    } catch (error: unknown) {
+      return { success: false, error: mapPhoneAuthError(error, false) };
+    }
+  };
+
+  // Link Phone Number Step 1: Send SMS OTP for existing signed-in user
+  const sendPhoneLinkCode = async (
+    phoneE164: string,
+    recaptchaContainerId: string
+  ): Promise<AuthActionResult> => {
+    const current = auth.currentUser;
+    if (!current) return { success: false, error: 'Please sign in first.' };
+
+    const cleanPhone = phoneE164.trim().replace(/[\s\-().]/g, '');
+    const phoneErr = validatePhoneNumber(cleanPhone);
+    if (phoneErr) return { success: false, error: phoneErr };
+
+    try {
+      const verifier = initInvisibleRecaptcha(recaptchaContainerId);
+      const confirmation = await linkWithPhoneNumber(current, cleanPhone, verifier);
+      phoneConfirmationRef.current = confirmation;
+      return { success: true };
+    } catch (error: unknown) {
+      clearRecaptcha();
+      return { success: false, error: mapPhoneAuthError(error, true) };
+    }
+  };
+
+  // Link Phone Number Step 2: Verify SMS OTP and attach phone provider
+  const verifyPhoneLinkCode = async (code: string): Promise<AuthActionResult> => {
+    const confirmation = phoneConfirmationRef.current;
+    if (!confirmation) {
+      return { success: false, error: 'Verification session expired. Send a new SMS code.' };
+    }
+
+    const cleanCode = code.replace(/\s+/g, '');
+    if (!/^\d{6}$/.test(cleanCode)) {
+      return { success: false, error: 'Enter the 6-digit SMS verification code.' };
+    }
+
+    try {
+      const cred = await confirmation.confirm(cleanCode);
+      phoneConfirmationRef.current = null;
+      clearRecaptcha();
+      await cred.user.reload().catch(() => {});
+      syncFirebaseSecurityMeta(auth.currentUser || cred.user);
+      return { success: true };
+    } catch (error: unknown) {
+      return { success: false, error: mapPhoneAuthError(error, true) };
+    }
+  };
+
   const sendPasswordReset = async (email: string): Promise<AuthActionResult> => {
     const cleanEmail = email.trim().toLowerCase();
     const emailError = validateEmail(cleanEmail);
@@ -540,6 +761,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const resendVerificationEmail = async (): Promise<AuthActionResult> => {
     const current = auth.currentUser;
     if (!current) return { success: false, error: 'Please sign in first.' };
+    if (!current.email) return { success: false, error: 'Add an email address first.' };
     if (current.emailVerified) return { success: true };
 
     try {
@@ -705,6 +927,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const handleLogout = async () => {
     try {
+      cancelPhoneFlow();
       await signOut(auth);
       setUser(null);
       syncFirebaseSecurityMeta(null);
@@ -778,6 +1001,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await deleteUser(current);
 
       clearLocalUserData();
+      cancelPhoneFlow();
       setUser(null);
       syncFirebaseSecurityMeta(null);
 
@@ -818,11 +1042,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isAuthenticated: !!user,
         emailVerified,
+        phoneNumber,
         linkedProviders,
         authProvider: getPrimaryProviderFromUser(auth.currentUser),
         login,
         signup,
         loginWithGoogle,
+        sendPhoneSignInCode,
+        verifyPhoneSignInCode,
+        sendPhoneLinkCode,
+        verifyPhoneLinkCode,
+        cancelPhoneFlow,
         sendPasswordReset,
         resendVerificationEmail,
         refreshAuthUser,
