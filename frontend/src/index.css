@@ -879,18 +879,28 @@ input[type="range"].senpai-range:focus-visible {
 }
 
 .settings-nav {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  display: flex;
+  align-items: center;
   gap: 0.25rem;
   padding: 0.25rem;
   border-radius: 9999px;
   background: var(--surface);
   border: 1px solid var(--border);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.settings-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .settings-nav-btn {
   border-radius: 9999px;
   justify-content: center;
+  flex: 1 0 auto;
+  white-space: nowrap;
 }
 
 @container (min-width: 760px) {
@@ -903,11 +913,13 @@ input[type="range"].senpai-range:focus-visible {
   .settings-nav {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
     gap: 0.25rem;
     padding: 0;
     border-radius: 0;
     background: transparent;
     border: 0;
+    overflow: visible;
     position: sticky;
     top: 5rem;
   }
@@ -915,6 +927,7 @@ input[type="range"].senpai-range:focus-visible {
   .settings-nav-btn {
     border-radius: 0.75rem;
     justify-content: flex-start;
+    flex: 0 0 auto;
   }
 }
 

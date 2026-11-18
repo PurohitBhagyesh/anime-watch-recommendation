@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -6,17 +6,47 @@ import {
   onAuthStateChanged,
   signInWithPopup,
   GoogleAuthProvider,
+  OAuthProvider,
   deleteUser,
   EmailAuthProvider,
   reauthenticateWithCredential,
   reauthenticateWithPopup,
+  sendPasswordResetEmail,
+  sendEmailVerification,
+  updatePassword,
+  verifyBeforeUpdateEmail,
+  updateProfile as firebaseUpdateProfile,
+  linkWithPopup,
+  unlink,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+  multiFactor,
+  TotpMultiFactorGenerator,
+  getMultiFactorResolver,
+  type User as FirebaseUser,
+  type MultiFactorResolver,
+  type MultiFactorError,
+  type TotpSecret,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  collection,
+  query,
+  where,
+  limit,
+  getDocs,
+} from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 
 export interface UserProfile {
   id: string;
   username: string;
+  usernameLower?: string;
   email: string;
   avatar: string;
   banner?: string;
@@ -28,9 +58,97 @@ export interface UserProfile {
   favoriteGenre?: string;
 }
 
+export interface EnrolledMfaFactor {
+  uid: string;
+  displayName: string;
+  enrollmentTime: string;
+  factorId: string;
+}
+
+export interface AuthActionResult {
+  success: boolean;
+  error?: string;
+  mfaRequired?: boolean;
+  requiresRecentLogin?: boolean;
+  requiresEmailVerification?: boolean;
+}
+
+export interface TotpSetupResult extends AuthActionResult {
+  secretKey?: string;
+  qrCodeUrl?: string;
+}
+
+export interface PasswordStrength {
+  score: 0 | 1 | 2 | 3 | 4;
+  label: 'Too weak' | 'Weak' | 'Fair' | 'Good' | 'Strong';
+  checks: {
+    minLength: boolean;
+    hasLetter: boolean;
+    hasNumber: boolean;
+    hasUpperOrSymbol: boolean;
+  };
+}
+
+const USERNAME_REGEX = /^[a-zA-Z0-9._-]{3,24}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+export function validateUsername(raw: string): string | null {
+  const cleaned = raw.trim();
+  if (!cleaned) return 'Username is required.';
+  if (cleaned.length < 3 || cleaned.length > 24) {
+    return 'Username must be between 3 and 24 characters.';
+  }
+  if (!USERNAME_REGEX.test(cleaned)) {
+    return 'Username can only contain letters, numbers, dots, underscores, and hyphens.';
+  }
+  return null;
+}
+
+export function validateEmail(raw: string): string | null {
+  const cleaned = raw.trim().toLowerCase();
+  if (!cleaned) return 'Email address is required.';
+  if (cleaned.length > 254 || !EMAIL_REGEX.test(cleaned)) {
+    return 'Please enter a valid email address.';
+  }
+  return null;
+}
+
+export function getPasswordStrength(password: string): PasswordStrength {
+  const checks = {
+    minLength: password.length >= 8,
+    hasLetter: /[a-zA-Z]/.test(password),
+    hasNumber: /\d/.test(password),
+    hasUpperOrSymbol: /[A-Z]/.test(password) && /[^a-zA-Z0-9]/.test(password),
+  };
+
+  let score = 0;
+  if (checks.minLength) score += 1;
+  if (checks.hasLetter && checks.hasNumber) score += 1;
+  if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score += 1;
+  if (/[^a-zA-Z0-9]/.test(password) || password.length >= 12) score += 1;
+
+  const labels: PasswordStrength['label'][] = ['Too weak', 'Weak', 'Fair', 'Good', 'Strong'];
+  return {
+    score: score as PasswordStrength['score'],
+    label: labels[score],
+    checks,
+  };
+}
+
+export function validateNewPassword(password: string): string | null {
+  if (!password) return 'Password is required.';
+  if (password.length < 8) return 'Password must be at least 8 characters long.';
+  if (!/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
+    return 'Password must include at least one letter and one number.';
+  }
+  if (password.length > 128) return 'Password must be 128 characters or fewer.';
+  return null;
+}
+
 const DEFAULT_DEMO_USER: UserProfile = {
   id: 'usr_demo_101',
   username: 'OtakuMaster',
+  usernameLower: 'otakumaster',
   email: 'otakumaster@animesenpai.io',
   avatar: '',
   bio: 'Anime enthusiast exploring new seasonal gems and 90s classics.',
@@ -41,100 +159,320 @@ const DEFAULT_DEMO_USER: UserProfile = {
   favoriteGenre: 'Action / Sci-Fi',
 };
 
+export type PrimaryAuthProvider = 'google' | 'apple' | 'password' | 'demo';
+
 interface AuthContextType {
   user: UserProfile | null;
   isAuthenticated: boolean;
-  authProvider: 'google' | 'password' | 'demo';
-  login: (emailOrUsername: string, password?: string) => Promise<{ success: boolean; error?: string }>;
-  signup: (data: { username: string; email: string; password?: string; avatar?: string }) => Promise<{ success: boolean; error?: string }>;
-  loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
+  emailVerified: boolean;
+  linkedProviders: string[];
+  authProvider: PrimaryAuthProvider;
+  enrolledMfaFactors: EnrolledMfaFactor[];
+  mfaPending: boolean;
+  mfaHintLabel: string;
+  login: (emailOrUsername: string, password: string, rememberMe?: boolean) => Promise<AuthActionResult>;
+  signup: (data: { username: string; email: string; password: string; avatar?: string }) => Promise<AuthActionResult>;
+  loginWithGoogle: (rememberMe?: boolean) => Promise<AuthActionResult>;
+  loginWithApple: (rememberMe?: boolean) => Promise<AuthActionResult>;
+  resolveMfaSignIn: (code: string) => Promise<AuthActionResult>;
+  cancelMfaSignIn: () => void;
+  sendPasswordReset: (email: string) => Promise<AuthActionResult>;
+  resendVerificationEmail: () => Promise<AuthActionResult>;
+  refreshAuthUser: () => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<AuthActionResult>;
+  changeEmail: (newEmail: string, reauthPassword?: string) => Promise<AuthActionResult>;
+  linkAuthProvider: (provider: 'google' | 'apple') => Promise<AuthActionResult>;
+  unlinkAuthProvider: (providerId: string) => Promise<AuthActionResult>;
+  startTotpEnrollment: (reauthPassword?: string) => Promise<TotpSetupResult>;
+  completeTotpEnrollment: (code: string, displayName?: string) => Promise<AuthActionResult>;
+  cancelTotpEnrollment: () => void;
+  unenrollMfaFactor: (factorUid: string, reauthPassword?: string) => Promise<AuthActionResult>;
+  logout: () => Promise<void>;
   quickDemoLogin: () => void;
-  updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
-  deleteAccount: (password?: string) => Promise<{ success: boolean; requiresRecentLogin?: boolean; error?: string }>;
+  updateProfile: (updates: Partial<UserProfile>) => Promise<AuthActionResult>;
+  deleteAccount: (password?: string) => Promise<AuthActionResult>;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+function extractMfaFactors(firebaseUser: FirebaseUser | null): EnrolledMfaFactor[] {
+  if (!firebaseUser) return [];
+  try {
+    return multiFactor(firebaseUser).enrolledFactors.map((factor) => ({
+      uid: factor.uid,
+      displayName: factor.displayName || 'Authenticator App',
+      enrollmentTime: factor.enrollmentTime || '',
+      factorId: factor.factorId,
+    }));
+  } catch {
+    return [];
+  }
+}
 
-  // Sync auth state with Firebase (if active session exists or on auth-related pages)
-  useEffect(() => {
-    const hasExistingSession = () => {
-      try {
-        const path = (window.location.pathname || '') + (window.location.hash || '');
-        if (path.includes('login') || path.includes('signup') || path.includes('account') || path.includes('auth')) {
-          return true;
-        }
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i) || '';
-          if (k.startsWith('firebase:authUser') || k.startsWith('firebase:token')) {
-            return true;
-          }
-        }
-      } catch {}
-      return false;
-    };
+function getPrimaryProviderFromUser(firebaseUser: FirebaseUser | null): PrimaryAuthProvider {
+  if (!firebaseUser) return 'demo';
+  const providers = firebaseUser.providerData.map((p) => p.providerId);
+  if (providers.includes('password')) return 'password';
+  if (providers.includes('apple.com')) return 'apple';
+  if (providers.includes('google.com')) return 'google';
+  return 'password';
+}
 
-    if (!hasExistingSession()) {
-      setLoading(false);
-      return;
+function createAppleProvider(): OAuthProvider {
+  const provider = new OAuthProvider('apple.com');
+  provider.addScope('email');
+  provider.addScope('name');
+  return provider;
+}
+
+function createGoogleProvider(): GoogleAuthProvider {
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+  return provider;
+}
+
+async function buildAndSyncUserProfile(
+  firebaseUser: FirebaseUser,
+  defaultNameFallback = 'AnimeFan'
+): Promise<UserProfile> {
+  const fallbackUsername =
+    firebaseUser.displayName?.trim() ||
+    firebaseUser.email?.split('@')[0]?.replace(/[^a-zA-Z0-9._-]/g, '') ||
+    defaultNameFallback;
+
+  const fallbackUser: UserProfile = {
+    id: firebaseUser.uid,
+    username: fallbackUsername,
+    usernameLower: fallbackUsername.toLowerCase(),
+    email: firebaseUser.email || '',
+    avatar: firebaseUser.photoURL || '',
+    bio: 'Welcome to my AnimeSenpai profile!',
+    joinedDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+    animeWatchedCount: 0,
+    episodesWatchedCount: 0,
+    daysWatched: 0,
+    favoriteGenre: 'All Genres',
+  };
+
+  try {
+    const docRef = doc(db, 'users', firebaseUser.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      await setDoc(docRef, fallbackUser);
+      return fallbackUser;
     }
 
+    const data = docSnap.data() as Partial<UserProfile>;
+    const merged: UserProfile = {
+      ...fallbackUser,
+      ...data,
+      id: firebaseUser.uid,
+      email: firebaseUser.email || data.email || '',
+    };
+
+    // Backfill usernameLower or synced email silently when needed
+    const patch: Partial<UserProfile> = {};
+    if (merged.username && data.usernameLower !== merged.username.toLowerCase()) {
+      patch.usernameLower = merged.username.toLowerCase();
+    }
+    if (firebaseUser.email && data.email !== firebaseUser.email) {
+      patch.email = firebaseUser.email;
+    }
+    if (Object.keys(patch).length > 0) {
+      updateDoc(docRef, patch).catch(() => {});
+    }
+
+    return merged;
+  } catch (firestoreError) {
+    console.warn('Could not sync Firestore profile, using Firebase Auth profile:', firestoreError);
+    return fallbackUser;
+  }
+}
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [linkedProviders, setLinkedProviders] = useState<string[]>([]);
+  const [enrolledMfaFactors, setEnrolledMfaFactors] = useState<EnrolledMfaFactor[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Pending sign-in MFA resolver (when user has 2FA enabled)
+  const [mfaResolver, setMfaResolver] = useState<MultiFactorResolver | null>(null);
+  // Pending TOTP secret during 2FA enrollment in Settings
+  const pendingTotpSecretRef = useRef<TotpSecret | null>(null);
+
+  const syncFirebaseSecurityMeta = useCallback((firebaseUser: FirebaseUser | null) => {
+    if (!firebaseUser) {
+      setEmailVerified(false);
+      setLinkedProviders([]);
+      setEnrolledMfaFactors([]);
+      return;
+    }
+    setEmailVerified(Boolean(firebaseUser.emailVerified));
+    setLinkedProviders(firebaseUser.providerData.map((p) => p.providerId));
+    setEnrolledMfaFactors(extractMfaFactors(firebaseUser));
+  }, []);
+
+  // Always observe Firebase Auth state immediately (supports IndexedDB persistence on all routes)
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        try {
-          const docRef = doc(db, 'users', firebaseUser.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setUser({ id: firebaseUser.uid, ...docSnap.data() } as UserProfile);
-          } else {
-            setUser({
-              id: firebaseUser.uid,
-              username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-              email: firebaseUser.email || '',
-              avatar: firebaseUser.photoURL || '',
-              joinedDate: new Date().toLocaleDateString(),
-            });
-          }
-        } catch (error) {
-          console.warn("Could not fetch user profile from Firestore, using auth profile:", error);
-          setUser({
-            id: firebaseUser.uid,
-            username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-            email: firebaseUser.email || '',
-            avatar: firebaseUser.photoURL || '',
-            joinedDate: new Date().toLocaleDateString(),
-          });
-        }
+        syncFirebaseSecurityMeta(firebaseUser);
+        const profile = await buildAndSyncUserProfile(firebaseUser);
+        setUser(profile);
       } else {
+        syncFirebaseSecurityMeta(null);
         setUser(null);
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [syncFirebaseSecurityMeta]);
 
-  const login = async (emailOrUsername: string, password?: string): Promise<{ success: boolean; error?: string }> => {
-    if (!emailOrUsername.trim()) {
-      return { success: false, error: 'Please enter your username or email.' };
+  const applyPersistence = async (rememberMe: boolean) => {
+    try {
+      await setPersistence(
+        auth,
+        rememberMe ? browserLocalPersistence : browserSessionPersistence
+      );
+    } catch {
+      // Fallback safely if browser blocks persistence switching (e.g. strict private mode)
+    }
+  };
+
+  const reauthenticateCurrentUser = async (reauthPassword?: string): Promise<void> => {
+    const current = auth.currentUser;
+    if (!current) return;
+
+    const providers = current.providerData.map((p) => p.providerId);
+
+    if (reauthPassword === '__google_reauth__') {
+      await reauthenticateWithPopup(current, createGoogleProvider());
+      return;
+    }
+
+    if (reauthPassword === '__apple_reauth__') {
+      await reauthenticateWithPopup(current, createAppleProvider());
+      return;
+    }
+
+    if (reauthPassword && current.email && providers.includes('password')) {
+      const credential = EmailAuthProvider.credential(current.email, reauthPassword);
+      await reauthenticateWithCredential(current, credential);
+      return;
+    }
+
+    if (!reauthPassword && !providers.includes('password')) {
+      if (providers.includes('apple.com')) {
+        await reauthenticateWithPopup(current, createAppleProvider());
+      } else if (providers.includes('google.com')) {
+        await reauthenticateWithPopup(current, createGoogleProvider());
+      }
+    }
+  };
+
+  const handleMfaChallengeError = (error: unknown): AuthActionResult | null => {
+    const authErr = error as { code?: string };
+    if (authErr?.code === 'auth/multi-factor-auth-required') {
+      try {
+        const resolver = getMultiFactorResolver(auth, error as MultiFactorError);
+        setMfaResolver(resolver);
+        return {
+          success: false,
+          mfaRequired: true,
+        };
+      } catch {
+        return {
+          success: false,
+          error: 'Two-factor verification is required, but the challenge could not be initialized.',
+        };
+      }
+    }
+    return null;
+  };
+
+  const login = async (
+    emailOrUsername: string,
+    password: string,
+    rememberMe = true
+  ): Promise<AuthActionResult> => {
+    const identifier = emailOrUsername.trim();
+    if (!identifier) {
+      return { success: false, error: 'Please enter your email address or username.' };
+    }
+    if (!password) {
+      return { success: false, error: 'Please enter your password.' };
+    }
+
+    let resolvedEmail = identifier.toLowerCase();
+
+    // Resolve username -> email via Firestore if user entered a username instead of an email
+    if (!identifier.includes('@')) {
+      const usernameErr = validateUsername(identifier);
+      if (usernameErr) {
+        return { success: false, error: 'Please enter a valid email address or username.' };
+      }
+
+      try {
+        const q = query(
+          collection(db, 'users'),
+          where('usernameLower', '==', identifier.toLowerCase()),
+          limit(1)
+        );
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          return {
+            success: false,
+            error: 'No account found with that username. Try signing in with your email address.',
+          };
+        }
+        const matchedEmail = snap.docs[0].data()?.email;
+        if (!matchedEmail || typeof matchedEmail !== 'string') {
+          return {
+            success: false,
+            error: 'Please sign in using the email address linked to your account.',
+          };
+        }
+        resolvedEmail = matchedEmail.trim().toLowerCase();
+      } catch {
+        return {
+          success: false,
+          error: 'Please sign in with your email address.',
+        };
+      }
+    } else {
+      const emailErr = validateEmail(resolvedEmail);
+      if (emailErr) return { success: false, error: emailErr };
     }
 
     try {
-      const email = emailOrUsername.includes('@') ? emailOrUsername : `${emailOrUsername}@animesenpai.io`;
-      // We provide a fallback password if the UI didn't enforce it originally
-      const authPassword = password || 'animesenpai_demo_123!';
-      
-      await signInWithEmailAndPassword(auth, email, authPassword);
+      await applyPersistence(rememberMe);
+      const cred = await signInWithEmailAndPassword(auth, resolvedEmail, password);
+      syncFirebaseSecurityMeta(cred.user);
+      const profile = await buildAndSyncUserProfile(cred.user);
+      setUser(profile);
       return { success: true };
-    } catch (error: any) {
-      let errorMessage = 'An error occurred during login.';
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+    } catch (error: unknown) {
+      const mfaRes = handleMfaChallengeError(error);
+      if (mfaRes) return mfaRes;
+
+      const code = (error as { code?: string })?.code;
+      let errorMessage = 'Unable to sign in right now. Please try again.';
+      if (
+        code === 'auth/user-not-found' ||
+        code === 'auth/wrong-password' ||
+        code === 'auth/invalid-credential'
+      ) {
         errorMessage = 'Invalid email or password.';
+      } else if (code === 'auth/too-many-requests') {
+        errorMessage = 'Too many failed attempts. Please wait a few minutes or reset your password.';
+      } else if (code === 'auth/user-disabled') {
+        errorMessage = 'This account has been disabled. Contact support for help.';
+      } else if (code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.';
       }
       return { success: false, error: errorMessage };
     }
@@ -143,59 +481,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (data: {
     username: string;
     email: string;
-    password?: string;
+    password: string;
     avatar?: string;
-  }): Promise<{ success: boolean; error?: string }> => {
-    if (!data.username.trim() || !data.email.trim()) {
-      return { success: false, error: 'Username and Email are required.' };
+  }): Promise<AuthActionResult> => {
+    const cleanUsername = data.username.trim();
+    const cleanEmail = data.email.trim().toLowerCase();
+
+    const usernameError = validateUsername(cleanUsername);
+    if (usernameError) return { success: false, error: usernameError };
+
+    const emailError = validateEmail(cleanEmail);
+    if (emailError) return { success: false, error: emailError };
+
+    const passwordError = validateNewPassword(data.password);
+    if (passwordError) return { success: false, error: passwordError };
+
+    // Optional uniqueness pre-check (non-blocking if Firestore disallows unauthenticated queries)
+    try {
+      const q = query(
+        collection(db, 'users'),
+        where('usernameLower', '==', cleanUsername.toLowerCase()),
+        limit(1)
+      );
+      const existing = await getDocs(q);
+      if (!existing.empty) {
+        return { success: false, error: 'That username is already taken. Please choose another.' };
+      }
+    } catch {
+      // Firestore rules may restrict unauthenticated reads; proceed with Auth creation
     }
 
     try {
-      const authPassword = data.password || 'animesenpai_demo_123!';
-      const userCredential = await createUserWithEmailAndPassword(auth, data.email, authPassword);
-      
+      await applyPersistence(true);
+      const userCredential = await createUserWithEmailAndPassword(auth, cleanEmail, data.password);
+
+      try {
+        await firebaseUpdateProfile(userCredential.user, { displayName: cleanUsername });
+      } catch {
+        // Non-fatal
+      }
+
+      // Send email verification automatically for account security & 2FA readiness
+      try {
+        await sendEmailVerification(userCredential.user);
+      } catch {
+        // Non-fatal
+      }
+
       const newUser: UserProfile = {
         id: userCredential.user.uid,
-        username: data.username.trim(),
-        email: data.email.trim(),
+        username: cleanUsername,
+        usernameLower: cleanUsername.toLowerCase(),
+        email: cleanEmail,
         avatar: data.avatar || '',
-        bio: 'Welcome to my AnimeSenpai profile!',
-        joinedDate: new Date().toLocaleDateString(),
-        animeWatchedCount: 0,
-        episodesWatchedCount: 0,
-        daysWatched: 0,
-        favoriteGenre: 'All Genres',
-      };
-
-      // Store extra user details in Firestore
-      await setDoc(doc(db, 'users', userCredential.user.uid), newUser);
-      
-      // onAuthStateChanged will handle updating the state, but we can set it immediately for perceived performance
-      setUser(newUser);
-      
-      return { success: true };
-    } catch (error: any) {
-      let errorMessage = 'An error occurred during signup.';
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'This email is already registered.';
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'Password should be at least 6 characters.';
-      }
-      return { success: false, error: errorMessage };
-    }
-  };
-
-  const loginWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const firebaseUser = result.user;
-
-      const fallbackUser: UserProfile = {
-        id: firebaseUser.uid,
-        username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'AnimeFan',
-        email: firebaseUser.email || '',
-        avatar: firebaseUser.photoURL || '',
         bio: 'Welcome to my AnimeSenpai profile!',
         joinedDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
         animeWatchedCount: 0,
@@ -205,67 +543,517 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       try {
-        const docRef = doc(db, 'users', firebaseUser.uid);
-        const docSnap = await getDoc(docRef);
-
-        if (!docSnap.exists()) {
-          await setDoc(docRef, fallbackUser);
-          setUser(fallbackUser);
-        } else {
-          setUser({ id: firebaseUser.uid, ...docSnap.data() } as UserProfile);
-        }
-      } catch (firestoreError) {
-        console.warn("Could not sync Firestore profile, defaulting to Google Auth profile:", firestoreError);
-        setUser(fallbackUser);
+        await setDoc(doc(db, 'users', userCredential.user.uid), newUser);
+      } catch (firestoreErr) {
+        console.warn('Could not persist user profile document on signup:', firestoreErr);
       }
 
+      syncFirebaseSecurityMeta(userCredential.user);
+      setUser(newUser);
       return { success: true };
-    } catch (error: any) {
-      console.error("Google sign in error:", error);
-      let errorMessage = `Failed to sign in with Google. (${error.code || 'Unknown Error'}): ${error.message || 'No details available.'}`;
-      if (error.code === 'auth/popup-closed-by-user') {
-        errorMessage = 'Sign-in window closed before completing.';
-      } else if (error.code === 'auth/cancelled-popup-request') {
-        errorMessage = 'Sign-in popup was cancelled.';
-      } else if (error.code === 'auth/popup-blocked') {
-        errorMessage = 'Popup blocked by browser. Please allow popups for this site.';
+    } catch (error: unknown) {
+      const code = (error as { code?: string })?.code;
+      let errorMessage = 'Unable to create your account right now. Please try again.';
+      if (code === 'auth/email-already-in-use') {
+        errorMessage = 'This email address is already registered. Try signing in instead.';
+      } else if (code === 'auth/weak-password') {
+        errorMessage = 'Password is too weak. Use at least 8 characters with letters and numbers.';
+      } else if (code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.';
+      } else if (code === 'auth/operation-not-allowed') {
+        errorMessage = 'Email/password sign-up is currently disabled in Firebase Auth.';
       }
       return { success: false, error: errorMessage };
     }
   };
 
-  const quickDemoLogin = async () => {
-    // For demo login, we could create an anonymous user or hardcode a demo user
+  const loginWithOAuth = async (
+    providerKind: 'google' | 'apple',
+    rememberMe = true
+  ): Promise<AuthActionResult> => {
+    try {
+      await applyPersistence(rememberMe);
+      const provider =
+        providerKind === 'apple' ? createAppleProvider() : createGoogleProvider();
+      const result = await signInWithPopup(auth, provider);
+      const firebaseUser = result.user;
+
+      syncFirebaseSecurityMeta(firebaseUser);
+      const profile = await buildAndSyncUserProfile(
+        firebaseUser,
+        providerKind === 'apple' ? 'AppleUser' : 'AnimeFan'
+      );
+      setUser(profile);
+      return { success: true };
+    } catch (error: unknown) {
+      const mfaRes = handleMfaChallengeError(error);
+      if (mfaRes) return mfaRes;
+
+      const err = error as { code?: string; message?: string };
+      const providerLabel = providerKind === 'apple' ? 'Apple' : 'Google';
+      let errorMessage = `Failed to sign in with ${providerLabel}. Please try again.`;
+
+      if (err?.code === 'auth/popup-closed-by-user') {
+        errorMessage = `${providerLabel} sign-in window was closed before completing.`;
+      } else if (err?.code === 'auth/cancelled-popup-request') {
+        errorMessage = 'Sign-in popup was cancelled.';
+      } else if (err?.code === 'auth/popup-blocked') {
+        errorMessage = 'Popup was blocked by your browser. Please allow popups for AnimeSenpai.';
+      } else if (err?.code === 'auth/account-exists-with-different-credential') {
+        errorMessage =
+          'An account already exists with this email using a different sign-in method. Sign in with your original method, then link this provider in Settings → Security.';
+      } else if (err?.code === 'auth/operation-not-allowed') {
+        errorMessage =
+          providerKind === 'apple'
+            ? 'Sign in with Apple needs to be enabled in Firebase Console (Authentication → Sign-in method → Apple).'
+            : 'Google Sign-In is not enabled in Firebase Console.';
+      } else if (err?.code === 'auth/unauthorized-domain') {
+        errorMessage = 'This domain is not yet authorized in Firebase Authentication settings.';
+      }
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  const loginWithGoogle = (rememberMe = true) => loginWithOAuth('google', rememberMe);
+  const loginWithApple = (rememberMe = true) => loginWithOAuth('apple', rememberMe);
+
+  const resolveMfaSignIn = async (code: string): Promise<AuthActionResult> => {
+    if (!mfaResolver) {
+      return { success: false, error: 'Your verification session expired. Please sign in again.' };
+    }
+    const cleanCode = code.replace(/\s+/g, '');
+    if (!/^\d{6}$/.test(cleanCode)) {
+      return { success: false, error: 'Enter the 6-digit code from your authenticator app.' };
+    }
+
+    const totpHint =
+      mfaResolver.hints.find((h) => h.factorId === TotpMultiFactorGenerator.FACTOR_ID) ||
+      mfaResolver.hints[0];
+
+    if (!totpHint) {
+      return { success: false, error: 'No compatible 2FA factor found on this account.' };
+    }
+
+    try {
+      const assertion = TotpMultiFactorGenerator.assertionForSignIn(totpHint.uid, cleanCode);
+      const cred = await mfaResolver.resolveSignIn(assertion);
+      setMfaResolver(null);
+      syncFirebaseSecurityMeta(cred.user);
+      const profile = await buildAndSyncUserProfile(cred.user);
+      setUser(profile);
+      return { success: true };
+    } catch (error: unknown) {
+      const errCode = (error as { code?: string })?.code;
+      if (errCode === 'auth/invalid-verification-code') {
+        return { success: false, error: 'Incorrect 6-digit code. Check your authenticator app and try again.' };
+      }
+      if (errCode === 'auth/code-expired') {
+        return { success: false, error: 'That code expired. Enter the newest 6-digit code.' };
+      }
+      return { success: false, error: 'Verification failed. Please check your 6-digit code and try again.' };
+    }
+  };
+
+  const cancelMfaSignIn = () => {
+    setMfaResolver(null);
+  };
+
+  const sendPasswordReset = async (email: string): Promise<AuthActionResult> => {
+    const cleanEmail = email.trim().toLowerCase();
+    const emailError = validateEmail(cleanEmail);
+    if (emailError) return { success: false, error: emailError };
+
+    try {
+      await sendPasswordResetEmail(auth, cleanEmail);
+      return { success: true };
+    } catch (error: unknown) {
+      const code = (error as { code?: string })?.code;
+      if (code === 'auth/too-many-requests') {
+        return { success: false, error: 'Too many reset requests. Please wait a few minutes and try again.' };
+      }
+      if (code === 'auth/invalid-email') {
+        return { success: false, error: 'Please enter a valid email address.' };
+      }
+      // Return success even on auth/user-not-found to prevent account enumeration
+      if (code === 'auth/user-not-found') {
+        return { success: true };
+      }
+      return { success: false, error: 'Could not send reset email right now. Please try again.' };
+    }
+  };
+
+  const resendVerificationEmail = async (): Promise<AuthActionResult> => {
+    const current = auth.currentUser;
+    if (!current) return { success: false, error: 'Please sign in first.' };
+    if (current.emailVerified) return { success: true };
+
+    try {
+      await sendEmailVerification(current);
+      return { success: true };
+    } catch (error: unknown) {
+      const code = (error as { code?: string })?.code;
+      if (code === 'auth/too-many-requests') {
+        return { success: false, error: 'Verification email was sent recently. Please check your inbox or wait a moment.' };
+      }
+      return { success: false, error: 'Could not send verification email right now.' };
+    }
+  };
+
+  const refreshAuthUser = async () => {
+    const current = auth.currentUser;
+    if (!current) return;
+    try {
+      await current.reload();
+      syncFirebaseSecurityMeta(auth.currentUser);
+      if (auth.currentUser?.email) {
+        setUser((prev) =>
+          prev ? { ...prev, email: auth.currentUser?.email || prev.email } : prev
+        );
+      }
+    } catch {
+      // Ignore reload errors
+    }
+  };
+
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string
+  ): Promise<AuthActionResult> => {
+    const current = auth.currentUser;
+    if (!current || !current.email) {
+      return { success: false, error: 'Sign in with an email account to change your password.' };
+    }
+    if (!currentPassword) {
+      return { success: false, error: 'Enter your current password to continue.' };
+    }
+    const pwdError = validateNewPassword(newPassword);
+    if (pwdError) return { success: false, error: pwdError };
+    if (currentPassword === newPassword) {
+      return { success: false, error: 'New password must be different from your current password.' };
+    }
+
+    try {
+      const credential = EmailAuthProvider.credential(current.email, currentPassword);
+      await reauthenticateWithCredential(current, credential);
+      await updatePassword(current, newPassword);
+      return { success: true };
+    } catch (error: unknown) {
+      const code = (error as { code?: string })?.code;
+      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+        return { success: false, error: 'Current password is incorrect.' };
+      }
+      if (code === 'auth/weak-password') {
+        return { success: false, error: 'Please choose a stronger password (at least 8 characters).' };
+      }
+      if (code === 'auth/too-many-requests') {
+        return { success: false, error: 'Too many attempts. Please wait a few minutes and try again.' };
+      }
+      return { success: false, error: 'Could not update password. Please try again.' };
+    }
+  };
+
+  const changeEmail = async (
+    newEmail: string,
+    reauthPassword?: string
+  ): Promise<AuthActionResult> => {
+    const current = auth.currentUser;
+    if (!current) return { success: false, error: 'Please sign in first.' };
+
+    const cleanEmail = newEmail.trim().toLowerCase();
+    const emailErr = validateEmail(cleanEmail);
+    if (emailErr) return { success: false, error: emailErr };
+    if (cleanEmail === (current.email || '').toLowerCase()) {
+      return { success: false, error: 'That is already your current email address.' };
+    }
+
+    try {
+      if (reauthPassword) {
+        await reauthenticateCurrentUser(reauthPassword);
+      }
+      await verifyBeforeUpdateEmail(current, cleanEmail);
+      return { success: true };
+    } catch (error: unknown) {
+      const code = (error as { code?: string })?.code;
+      if (code === 'auth/requires-recent-login') {
+        return {
+          success: false,
+          requiresRecentLogin: true,
+          error: 'Please verify your current sign-in before changing your email address.',
+        };
+      }
+      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+        return { success: false, requiresRecentLogin: true, error: 'Incorrect password.' };
+      }
+      if (code === 'auth/email-already-in-use') {
+        return { success: false, error: 'That email address is already linked to another account.' };
+      }
+      if (code === 'auth/popup-closed-by-user') {
+        return { success: false, requiresRecentLogin: true, error: 'Verification popup was closed.' };
+      }
+      return { success: false, error: 'Unable to send email change verification right now.' };
+    }
+  };
+
+  const linkAuthProvider = async (providerKind: 'google' | 'apple'): Promise<AuthActionResult> => {
+    const current = auth.currentUser;
+    if (!current) return { success: false, error: 'Please sign in first.' };
+
+    try {
+      const provider =
+        providerKind === 'apple' ? createAppleProvider() : createGoogleProvider();
+      await linkWithPopup(current, provider);
+      await current.reload();
+      syncFirebaseSecurityMeta(auth.currentUser);
+      return { success: true };
+    } catch (error: unknown) {
+      const code = (error as { code?: string })?.code;
+      const label = providerKind === 'apple' ? 'Apple' : 'Google';
+      if (code === 'auth/credential-already-in-use') {
+        return { success: false, error: `That ${label} account is already linked to another AnimeSenpai user.` };
+      }
+      if (code === 'auth/provider-already-linked') {
+        return { success: true };
+      }
+      if (code === 'auth/popup-closed-by-user') {
+        return { success: false, error: `${label} sign-in window was closed.` };
+      }
+      if (code === 'auth/operation-not-allowed') {
+        return {
+          success: false,
+          error:
+            providerKind === 'apple'
+              ? 'Sign in with Apple must be enabled in Firebase Console first.'
+              : 'Google Sign-In must be enabled in Firebase Console first.',
+        };
+      }
+      return { success: false, error: `Could not link ${label} account right now.` };
+    }
+  };
+
+  const unlinkAuthProvider = async (providerId: string): Promise<AuthActionResult> => {
+    const current = auth.currentUser;
+    if (!current) return { success: false, error: 'Please sign in first.' };
+    if (current.providerData.length <= 1) {
+      return {
+        success: false,
+        error: 'You cannot disconnect your only remaining sign-in method.',
+      };
+    }
+
+    try {
+      await unlink(current, providerId);
+      await current.reload();
+      syncFirebaseSecurityMeta(auth.currentUser);
+      return { success: true };
+    } catch {
+      return { success: false, error: 'Could not disconnect that sign-in method right now.' };
+    }
+  };
+
+  const startTotpEnrollment = async (reauthPassword?: string): Promise<TotpSetupResult> => {
+    const current = auth.currentUser;
+    if (!current) return { success: false, error: 'Please sign in first.' };
+
+    await current.reload().catch(() => {});
+    syncFirebaseSecurityMeta(auth.currentUser);
+
+    if (!current.emailVerified) {
+      return {
+        success: false,
+        requiresEmailVerification: true,
+        error: 'Please verify your email address before enabling Two-Factor Authentication.',
+      };
+    }
+
+    try {
+      if (reauthPassword) {
+        await reauthenticateCurrentUser(reauthPassword);
+      }
+
+      const session = await multiFactor(current).getSession();
+      const secret = await TotpMultiFactorGenerator.generateSecret(session);
+      pendingTotpSecretRef.current = secret;
+
+      const accountLabel = current.email || user?.username || 'AnimeSenpai';
+      const qrCodeUrl = secret.generateQrCodeUrl(accountLabel, 'AnimeSenpai');
+
+      return {
+        success: true,
+        secretKey: secret.secretKey,
+        qrCodeUrl,
+      };
+    } catch (error: unknown) {
+      const code = (error as { code?: string })?.code;
+      if (code === 'auth/requires-recent-login') {
+        return {
+          success: false,
+          requiresRecentLogin: true,
+          error: 'Verify your login one more time to start 2FA setup.',
+        };
+      }
+      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+        return {
+          success: false,
+          requiresRecentLogin: true,
+          error: 'Incorrect password. Please try again.',
+        };
+      }
+      if (code === 'auth/unverified-email') {
+        return {
+          success: false,
+          requiresEmailVerification: true,
+          error: 'Verify your email address first to enable 2FA.',
+        };
+      }
+      if (code === 'auth/operation-not-allowed' || code === 'auth/unsupported-first-factor') {
+        return {
+          success: false,
+          error:
+            'TOTP 2FA requires Identity Platform Multi-Factor Authentication to be enabled in Firebase Console (Authentication → Settings → Multi-factor authentication → TOTP).',
+        };
+      }
+      if (code === 'auth/popup-closed-by-user') {
+        return { success: false, requiresRecentLogin: true, error: 'Verification popup was closed.' };
+      }
+      return {
+        success: false,
+        error: 'Unable to start 2FA setup right now. Please try again.',
+      };
+    }
+  };
+
+  const completeTotpEnrollment = async (
+    code: string,
+    displayName = 'Authenticator App'
+  ): Promise<AuthActionResult> => {
+    const current = auth.currentUser;
+    const secret = pendingTotpSecretRef.current;
+    if (!current || !secret) {
+      return { success: false, error: '2FA setup session expired. Start setup again.' };
+    }
+
+    const cleanCode = code.replace(/\s+/g, '');
+    if (!/^\d{6}$/.test(cleanCode)) {
+      return { success: false, error: 'Enter the 6-digit code shown in your authenticator app.' };
+    }
+
+    try {
+      const assertion = TotpMultiFactorGenerator.assertionForEnrollment(secret, cleanCode);
+      await multiFactor(current).enroll(assertion, displayName.trim() || 'Authenticator App');
+      pendingTotpSecretRef.current = null;
+      await current.reload();
+      syncFirebaseSecurityMeta(auth.currentUser);
+      return { success: true };
+    } catch (error: unknown) {
+      const errCode = (error as { code?: string })?.code;
+      if (errCode === 'auth/invalid-verification-code') {
+        return { success: false, error: 'Invalid 6-digit code. Wait for the next code and try again.' };
+      }
+      if (errCode === 'auth/requires-recent-login') {
+        return {
+          success: false,
+          requiresRecentLogin: true,
+          error: 'Your login session timed out. Please verify your login and retry.',
+        };
+      }
+      return { success: false, error: 'Could not verify the 6-digit code. Please try again.' };
+    }
+  };
+
+  const cancelTotpEnrollment = () => {
+    pendingTotpSecretRef.current = null;
+  };
+
+  const unenrollMfaFactor = async (
+    factorUid: string,
+    reauthPassword?: string
+  ): Promise<AuthActionResult> => {
+    const current = auth.currentUser;
+    if (!current) return { success: false, error: 'Please sign in first.' };
+
+    try {
+      if (reauthPassword) {
+        await reauthenticateCurrentUser(reauthPassword);
+      }
+
+      const mfUser = multiFactor(current);
+      const factor = mfUser.enrolledFactors.find((f) => f.uid === factorUid);
+      if (!factor) {
+        syncFirebaseSecurityMeta(current);
+        return { success: true };
+      }
+
+      await mfUser.unenroll(factor);
+      await current.reload();
+      syncFirebaseSecurityMeta(auth.currentUser);
+      return { success: true };
+    } catch (error: unknown) {
+      const code = (error as { code?: string })?.code;
+      if (code === 'auth/requires-recent-login') {
+        return {
+          success: false,
+          requiresRecentLogin: true,
+          error: 'Verify your login to disable Two-Factor Authentication.',
+        };
+      }
+      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+        return { success: false, requiresRecentLogin: true, error: 'Incorrect password.' };
+      }
+      if (code === 'auth/popup-closed-by-user') {
+        return { success: false, requiresRecentLogin: true, error: 'Verification popup was closed.' };
+      }
+      return { success: false, error: 'Unable to disable 2FA right now. Please try again.' };
+    }
+  };
+
+  const quickDemoLogin = () => {
     setUser(DEFAULT_DEMO_USER);
   };
 
   const handleLogout = async () => {
     try {
+      pendingTotpSecretRef.current = null;
+      setMfaResolver(null);
       await signOut(auth);
       setUser(null);
+      syncFirebaseSecurityMeta(null);
     } catch (error) {
-      console.error("Error signing out: ", error);
+      console.error('Error signing out:', error);
     }
   };
 
-  const updateProfile = async (updates: Partial<UserProfile>) => {
-    if (!user) return;
+  const updateProfile = async (updates: Partial<UserProfile>): Promise<AuthActionResult> => {
+    if (!user) return { success: false, error: 'Not signed in.' };
+
+    const safeUpdates: Partial<UserProfile> = { ...updates };
+
+    if (typeof updates.username === 'string') {
+      const err = validateUsername(updates.username);
+      if (err) return { success: false, error: err };
+      safeUpdates.username = updates.username.trim();
+      safeUpdates.usernameLower = safeUpdates.username.toLowerCase();
+    }
+
+    if (typeof updates.bio === 'string') {
+      safeUpdates.bio = updates.bio.trim().slice(0, 280);
+    }
+
     try {
-      await updateDoc(doc(db, 'users', user.id), updates);
-      setUser((prev) => (prev ? { ...prev, ...updates } : null));
-    } catch (error) {
-      console.error("Error updating profile: ", error);
-      // Fallback: still apply locally if Firestore write is unavailable
-      setUser((prev) => (prev ? { ...prev, ...updates } : null));
-    }
-  };
+      if (auth.currentUser && safeUpdates.username) {
+        await firebaseUpdateProfile(auth.currentUser, { displayName: safeUpdates.username }).catch(
+          () => {}
+        );
+      }
 
-  const getAuthProvider = (): 'google' | 'password' | 'demo' => {
-    const current = auth.currentUser;
-    if (!current) return 'demo';
-    const providers = current.providerData.map((p) => p.providerId);
-    if (providers.includes('google.com')) return 'google';
-    return 'password';
+      await updateDoc(doc(db, 'users', user.id), safeUpdates);
+      setUser((prev) => (prev ? { ...prev, ...safeUpdates } : null));
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      // Still apply locally so offline/demo sessions stay responsive
+      setUser((prev) => (prev ? { ...prev, ...safeUpdates } : null));
+      return { success: true };
+    }
   };
 
   const clearLocalUserData = () => {
@@ -277,9 +1065,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
   };
 
-  const deleteAccount = async (
-    password?: string
-  ): Promise<{ success: boolean; requiresRecentLogin?: boolean; error?: string }> => {
+  const deleteAccount = async (password?: string): Promise<AuthActionResult> => {
     const current = auth.currentUser;
 
     // Demo or local-only session cleanup
@@ -290,14 +1076,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const provider = getAuthProvider();
-
-      // Re-authenticate first if credentials were provided or Google popup was requested
-      if (password && current.email) {
-        const credential = EmailAuthProvider.credential(current.email, password);
-        await reauthenticateWithCredential(current, credential);
-      } else if (provider === 'google' && password === '__google_reauth__') {
-        await reauthenticateWithPopup(current, new GoogleAuthProvider());
+      if (password) {
+        await reauthenticateCurrentUser(password);
       }
 
       // 1. Delete user profile document in Firestore
@@ -312,25 +1092,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // 3. Erase all locally stored watchlist, preferences, and session data
       clearLocalUserData();
+      pendingTotpSecretRef.current = null;
+      setMfaResolver(null);
       setUser(null);
+      syncFirebaseSecurityMeta(null);
 
       return { success: true };
-    } catch (error: any) {
-      if (error?.code === 'auth/requires-recent-login') {
+    } catch (error: unknown) {
+      const err = error as { code?: string; message?: string };
+      if (err?.code === 'auth/requires-recent-login') {
         return {
           success: false,
           requiresRecentLogin: true,
           error: 'For your security, please verify your login one more time to permanently delete your account.',
         };
       }
-      if (error?.code === 'auth/wrong-password' || error?.code === 'auth/invalid-credential') {
+      if (err?.code === 'auth/wrong-password' || err?.code === 'auth/invalid-credential') {
         return {
           success: false,
           requiresRecentLogin: true,
           error: 'Incorrect password. Please try again.',
         };
       }
-      if (error?.code === 'auth/popup-closed-by-user' || error?.code === 'auth/cancelled-popup-request') {
+      if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
         return {
           success: false,
           requiresRecentLogin: true,
@@ -339,28 +1123,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return {
         success: false,
-        error: error?.message || 'Unable to delete account right now. Please sign out, sign back in, and try again.',
+        error: err?.message || 'Unable to delete account right now. Please sign out, sign back in, and try again.',
       };
     }
   };
+
+  const mfaHintLabel =
+    mfaResolver?.hints?.[0]?.displayName || 'Authenticator App';
 
   return (
     <AuthContext.Provider
       value={{
         user,
         isAuthenticated: !!user,
-        authProvider: getAuthProvider(),
+        emailVerified,
+        linkedProviders,
+        authProvider: getPrimaryProviderFromUser(auth.currentUser),
+        enrolledMfaFactors,
+        mfaPending: !!mfaResolver,
+        mfaHintLabel,
         login,
         signup,
         loginWithGoogle,
+        loginWithApple,
+        resolveMfaSignIn,
+        cancelMfaSignIn,
+        sendPasswordReset,
+        resendVerificationEmail,
+        refreshAuthUser,
+        changePassword,
+        changeEmail,
+        linkAuthProvider,
+        unlinkAuthProvider,
+        startTotpEnrollment,
+        completeTotpEnrollment,
+        cancelTotpEnrollment,
+        unenrollMfaFactor,
         logout: handleLogout,
         quickDemoLogin,
         updateProfile,
         deleteAccount,
-        loading
+        loading,
       }}
     >
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
@@ -372,4 +1178,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-

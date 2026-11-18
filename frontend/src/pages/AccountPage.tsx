@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import QRCode from 'qrcode';
 import {
   User,
   Sliders,
@@ -21,13 +22,29 @@ import {
   Type,
   Info,
   Shield,
+  ShieldCheck,
   FileText,
   Scale,
   Lock,
   ChevronRight,
   ExternalLink,
+  Mail,
+  KeyRound,
+  Smartphone,
+  Copy,
+  RefreshCw,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  Link2,
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import {
+  useAuth,
+  validateUsername,
+  validateEmail,
+  validateNewPassword,
+  getPasswordStrength,
+} from '../context/AuthContext';
 import { useWatchlist } from '../context/WatchlistContext';
 import {
   usePreferences,
@@ -43,7 +60,7 @@ interface AccountPageProps {
   defaultTab?: 'account' | 'settings';
 }
 
-type SettingsSection = 'preferences' | 'profile' | 'data' | 'about';
+type SettingsSection = 'preferences' | 'profile' | 'security' | 'data' | 'about';
 
 const TEXT_SIZE_STEPS: { id: TextSize; label: string; pct: string }[] = [
   { id: 'sm', label: 'Small', pct: '90%' },
@@ -51,6 +68,21 @@ const TEXT_SIZE_STEPS: { id: TextSize; label: string; pct: string }[] = [
   { id: 'lg', label: 'Large', pct: '112%' },
   { id: 'xl', label: 'XL', pct: '124%' },
 ];
+
+const AppleIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+  </svg>
+);
+
+const GoogleIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+  <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+  </svg>
+);
 
 /** Center-crops and compresses an image file or video frame into a crisp 256x256 JPEG data URL */
 function cropImageSourceToDataUrl(source: HTMLImageElement | HTMLVideoElement): string {
@@ -86,14 +118,34 @@ function readFileAsCroppedAvatar(file: File): Promise<string> {
 export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, authProvider, updateProfile, logout, deleteAccount } = useAuth();
+  const {
+    user,
+    emailVerified,
+    linkedProviders,
+    authProvider,
+    enrolledMfaFactors,
+    updateProfile,
+    logout,
+    deleteAccount,
+    resendVerificationEmail,
+    refreshAuthUser,
+    changePassword,
+    changeEmail,
+    sendPasswordReset,
+    linkAuthProvider,
+    unlinkAuthProvider,
+    startTotpEnrollment,
+    completeTotpEnrollment,
+    cancelTotpEnrollment,
+    unenrollMfaFactor,
+  } = useAuth();
   const { watchlist, exportWatchlist, importWatchlist, clearWatchlist } = useWatchlist();
   const { preferences, updatePreference, resetPreferences } = usePreferences();
 
   useSEO({
     title: 'Settings & Account • AnimeSenpai',
     description:
-      'Customize AnimeSenpai text size, title language, density, profile photo, backups, or permanently delete your account.',
+      'Customize AnimeSenpai display, text size, profile photo, Apple/Google sign-in, Two-Factor Authentication (2FA), backups, or delete your account.',
     canonicalUrl: `${SITE_URL}/settings`,
     robots: 'noindex, nofollow',
   });
@@ -112,6 +164,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
   const [bio, setBio] = useState(user?.bio || '');
   const [favoriteGenre, setFavoriteGenre] = useState(user?.favoriteGenre || 'Action / Shonen');
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   // Apple-style Photo Picker & Live Camera state
@@ -127,6 +180,39 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
 
   // Saved indicator for preferences
   const [prefsSaved, setPrefsSaved] = useState(false);
+
+  // Security & 2FA state
+  const [securityNotice, setSecurityNotice] = useState<{ ok: boolean; text: string } | null>(null);
+  const [verifyBusy, setVerifyBusy] = useState(false);
+  const [providerBusy, setProviderBusy] = useState<string | null>(null);
+
+  // Email change state
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [emailReauthPassword, setEmailReauthPassword] = useState('');
+  const [emailNeedsReauth, setEmailNeedsReauth] = useState(false);
+  const [emailBusy, setEmailBusy] = useState(false);
+
+  // Password change state
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [showSecPasswords, setShowSecPasswords] = useState(false);
+  const [passwordBusy, setPasswordBusy] = useState(false);
+
+  // 2FA TOTP Enrollment state
+  const [totpSetupOpen, setTotpSetupOpen] = useState(false);
+  const [totpSecretKey, setTotpSecretKey] = useState('');
+  const [totpQrDataUrl, setTotpQrDataUrl] = useState('');
+  const [totpDeviceName, setTotpDeviceName] = useState('Authenticator App');
+  const [totpCode, setTotpCode] = useState('');
+  const [totpCopied, setTotpCopied] = useState(false);
+  const [totpBusy, setTotpBusy] = useState(false);
+  const [totpNeedsReauth, setTotpNeedsReauth] = useState(false);
+  const [totpReauthPassword, setTotpReauthPassword] = useState('');
+  const [unenrollPendingUid, setUnenrollPendingUid] = useState<string | null>(null);
+  const [unenrollReauthPassword, setUnenrollReauthPassword] = useState('');
 
   // Backup import feedback
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -168,7 +254,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
     return () => stopCamera();
   }, [stopCamera]);
 
-  // Attach MediaStream to <video> when live camera activates
   useEffect(() => {
     if (cameraMode && videoRef.current && cameraStreamRef.current) {
       videoRef.current.srcObject = cameraStreamRef.current;
@@ -256,8 +341,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
 
   const handleStartLiveCamera = async () => {
     setPhotoError(null);
-
-    // On mobile touch devices, native capture="user" provides the crispest OS camera experience
     const isCoarsePointer =
       typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
 
@@ -274,7 +357,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
       cameraStreamRef.current = stream;
       setCameraMode(true);
     } catch {
-      // Fallback to native file/camera input if webcam permission was denied or unavailable
       nativeCameraInputRef.current?.click();
     }
   };
@@ -308,20 +390,257 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    setIsSaving(true);
+    setProfileError(null);
     setSaveSuccess(false);
+
+    const uErr = validateUsername(username);
+    if (uErr) {
+      setProfileError(uErr);
+      return;
+    }
+
+    setIsSaving(true);
     try {
-      await updateProfile({
-        username: username.trim() || user.username,
+      const res = await updateProfile({
+        username: username.trim(),
         bio: bio.trim(),
         favoriteGenre,
       });
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 2600);
-    } catch (err) {
-      console.error('Failed to update profile', err);
+      if (res.success) {
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 2600);
+      } else {
+        setProfileError(res.error || 'Could not update profile.');
+      }
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Security handlers
+  const getOAuthReauthToken = () => {
+    if (linkedProviders.includes('apple.com')) return '__apple_reauth__';
+    if (linkedProviders.includes('google.com')) return '__google_reauth__';
+    return '';
+  };
+
+  const handleSendVerification = async () => {
+    setVerifyBusy(true);
+    setSecurityNotice(null);
+    try {
+      const res = await resendVerificationEmail();
+      setSecurityNotice({
+        ok: res.success,
+        text: res.success
+          ? 'Verification email sent! Open the link in your inbox, then tap Refresh Status.'
+          : res.error || 'Could not send verification email.',
+      });
+    } finally {
+      setVerifyBusy(false);
+    }
+  };
+
+  const handleRefreshSecurity = async () => {
+    setVerifyBusy(true);
+    try {
+      await refreshAuthUser();
+      setSecurityNotice({ ok: true, text: 'Account security status refreshed.' });
+    } finally {
+      setVerifyBusy(false);
+    }
+  };
+
+  const handleProviderToggle = async (providerKind: 'google' | 'apple') => {
+    const providerId = providerKind === 'apple' ? 'apple.com' : 'google.com';
+    const isLinked = linkedProviders.includes(providerId);
+    setProviderBusy(providerId);
+    setSecurityNotice(null);
+
+    try {
+      const res = isLinked
+        ? await unlinkAuthProvider(providerId)
+        : await linkAuthProvider(providerKind);
+
+      setSecurityNotice({
+        ok: res.success,
+        text: res.success
+          ? isLinked
+            ? `${providerKind === 'apple' ? 'Apple' : 'Google'} disconnected from your account.`
+            : `${providerKind === 'apple' ? 'Apple' : 'Google'} linked to your account.`
+          : res.error || 'Could not update sign-in provider.',
+      });
+    } finally {
+      setProviderBusy(null);
+    }
+  };
+
+  const handleEmailChangeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSecurityNotice(null);
+    const eErr = validateEmail(newEmail);
+    if (eErr) {
+      setSecurityNotice({ ok: false, text: eErr });
+      return;
+    }
+
+    setEmailBusy(true);
+    try {
+      const reauthArg = emailNeedsReauth
+        ? linkedProviders.includes('password')
+          ? emailReauthPassword
+          : getOAuthReauthToken()
+        : undefined;
+
+      const res = await changeEmail(newEmail, reauthArg);
+      if (res.success) {
+        setSecurityNotice({
+          ok: true,
+          text: `Confirmation link sent to ${newEmail.trim().toLowerCase()}. Open it to complete the email change.`,
+        });
+        setShowEmailForm(false);
+        setNewEmail('');
+        setEmailReauthPassword('');
+        setEmailNeedsReauth(false);
+      } else {
+        if (res.requiresRecentLogin) setEmailNeedsReauth(true);
+        setSecurityNotice({ ok: false, text: res.error || 'Could not change email.' });
+      }
+    } finally {
+      setEmailBusy(false);
+    }
+  };
+
+  const handlePasswordChangeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSecurityNotice(null);
+
+    const pErr = validateNewPassword(newPassword);
+    if (pErr) {
+      setSecurityNotice({ ok: false, text: pErr });
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setSecurityNotice({ ok: false, text: 'New passwords do not match.' });
+      return;
+    }
+
+    setPasswordBusy(true);
+    try {
+      const res = await changePassword(currentPassword, newPassword);
+      if (res.success) {
+        setSecurityNotice({ ok: true, text: 'Password updated successfully.' });
+        setShowPasswordForm(false);
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmNewPassword('');
+      } else {
+        setSecurityNotice({ ok: false, text: res.error || 'Could not change password.' });
+      }
+    } finally {
+      setPasswordBusy(false);
+    }
+  };
+
+  const handleSendResetEmail = async () => {
+    if (!user?.email) return;
+    setPasswordBusy(true);
+    setSecurityNotice(null);
+    try {
+      const res = await sendPasswordReset(user.email);
+      setSecurityNotice({
+        ok: res.success,
+        text: res.success
+          ? `Password reset link sent to ${user.email}.`
+          : res.error || 'Unable to send password reset email.',
+      });
+    } finally {
+      setPasswordBusy(false);
+    }
+  };
+
+  const handleBeginTotpSetup = async (reauthArg?: string) => {
+    setTotpBusy(true);
+    setSecurityNotice(null);
+    try {
+      const res = await startTotpEnrollment(reauthArg);
+      if (res.success && res.secretKey && res.qrCodeUrl) {
+        // Generate QR code 100% locally in browser — secret never leaves the device
+        const qrDataUrl = await QRCode.toDataURL(res.qrCodeUrl, {
+          width: 220,
+          margin: 2,
+          color: { dark: '#000000', light: '#ffffff' },
+        });
+        setTotpSecretKey(res.secretKey);
+        setTotpQrDataUrl(qrDataUrl);
+        setTotpCode('');
+        setTotpNeedsReauth(false);
+        setTotpReauthPassword('');
+        setTotpSetupOpen(true);
+      } else {
+        if (res.requiresRecentLogin) {
+          setTotpNeedsReauth(true);
+        }
+        setSecurityNotice({
+          ok: false,
+          text: res.error || 'Could not start Two-Factor Authentication setup.',
+        });
+      }
+    } finally {
+      setTotpBusy(false);
+    }
+  };
+
+  const handleVerifyTotpEnrollment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTotpBusy(true);
+    setSecurityNotice(null);
+    try {
+      const res = await completeTotpEnrollment(totpCode, totpDeviceName);
+      if (res.success) {
+        setTotpSetupOpen(false);
+        setTotpSecretKey('');
+        setTotpQrDataUrl('');
+        setTotpCode('');
+        setSecurityNotice({
+          ok: true,
+          text: 'Two-Factor Authentication (2FA) is now enabled on your account.',
+        });
+      } else {
+        setSecurityNotice({ ok: false, text: res.error || 'Invalid 6-digit code.' });
+      }
+    } finally {
+      setTotpBusy(false);
+    }
+  };
+
+  const handleUnenrollMfa = async (factorUid: string, reauthArg?: string) => {
+    setTotpBusy(true);
+    setSecurityNotice(null);
+    try {
+      const res = await unenrollMfaFactor(factorUid, reauthArg);
+      if (res.success) {
+        setUnenrollPendingUid(null);
+        setUnenrollReauthPassword('');
+        setSecurityNotice({ ok: true, text: 'Two-Factor Authentication removed.' });
+      } else {
+        if (res.requiresRecentLogin) {
+          setUnenrollPendingUid(factorUid);
+        }
+        setSecurityNotice({ ok: false, text: res.error || 'Could not disable 2FA.' });
+      }
+    } finally {
+      setTotpBusy(false);
+    }
+  };
+
+  const handleCopyTotpKey = async () => {
+    if (!totpSecretKey) return;
+    try {
+      await navigator.clipboard.writeText(totpSecretKey);
+      setTotpCopied(true);
+      setTimeout(() => setTotpCopied(false), 2000);
+    } catch {
+      // Ignore clipboard permission errors
     }
   };
 
@@ -363,7 +682,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
     setDeleteError(null);
 
     const passwordArg = needsReauth
-      ? authProvider === 'google'
+      ? authProvider === 'apple'
+        ? '__apple_reauth__'
+        : authProvider === 'google'
         ? '__google_reauth__'
         : reauthPassword
       : undefined;
@@ -394,9 +715,24 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
     TEXT_SIZE_STEPS.findIndex((s) => s.id === preferences.textSize)
   );
 
+  const newPwdStrength = getPasswordStrength(newPassword);
+  const strengthBarColors = [
+    'bg-rose-500',
+    'bg-rose-400',
+    'bg-amber-400',
+    'bg-emerald-400',
+    'bg-emerald-500',
+  ];
+
+  const hasPasswordProvider = linkedProviders.includes('password');
+  const hasGoogleProvider = linkedProviders.includes('google.com');
+  const hasAppleProvider = linkedProviders.includes('apple.com');
+  const is2faEnabled = enrolledMfaFactors.length > 0;
+
   const navItems: { id: SettingsSection; label: string; icon: React.ElementType }[] = [
     { id: 'preferences', label: 'Display', icon: Sliders },
     { id: 'profile', label: 'Profile', icon: User },
+    { id: 'security', label: 'Security', icon: ShieldCheck },
     { id: 'data', label: 'Data', icon: Database },
     { id: 'about', label: 'About', icon: Info },
   ];
@@ -443,7 +779,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
             Settings
           </h1>
           <p className="text-xs text-[#9a9aa6] mt-0.5 truncate">
-            Display, text size, profile photo & data
+            Display, profile, sign-in security, 2FA & data
           </p>
         </div>
 
@@ -476,7 +812,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
         </div>
       </div>
 
-      {/* Container-Query Adaptive Layout: Full-width pill bar on mobile, sticky rail on wide screens */}
+      {/* Container-Query Adaptive Layout */}
       <div className="settings-layout">
         <nav aria-label="Settings sections" className="min-w-0">
           <div className="settings-nav">
@@ -487,16 +823,19 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => setActiveSection(item.id)}
+                  onClick={() => {
+                    setActiveSection(item.id);
+                    setSecurityNotice(null);
+                  }}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`settings-nav-btn flex items-center gap-1.5 sm:gap-2.5 px-2.5 sm:px-3.5 py-2 min-h-[38px] text-xs font-semibold transition cursor-pointer ${
+                  className={`settings-nav-btn flex items-center gap-1.5 sm:gap-2.5 px-3 sm:px-3.5 py-2 min-h-[38px] text-xs font-semibold transition cursor-pointer ${
                     isActive
                       ? 'btn-accent-active'
                       : 'text-[#9a9aa6] hover:text-[#f5f5f7] hover:bg-[#16161b]'
                   }`}
                 >
                   <Icon aria-hidden="true" className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span className="truncate">{item.label}</span>
+                  <span>{item.label}</span>
                 </button>
               );
             })}
@@ -559,16 +898,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                       {step.label}
                     </button>
                   ))}
-                </div>
-
-                {/* Live Preview */}
-                <div className="p-3.5 rounded-xl bg-[#16161b] border border-[#23232b] space-y-1">
-                  <p className="text-sm font-semibold text-[#f5f5f7]">
-                    Live Typography Preview
-                  </p>
-                  <p className="text-xs text-[#9a9aa6] leading-relaxed">
-                    Drag the slider above to resize headings, synopses, and episode metadata across AnimeSenpai.
-                  </p>
                 </div>
               </div>
 
@@ -780,7 +1109,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   <div className="space-y-1">
                     <h2 className="text-base font-bold text-[#f5f5f7]">Sign in to edit your profile</h2>
                     <p className="text-xs text-[#9a9aa6] max-w-sm mx-auto">
-                      Upload a profile photo, customize your bio, and sync your watchlist across devices.
+                      Sign in with Apple, Google, or email to upload a photo, customize your bio, and sync your watchlist.
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
@@ -810,9 +1139,33 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                       </button>
 
                       <div className="text-center sm:text-left min-w-0 flex-1 space-y-1">
-                        <h2 className="text-lg font-bold text-[#f5f5f7] truncate">{user.username}</h2>
-                        <p className="text-xs text-[#9a9aa6] truncate">{user.email}</p>
-                        <div className="pt-1 flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                          <h2 className="text-lg font-bold text-[#f5f5f7] truncate">{user.username}</h2>
+                          {is2faEnabled && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/12 border border-emerald-500/30 text-[#4ade80] text-[10px] font-semibold">
+                              <ShieldCheck aria-hidden="true" className="w-3 h-3" />
+                              2FA On
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs text-[#9a9aa6]">
+                          <span className="truncate">{user.email}</span>
+                          {emailVerified ? (
+                            <span className="inline-flex items-center gap-1 text-[#4ade80] text-[11px] font-medium">
+                              <CheckCircle2 aria-hidden="true" className="w-3 h-3" />
+                              Verified
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setActiveSection('security')}
+                              className="text-amber-300 hover:underline text-[11px] font-medium cursor-pointer"
+                            >
+                              Verify email →
+                            </button>
+                          )}
+                        </div>
+                        <div className="pt-1.5 flex flex-wrap items-center justify-center sm:justify-start gap-2">
                           <button
                             type="button"
                             onClick={openPhotoSheet}
@@ -820,6 +1173,14 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                           >
                             <Camera aria-hidden="true" className="w-3.5 h-3.5" />
                             <span>{user.avatar ? 'Change Photo' : 'Add Photo'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setActiveSection('security')}
+                            className="anilist-btn-secondary px-3.5 py-1.5 text-xs inline-flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <ShieldCheck aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
+                            <span>Security & 2FA</span>
                           </button>
                           <Link
                             to="/watchlist"
@@ -858,6 +1219,12 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                       <h2 className="text-sm sm:text-base font-bold text-[#f5f5f7]">Profile Details</h2>
                     </div>
 
+                    {profileError && (
+                      <div className="p-3 rounded-xl bg-rose-500/12 border border-rose-500/30 text-rose-300 text-xs font-semibold animate-fadeIn">
+                        {profileError}
+                      </div>
+                    )}
+
                     {saveSuccess && (
                       <div className="p-3 rounded-xl bg-emerald-500/12 border border-emerald-500/30 text-[#4ade80] text-xs font-semibold flex items-center gap-2 animate-fadeIn">
                         <Check aria-hidden="true" className="w-4 h-4" />
@@ -869,16 +1236,21 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                           <label htmlFor="profile-username" className="text-xs font-semibold text-[#d2d2dc] block">
-                            Display Name
+                            Username
                           </label>
                           <input
                             id="profile-username"
                             type="text"
+                            minLength={3}
+                            maxLength={24}
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Your name"
+                            placeholder="Your username"
                             className="anilist-input w-full px-3.5 py-2.5 text-base sm:text-sm"
                           />
+                          <p className="text-[11px] text-[#666672]">
+                            3–24 characters: letters, numbers, dots, underscores, or hyphens.
+                          </p>
                         </div>
 
                         <div className="space-y-1.5">
@@ -908,6 +1280,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                         <textarea
                           id="profile-bio"
                           rows={3}
+                          maxLength={280}
                           value={bio}
                           onChange={(e) => setBio(e.target.value)}
                           placeholder="Share a short bio or favorite series..."
@@ -930,7 +1303,784 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
             </div>
           )}
 
-          {/* SECTION 3: Data Ownership, Backups & Permanent Account Deletion */}
+          {/* SECTION 3: Account Security, 2FA, Linked Providers, Email & Password */}
+          {activeSection === 'security' && (
+            <div className="space-y-4 animate-fadeIn">
+              {!user ? (
+                <div className="anilist-card-static p-6 sm:p-8 text-center space-y-4">
+                  <div className="w-12 h-12 rounded-2xl bg-[#16161b] border border-[#23232b] flex items-center justify-center mx-auto text-[#f5f5f7]">
+                    <ShieldCheck aria-hidden="true" className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <h2 className="text-base font-bold text-[#f5f5f7]">Sign in to manage account security</h2>
+                    <p className="text-xs text-[#9a9aa6] max-w-sm mx-auto">
+                      Protect your account with Two-Factor Authentication (2FA), Apple or Google sign-in, email verification, and password controls.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+                    <Link to="/login" className="anilist-btn-primary px-5 py-2.5 text-xs">
+                      Sign In
+                    </Link>
+                    <Link to="/signup" className="anilist-btn-secondary px-5 py-2.5 text-xs">
+                      Create Account
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {securityNotice && (
+                    <div
+                      className={`p-3.5 rounded-2xl text-xs font-medium border flex items-start justify-between gap-3 animate-fadeIn ${
+                        securityNotice.ok
+                          ? 'bg-emerald-500/12 border-emerald-500/30 text-[#4ade80]'
+                          : 'bg-rose-500/12 border-rose-500/30 text-rose-300'
+                      }`}
+                    >
+                      <span>{securityNotice.text}</span>
+                      <button
+                        type="button"
+                        onClick={() => setSecurityNotice(null)}
+                        aria-label="Dismiss message"
+                        className="opacity-70 hover:opacity-100 cursor-pointer flex-shrink-0"
+                      >
+                        <X aria-hidden="true" className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Security Overview Strip */}
+                  <div className="anilist-card-static p-5 space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-[#16161b] border border-[#23232b] flex items-center justify-center text-[#f5f5f7]">
+                          <ShieldCheck aria-hidden="true" className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h2 className="text-sm sm:text-base font-bold text-[#f5f5f7]">
+                            Sign-In & Security
+                          </h2>
+                          <p className="text-xs text-[#9a9aa6]">
+                            Manage 2FA, Apple & Google sign-in, email, and password.
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        disabled={verifyBusy}
+                        onClick={handleRefreshSecurity}
+                        className="anilist-btn-secondary px-3 py-1.5 text-[11px] inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        <RefreshCw
+                          aria-hidden="true"
+                          className={`w-3 h-3 text-[#9a9aa6] ${verifyBusy ? 'animate-spin' : ''}`}
+                        />
+                        <span>Refresh Status</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                      <div className="p-3 rounded-xl bg-[#16161b] border border-[#23232b]">
+                        <span className="text-[11px] text-[#9a9aa6] block">Email Status</span>
+                        <span
+                          className={`text-xs font-bold mt-0.5 inline-flex items-center gap-1 ${
+                            emailVerified ? 'text-[#4ade80]' : 'text-amber-300'
+                          }`}
+                        >
+                          {emailVerified ? 'Verified' : 'Unverified'}
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-[#16161b] border border-[#23232b]">
+                        <span className="text-[11px] text-[#9a9aa6] block">Two-Factor (2FA)</span>
+                        <span
+                          className={`text-xs font-bold mt-0.5 inline-flex items-center gap-1 ${
+                            is2faEnabled ? 'text-[#4ade80]' : 'text-[#f5f5f7]'
+                          }`}
+                        >
+                          {is2faEnabled ? `Enabled (${enrolledMfaFactors.length})` : 'Off'}
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-[#16161b] border border-[#23232b]">
+                        <span className="text-[11px] text-[#9a9aa6] block">Sign-In Methods</span>
+                        <span className="text-xs font-bold text-[#f5f5f7] mt-0.5 block">
+                          {linkedProviders.length || 1} Connected
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* TWO-FACTOR AUTHENTICATION (2FA) CARD */}
+                  <div className="anilist-card-static p-5 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#23232b] pb-3.5">
+                      <div className="flex items-start gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-[#16161b] border border-[#23232b] flex items-center justify-center text-[#f5f5f7] flex-shrink-0">
+                          <Smartphone aria-hidden="true" className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h2 className="text-sm sm:text-base font-bold text-[#f5f5f7]">
+                              Two-Factor Authentication (2FA)
+                            </h2>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                is2faEnabled
+                                  ? 'bg-emerald-500/12 border-emerald-500/30 text-[#4ade80]'
+                                  : 'bg-[#16161b] border-[#23232b] text-[#9a9aa6]'
+                              }`}
+                            >
+                              {is2faEnabled ? 'Protected' : 'Recommended'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#9a9aa6] mt-0.5">
+                            Require a 6-digit code from Apple Passwords, Google Authenticator, 1Password, or Authy when signing in.
+                          </p>
+                        </div>
+                      </div>
+
+                      {!totpSetupOpen && (
+                        <button
+                          type="button"
+                          disabled={totpBusy}
+                          onClick={() => handleBeginTotpSetup()}
+                          className="anilist-btn-primary px-4 py-2 text-xs inline-flex items-center justify-center gap-1.5 flex-shrink-0 cursor-pointer disabled:opacity-50"
+                        >
+                          <ShieldCheck aria-hidden="true" className="w-3.5 h-3.5" />
+                          <span>{totpBusy ? 'Preparing…' : is2faEnabled ? 'Add Authenticator' : 'Enable 2FA'}</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Email verification prerequisite notice */}
+                    {!emailVerified && (
+                      <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <p className="text-xs text-amber-200 leading-relaxed">
+                          Verify your email address before turning on Two-Factor Authentication.
+                        </p>
+                        <button
+                          type="button"
+                          disabled={verifyBusy}
+                          onClick={handleSendVerification}
+                          className="anilist-btn-secondary px-3.5 py-1.5 text-xs flex-shrink-0 cursor-pointer disabled:opacity-50"
+                        >
+                          {verifyBusy ? 'Sending…' : 'Send Verification Email'}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Recent login re-auth prompt for starting 2FA */}
+                    {totpNeedsReauth && !totpSetupOpen && (
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          handleBeginTotpSetup(
+                            hasPasswordProvider ? totpReauthPassword : getOAuthReauthToken()
+                          );
+                        }}
+                        className="p-4 rounded-xl bg-[#16161b] border border-[#23232b] space-y-3"
+                      >
+                        <p className="text-xs text-[#d2d2dc] font-medium">
+                          Confirm your identity once to start 2FA setup:
+                        </p>
+                        {hasPasswordProvider && (
+                          <input
+                            type="password"
+                            required
+                            value={totpReauthPassword}
+                            onChange={(e) => setTotpReauthPassword(e.target.value)}
+                            placeholder="Enter your current password"
+                            className="anilist-input w-full px-3.5 py-2.5 text-base sm:text-sm"
+                          />
+                        )}
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="submit"
+                            disabled={totpBusy}
+                            className="anilist-btn-primary px-4 py-2 text-xs cursor-pointer disabled:opacity-50"
+                          >
+                            {totpBusy
+                              ? 'Verifying…'
+                              : hasPasswordProvider
+                              ? 'Verify & Start 2FA'
+                              : hasAppleProvider
+                              ? 'Verify with Apple'
+                              : 'Verify with Google'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setTotpNeedsReauth(false);
+                              setTotpReauthPassword('');
+                            }}
+                            className="anilist-btn-secondary px-3.5 py-2 text-xs cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    )}
+
+                    {/* Active Enrolled 2FA Factors */}
+                    {enrolledMfaFactors.length > 0 && (
+                      <div className="space-y-2">
+                        {enrolledMfaFactors.map((factor) => (
+                          <div
+                            key={factor.uid}
+                            className="p-3.5 rounded-xl bg-[#16161b] border border-[#23232b] space-y-3"
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="min-w-0">
+                                <span className="text-sm font-semibold text-[#f5f5f7] block truncate">
+                                  {factor.displayName}
+                                </span>
+                                <span className="text-[11px] text-[#9a9aa6]">
+                                  Authenticator App (TOTP)
+                                  {factor.enrollmentTime
+                                    ? ` · Added ${new Date(factor.enrollmentTime).toLocaleDateString()}`
+                                    : ''}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                disabled={totpBusy}
+                                onClick={() => handleUnenrollMfa(factor.uid)}
+                                className="px-3 py-1.5 rounded-full bg-[#0c0c0f] hover:bg-rose-500/15 border border-[#23232b] hover:border-rose-500/35 text-xs font-semibold text-[#d2d2dc] hover:text-rose-300 transition cursor-pointer flex-shrink-0"
+                              >
+                                Disable
+                              </button>
+                            </div>
+
+                            {unenrollPendingUid === factor.uid && (
+                              <form
+                                onSubmit={(e) => {
+                                  e.preventDefault();
+                                  handleUnenrollMfa(
+                                    factor.uid,
+                                    hasPasswordProvider ? unenrollReauthPassword : getOAuthReauthToken()
+                                  );
+                                }}
+                                className="pt-3 border-t border-[#23232b] space-y-2.5"
+                              >
+                                <p className="text-xs text-[#d2d2dc]">
+                                  Verify your login to remove this 2FA method:
+                                </p>
+                                {hasPasswordProvider && (
+                                  <input
+                                    type="password"
+                                    required
+                                    value={unenrollReauthPassword}
+                                    onChange={(e) => setUnenrollReauthPassword(e.target.value)}
+                                    placeholder="Current password"
+                                    className="anilist-input w-full px-3.5 py-2 text-base sm:text-sm"
+                                  />
+                                )}
+                                <div className="flex gap-2">
+                                  <button
+                                    type="submit"
+                                    disabled={totpBusy}
+                                    className="anilist-btn-danger px-4 py-1.5 text-xs cursor-pointer disabled:opacity-50"
+                                  >
+                                    {totpBusy ? 'Removing…' : 'Confirm Disable 2FA'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setUnenrollPendingUid(null);
+                                      setUnenrollReauthPassword('');
+                                    }}
+                                    className="anilist-btn-secondary px-3 py-1.5 text-xs cursor-pointer"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </form>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Inline TOTP QR & Verification Step */}
+                    {totpSetupOpen && (
+                      <form
+                        onSubmit={handleVerifyTotpEnrollment}
+                        className="p-4 sm:p-5 rounded-2xl bg-[#16161b] border border-[#383844] space-y-4 animate-fadeIn"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <h3 className="text-sm font-bold text-[#f5f5f7]">
+                            Scan QR Code with Your Authenticator App
+                          </h3>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              cancelTotpEnrollment();
+                              setTotpSetupOpen(false);
+                              setTotpSecretKey('');
+                              setTotpQrDataUrl('');
+                              setTotpCode('');
+                            }}
+                            aria-label="Cancel 2FA setup"
+                            className="w-7 h-7 rounded-full bg-[#0c0c0f] border border-[#23232b] text-[#9a9aa6] hover:text-white flex items-center justify-center cursor-pointer"
+                          >
+                            <X aria-hidden="true" className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row items-center gap-5">
+                          {totpQrDataUrl && (
+                            <div className="p-2.5 rounded-2xl bg-white flex-shrink-0 shadow-lg">
+                              <img
+                                src={totpQrDataUrl}
+                                alt="Two-Factor Authentication QR code"
+                                width={176}
+                                height={176}
+                                className="w-44 h-44 block"
+                              />
+                            </div>
+                          )}
+
+                          <div className="flex-1 min-w-0 space-y-3 w-full">
+                            <p className="text-xs text-[#9a9aa6] leading-relaxed">
+                              Scan this QR code in <strong className="text-[#f5f5f7]">Apple Passwords</strong>,{' '}
+                              <strong className="text-[#f5f5f7]">Google Authenticator</strong>, or{' '}
+                              <strong className="text-[#f5f5f7]">1Password</strong>. Generated locally on your device.
+                            </p>
+
+                            <div className="space-y-1">
+                              <span className="text-[11px] font-medium text-[#9a9aa6] block">
+                                Or enter setup key manually:
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <code className="flex-1 px-3 py-2 rounded-xl bg-[#0c0c0f] border border-[#23232b] text-xs font-mono text-[#f5f5f7] truncate">
+                                  {totpSecretKey}
+                                </code>
+                                <button
+                                  type="button"
+                                  onClick={handleCopyTotpKey}
+                                  className="anilist-btn-secondary px-3 py-2 text-xs inline-flex items-center gap-1.5 flex-shrink-0 cursor-pointer"
+                                >
+                                  {totpCopied ? (
+                                    <>
+                                      <Check aria-hidden="true" className="w-3.5 h-3.5 text-[#4ade80]" />
+                                      <span>Copied</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
+                                      <span>Copy</span>
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                              <div className="space-y-1">
+                                <label htmlFor="totp-device-name" className="text-[11px] font-semibold text-[#d2d2dc] block">
+                                  Device Label
+                                </label>
+                                <input
+                                  id="totp-device-name"
+                                  type="text"
+                                  maxLength={32}
+                                  value={totpDeviceName}
+                                  onChange={(e) => setTotpDeviceName(e.target.value)}
+                                  placeholder="iPhone / Apple Passwords"
+                                  className="anilist-input w-full px-3 py-2 text-base sm:text-xs"
+                                />
+                              </div>
+
+                              <div className="space-y-1">
+                                <label htmlFor="totp-verify-code" className="text-[11px] font-semibold text-[#d2d2dc] block">
+                                  6-Digit Code
+                                </label>
+                                <input
+                                  id="totp-verify-code"
+                                  type="text"
+                                  inputMode="numeric"
+                                  autoComplete="one-time-code"
+                                  required
+                                  maxLength={6}
+                                  value={totpCode}
+                                  onChange={(e) => setTotpCode(e.target.value.replace(/[^\d]/g, '').slice(0, 6))}
+                                  placeholder="123456"
+                                  className="anilist-input w-full px-3 py-2 text-base sm:text-sm font-mono tracking-[0.25em] text-center"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap justify-end gap-2 pt-2 border-t border-[#23232b]">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              cancelTotpEnrollment();
+                              setTotpSetupOpen(false);
+                              setTotpSecretKey('');
+                              setTotpQrDataUrl('');
+                              setTotpCode('');
+                            }}
+                            className="anilist-btn-secondary px-4 py-2 text-xs cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={totpBusy || totpCode.length !== 6}
+                            className="anilist-btn-primary px-5 py-2 text-xs inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                          >
+                            <Check aria-hidden="true" className="w-3.5 h-3.5" />
+                            <span>{totpBusy ? 'Enabling…' : 'Verify & Enable 2FA'}</span>
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+
+                  {/* CONNECTED SIGN-IN PROVIDERS (Apple, Google, Email) */}
+                  <div className="anilist-card-static overflow-hidden divide-y divide-[#23232b]">
+                    <div className="p-4 sm:p-5 flex items-center gap-2.5">
+                      <Link2 aria-hidden="true" className="w-4 h-4 text-[#f5f5f7]" />
+                      <div>
+                        <h2 className="text-sm sm:text-base font-bold text-[#f5f5f7]">
+                          Connected Sign-In Methods
+                        </h2>
+                        <p className="text-xs text-[#9a9aa6]">
+                          Link Apple or Google for faster one-tap sign-in.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Apple */}
+                    <div className="p-4 sm:px-5 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="w-9 h-9 rounded-xl bg-[#16161b] border border-[#23232b] flex items-center justify-center text-[#f5f5f7] flex-shrink-0">
+                          <AppleIcon className="w-4 h-4" />
+                        </span>
+                        <div className="min-w-0">
+                          <span className="text-sm font-semibold text-[#f5f5f7] block">Apple</span>
+                          <span className="text-xs text-[#9a9aa6]">
+                            {hasAppleProvider ? 'Connected to your Apple Account' : 'Sign in with Face ID or Touch ID'}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={providerBusy !== null || (hasAppleProvider && linkedProviders.length <= 1)}
+                        onClick={() => handleProviderToggle('apple')}
+                        className={`px-3.5 py-1.5 text-xs flex-shrink-0 cursor-pointer disabled:opacity-45 ${
+                          hasAppleProvider ? 'anilist-btn-secondary' : 'anilist-btn-primary'
+                        }`}
+                      >
+                        {providerBusy === 'apple.com'
+                          ? 'Working…'
+                          : hasAppleProvider
+                          ? linkedProviders.length <= 1
+                            ? 'Primary'
+                            : 'Disconnect'
+                          : 'Connect'}
+                      </button>
+                    </div>
+
+                    {/* Google */}
+                    <div className="p-4 sm:px-5 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="w-9 h-9 rounded-xl bg-[#16161b] border border-[#23232b] flex items-center justify-center flex-shrink-0">
+                          <GoogleIcon className="w-4 h-4" />
+                        </span>
+                        <div className="min-w-0">
+                          <span className="text-sm font-semibold text-[#f5f5f7] block">Google</span>
+                          <span className="text-xs text-[#9a9aa6]">
+                            {hasGoogleProvider ? 'Connected to your Google Account' : 'One-tap Google authentication'}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={providerBusy !== null || (hasGoogleProvider && linkedProviders.length <= 1)}
+                        onClick={() => handleProviderToggle('google')}
+                        className={`px-3.5 py-1.5 text-xs flex-shrink-0 cursor-pointer disabled:opacity-45 ${
+                          hasGoogleProvider ? 'anilist-btn-secondary' : 'anilist-btn-primary'
+                        }`}
+                      >
+                        {providerBusy === 'google.com'
+                          ? 'Working…'
+                          : hasGoogleProvider
+                          ? linkedProviders.length <= 1
+                            ? 'Primary'
+                            : 'Disconnect'
+                          : 'Connect'}
+                      </button>
+                    </div>
+
+                    {/* Email & Password Status */}
+                    <div className="p-4 sm:px-5 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="w-9 h-9 rounded-xl bg-[#16161b] border border-[#23232b] flex items-center justify-center text-[#f5f5f7] flex-shrink-0">
+                          <Mail aria-hidden="true" className="w-4 h-4" />
+                        </span>
+                        <div className="min-w-0">
+                          <span className="text-sm font-semibold text-[#f5f5f7] block">
+                            Email & Password
+                          </span>
+                          <span className="text-xs text-[#9a9aa6] truncate block">{user.email}</span>
+                        </div>
+                      </div>
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border flex-shrink-0 ${
+                          hasPasswordProvider
+                            ? 'bg-emerald-500/12 border-emerald-500/30 text-[#4ade80]'
+                            : 'bg-[#16161b] border-[#23232b] text-[#9a9aa6]'
+                        }`}
+                      >
+                        {hasPasswordProvider ? 'Active' : 'OAuth Only'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* EMAIL & PASSWORD MANAGEMENT */}
+                  <div className="anilist-card-static overflow-hidden divide-y divide-[#23232b]">
+                    {/* Email Verification & Change Email */}
+                    <div className="p-4 sm:p-5 space-y-3.5">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-bold text-[#f5f5f7]">Email Address</h3>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                emailVerified
+                                  ? 'bg-emerald-500/12 border-emerald-500/30 text-[#4ade80]'
+                                  : 'bg-amber-500/12 border-amber-500/30 text-amber-300'
+                              }`}
+                            >
+                              {emailVerified ? 'Verified' : 'Unverified'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#9a9aa6] mt-0.5 truncate">{user.email}</p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 flex-shrink-0">
+                          {!emailVerified && (
+                            <button
+                              type="button"
+                              disabled={verifyBusy}
+                              onClick={handleSendVerification}
+                              className="anilist-btn-primary px-3.5 py-1.5 text-xs cursor-pointer disabled:opacity-50"
+                            >
+                              {verifyBusy ? 'Sending…' : 'Verify Email'}
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowEmailForm((v) => !v);
+                              setEmailNeedsReauth(false);
+                              setEmailReauthPassword('');
+                            }}
+                            className="anilist-btn-secondary px-3.5 py-1.5 text-xs cursor-pointer"
+                          >
+                            {showEmailForm ? 'Cancel' : 'Change Email'}
+                          </button>
+                        </div>
+                      </div>
+
+                      {showEmailForm && (
+                        <form
+                          onSubmit={handleEmailChangeSubmit}
+                          className="p-4 rounded-xl bg-[#16161b] border border-[#23232b] space-y-3 animate-fadeIn"
+                        >
+                          <div className="space-y-1.5">
+                            <label htmlFor="new-email-input" className="text-xs font-semibold text-[#d2d2dc] block">
+                              New Email Address
+                            </label>
+                            <input
+                              id="new-email-input"
+                              type="email"
+                              autoComplete="email"
+                              required
+                              value={newEmail}
+                              onChange={(e) => setNewEmail(e.target.value)}
+                              placeholder="new-email@domain.com"
+                              className="anilist-input w-full px-3.5 py-2.5 text-base sm:text-sm"
+                            />
+                            <p className="text-[11px] text-[#666672]">
+                              A confirmation link will be emailed to your new address before the change takes effect.
+                            </p>
+                          </div>
+
+                          {emailNeedsReauth && hasPasswordProvider && (
+                            <div className="space-y-1.5">
+                              <label htmlFor="email-reauth-pwd" className="text-xs font-semibold text-[#d2d2dc] block">
+                                Current Password
+                              </label>
+                              <input
+                                id="email-reauth-pwd"
+                                type="password"
+                                autoComplete="current-password"
+                                required
+                                value={emailReauthPassword}
+                                onChange={(e) => setEmailReauthPassword(e.target.value)}
+                                placeholder="Verify current password"
+                                className="anilist-input w-full px-3.5 py-2.5 text-base sm:text-sm"
+                              />
+                            </div>
+                          )}
+
+                          <button
+                            type="submit"
+                            disabled={emailBusy}
+                            className="anilist-btn-primary px-4 py-2 text-xs cursor-pointer disabled:opacity-50"
+                          >
+                            {emailBusy
+                              ? 'Sending Confirmation…'
+                              : emailNeedsReauth && !hasPasswordProvider
+                              ? 'Verify & Send Confirmation'
+                              : 'Send Confirmation Link'}
+                          </button>
+                        </form>
+                      )}
+                    </div>
+
+                    {/* Password Management */}
+                    <div className="p-4 sm:p-5 space-y-3.5">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-start gap-2.5">
+                          <KeyRound aria-hidden="true" className="w-4 h-4 text-[#f5f5f7] mt-0.5 flex-shrink-0" />
+                          <div>
+                            <h3 className="text-sm font-bold text-[#f5f5f7]">Password</h3>
+                            <p className="text-xs text-[#9a9aa6] mt-0.5">
+                              {hasPasswordProvider
+                                ? 'Update your password anytime or send a recovery email.'
+                                : 'Your login is currently managed by Apple or Google. You can also set a backup password via email.'}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 flex-shrink-0">
+                          {hasPasswordProvider && (
+                            <button
+                              type="button"
+                              onClick={() => setShowPasswordForm((v) => !v)}
+                              className="anilist-btn-secondary px-3.5 py-1.5 text-xs cursor-pointer"
+                            >
+                              {showPasswordForm ? 'Cancel' : 'Change Password'}
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            disabled={passwordBusy}
+                            onClick={handleSendResetEmail}
+                            className="anilist-btn-secondary px-3.5 py-1.5 text-xs cursor-pointer disabled:opacity-50"
+                          >
+                            {passwordBusy ? 'Sending…' : hasPasswordProvider ? 'Send Reset Email' : 'Set Password via Email'}
+                          </button>
+                        </div>
+                      </div>
+
+                      {showPasswordForm && hasPasswordProvider && (
+                        <form
+                          onSubmit={handlePasswordChangeSubmit}
+                          className="p-4 rounded-xl bg-[#16161b] border border-[#23232b] space-y-3 animate-fadeIn"
+                        >
+                          <div className="space-y-1.5">
+                            <label htmlFor="sec-current-pwd" className="text-xs font-semibold text-[#d2d2dc] block">
+                              Current Password
+                            </label>
+                            <div className="relative">
+                              <input
+                                id="sec-current-pwd"
+                                type={showSecPasswords ? 'text' : 'password'}
+                                autoComplete="current-password"
+                                required
+                                value={currentPassword}
+                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                placeholder="Enter current password"
+                                className="anilist-input w-full px-3.5 pr-10 py-2.5 text-base sm:text-sm"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowSecPasswords((v) => !v)}
+                                aria-label={showSecPasswords ? 'Hide passwords' : 'Show passwords'}
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-[#9a9aa6] hover:text-white cursor-pointer"
+                              >
+                                {showSecPasswords ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                              <label htmlFor="sec-new-pwd" className="text-xs font-semibold text-[#d2d2dc] block">
+                                New Password
+                              </label>
+                              <input
+                                id="sec-new-pwd"
+                                type={showSecPasswords ? 'text' : 'password'}
+                                autoComplete="new-password"
+                                required
+                                minLength={8}
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                placeholder="8+ chars, letters & numbers"
+                                className="anilist-input w-full px-3.5 py-2.5 text-base sm:text-sm"
+                              />
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <label htmlFor="sec-confirm-pwd" className="text-xs font-semibold text-[#d2d2dc] block">
+                                Confirm New Password
+                              </label>
+                              <input
+                                id="sec-confirm-pwd"
+                                type={showSecPasswords ? 'text' : 'password'}
+                                autoComplete="new-password"
+                                required
+                                minLength={8}
+                                value={confirmNewPassword}
+                                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                placeholder="Re-enter new password"
+                                className="anilist-input w-full px-3.5 py-2.5 text-base sm:text-sm"
+                              />
+                            </div>
+                          </div>
+
+                          {newPassword.length > 0 && (
+                            <div className="flex items-center gap-1.5">
+                              {[0, 1, 2, 3].map((idx) => (
+                                <span
+                                  key={idx}
+                                  className={`h-1 flex-1 rounded-full transition-colors ${
+                                    idx < newPwdStrength.score
+                                      ? strengthBarColors[newPwdStrength.score]
+                                      : 'bg-[#23232b]'
+                                  }`}
+                                />
+                              ))}
+                              <span className="text-[11px] font-medium text-[#9a9aa6] ml-1">
+                                {newPwdStrength.label}
+                              </span>
+                            </div>
+                          )}
+
+                          <button
+                            type="submit"
+                            disabled={passwordBusy}
+                            className="anilist-btn-primary px-4 py-2 text-xs cursor-pointer disabled:opacity-50"
+                          >
+                            {passwordBusy ? 'Updating Password…' : 'Update Password'}
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* SECTION 4: Data Ownership, Backups & Permanent Account Deletion */}
           {activeSection === 'data' && (
             <div className="space-y-4 animate-fadeIn">
               <div className="anilist-card-static p-5 space-y-5">
@@ -1029,7 +2179,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
             </div>
           )}
 
-          {/* SECTION 4: About, Legal & Security */}
+          {/* SECTION 5: About, Legal & Security */}
           {activeSection === 'about' && (
             <div className="space-y-4 animate-fadeIn">
               {/* Brand Overview Card */}
@@ -1297,6 +2447,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
               <input
                 id="reauth-password-input"
                 type="password"
+                autoComplete="current-password"
                 required
                 value={reauthPassword}
                 onChange={(e) => setReauthPassword(e.target.value)}
@@ -1326,6 +2477,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
               <span>
                 {isDeleting
                   ? 'Deleting…'
+                  : needsReauth && authProvider === 'apple'
+                  ? 'Verify with Apple & Delete'
                   : needsReauth && authProvider === 'google'
                   ? 'Verify with Google & Delete'
                   : 'Delete Account Forever'}
