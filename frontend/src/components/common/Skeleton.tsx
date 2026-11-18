@@ -181,13 +181,9 @@ export const HeroSkeleton: React.FC = () => {
             <div className="h-11 sm:w-32 rounded-full bg-[#121218] border border-[#23232b] shimmer-loading" />
           </div>
 
-          {/* Bottom Slide Pill + Prev/Next Arrows */}
-          <div className="flex items-center justify-between gap-3 pt-2 sm:pt-3">
+          {/* Bottom Slide Pill */}
+          <div className="flex items-center pt-2 sm:pt-3">
             <div className="h-9 w-44 rounded-full bg-[#0e0e13] border border-[#23232b] shimmer-loading" />
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0e0e13] border border-[#23232b] shimmer-loading" />
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0e0e13] border border-[#23232b] shimmer-loading" />
-            </div>
           </div>
         </div>
       </div>

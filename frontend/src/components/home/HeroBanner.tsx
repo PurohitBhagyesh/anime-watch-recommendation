@@ -6,8 +6,6 @@ import {
   Info,
   Check,
   Plus,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react';
 import type { AnimeCardData } from '../../api/types';
 import { TrailerModal } from '../common/TrailerModal';
@@ -497,32 +495,6 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                       );
                     })}
                   </nav>
-                </div>
-
-                {/* Prev / Next Monochrome Arrows (Mobile & Desktop) */}
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      goToPrev(true);
-                    }}
-                    aria-label="Previous featured anime"
-                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0b0b0d]/90 hover:bg-[#151519] border border-[#232329] hover:border-[#3a3a44] flex items-center justify-center text-[#c8c8d2] hover:text-white transition cursor-pointer active:scale-95"
-                  >
-                    <ChevronLeft aria-hidden="true" className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      goToNext(true);
-                    }}
-                    aria-label="Next featured anime"
-                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0b0b0d]/90 hover:bg-[#151519] border border-[#232329] hover:border-[#3a3a44] flex items-center justify-center text-[#c8c8d2] hover:text-white transition cursor-pointer active:scale-95"
-                  >
-                    <ChevronRight aria-hidden="true" className="w-4 h-4" />
-                  </button>
                 </div>
               </div>
             )}
