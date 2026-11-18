@@ -5,97 +5,77 @@
 </p>
 
 <p align="center">
-  <strong>A high-performance, cross-device anime discovery and personal watchlist tracking platform connecting directly to 20,000+ anime titles via AniList GraphQL.</strong>
+  <strong>An independent, ad-free anime discovery catalog and personal watchlist tracker powered by the live AniList GraphQL API.</strong>
 </p>
 
 <p align="center">
-  <a href="https://animesenpai.online" target="_blank">
-    <img src="https://img.shields.io/badge/Live%20Website-animesenpai.online-38bdf8?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live Website" />
+  <a href="https://www.animesenpai.online" target="_blank">
+    <img src="https://img.shields.io/badge/Live%20Website-animesenpai.online-000000?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live Website" />
   </a>
   <a href="https://vercel.com" target="_blank">
     <img src="https://img.shields.io/badge/Frontend-Vercel%20Edge-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
   </a>
   <a href="https://render.com" target="_blank">
-    <img src="https://img.shields.io/badge/Backend-Render%20Cloud-46E3B7?style=for-the-badge&logo=render&logoColor=white" alt="Render" />
+    <img src="https://img.shields.io/badge/Backend-Render%20Cloud-151519?style=for-the-badge&logo=render&logoColor=white" alt="Render" />
   </a>
-  <a href="https://uptimerobot.com" target="_blank">
-    <img src="https://img.shields.io/badge/Uptime-100%25%20(24%2F7)-2ecc71?style=for-the-badge&logo=uptimerobot&logoColor=white" alt="Uptime" />
+  <a href="SECURITY.md">
+    <img src="https://img.shields.io/badge/Security-Policy-22c55e?style=for-the-badge&logo=shield&logoColor=white" alt="Security Policy" />
   </a>
 </p>
 
 <p align="center">
-  <a href="architecture.md"><img src="https://img.shields.io/badge/Documentation-Architecture-7c3aed?style=flat-square&logo=diagramsdotnet&logoColor=white" alt="Architecture" /></a>
-  <a href="design.md"><img src="https://img.shields.io/badge/Design%20System-Guidelines-ec4899?style=flat-square&logo=figma&logoColor=white" alt="Design System" /></a>
-  <img src="https://img.shields.io/badge/PageSpeed-100%2F100-success?style=flat-square&logo=lighthouse&logoColor=white" alt="PageSpeed 100/100" />
-  <img src="https://img.shields.io/badge/Google%20SERP-Rich%20Results%20Ready-f59e0b?style=flat-square&logo=google&logoColor=white" alt="Google Rich Results" />
-  <img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" />
+  <a href="architecture.md"><img src="https://img.shields.io/badge/Documentation-Architecture-151519?style=flat-square" alt="Architecture" /></a>
+  <a href="design.md"><img src="https://img.shields.io/badge/Design%20System-Guidelines-151519?style=flat-square" alt="Design System" /></a>
+  <a href="SECURITY.md"><img src="https://img.shields.io/badge/Security-SECURITY.md-151519?style=flat-square" alt="Security" /></a>
+  <a href="CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Community-Code%20of%20Conduct-151519?style=flat-square" alt="Code of Conduct" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22c55e?style=flat-square" alt="License" /></a>
 </p>
 
 ---
 
-## 📚 Architectural & Design Documentation
+## 📚 Documentation & Governance
 
-For deep technical dives, please refer to our dedicated documentation guides:
-
-* 🏛️ **[Architecture Guide (architecture.md)](architecture.md)** — Edge topology, GraphQL pipelines, state flow, caching strategies, and offline-first rehydration.
-* 🎨 **[Design System (design.md)](design.md)** — Cyber-Anime design tokens, frosted glassmorphism, responsive breakpoints, typography, and WCAG 2.1 AA accessibility specs.
+* 🏛️ **[Architecture Guide (architecture.md)](architecture.md)** — Edge topology, AniList GraphQL pipelines, state flow, and caching strategy.
+* 🎨 **[Design System (design.md)](design.md)** — Monochrome obsidian tokens, liquid-glass specular rims, responsive breakpoints, and accessibility specs.
+* 🛡️ **[Security Policy (SECURITY.md)](SECURITY.md)** — Responsible vulnerability disclosure, data handling, and key hygiene.
+* 🤝 **[Contributing (CONTRIBUTING.md)](CONTRIBUTING.md)** & **[Code of Conduct (CODE_OF_CONDUCT.md)](CODE_OF_CONDUCT.md)** — Guidelines for pull requests and community standards.
+* ⚖️ **[License (LICENSE)](LICENSE)** — Open-source MIT License.
 
 ---
 
 ## 🌐 Live Production Deployments
 
-* 🌐 **Production Web Application:** [https://animesenpai.online](https://animesenpai.online)
+* 🌐 **Production Web Application:** [https://www.animesenpai.online](https://www.animesenpai.online)
 * ⚙️ **Production Backend API:** [https://anime-watch-recommendation.onrender.com/api](https://anime-watch-recommendation.onrender.com/api)
 * 🩺 **Backend Health & Ping:** [https://anime-watch-recommendation.onrender.com/ping](https://anime-watch-recommendation.onrender.com/ping)
 
 ---
 
-## 🏆 Performance & Google Search Optimization
+## 🏆 Performance & SEO
 
-### ⚡ 100/100 Core Web Vitals Audit
-AnimeSenpai is rigorously tuned for speed, achieving top scores across Google PageSpeed Insights & Lighthouse:
-
-| Metric | Score / Value | Status | Optimization Highlights |
-| :--- | :--- | :--- | :--- |
-| **Accessibility** | **100 / 100** | 🟢 Perfect | 4.5:1+ contrast ratios, 48px touch targets, explicit ARIA labels |
-| **Best Practices** | **100 / 100** | 🟢 Perfect | HTTPS/HSTS, modern image encoding, zero vulnerable dependencies |
-| **SEO** | **100 / 100** | 🟢 Perfect | Semantic HTML, canonical tags, automated XML sitemap & robots.txt |
-| **Cumulative Layout Shift** | **0.000 (Zero)** | 🟢 Flawless | Locked `aspect-[11/16]` poster ratios, fixed layout dimensions |
-| **Total Blocking Time** | **0 – 20ms** | 🟢 Lightning | Lazy Firebase proxy wrappers, non-blocking asynchronous scripts |
-| **Agentic Browsing** | **4 / 4 Complete** | 🟢 Ready | `llms.txt`, `ai-catalog.json`, `navigator.modelContext` tool integration |
-
-### 🌟 Google Search Rich Results (SERP)
-AnimeSenpai integrates **6 Schema.org JSON-LD structured data blocks** and full Google Search Favicon compliance:
-* **Gold Review Stars**: `WebApplication` schema with `aggregateRating` (4.9 / 5.0, 2,840 ratings), qualifying search snippets for `★★★★★ 4.9`.
-* **Official Branded Favicons**: Multiples of 48px square raster PNGs (`favicon-48x48.png`, `favicon-96x96.png`, `favicon-192x192.png`, `favicon.ico`) preventing fallback to generic globe icons on Google SERP.
-* **Google Sitelinks**: `SiteNavigationElement` data mapping *Trending Anime*, *Top 100 Anime*, *Seasonal Airing*, and *Watchlist Tracker*.
-* **Breadcrumb Chains**: `BreadcrumbList` schema showing clean path hierarchy (`AnimeSenpai > Discover Catalog > Trending`).
-* **Knowledge Panel**: `Organization` schema with high-res 512x512 logo, platform description, and official repository links.
+* **Structured Data (JSON-LD)**: `Organization`, `WebSite` (Sitelinks Searchbox), `WebApplication`, `SiteNavigationElement`, `FAQPage`, `BreadcrumbList`, and per-anime `TVSeries`/`Movie` schemas built exclusively from real AniList metadata.
+* **Automated Sitemap**: `scripts/generate-sitemap.mjs` generates 76 canonical URLs at build time (`frontend/public/sitemap.xml`).
+* **Agentic Discovery**: Includes `llms.txt`, `/.well-known/ai-catalog.json`, `/.well-known/ard.json`, and `/.well-known/security.txt`.
 
 ---
 
-## 📱 Cross-Device Auto-Adjustable Design
+## 📱 Cross-Device Responsive Architecture
 
-AnimeSenpai fluidly adapts to any screen size or form factor:
-
-| Device Category | Target Viewports | Responsive Behavior & Auto-Adjustments |
+| Device Category | Target Viewports | Responsive Behavior |
 | :--- | :--- | :--- |
-| **📱 Mobile Phones** | `320px – 480px`<br>(iPhone, Galaxy, Pixel) | • 2-column adaptive card grid with touch momentum scrolling<br>• Bottom navigation bar with iOS safe-area notch padding (`safe-area-inset-bottom`)<br>• Horizontally swipeable category ribbons and status filter tabs<br>• 48px+ minimum touch hit targets |
-| **📟 Tablets & Foldables** | `640px – 1024px`<br>(iPad, Surface) | • 3 to 4-column balanced card grid layout<br>• Fluid two-column split on Anime Details page (Sidebar + Content)<br>• 12-column structured watchlist table view |
-| **💻 Laptops & Desktops** | `1024px – 2560px+`<br>(MacBook, 4K Monitors) | • 5 to 6-column expansive catalog grids<br>• Keyboard shortcuts (`/` or `⌘K` search focus, `ESC` modal dismiss)<br>• Interactive hover preview popover cards<br>• Full glassmorphic navigation header with live autocomplete dropdown |
+| **📱 Mobile Phones** | `320px – 480px` | • Single `52px` sticky glass top bar + smooth sliding navigation drawer<br>• Touch-friendly horizontal snap carousels & genre strip<br>• Floating corner `Buy me a Coffee` (UPI) and `Share` pills with centered bottom-sheet popups |
+| **📟 Tablets & Foldables** | `640px – 1024px` | • Adaptive 3–4 column grids and split Anime Details sidebar<br>• Clean segmented pill tabs for Overview, Characters, and Relations |
+| **💻 Laptops & Desktops** | `1024px – 2560px+` | • Expansive 5–6 column catalog grids and native CSS scroll progress line<br>• Keyboard shortcuts (`/` or `⌘K` search focus, `←`/`→` hero slide, `ESC` dismiss)<br>• Instant hover preview cards and live autocomplete search |
 
 ---
 
 ## ✨ Features at a Glance
 
-* **🎨 AniList-Inspired Clean Glassmorphic UI:** Deep navy canvas (`#0b1622`), slate frosted surfaces (`#151f2e`), and vibrant cyber cyan accents (`#3db4f2`).
-* **🔐 Firebase Authentication & Cloud Firestore:** Native Firebase Auth supporting Email/Password sign-up/login and 1-Click Google Sign-In, coupled with real-time Cloud Firestore synchronization.
-* **🔍 Real-Time Catalog Search (20,000+ Anime):** Instant autocomplete search in the navigation bar with poster previews, format indicators, score pills, and genre tags.
-* **🏷️ Horizontally Scrollable Category Ribbon:** Interactive preset ribbon (`All Anime`, `🔥 Trending`, `🌸 This Season`, `🌟 Popular`, `🏆 Top 100`, `🚀 Upcoming`, `🎬 Movies`, `📺 TV Series`, `⚡ OVA / Shorts`, and comprehensive genre filters).
-* **📱 Touch & Hover Preview Popups:** Instant interactive anime preview cards displaying releasing status, season/year, studio names, format & episode counts, score smiley badges, and clickable genre pills.
-* **📋 Authenticated Watchlist Management:** Securely track anime across `Watching`, `Planning`, `Completed`, `Rewatching`, `Paused`, and `Dropped` statuses with real-time episode incrementing (`+` / `-`).
-* **🎲 Anime Randomizer "Roll" Modal:** Roll random high-rated anime based on customized genre and format selections with responsive dialog scaling.
-* **🎬 Rich Anime Details:** High-resolution banners, synopses, characters & voice actors (Seiyuu), franchise relation trees, community recommendations, episode grids, and official YouTube trailer overlays.
+* **🎨 Monochrome Obsidian Liquid-Glass UI:** Pure `#000000` / `#0b0b0d` / `#151519` surfaces, crisp `#232329` hairlines, inverted high-contrast white primary pill buttons, and compositor-driven sliding animations.
+* **🔐 Privacy-First Accounts & Permanent Deletion:** Optional Firebase Auth (Email/Password & Google Sign-In) with Firestore cloud sync, JSON backup export/import, and instant permanent account deletion erasing cloud and local data.
+* **🔍 Live AniList GraphQL Catalog:** Instant autocomplete search, real community scores, rankings, seasonal airing countdowns, studios, voice cast (Seiyuu), franchise relations, and verified official links.
+* **📋 Personal Watchlist Tracker:** Track titles across `Watching`, `Planning`, `Completed`, `Rewatching`, `Paused`, and `Dropped` with episode counters and personal 1–10 scoring.
+* **🎬 Official Trailer Embeds & Random Picker:** Privacy-enhanced YouTube (`youtube-nocookie.com`) trailer modal and a Random Anime Picker powered by live AniList rankings.
 
 ---
 

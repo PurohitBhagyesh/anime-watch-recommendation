@@ -19,7 +19,7 @@ Welcome to the comprehensive architectural documentation for **AnimeSenpai**, a 
 
 ## 1. Executive Summary
 
-AnimeSenpai provides instantaneous anime discovery across **20,000+ anime titles**, real-time personal watchlist management, official trailer streaming, voice actor explorations, and seasonal airing schedules.
+AnimeSenpai provides instantaneous anime discovery via the live AniList GraphQL API, real-time personal watchlist management, official trailer embeds, voice actor explorations, and seasonal airing schedules.
 
 The platform employs a **modern hybrid architecture**:
 * **Client Tier**: Ultra-lean React 19 + TypeScript + Vite Single-Page-Application (SPA) deployed at the **Vercel Global Edge Network**.
@@ -42,16 +42,16 @@ graph TD
     end
 
     subgraph FrontendApp ["Frontend Application (React 19 + Vite)"]
-        Router["HashRouter"]
+        Router["BrowserRouter"]
         Contexts["Auth & Watchlist Providers"]
-        Pages["HomePage | Discover | Details | Watchlist | Auth"]
-        Components["Glassmorphism UI System & Modals"]
+        Pages["HomePage | Discover | Details | Watchlist | Account | Legal"]
+        Components["Monochrome Liquid-Glass UI & Modals"]
         AniListClient["AniList GraphQL Client"]
         FirebaseSDK["Firebase Auth & Firestore Lazy Proxies"]
     end
 
     subgraph ExternalServices ["External Cloud Services & APIs"]
-        AniListAPI[("AniList GraphQL v2 API\n20,000+ Anime Database")]
+        AniListAPI[("AniList GraphQL v2 API")]
         FirebaseCloud[("Firebase Cloud Services\nAuth & Firestore DB")]
         YouTubeCDN["YouTube Nocookie Player CDN"]
     end
