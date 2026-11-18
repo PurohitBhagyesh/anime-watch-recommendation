@@ -26,8 +26,8 @@ export const TermsPage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-8 animate-fadeIn text-slate-300">
-      <div className="space-y-3 pb-6 border-b border-white/10">
-        <div className="liquid-glass-pill inline-flex items-center gap-2 px-3 py-1 rounded-full text-[#7dd3fc] text-xs font-bold">
+      <div className="space-y-3 pb-6 border-b border-[#232329]">
+        <div className="liquid-glass-pill inline-flex items-center gap-2 px-3 py-1 rounded-full text-[#c8c8d2] text-xs font-bold">
           <FileText aria-hidden="true" className="w-3.5 h-3.5" />
           <span>Terms & Legal Notice</span>
         </div>
@@ -60,7 +60,7 @@ export const TermsPage: React.FC = () => {
           </p>
           <p className="text-slate-400">
             All anime titles, cover artwork, character portraits, studio names, and trademarks remain the property of their respective copyright holders. For DMCA or takedown notices, contact{' '}
-            <a href="mailto:contact@animesenpai.online" className="text-[#3db4f2] hover:underline font-semibold">
+            <a href="mailto:contact@animesenpai.online" className="text-white hover:underline font-semibold">
               contact@animesenpai.online
             </a>
             .
@@ -69,12 +69,12 @@ export const TermsPage: React.FC = () => {
 
         <section className="anilist-card-static p-5 sm:p-6 space-y-2.5">
           <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-            <Scale aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
+            <Scale aria-hidden="true" className="w-4 h-4 text-white" />
             3. User Accounts, Data Ownership & Deletion
           </h2>
           <p>
             You retain full ownership of your personal watchlist and may export it as JSON at any time. You may permanently delete your account and erase all associated personal data directly from{' '}
-            <Link to="/settings" className="text-[#3db4f2] hover:underline font-semibold">
+            <Link to="/settings" className="text-white hover:underline font-semibold">
               Settings
             </Link>
             .
@@ -97,7 +97,7 @@ export const TermsPage: React.FC = () => {
           </h2>
           <p>
             The AnimeSenpai application source code is provided "as is", without warranty of any kind, under the{' '}
-            <Link to="/license" className="text-[#3db4f2] hover:underline font-semibold">
+            <Link to="/license" className="text-white hover:underline font-semibold">
               MIT License
             </Link>
             . External links redirect to third-party services governed by their own terms and privacy policies.
@@ -105,7 +105,7 @@ export const TermsPage: React.FC = () => {
         </section>
       </div>
 
-      <div className="pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="pt-6 border-t border-[#232329] flex flex-wrap items-center justify-between gap-3 text-xs">
         <Link to="/" className="anilist-btn-secondary px-4 py-2 text-xs font-bold">
           ← Return Home
         </Link>

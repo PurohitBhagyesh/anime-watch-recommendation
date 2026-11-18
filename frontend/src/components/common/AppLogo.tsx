@@ -12,69 +12,48 @@ interface AppLogoProps {
 export const AnimeSenpaiLogoIcon: React.FC<{
   className?: string;
   size?: number;
-}> = ({ className = '', size = 32 }) => {
+}> = ({ className = '', size = 28 }) => {
   return (
     <div
       style={{ width: size, height: size }}
-      className={`relative inline-flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-105 ${className}`}
+      className={`relative inline-flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105 ${className}`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 100 100"
         width={size}
         height={size}
-        className="w-full h-full drop-shadow-[0_2px_12px_rgba(61,180,242,0.45)]"
+        className="w-full h-full"
+        aria-hidden="true"
       >
         <defs>
-          <linearGradient id="senpaiBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#00e5ff" />
-            <stop offset="45%" stopColor="#3db4f2" />
-            <stop offset="100%" stopColor="#1e3a8a" />
-          </linearGradient>
-
-          <linearGradient id="senpaiAccentGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#ffffff" />
-            <stop offset="60%" stopColor="#c7d2fe" />
-            <stop offset="100%" stopColor="#38bdf8" />
-          </linearGradient>
-
-          <linearGradient id="senpaiGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#fef08a" />
-            <stop offset="100%" stopColor="#f59e0b" />
+          <linearGradient id="senpaiMonoSurface" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#1e1e24" />
+            <stop offset="100%" stopColor="#09090b" />
           </linearGradient>
         </defs>
 
-        {/* Outer Hex-Shield Container */}
-        <path
-          d="M50 4 L88 24 L88 76 L50 96 L12 76 L12 24 Z"
-          fill="url(#senpaiBgGrad)"
-          stroke="rgba(255,255,255,0.4)"
-          strokeWidth="2.5"
+        {/* Crisp OpenLid-inspired monochrome squircle badge */}
+        <rect
+          x="4"
+          y="4"
+          width="92"
+          height="92"
+          rx="24"
+          fill="url(#senpaiMonoSurface)"
+          stroke="rgba(255,255,255,0.22)"
+          strokeWidth="3"
         />
 
-        {/* Inner geometric anime folds forming stylized 'A' & 'S' */}
+        {/* Minimalist geometric 'A' fold */}
         <path
-          d="M50 18 L73 66 L59 66 L54 54 L46 54 L50 42 L50 18 Z"
+          d="M50 20 L74 70 L61 70 L55 56 L45 56 L39 70 L26 70 Z"
           fill="#ffffff"
-          opacity="0.95"
         />
-        <path
-          d="M50 18 L27 66 L41 66 L46 54 L54 54 L50 42 L50 18 Z"
-          fill="url(#senpaiAccentGrad)"
-          opacity="0.85"
-        />
-        {/* Dynamic Senpai Slash Bar */}
-        <path
-          d="M32 74 L68 74 L63 82 L27 82 Z"
-          fill="url(#senpaiGoldGrad)"
-          opacity="0.95"
-        />
+        <polygon points="50,36 54,48 46,48" fill="#09090b" />
 
-        {/* Anime Star Sparkle */}
-        <polygon
-          points="76,14 79,21 86,24 79,27 76,34 73,27 66,24 73,21"
-          fill="#ffffff"
-        />
+        {/* Subtle underline slash */}
+        <rect x="33" y="76" width="34" height="5" rx="2.5" fill="rgba(255,255,255,0.45)" />
       </svg>
     </div>
   );
@@ -86,37 +65,37 @@ export const AppLogo: React.FC<AppLogoProps> = ({
   size = 'md',
   className = '',
   withText = true,
-  subtitle = 'animesenpai.online',
+  subtitle = '',
   brandName = 'AnimeSenpai',
 }) => {
   const getDimensions = () => {
     if (typeof size === 'number') {
       return {
         iconSize: size,
-        textSize: 'text-base',
+        textSize: 'text-[15px]',
       };
     }
     switch (size) {
       case 'sm':
         return {
-          iconSize: 30,
-          textSize: 'text-sm sm:text-base',
+          iconSize: 26,
+          textSize: 'text-[15px]',
         };
       case 'lg':
         return {
-          iconSize: 44,
-          textSize: 'text-2xl',
+          iconSize: 40,
+          textSize: 'text-xl sm:text-2xl',
         };
       case 'xl':
         return {
-          iconSize: 56,
-          textSize: 'text-3xl',
+          iconSize: 48,
+          textSize: 'text-2xl sm:text-3xl',
         };
       case 'md':
       default:
         return {
-          iconSize: 36,
-          textSize: 'text-lg',
+          iconSize: 30,
+          textSize: 'text-base',
         };
     }
   };
@@ -124,35 +103,26 @@ export const AppLogo: React.FC<AppLogoProps> = ({
   const dims = getDimensions();
 
   return (
-    <div className={`flex items-center gap-2 sm:gap-2.5 group cursor-pointer select-none ${className}`}>
+    <div className={`flex items-center gap-2.5 group cursor-pointer select-none ${className}`}>
       <AnimeSenpaiLogoIcon size={dims.iconSize} />
       {withText && (
         <div className="flex flex-col">
           <div
-            className={`${dims.textSize} font-black tracking-tight text-[#edf1f5] leading-none group-hover:text-white transition-colors flex items-center gap-1`}
+            className={`${dims.textSize} font-bold tracking-[-0.025em] text-white leading-none flex items-center`}
           >
             {brandName === 'AnimeSenpai' ? (
               <>
-                <span className="bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
-                  Anime
-                </span>
-                <span className="bg-gradient-to-r from-[#38bdf8] via-[#3db4f2] to-[#0284c7] bg-clip-text text-transparent font-black drop-shadow-[0_0_12px_rgba(61,180,242,0.5)]">
-                  Senpai
-                </span>
+                <span>Anime</span>
+                <span className="text-[#9a9aa6] font-medium">Senpai</span>
               </>
             ) : (
               brandName
             )}
           </div>
           {subtitle && (
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-[10px] text-[#8ba0b2] font-semibold tracking-wider font-mono">
-                {subtitle}
-              </span>
-              <span className="text-[9px] px-1 py-0.2 rounded bg-[#3db4f2]/20 text-[#38bdf8] font-bold tracking-tight">
-                アニメ先輩
-              </span>
-            </div>
+            <span className="text-[10px] text-[#666672] font-medium tracking-wider font-mono mt-0.5">
+              {subtitle}
+            </span>
           )}
         </div>
       )}

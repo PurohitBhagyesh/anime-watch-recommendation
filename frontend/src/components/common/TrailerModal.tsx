@@ -55,31 +55,25 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
       className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-6 md:p-8 overscroll-contain animate-fadeIn"
       style={{ minHeight: '100dvh' }}
     >
-      {/* Click outside backdrop with blur */}
       <div
-        className="fixed inset-0 bg-black/85 backdrop-blur-md cursor-pointer transition-opacity"
+        className="fixed inset-0 bg-black/85 backdrop-blur-md cursor-pointer"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Main Modal Dialog Box */}
       <div
-        className="relative w-full max-w-4xl bg-[#151f2e] border border-white/20 rounded-2xl overflow-hidden shadow-2xl z-10 my-auto flex flex-col pointer-events-auto"
+        className="relative w-full max-w-4xl bg-[#0b0b0d] border border-[#232329] rounded-2xl overflow-hidden shadow-2xl z-10 my-auto flex flex-col pointer-events-auto"
         role="dialog"
         aria-modal="true"
         aria-labelledby="trailer-modal-title"
       >
-        {/* Header Bar */}
-        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 bg-[#0b1622] border-b border-white/10 flex-shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 bg-[#000000] border-b border-[#232329] flex-shrink-0">
           <div className="flex items-center gap-2.5 min-w-0 pr-3">
-            <div className="w-7 h-7 rounded-lg bg-[#3db4f2]/20 border border-[#3db4f2]/40 flex items-center justify-center text-[#3db4f2] flex-shrink-0">
-              <Play className="w-3.5 h-3.5 fill-[#3db4f2]" />
+            <div className="w-7 h-7 rounded-full bg-white text-black flex items-center justify-center flex-shrink-0">
+              <Play aria-hidden="true" className="w-3.5 h-3.5 fill-current" />
             </div>
-            <h3
-              id="trailer-modal-title"
-              className="text-xs sm:text-sm font-bold text-white truncate"
-            >
-              {title} <span className="text-[#8ba0b2] font-normal hidden sm:inline">— Official Trailer</span>
+            <h3 id="trailer-modal-title" className="text-xs sm:text-sm font-semibold text-white truncate">
+              {title} <span className="text-[#9a9aa6] font-normal hidden sm:inline">· Official Trailer</span>
             </h3>
           </div>
 
@@ -89,25 +83,25 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
                 href={`https://www.youtube.com/watch?v=${trailer.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden min-[480px]:inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition"
+                className="hidden min-[480px]:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#c8c8d2] hover:text-white bg-[#151519] hover:bg-[#1c1c22] rounded-full border border-[#232329] transition"
                 title="Open in YouTube"
               >
-                <Video className="w-3.5 h-3.5 text-red-400" />
+                <Video aria-hidden="true" className="w-3.5 h-3.5 text-rose-400" />
                 <span>YouTube</span>
-                <ExternalLink className="w-3 h-3 text-slate-400" />
+                <ExternalLink aria-hidden="true" className="w-3 h-3 text-[#666672]" />
               </a>
             )}
             <button
+              type="button"
               onClick={onClose}
-              className="p-1.5 sm:p-2 text-slate-400 hover:text-white rounded-lg bg-white/5 hover:bg-white/15 active:scale-95 transition cursor-pointer"
+              className="w-8 h-8 rounded-full bg-[#151519] border border-[#232329] hover:border-[#3a3a44] text-[#9a9aa6] hover:text-white flex items-center justify-center active:scale-95 transition cursor-pointer"
               aria-label="Close trailer modal"
             >
-              <X className="w-4 h-4 sm:w-5 sm:h-5" />
+              <X aria-hidden="true" className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* Video Player Container */}
         <div className="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden">
           {embedUrl ? (
             <iframe
@@ -119,13 +113,13 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
             />
           ) : (
             <div className="text-center p-6 sm:p-10 space-y-4 max-w-md mx-auto">
-              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400">
-                <AlertCircle className="w-7 h-7" />
+              <div className="w-12 h-12 rounded-2xl bg-[#151519] border border-[#232329] flex items-center justify-center mx-auto text-white">
+                <AlertCircle aria-hidden="true" className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="text-base font-bold text-white">No Direct Video Available</h4>
-                <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                  We couldn't load the embedded video player for this title. You can search and watch it on YouTube directly.
+                <h4 className="text-base font-bold text-white">No Embedded Trailer Available</h4>
+                <p className="text-xs sm:text-sm text-[#9a9aa6] mt-1">
+                  This title does not include a direct video embed from AniList. You can watch it directly on YouTube.
                 </p>
               </div>
               <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
@@ -133,15 +127,16 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
                   href={youtubeSearchUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="anilist-btn-primary px-4 py-2 text-xs font-bold inline-flex items-center gap-2 cursor-pointer shadow-lg"
+                  className="anilist-btn-primary px-4 py-2 text-xs font-bold inline-flex items-center gap-2 cursor-pointer"
                 >
-                  <Video className="w-4 h-4" />
+                  <Video aria-hidden="true" className="w-4 h-4" />
                   <span>Search on YouTube</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <ExternalLink aria-hidden="true" className="w-3.5 h-3.5" />
                 </a>
                 <button
+                  type="button"
                   onClick={onClose}
-                  className="anilist-btn-secondary px-4 py-2 text-xs font-bold cursor-pointer"
+                  className="anilist-btn-secondary px-4 py-2 text-xs font-semibold cursor-pointer"
                 >
                   Close
                 </button>
@@ -155,4 +150,3 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
 
   return createPortal(modalContent, document.body);
 };
-

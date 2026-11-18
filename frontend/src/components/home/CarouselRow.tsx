@@ -24,31 +24,37 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
-    if (scrollContainerRef.current) {
-      const { scrollLeft, clientWidth } = scrollContainerRef.current;
-      const scrollAmount = clientWidth * 0.75;
-      scrollContainerRef.current.scrollTo({
-        left: direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount,
-        behavior: 'smooth',
-      });
-    }
+    const track = scrollContainerRef.current;
+    if (!track) return;
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const scrollAmount = Math.round(track.clientWidth * 0.78);
+    track.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: prefersReduced ? 'auto' : 'smooth',
+    });
   };
 
   if (!animes || animes.length === 0) return null;
 
   return (
-    <section className="space-y-3.5">
+    <section className="space-y-4">
       {/* Section Header */}
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            {Icon && <Icon aria-hidden="true" className="w-4 h-4 text-[#3db4f2] flex-shrink-0" />}
-            <h2 className="text-sm sm:text-lg font-bold text-[#edf1f5] uppercase tracking-wider">
+            {Icon && (
+              <span className="w-6 h-6 rounded-lg bg-[#151519] border border-[#232329] flex items-center justify-center flex-shrink-0">
+                <Icon aria-hidden="true" className="w-3.5 h-3.5 text-white" />
+              </span>
+            )}
+            <h2 className="text-base sm:text-xl font-bold text-white tracking-[-0.025em]">
               {title}
             </h2>
           </div>
           {subtitle && (
-            <p className="text-xs text-[#8ba0b2] mt-0.5">
+            <p className="text-xs sm:text-[13px] text-[#9a9aa6] mt-1">
               {subtitle}
             </p>
           )}
@@ -58,19 +64,19 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
           {viewAllLink && (
             <Link
               to={viewAllLink}
-              className="text-xs font-bold text-[#3db4f2] hover:text-[#2ba2e0] flex items-center gap-1 transition p-2 -my-2 whitespace-nowrap"
+              className="text-xs font-semibold text-[#9a9aa6] hover:text-white flex items-center gap-1 transition px-2.5 py-1.5 rounded-full hover:bg-[#151519] whitespace-nowrap"
             >
-              <span>View All</span>
+              <span>View all</span>
               <ArrowRight aria-hidden="true" className="w-3.5 h-3.5" />
             </Link>
           )}
 
-          {/* Liquid Glass Navigation arrow buttons */}
+          {/* Monochrome Navigation Controls */}
           <div className="hidden sm:flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => scroll('left')}
-              className="liquid-glass-pill w-8 h-8 rounded-full flex items-center justify-center text-[#edf1f5] hover:text-[#3db4f2] transition cursor-pointer active:scale-95"
+              className="w-8 h-8 rounded-full bg-[#0b0b0d] hover:bg-[#151519] border border-[#232329] hover:border-[#3a3a44] flex items-center justify-center text-[#9a9aa6] hover:text-white transition cursor-pointer active:scale-95"
               aria-label={`Scroll ${title} left`}
             >
               <ChevronLeft aria-hidden="true" className="w-4 h-4" />
@@ -78,7 +84,7 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
             <button
               type="button"
               onClick={() => scroll('right')}
-              className="liquid-glass-pill w-8 h-8 rounded-full flex items-center justify-center text-[#edf1f5] hover:text-[#3db4f2] transition cursor-pointer active:scale-95"
+              className="w-8 h-8 rounded-full bg-[#0b0b0d] hover:bg-[#151519] border border-[#232329] hover:border-[#3a3a44] flex items-center justify-center text-[#9a9aa6] hover:text-white transition cursor-pointer active:scale-95"
               aria-label={`Scroll ${title} right`}
             >
               <ChevronRight aria-hidden="true" className="w-4 h-4" />
@@ -87,15 +93,15 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
         </div>
       </div>
 
-      {/* Smooth Horizontal Slider Carousel */}
+      {/* Smooth Horizontal Scroll-Snap Slider */}
       <div
         ref={scrollContainerRef}
-        className="flex gap-2.5 sm:gap-4 overflow-x-auto pb-3 pt-1 no-scrollbar touch-scroll-smooth scroll-smooth"
+        className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 pt-0.5 no-scrollbar touch-scroll-smooth"
       >
         {animes.map((anime, idx) => (
           <div
             key={anime?.id || idx}
-            className="flex-shrink-0 w-32 min-[400px]:w-36 sm:w-44 md:w-48 snap-start"
+            className="flex-shrink-0 w-[136px] min-[400px]:w-[152px] sm:w-[178px] md:w-[192px] snap-start"
           >
             <AnimeCard anime={anime} priority={priority && idx < 3} />
           </div>

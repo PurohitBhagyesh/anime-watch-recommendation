@@ -232,7 +232,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
     return (
       <div className="min-h-[70dvh] flex flex-col items-center justify-center px-4 text-center">
         <div className="liquid-glass w-16 h-16 rounded-2xl flex items-center justify-center mb-4">
-          <User aria-hidden="true" className="w-7 h-7 text-[#3db4f2]" />
+          <User aria-hidden="true" className="w-7 h-7 text-white" />
         </div>
         <h1 className="text-xl font-bold text-white mb-2">Sign in to manage your account</h1>
         <p className="text-xs sm:text-sm text-slate-400 max-w-sm mb-6">
@@ -276,7 +276,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                 <span>{user.joinedDate || 'Member'}</span>
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <Bookmark aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
+                <Bookmark aria-hidden="true" className="w-3.5 h-3.5 text-white" />
                 <span className="text-slate-200 font-semibold">{watchlist.length}</span> titles saved
               </span>
             </div>
@@ -285,7 +285,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
           <button
             type="button"
             onClick={logout}
-            className="sm:self-start px-3.5 py-2 min-h-[40px] rounded-xl bg-white/[0.06] hover:bg-rose-500/15 border border-white/10 hover:border-rose-400/30 text-slate-200 hover:text-rose-300 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+            className="sm:self-start px-3.5 py-2 min-h-[40px] rounded-xl bg-white/[0.06] hover:bg-rose-500/15 border border-[#232329] hover:border-rose-400/30 text-slate-200 hover:text-rose-300 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
           >
             <LogOut aria-hidden="true" className="w-3.5 h-3.5" />
             <span>Sign Out</span>
@@ -293,15 +293,15 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
         </div>
       </div>
 
-      {/* Liquid Glass Segmented Tab Switcher */}
-      <div className="liquid-glass p-1.5 rounded-2xl grid grid-cols-2 sm:inline-grid sm:grid-cols-2 gap-1.5">
+      {/* OpenLid-Style Segmented Tab Switcher */}
+      <div className="bg-[#0b0b0d] border border-[#232329] p-1 rounded-full grid grid-cols-2 sm:inline-grid sm:grid-cols-2 gap-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
         <button
           type="button"
           onClick={() => setActiveTab('account')}
-          className={`flex items-center justify-center gap-2 px-4 py-2.5 min-h-[42px] rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+          className={`flex items-center justify-center gap-2 px-5 py-2.5 min-h-[40px] rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
             activeTab === 'account'
-              ? 'bg-[#3db4f2] text-[#06101c] shadow-md'
-              : 'text-slate-300 hover:text-white hover:bg-white/[0.06]'
+              ? 'bg-white text-black font-bold'
+              : 'text-[#9a9aa6] hover:text-white'
           }`}
         >
           <User aria-hidden="true" className="w-4 h-4 flex-shrink-0" />
@@ -311,10 +311,10 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
         <button
           type="button"
           onClick={() => setActiveTab('settings')}
-          className={`flex items-center justify-center gap-2 px-4 py-2.5 min-h-[42px] rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+          className={`flex items-center justify-center gap-2 px-5 py-2.5 min-h-[40px] rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
             activeTab === 'settings'
-              ? 'bg-[#3db4f2] text-[#06101c] shadow-md'
-              : 'text-slate-300 hover:text-white hover:bg-white/[0.06]'
+              ? 'bg-white text-black font-bold'
+              : 'text-[#9a9aa6] hover:text-white'
           }`}
         >
           <Settings aria-hidden="true" className="w-4 h-4 flex-shrink-0" />
@@ -327,9 +327,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Edit Profile Form */}
           <div className="md:col-span-2 anilist-card-static p-5 sm:p-6 space-y-5">
-            <div className="border-b border-white/10 pb-3.5">
+            <div className="border-b border-[#232329] pb-3.5">
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Sliders aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
+                <Sliders aria-hidden="true" className="w-4 h-4 text-white" />
                 <span>Profile Details</span>
               </h2>
               <p className="text-xs text-slate-400 mt-1">
@@ -360,7 +360,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                         aria-pressed={isSelected}
                         className={`relative rounded-xl p-0.5 transition cursor-pointer ${
                           isSelected
-                            ? 'ring-2 ring-[#3db4f2] scale-105'
+                            ? 'ring-2 ring-white scale-105'
                             : 'ring-1 ring-white/10 opacity-75 hover:opacity-100'
                         }`}
                       >
@@ -438,12 +438,12 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
             <div className="anilist-card-static p-5 space-y-3.5">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <Film aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
+                  <Film aria-hidden="true" className="w-3.5 h-3.5 text-white" />
                   <span>Watchlist Summary</span>
                 </h3>
                 <Link
                   to="/watchlist"
-                  className="text-[11px] font-bold text-[#3db4f2] hover:underline inline-flex items-center gap-1"
+                  className="text-[11px] font-bold text-white hover:underline inline-flex items-center gap-1"
                 >
                   <span>Open</span>
                   <ArrowRight aria-hidden="true" className="w-3 h-3" />
@@ -451,23 +451,23 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
               </div>
 
               <div className="space-y-2 text-xs">
-                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-between">
+                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-[#232329] flex items-center justify-between">
                   <span className="text-slate-400">Saved Titles</span>
-                  <span className="font-bold text-[#3db4f2]">{watchlist.length}</span>
+                  <span className="font-bold text-white">{watchlist.length}</span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-between">
+                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-[#232329] flex items-center justify-between">
                   <span className="text-slate-400">Currently Watching</span>
                   <span className="font-bold text-emerald-400">{watchingCount}</span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-between">
+                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-[#232329] flex items-center justify-between">
                   <span className="text-slate-400">Completed</span>
                   <span className="font-bold text-sky-300">{completedCount}</span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-between">
+                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-[#232329] flex items-center justify-between">
                   <span className="text-slate-400">Episodes Logged</span>
                   <span className="font-bold text-slate-100">{totalEpisodesWatched}</span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-between">
+                <div className="p-2.5 rounded-xl bg-white/[0.04] border border-[#232329] flex items-center justify-between">
                   <span className="text-slate-400">Watch Time</span>
                   <span className="font-bold text-slate-100">{estDaysWatched} days</span>
                 </div>
@@ -482,10 +482,10 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
         <div className="space-y-6">
           {/* Persistent Browsing Preferences */}
           <div className="anilist-card-static p-5 sm:p-6 space-y-5">
-            <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-3.5">
+            <div className="flex items-start justify-between gap-3 border-b border-[#232329] pb-3.5">
               <div>
                 <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <Sliders aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
+                  <Sliders aria-hidden="true" className="w-4 h-4 text-white" />
                   <span>Browsing Preferences</span>
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
@@ -501,7 +501,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl bg-white/[0.04] border border-white/5 space-y-2.5 sm:col-span-2">
+              <div className="p-4 rounded-xl bg-white/[0.04] border border-[#232329] space-y-2.5 sm:col-span-2">
                 <span className="text-xs font-semibold text-slate-200 block">Preferred Audio Style</span>
                 <p className="text-[11px] text-slate-400">Choose your default language preference for episode metadata.</p>
                 <div className="flex flex-col min-[380px]:flex-row gap-2 pt-1 max-w-md">
@@ -510,8 +510,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                     onClick={() => updatePreference('preferredAudio', 'sub')}
                     className={`flex-1 px-3 py-2 min-h-[40px] rounded-xl text-xs font-bold transition cursor-pointer ${
                       prefs.preferredAudio === 'sub'
-                        ? 'bg-[#3db4f2] text-[#06101c]'
-                        : 'bg-white/5 text-slate-300 hover:text-white border border-white/10'
+                        ? 'bg-white text-black'
+                        : 'bg-white/5 text-slate-300 hover:text-white border border-[#232329]'
                     }`}
                   >
                     Original Japanese (Sub)
@@ -521,8 +521,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                     onClick={() => updatePreference('preferredAudio', 'dub')}
                     className={`flex-1 px-3 py-2 min-h-[40px] rounded-xl text-xs font-bold transition cursor-pointer ${
                       prefs.preferredAudio === 'dub'
-                        ? 'bg-[#3db4f2] text-[#06101c]'
-                        : 'bg-white/5 text-slate-300 hover:text-white border border-white/10'
+                        ? 'bg-white text-black'
+                        : 'bg-white/5 text-slate-300 hover:text-white border border-[#232329]'
                     }`}
                   >
                     English (Dub)
@@ -530,7 +530,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                 </div>
               </div>
 
-              <label className="p-4 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-between gap-3 cursor-pointer min-h-[64px]">
+              <label className="p-4 rounded-xl bg-white/[0.04] border border-[#232329] flex items-center justify-between gap-3 cursor-pointer min-h-[64px]">
                 <div className="min-w-0">
                   <span className="text-xs font-semibold text-slate-200 block">Safe Browsing Filter</span>
                   <span className="text-[11px] text-slate-400">Hide 18+ adult material in catalog results</span>
@@ -539,11 +539,11 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   type="checkbox"
                   checked={prefs.contentFilter}
                   onChange={(e) => updatePreference('contentFilter', e.target.checked)}
-                  className="w-5 h-5 rounded text-[#3db4f2] bg-[#0b1622] border-white/20 focus:ring-0 cursor-pointer flex-shrink-0"
+                  className="w-5 h-5 rounded text-white bg-[#0b0b0d] border-white/20 focus:ring-0 cursor-pointer flex-shrink-0"
                 />
               </label>
 
-              <label className="p-4 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-between gap-3 cursor-pointer min-h-[64px]">
+              <label className="p-4 rounded-xl bg-white/[0.04] border border-[#232329] flex items-center justify-between gap-3 cursor-pointer min-h-[64px]">
                 <div className="min-w-0">
                   <span className="text-xs font-semibold text-slate-200 block">Autoplay Trailers</span>
                   <span className="text-[11px] text-slate-400">Start playback immediately when opening a trailer</span>
@@ -552,7 +552,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   type="checkbox"
                   checked={prefs.autoTrailer}
                   onChange={(e) => updatePreference('autoTrailer', e.target.checked)}
-                  className="w-5 h-5 rounded text-[#3db4f2] bg-[#0b1622] border-white/20 focus:ring-0 cursor-pointer flex-shrink-0"
+                  className="w-5 h-5 rounded text-white bg-[#0b0b0d] border-white/20 focus:ring-0 cursor-pointer flex-shrink-0"
                 />
               </label>
             </div>
@@ -560,9 +560,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
 
           {/* Data Ownership & Backups */}
           <div className="anilist-card-static p-5 sm:p-6 space-y-4">
-            <div className="border-b border-white/10 pb-3.5">
+            <div className="border-b border-[#232329] pb-3.5">
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Download aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
+                <Download aria-hidden="true" className="w-4 h-4 text-white" />
                 <span>Your Data & Backups</span>
               </h2>
               <p className="text-xs text-slate-400 mt-1">
@@ -596,7 +596,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                 onClick={exportWatchlist}
                 className="px-4 py-2.5 min-h-[42px] rounded-xl anilist-btn-secondary text-xs font-bold flex items-center gap-2 cursor-pointer"
               >
-                <Download aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
+                <Download aria-hidden="true" className="w-3.5 h-3.5 text-white" />
                 <span>Export Watchlist (.JSON)</span>
               </button>
 
@@ -605,7 +605,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                 onClick={() => fileInputRef.current?.click()}
                 className="px-4 py-2.5 min-h-[42px] rounded-xl anilist-btn-secondary text-xs font-bold flex items-center gap-2 cursor-pointer"
               >
-                <Upload aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
+                <Upload aria-hidden="true" className="w-3.5 h-3.5 text-white" />
                 <span>Import Backup (.JSON)</span>
               </button>
 
@@ -616,7 +616,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                     clearWatchlist();
                   }
                 }}
-                className="px-4 py-2.5 min-h-[42px] rounded-xl bg-white/[0.05] hover:bg-rose-500/15 border border-white/10 hover:border-rose-400/30 text-xs font-bold text-slate-300 hover:text-rose-300 transition flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2.5 min-h-[42px] rounded-xl bg-white/[0.05] hover:bg-rose-500/15 border border-[#232329] hover:border-rose-400/30 text-xs font-bold text-slate-300 hover:text-rose-300 transition flex items-center gap-2 cursor-pointer"
               >
                 <Trash2 aria-hidden="true" className="w-3.5 h-3.5" />
                 <span>Clear Local Watchlist</span>
@@ -638,7 +638,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-white/10">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#232329]">
               <p className="text-[11px] text-slate-400">
                 Tip: Export your JSON backup first if you want to keep a local copy of your anime list.
               </p>
@@ -724,7 +724,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
             </div>
           )}
 
-          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t border-white/10">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t border-[#232329]">
             <button
               type="button"
               autoFocus

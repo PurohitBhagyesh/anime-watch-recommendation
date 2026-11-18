@@ -18,19 +18,21 @@ export const RelationsGrid: React.FC<RelationsGridProps> = ({ relations }) => {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <GitFork className="w-4 h-4 text-[#3db4f2]" />
-        <h2 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">
+        <GitFork aria-hidden="true" className="w-4 h-4 text-white" />
+        <h2 className="text-sm font-bold text-white tracking-tight">
           Franchise Relations
         </h2>
-        <span className="text-[11px] text-[#3db4f2] ml-auto font-mono font-bold">{validRelations.length} Titles</span>
+        <span className="text-xs text-[#666672] ml-auto font-mono tabular-nums">
+          {validRelations.length} Titles
+        </span>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
         {validRelations.map((edge) => (
           <div key={`${edge.node.id}-${edge.relationType}`} className="flex flex-col gap-1.5">
-            <div className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-[#151f2e] border border-[#3db4f2]/30 text-[#3db4f2] text-center truncate shadow-sm">
+            <div className="text-[10px] uppercase font-mono font-semibold tracking-wider px-2.5 py-1 rounded-full bg-[#151519] border border-[#232329] text-[#c8c8d2] text-center truncate">
               {formatRelationType(edge.relationType)}
             </div>
             <AnimeCard anime={edge.node} />
@@ -40,4 +42,3 @@ export const RelationsGrid: React.FC<RelationsGridProps> = ({ relations }) => {
     </div>
   );
 };
-

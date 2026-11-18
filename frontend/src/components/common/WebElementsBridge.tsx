@@ -88,6 +88,12 @@ export const WebElementsBridge: React.FC = () => {
           position: 'bottom-right',
         });
       }
+
+      // Keep Coffee UPI and Share cards mutually exclusive so they never overlap on small screens
+      const cupiPill = document.querySelector('.cupi-pill');
+      const sharePill = document.querySelector('.wshare-pill');
+      cupiPill?.addEventListener('click', () => window.ShareLink?.close());
+      sharePill?.addEventListener('click', () => window.CoffeeUPI?.close());
     };
 
     setupWidgets();

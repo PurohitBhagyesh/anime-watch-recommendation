@@ -228,20 +228,20 @@ export const AnimeDetailsPage: React.FC = () => {
   return (
     <div className="space-y-8 pb-16 animate-fadeIn">
       {/* Top Banner Header */}
-      <div className="relative w-full h-44 min-[480px]:h-56 sm:h-72 md:h-84 lg:h-96 overflow-hidden bg-[#0b1622]">
+      <div className="relative w-full h-44 min-[480px]:h-56 sm:h-72 md:h-84 lg:h-96 overflow-hidden bg-[#000000]">
         <img
           src={banner}
           alt={`${title} anime banner`}
-          className="w-full h-full object-cover object-center filter brightness-[0.45] contrast-[1.08]"
+          className="w-full h-full object-cover object-center filter brightness-[0.42] contrast-[1.06]"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0b1622] via-[#0b1622]/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/65 to-transparent" />
 
         {/* Back Link */}
         <div className="absolute top-3 left-3 sm:top-4 sm:left-8 z-10">
           <Link
             to={-1 as any}
-            className="anilist-btn-secondary inline-flex items-center gap-1.5 px-3 py-2 min-h-[38px] text-xs font-bold shadow-md border border-white/10 active:scale-95"
+            className="anilist-btn-secondary inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[36px] text-xs font-semibold active:scale-95"
           >
             <ArrowLeft aria-hidden="true" className="w-3.5 h-3.5" />
             <span>Back</span>
@@ -251,13 +251,12 @@ export const AnimeDetailsPage: React.FC = () => {
 
       {/* Main Content Layout */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 min-[480px]:-mt-24 sm:-mt-32 lg:-mt-40 relative z-10 space-y-6">
-        {/* Row 1: Poster + Title & Primary Actions (compact side-by-side on mobile, 12-col grid on md+) */}
+        {/* Row 1: Poster + Title & Primary Actions */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 md:items-end">
-          {/* Mobile Side-by-Side Header Wrapper (becomes transparent via md:contents on tablet/desktop) */}
           <div className="flex items-end gap-3.5 sm:gap-5 md:contents">
             {/* Poster Card */}
             <div className="w-28 min-[400px]:w-32 sm:w-40 md:w-auto flex-shrink-0 md:col-span-4 lg:col-span-3">
-              <div className="relative rounded-2xl overflow-hidden border border-white/15 bg-[#0b131f] aspect-[185/265] shadow-2xl">
+              <div className="relative rounded-2xl overflow-hidden border border-[#232329] bg-[#0b0b0d] aspect-[185/265] shadow-2xl">
                 <img
                   src={anime.coverImage.extraLarge || anime.coverImage.large}
                   alt={`${title} anime poster`}
@@ -267,10 +266,9 @@ export const AnimeDetailsPage: React.FC = () => {
                   fetchPriority="high"
                   className="w-full h-full object-cover"
                 />
-                {/* Score Overlay */}
                 {anime.averageScore && (
                   <div
-                    className={`absolute top-2 right-2 px-1.5 sm:px-2 py-0.5 rounded-full font-bold text-[10px] sm:text-xs backdrop-blur-md shadow-lg flex items-center gap-1 ${getScoreBadgeClass(
+                    className={`absolute top-2 right-2 px-2 py-0.5 rounded-full font-bold text-[10px] sm:text-xs backdrop-blur-md shadow-lg flex items-center gap-1 tabular-nums ${getScoreBadgeClass(
                       anime.averageScore
                     )}`}
                   >
@@ -288,26 +286,26 @@ export const AnimeDetailsPage: React.FC = () => {
                   {anime.rankings.slice(0, 1).map((rank) => (
                     <span
                       key={rank.id}
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#3db4f2]/15 border border-[#3db4f2]/30 text-[#7dd3fc] text-[10px] font-bold backdrop-blur-md"
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#151519] border border-[#232329] text-white text-[10px] font-mono font-semibold tabular-nums"
                     >
-                      <Award aria-hidden="true" className="w-3 h-3 text-[#3db4f2]" />
+                      <Award aria-hidden="true" className="w-3 h-3 text-[#9a9aa6]" />
                       #{rank.rank} {rank.context}
                     </span>
                   ))}
                 </div>
               )}
 
-              <p className="text-lg min-[400px]:text-xl font-extrabold text-white tracking-tight leading-snug line-clamp-3 break-words">
+              <p className="text-lg min-[400px]:text-xl font-extrabold text-white tracking-[-0.025em] leading-snug line-clamp-3 break-words">
                 {title}
               </p>
 
               {anime.title.native && (
-                <p className="text-[11px] text-[#8ba0b2] font-medium truncate">
+                <p className="text-[11px] text-[#9a9aa6] font-medium truncate">
                   {anime.title.native}
                 </p>
               )}
 
-              <p className="text-[11px] text-slate-300 font-medium">
+              <p className="text-[11px] text-[#c8c8d2] font-medium tabular-nums">
                 {anime.format?.replace('_', ' ') || 'Anime'} · {anime.episodes ? `${anime.episodes} eps` : 'Airing'}
                 {anime.seasonYear ? ` · ${anime.seasonYear}` : ''}
               </p>
@@ -316,44 +314,41 @@ export const AnimeDetailsPage: React.FC = () => {
 
           {/* Desktop Title + Shared Genres & Action Buttons */}
           <div className="md:col-span-8 lg:col-span-9 space-y-3 text-left">
-            {/* Desktop Rankings & Semantic H1 */}
             <div className="hidden md:block space-y-2.5">
               {anime.rankings && anime.rankings.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2">
                   {anime.rankings.slice(0, 2).map((rank) => (
                     <span
                       key={rank.id}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#3db4f2]/15 border border-[#3db4f2]/30 text-[#7dd3fc] text-xs font-bold backdrop-blur-md"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0b0b0d]/90 border border-[#232329] text-white text-xs font-mono font-semibold tabular-nums"
                     >
-                      <Award aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
+                      <Award aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
                       #{rank.rank} {rank.context}
                     </span>
                   ))}
                 </div>
               )}
 
-              <h1 className="text-3xl lg:text-4xl font-extrabold text-[#edf1f5] tracking-tight leading-tight">
+              <h1 className="text-3xl lg:text-4xl font-extrabold text-white tracking-[-0.03em] leading-tight">
                 {title}
               </h1>
 
               {anime.title.native && (
-                <p className="text-sm text-[#8ba0b2] font-medium font-sans">
+                <p className="text-sm text-[#9a9aa6] font-medium">
                   {anime.title.native}
                 </p>
               )}
             </div>
 
-            {/* Screen-reader accessible H1 on mobile without duplicating visible title */}
             <h1 className="sr-only md:hidden">{title}</h1>
 
-            {/* Genres */}
             {anime.genres && anime.genres.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-0.5">
                 {anime.genres.map((genre) => (
                   <Link
                     key={genre}
                     to={`/discover?genre=${encodeURIComponent(genre)}`}
-                    className="text-[11px] sm:text-xs px-2.5 py-1 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-[#edf1f5] font-semibold transition"
+                    className="text-[11px] sm:text-xs px-3 py-1 rounded-full bg-[#0b0b0d] hover:bg-[#151519] border border-[#232329] hover:border-[#3a3a44] text-[#c8c8d2] hover:text-white font-medium transition"
                   >
                     {genre}
                   </Link>
@@ -361,13 +356,12 @@ export const AnimeDetailsPage: React.FC = () => {
               </div>
             )}
 
-            {/* Action Buttons Bar */}
             <div className="flex flex-wrap items-center gap-2 pt-1.5">
               {anime.trailer?.id && (
                 <button
                   type="button"
                   onClick={() => setTrailerModalOpen(true)}
-                  className="anilist-btn-primary flex items-center justify-center gap-2 px-4 py-2.5 min-h-[42px] text-xs sm:text-sm font-bold flex-1 sm:flex-none cursor-pointer"
+                  className="anilist-btn-primary flex items-center justify-center gap-2 px-5 py-2.5 min-h-[42px] text-xs sm:text-sm flex-1 sm:flex-none cursor-pointer"
                 >
                   <Play aria-hidden="true" className="w-4 h-4 fill-current" />
                   <span>Watch Trailer</span>
@@ -377,9 +371,9 @@ export const AnimeDetailsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleShare}
-                className="anilist-btn-secondary flex items-center justify-center gap-2 px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm font-semibold cursor-pointer"
+                className="anilist-btn-secondary flex items-center justify-center gap-2 px-4 py-2.5 min-h-[42px] text-xs sm:text-sm cursor-pointer"
               >
-                <Share2 aria-hidden="true" className="w-4 h-4 text-[#8ba0b2]" />
+                <Share2 aria-hidden="true" className="w-4 h-4 text-[#9a9aa6]" />
                 <span>{copiedShare ? 'Copied!' : 'Share'}</span>
               </button>
 
@@ -387,28 +381,26 @@ export const AnimeDetailsPage: React.FC = () => {
                 href={`https://anilist.co/anime/${anime.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="anilist-btn-secondary flex items-center justify-center gap-2 px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm font-semibold"
+                className="anilist-btn-secondary flex items-center justify-center gap-2 px-4 py-2.5 min-h-[42px] text-xs sm:text-sm"
               >
-                <ExtLinkIcon aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
+                <ExtLinkIcon aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
                 <span>AniList</span>
               </a>
             </div>
           </div>
         </div>
 
-        {/* Row 2: Left Sidebar (Tracker + Info) & Right Main Content (Synopsis + Tabs) */}
+        {/* Row 2: Left Sidebar (Tracker + Info) & Right Main Content */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
-          {/* Left Column: Status Tracker & Metadata Sidebar */}
           <div className="md:col-span-4 lg:col-span-3 space-y-4">
-            {/* Next Airing Countdown Banner if applicable */}
             {anime.nextAiringEpisode && (
-              <div className="p-3 rounded-lg bg-[#0b1622]/90 border border-[#7bd555]/35 text-[#7bd555] flex items-center gap-2.5 text-xs">
-                <Clock aria-hidden="true" className="w-4 h-4 text-[#7bd555] flex-shrink-0 animate-pulse" />
-                <div>
-                  <p className="font-bold">
+              <div className="p-3.5 rounded-2xl bg-[#0b0b0d] border border-emerald-500/30 text-[#4ade80] flex items-center gap-2.5 text-xs">
+                <Clock aria-hidden="true" className="w-4 h-4 text-[#4ade80] flex-shrink-0" />
+                <div className="tabular-nums">
+                  <p className="font-semibold">
                     Episode {anime.nextAiringEpisode.episode} airing soon
                   </p>
-                  <p className="text-[11px] text-[#7bd555]/80">
+                  <p className="text-[11px] text-[#4ade80]/80">
                     in {formatCountdown(anime.nextAiringEpisode.timeUntilAiring)}
                   </p>
                 </div>
@@ -416,19 +408,18 @@ export const AnimeDetailsPage: React.FC = () => {
             )}
 
             {/* Watchlist Tracker Box */}
-            <div className="p-4 rounded-xl anilist-card-static space-y-3">
+            <div className="p-4 rounded-2xl anilist-card-static space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#8ba0b2]">
+                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#9a9aa6]">
                   Watchlist Status
                 </span>
                 {inWatchlist && (
-                  <span className="text-[11px] px-2 py-0.5 rounded bg-[#7bd555]/15 border border-[#7bd555]/30 text-[#7bd555] font-bold">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/12 border border-emerald-500/30 text-[#4ade80] font-semibold">
                     In List
                   </span>
                 )}
               </div>
 
-              {/* Status Selector Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 gap-1.5">
                 {statusOptions.map((st) => {
                   const isActive = inWatchlist && watchlistItem?.status === st.id;
@@ -443,10 +434,10 @@ export const AnimeDetailsPage: React.FC = () => {
                           addToWatchlist(anime, st.id);
                         }
                       }}
-                      className={`px-2.5 py-2.5 min-h-[40px] rounded text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                      className={`px-2.5 py-2 min-h-[38px] rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer ${
                         isActive
-                          ? 'anilist-btn-primary'
-                          : 'bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10'
+                          ? 'bg-white text-black font-bold'
+                          : 'bg-[#151519] hover:bg-[#1c1c22] text-[#c8c8d2] hover:text-white border border-[#232329]'
                       }`}
                     >
                       {isActive && <Check aria-hidden="true" className="w-3.5 h-3.5" />}
@@ -456,12 +447,10 @@ export const AnimeDetailsPage: React.FC = () => {
                 })}
               </div>
 
-              {/* Episode Progress & Rating */}
               {inWatchlist && (
-                <div className="pt-2.5 border-t border-white/[0.06] space-y-2.5">
-                  {/* Episode progress counter */}
+                <div className="pt-3 border-t border-[#232329] space-y-2.5">
                   <div className="flex items-center justify-between gap-2 text-xs">
-                    <span className="text-[#8ba0b2] font-semibold">Episodes Watched:</span>
+                    <span className="text-[#9a9aa6] font-medium">Episodes:</span>
                     <div className="flex items-center gap-1.5">
                       <button
                         type="button"
@@ -471,13 +460,13 @@ export const AnimeDetailsPage: React.FC = () => {
                             Math.max(0, (watchlistItem?.currentEpisode || 0) - 1)
                           )
                         }
-                        className="w-8 h-8 flex items-center justify-center rounded bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10 cursor-pointer"
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-[#151519] hover:bg-[#1c1c22] text-white border border-[#232329] cursor-pointer"
                         title="Decrement episode"
                         aria-label="Decrement episode"
                       >
                         <Minus aria-hidden="true" className="w-3.5 h-3.5" />
                       </button>
-                      <span className="font-mono font-bold text-[#3db4f2] min-w-[3rem] text-center">
+                      <span className="font-mono font-bold text-white min-w-[3rem] text-center tabular-nums">
                         {watchlistItem?.currentEpisode || 0} / {anime.episodes || '??'}
                       </span>
                       <button
@@ -489,7 +478,7 @@ export const AnimeDetailsPage: React.FC = () => {
                             Math.min(max, (watchlistItem?.currentEpisode || 0) + 1)
                           );
                         }}
-                        className="w-8 h-8 flex items-center justify-center rounded bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10 cursor-pointer"
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-[#151519] hover:bg-[#1c1c22] text-white border border-[#232329] cursor-pointer"
                         title="Increment episode"
                         aria-label="Increment episode"
                       >
@@ -498,14 +487,13 @@ export const AnimeDetailsPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Personal Rating */}
                   <div className="flex items-center justify-between gap-2 text-xs">
-                    <span className="text-[#8ba0b2] font-semibold">My Rating:</span>
+                    <span className="text-[#9a9aa6] font-medium">My Rating:</span>
                     <select
                       value={watchlistItem?.userRating || 0}
                       onChange={(e) => updateRating(anime.id, Number(e.target.value))}
                       aria-label="My rating"
-                      className="anilist-input text-xs px-2.5 py-1.5 min-h-[36px] font-bold text-[#e4a834]"
+                      className="anilist-input text-xs px-2.5 py-1.5 min-h-[36px] font-semibold text-white"
                     >
                       <option value="0">Unrated</option>
                       {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
@@ -516,11 +504,10 @@ export const AnimeDetailsPage: React.FC = () => {
                     </select>
                   </div>
 
-                  {/* Remove action */}
                   <button
                     type="button"
                     onClick={() => removeFromWatchlist(anime.id)}
-                    className="w-full text-center text-xs text-[#e85d75] hover:underline py-1.5 font-semibold cursor-pointer"
+                    className="w-full text-center text-xs text-rose-400 hover:underline py-1.5 font-medium cursor-pointer"
                   >
                     Remove from List
                   </button>
@@ -528,63 +515,63 @@ export const AnimeDetailsPage: React.FC = () => {
               )}
             </div>
 
-            {/* Information Sidebar (2-col compact grid on mobile, vertical list on md+) */}
-            <div className="p-4 rounded-xl anilist-card-static space-y-3 text-xs">
-              <h2 className="font-bold uppercase tracking-wider text-[#8ba0b2] pb-2 border-b border-white/[0.06]">
+            {/* Information Sidebar */}
+            <div className="p-4 rounded-2xl anilist-card-static space-y-3 text-xs">
+              <h2 className="text-[11px] font-mono font-semibold uppercase tracking-wider text-[#9a9aa6] pb-2 border-b border-[#232329]">
                 Anime Information
               </h2>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-1 gap-3 md:gap-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-1 gap-3 md:gap-2.5 tabular-nums">
                 <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
-                  <span className="text-[#8ba0b2] text-[11px] md:text-xs">Format</span>
-                  <span className="font-bold text-[#edf1f5] uppercase md:text-right">{anime.format?.replace('_', ' ') || 'Unknown'}</span>
+                  <span className="text-[#666672] text-[11px] md:text-xs">Format</span>
+                  <span className="font-semibold text-white uppercase md:text-right">{anime.format?.replace('_', ' ') || 'Unknown'}</span>
                 </div>
 
                 <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
-                  <span className="text-[#8ba0b2] text-[11px] md:text-xs">Status</span>
-                  <span className="font-bold text-[#edf1f5] capitalize md:text-right">
+                  <span className="text-[#666672] text-[11px] md:text-xs">Status</span>
+                  <span className="font-semibold text-white capitalize md:text-right">
                     {anime.status ? anime.status.toLowerCase().replace(/_/g, ' ') : 'Unknown'}
                   </span>
                 </div>
 
                 <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
-                  <span className="text-[#8ba0b2] text-[11px] md:text-xs">Episodes</span>
-                  <span className="font-bold text-[#edf1f5] md:text-right">{anime.episodes || 'TBA'}</span>
+                  <span className="text-[#666672] text-[11px] md:text-xs">Episodes</span>
+                  <span className="font-semibold text-white md:text-right">{anime.episodes || 'TBA'}</span>
                 </div>
 
                 <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
-                  <span className="text-[#8ba0b2] text-[11px] md:text-xs">Duration</span>
-                  <span className="font-bold text-[#edf1f5] md:text-right">
+                  <span className="text-[#666672] text-[11px] md:text-xs">Duration</span>
+                  <span className="font-semibold text-white md:text-right">
                     {anime.duration ? `${anime.duration} mins` : 'Unknown'}
                   </span>
                 </div>
 
                 <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
-                  <span className="text-[#8ba0b2] text-[11px] md:text-xs">Season</span>
-                  <span className="font-bold text-[#edf1f5] md:text-right">
+                  <span className="text-[#666672] text-[11px] md:text-xs">Season</span>
+                  <span className="font-semibold text-white md:text-right">
                     {anime.season && anime.seasonYear ? `${anime.season} ${anime.seasonYear}` : 'TBA'}
                   </span>
                 </div>
 
                 <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
-                  <span className="text-[#8ba0b2] text-[11px] md:text-xs">Studio</span>
-                  <span className="font-bold text-[#3db4f2] md:text-right truncate">
+                  <span className="text-[#666672] text-[11px] md:text-xs">Studio</span>
+                  <span className="font-semibold text-white md:text-right truncate">
                     {anime.studios?.nodes?.[0]?.name || 'Unknown'}
                   </span>
                 </div>
 
                 <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
-                  <span className="text-[#8ba0b2] text-[11px] md:text-xs">Source</span>
-                  <span className="font-bold text-[#edf1f5] capitalize md:text-right">
+                  <span className="text-[#666672] text-[11px] md:text-xs">Source</span>
+                  <span className="font-semibold text-white capitalize md:text-right">
                     {anime.source ? anime.source.toLowerCase().replace(/_/g, ' ') : 'Original'}
                   </span>
                 </div>
 
                 {anime.favourites && (
                   <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
-                    <span className="text-[#8ba0b2] text-[11px] md:text-xs">Favorites</span>
-                    <span className="font-bold text-[#e85d75] flex items-center gap-1 md:justify-end">
-                      <Heart aria-hidden="true" className="w-3 h-3 fill-[#e85d75]" />
+                    <span className="text-[#666672] text-[11px] md:text-xs">Favorites</span>
+                    <span className="font-semibold text-rose-400 flex items-center gap-1 md:justify-end">
+                      <Heart aria-hidden="true" className="w-3 h-3 fill-rose-400" />
                       {anime.favourites.toLocaleString()}
                     </span>
                   </div>
@@ -593,16 +580,14 @@ export const AnimeDetailsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Synopsis, Navigation Tabs & Content */}
+          {/* Right Column: Synopsis, OpenLid Segmented Tabs & Content */}
           <div className="md:col-span-8 lg:col-span-9 space-y-6 min-w-0">
-
-            {/* Synopsis */}
-            <div className="space-y-2.5 p-4 sm:p-5 rounded-xl anilist-card-static">
-              <h2 className="text-xs font-bold text-[#edf1f5] uppercase tracking-wider">
+            <div className="space-y-2.5 p-5 rounded-2xl anilist-card-static">
+              <h2 className="text-[11px] font-mono font-semibold text-[#9a9aa6] uppercase tracking-wider">
                 Synopsis
               </h2>
               <p
-                className={`text-[#8ba0b2] text-xs sm:text-sm leading-relaxed ${
+                className={`text-[#c8c8d2] text-xs sm:text-sm leading-relaxed ${
                   !showFullSynopsis && 'line-clamp-4'
                 }`}
               >
@@ -610,17 +595,22 @@ export const AnimeDetailsPage: React.FC = () => {
               </p>
               {cleanSynopsis.length > 280 && (
                 <button
+                  type="button"
                   onClick={() => setShowFullSynopsis(!showFullSynopsis)}
-                  className="text-xs text-[#3db4f2] hover:underline font-bold flex items-center gap-1 transition pt-1"
+                  className="text-xs text-white hover:underline font-semibold flex items-center gap-1 transition pt-1 cursor-pointer"
                 >
                   <span>{showFullSynopsis ? 'Show less' : 'Read more'}</span>
-                  {showFullSynopsis ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  {showFullSynopsis ? (
+                    <ChevronUp aria-hidden="true" className="w-3.5 h-3.5" />
+                  ) : (
+                    <ChevronDown aria-hidden="true" className="w-3.5 h-3.5" />
+                  )}
                 </button>
               )}
             </div>
 
-            {/* Content Tabs (Swipeable on mobile, flex-wrap on tablet/desktop) */}
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-[#151f2e] border border-white/10 overflow-x-auto no-scrollbar touch-scroll-smooth flex-nowrap sm:flex-wrap">
+            {/* OpenLid-Style Segmented Pill Tabs */}
+            <div className="inline-flex max-w-full items-center gap-1 p-1 rounded-full bg-[#0b0b0d] border border-[#232329] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] overflow-x-auto no-scrollbar touch-scroll-smooth">
               {[
                 { id: 'overview', label: 'Overview', icon: Sparkles },
                 { id: 'characters', label: `Characters (${anime.characters?.edges?.length || 0})`, icon: Users },
@@ -630,15 +620,16 @@ export const AnimeDetailsPage: React.FC = () => {
                 const active = activeTab === tab.id;
                 return (
                   <button
+                    type="button"
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition flex-shrink-0 whitespace-nowrap active:scale-95 ${
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition flex-shrink-0 whitespace-nowrap cursor-pointer ${
                       active
-                        ? 'bg-[#3db4f2] text-white shadow-sm'
-                        : 'text-[#8ba0b2] hover:text-white hover:bg-white/[0.04]'
+                        ? 'bg-white text-black font-bold'
+                        : 'text-[#9a9aa6] hover:text-white'
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                    <Icon aria-hidden="true" className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>{tab.label}</span>
                   </button>
                 );

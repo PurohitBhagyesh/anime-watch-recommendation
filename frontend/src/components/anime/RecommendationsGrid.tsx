@@ -19,13 +19,13 @@ export const RecommendationsGrid: React.FC<RecommendationsGridProps> = ({
   if (validRecs.length === 0) return null;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <ThumbsUp className="w-4 h-4 text-[#3db4f2]" />
-        <h2 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">
+        <ThumbsUp aria-hidden="true" className="w-4 h-4 text-white" />
+        <h2 className="text-sm font-bold text-white tracking-tight">
           Community Recommendations
         </h2>
-        <span className="text-[11px] text-[#3db4f2] ml-auto font-bold">Similar Titles</span>
+        <span className="text-xs text-[#666672] ml-auto font-mono">Similar Titles</span>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
@@ -36,4 +36,3 @@ export const RecommendationsGrid: React.FC<RecommendationsGridProps> = ({
     </div>
   );
 };
-

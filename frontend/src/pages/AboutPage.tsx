@@ -80,8 +80,8 @@ export const AboutPage: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10 animate-fadeIn text-slate-300">
       {/* Header Banner */}
-      <div className="space-y-4 pb-8 border-b border-white/10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3db4f2]/10 border border-[#3db4f2]/30 text-[#3db4f2] text-xs font-bold">
+      <div className="space-y-4 pb-8 border-b border-[#232329]">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#151519] border border-[#3a3a44] text-white text-xs font-bold">
           <Sparkles className="w-3.5 h-3.5" />
           <span>About AnimeSenpai • Platform Mission & Transparency</span>
         </div>
@@ -101,7 +101,7 @@ export const AboutPage: React.FC = () => {
       </div>
 
       {/* Official Disambiguation & Authenticity Notice */}
-      <section className="p-5 sm:p-6 rounded-2xl bg-[#151f2e] border border-amber-500/30 relative overflow-hidden shadow-xl">
+      <section className="p-5 sm:p-6 rounded-2xl bg-[#0b0b0d] border border-amber-500/30 relative overflow-hidden shadow-xl">
         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
         <div className="flex flex-col sm:flex-row items-start gap-3.5 sm:gap-4">
           <div className="p-2.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400 flex-shrink-0">
@@ -125,12 +125,12 @@ export const AboutPage: React.FC = () => {
       {/* Mission & Key Highlights */}
       <section className="space-y-4">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <Zap className="w-5 h-5 text-[#3db4f2]" />
+          <Zap className="w-5 h-5 text-white" />
           Our Mission & Core Pillars
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-5 rounded-xl anilist-card-static space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-[#3db4f2]/20 border border-[#3db4f2]/30 flex items-center justify-center text-[#3db4f2]">
+            <div className="w-8 h-8 rounded-lg bg-[#151519] border border-[#3a3a44] flex items-center justify-center text-white">
               <Lock className="w-4 h-4" />
             </div>
             <h3 className="font-bold text-white text-sm">100% Ad-Free & Safe</h3>
@@ -190,7 +190,7 @@ export const AboutPage: React.FC = () => {
             <div className="flex items-start gap-3">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
               <div>
-                <strong className="text-white">DMCA & Copyright Takedowns:</strong> If you are a copyright owner or representative and wish to request removal of any specific metadata, links, or embed references, please contact us at <a href="mailto:contact@animesenpai.online" className="text-[#3db4f2] underline font-bold">contact@animesenpai.online</a> for immediate action within 24 hours.
+                <strong className="text-white">DMCA & Copyright Takedowns:</strong> If you are a copyright owner or representative and wish to request removal of any specific metadata, links, or embed references, please contact us at <a href="mailto:contact@animesenpai.online" className="text-white underline font-bold">contact@animesenpai.online</a> for immediate action within 24 hours.
               </div>
             </div>
           </div>
@@ -200,7 +200,7 @@ export const AboutPage: React.FC = () => {
       {/* Technology & Open Source */}
       <section className="space-y-4">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <Code2 className="w-5 h-5 text-[#3db4f2]" />
+          <Code2 className="w-5 h-5 text-white" />
           Technology & Open Source Heritage
         </h2>
         <div className="p-6 rounded-2xl anilist-card-static space-y-4">
@@ -208,19 +208,19 @@ export const AboutPage: React.FC = () => {
             AnimeSenpai is built using modern web standards for maximum speed, accessibility, and responsiveness:
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-            <div className="p-3 rounded-xl bg-[#0b1622] border border-white/5 text-center">
+            <div className="p-3 rounded-xl bg-[#0b0b0d] border border-[#232329] text-center">
               <span className="block text-xs font-bold text-white">React 19 & TypeScript</span>
               <span className="block text-[11px] text-slate-400 mt-0.5">Type-safe frontend</span>
             </div>
-            <div className="p-3 rounded-xl bg-[#0b1622] border border-white/5 text-center">
+            <div className="p-3 rounded-xl bg-[#0b0b0d] border border-[#232329] text-center">
               <span className="block text-xs font-bold text-white">Vite & Tailwind CSS</span>
               <span className="block text-[11px] text-slate-400 mt-0.5">Sub-second loading</span>
             </div>
-            <div className="p-3 rounded-xl bg-[#0b1622] border border-white/5 text-center">
+            <div className="p-3 rounded-xl bg-[#0b0b0d] border border-[#232329] text-center">
               <span className="block text-xs font-bold text-white">AniList GraphQL</span>
               <span className="block text-[11px] text-slate-400 mt-0.5">Live database sync</span>
             </div>
-            <div className="p-3 rounded-xl bg-[#0b1622] border border-white/5 text-center">
+            <div className="p-3 rounded-xl bg-[#0b0b0d] border border-[#232329] text-center">
               <span className="block text-xs font-bold text-white">Vercel & Cloudflare</span>
               <span className="block text-[11px] text-slate-400 mt-0.5">Global TLS 1.3 CDN</span>
             </div>
@@ -230,7 +230,7 @@ export const AboutPage: React.FC = () => {
               href="https://github.com/PurohitBhagyesh/anime-watch-recommendation"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#151f2e] hover:bg-[#1f2c3f] border border-white/10 text-xs font-bold text-white transition shadow"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0b0b0d] hover:bg-[#151519] border border-[#232329] text-xs font-bold text-white transition shadow"
             >
               <svg className="w-4 h-4 fill-current text-white" viewBox="0 0 24 24">
                 <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
@@ -242,7 +242,7 @@ export const AboutPage: React.FC = () => {
               href="https://anilist.co"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#151f2e] hover:bg-[#1f2c3f] border border-white/10 text-xs font-bold text-[#3db4f2] transition shadow"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0b0b0d] hover:bg-[#151519] border border-[#232329] text-xs font-bold text-white transition shadow"
             >
               <Globe className="w-4 h-4" />
               <span>AniList.co Official Portal</span>
@@ -255,7 +255,7 @@ export const AboutPage: React.FC = () => {
       {/* Creator & Contact Details */}
       <section className="space-y-4">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <Mail className="w-5 h-5 text-[#3db4f2]" />
+          <Mail className="w-5 h-5 text-white" />
           Contact & Community Support
         </h2>
         <div className="p-6 rounded-2xl anilist-card-static space-y-3 text-xs sm:text-sm text-slate-300">
@@ -267,7 +267,7 @@ export const AboutPage: React.FC = () => {
               <span className="text-slate-400">Email:</span>
               <a
                 href="mailto:contact@animesenpai.online"
-                className="text-[#3db4f2] hover:underline font-bold"
+                className="text-white hover:underline font-bold"
               >
                 contact@animesenpai.online
               </a>
@@ -281,7 +281,7 @@ export const AboutPage: React.FC = () => {
       </section>
 
       {/* Back to Home Action */}
-      <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="pt-6 border-t border-[#232329] flex flex-col sm:flex-row items-center justify-between gap-4">
         <Link
           to="/"
           className="px-5 py-2.5 rounded-xl anilist-btn-primary font-bold text-xs"

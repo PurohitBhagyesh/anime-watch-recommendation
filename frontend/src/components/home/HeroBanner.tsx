@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Play,
+  Pause,
   Info,
   Check,
   Plus,
   Tv,
   Smile,
-  Sparkles,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
@@ -26,12 +26,14 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
   const [slideDirection, setSlideDirection] = useState<'next' | 'prev'>('next');
   const [dragOffset, setDragOffset] = useState<number>(0);
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [isPaused, setIsPaused] = useState<boolean>(false);
+  const [isHoverPaused, setIsHoverPaused] = useState<boolean>(false);
+  const [userPaused, setUserPaused] = useState<boolean>(false);
+  const [hasInteracted, setHasInteracted] = useState<boolean>(false);
   const [trailerOpen, setTrailerOpen] = useState(false);
 
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLElement | null>(null);
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const isPointerDownRef = useRef<boolean>(false);
   const hasMovedRef = useRef<boolean>(false);
@@ -40,32 +42,41 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
   const isWheelLockedRef = useRef<boolean>(false);
   const wheelResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const isPaused = userPaused || isHoverPaused || trailerOpen;
   const currentAnime = spotlights[currentIndex] || anime;
 
-  // Slide navigation handlers
-  const goToNext = useCallback(() => {
-    if (spotlights.length <= 1) return;
-    setSlideDirection('next');
-    setCurrentIndex((prev) => (prev + 1) % spotlights.length);
-  }, [spotlights.length]);
+  const goToNext = useCallback(
+    (manual = false) => {
+      if (spotlights.length <= 1) return;
+      if (manual) setHasInteracted(true);
+      setSlideDirection('next');
+      setCurrentIndex((prev) => (prev + 1) % spotlights.length);
+    },
+    [spotlights.length]
+  );
 
-  const goToPrev = useCallback(() => {
-    if (spotlights.length <= 1) return;
-    setSlideDirection('prev');
-    setCurrentIndex((prev) => (prev - 1 + spotlights.length) % spotlights.length);
-  }, [spotlights.length]);
+  const goToPrev = useCallback(
+    (manual = false) => {
+      if (spotlights.length <= 1) return;
+      if (manual) setHasInteracted(true);
+      setSlideDirection('prev');
+      setCurrentIndex((prev) => (prev - 1 + spotlights.length) % spotlights.length);
+    },
+    [spotlights.length]
+  );
 
   const goToSlide = (idx: number) => {
     if (idx === currentIndex) return;
+    setHasInteracted(true);
     setSlideDirection(idx > currentIndex ? 'next' : 'prev');
     setCurrentIndex(idx);
   };
 
-  // Auto-advance banner every 6.5s when not paused
+  // Auto-advance every 6.5s when active
   useEffect(() => {
     if (spotlights.length <= 1 || isPaused) return;
     const interval = setInterval(() => {
-      goToNext();
+      goToNext(false);
     }, 6500);
     return () => clearInterval(interval);
   }, [spotlights.length, isPaused, goToNext]);
@@ -76,89 +87,64 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     if (!container || spotlights.length <= 1) return;
 
     const handleWheel = (e: WheelEvent) => {
-      // Check if horizontal swipe intent dominates vertical page scroll
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-        // Prevent native macOS browser history navigation (back/forward page swipe)
         e.preventDefault();
-
-        // Pause auto-advance during gesture
-        setIsPaused(true);
+        setIsHoverPaused(true);
         if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
 
-        // If locked during active slide animation, prevent multi-slide skipping
         if (isWheelLockedRef.current) return;
 
         accumulatedDeltaXRef.current += e.deltaX;
-
-        // Provide kinetic tactile feedback under finger motion
-        const clampedOffset = -Math.max(-75, Math.min(75, accumulatedDeltaXRef.current * 0.75));
+        const clampedOffset = -Math.max(-72, Math.min(72, accumulatedDeltaXRef.current * 0.72));
         setDragOffset(clampedOffset);
         setIsDragging(true);
 
-        if (wheelResetTimeoutRef.current) {
-          clearTimeout(wheelResetTimeoutRef.current);
-        }
+        if (wheelResetTimeoutRef.current) clearTimeout(wheelResetTimeoutRef.current);
 
         const GESTURE_THRESHOLD = 32;
-
         if (accumulatedDeltaXRef.current > GESTURE_THRESHOLD) {
-          // Trackpad swipe left (two fingers moving left) -> Next Spotlight
           isWheelLockedRef.current = true;
           accumulatedDeltaXRef.current = 0;
           setDragOffset(0);
           setIsDragging(false);
-          goToNext();
-
+          goToNext(true);
           setTimeout(() => {
             isWheelLockedRef.current = false;
-          }, 550);
-
-          resumeTimerRef.current = setTimeout(() => {
-            setIsPaused(false);
-          }, 4000);
+          }, 520);
+          resumeTimerRef.current = setTimeout(() => setIsHoverPaused(false), 3800);
         } else if (accumulatedDeltaXRef.current < -GESTURE_THRESHOLD) {
-          // Trackpad swipe right (two fingers moving right) -> Previous Spotlight
           isWheelLockedRef.current = true;
           accumulatedDeltaXRef.current = 0;
           setDragOffset(0);
           setIsDragging(false);
-          goToPrev();
-
+          goToPrev(true);
           setTimeout(() => {
             isWheelLockedRef.current = false;
-          }, 550);
-
-          resumeTimerRef.current = setTimeout(() => {
-            setIsPaused(false);
-          }, 4000);
+          }, 520);
+          resumeTimerRef.current = setTimeout(() => setIsHoverPaused(false), 3800);
         } else {
-          // Inertia dissipates without triggering threshold -> smoothly reset
           wheelResetTimeoutRef.current = setTimeout(() => {
             accumulatedDeltaXRef.current = 0;
             setDragOffset(0);
             setIsDragging(false);
-            resumeTimerRef.current = setTimeout(() => {
-              setIsPaused(false);
-            }, 3000);
+            resumeTimerRef.current = setTimeout(() => setIsHoverPaused(false), 2600);
           }, 150);
         }
       }
     };
 
-    // Note: { passive: false } is essential on macOS to allow e.preventDefault()
     container.addEventListener('wheel', handleWheel, { passive: false });
-
     return () => {
       container.removeEventListener('wheel', handleWheel);
       if (wheelResetTimeoutRef.current) clearTimeout(wheelResetTimeoutRef.current);
     };
   }, [spotlights.length, goToNext, goToPrev]);
 
-  // Keyboard left/right arrow navigation
+  // Keyboard arrow navigation when hero is visible and not inside interactive controls
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeTag = document.activeElement?.tagName.toLowerCase();
-      if (activeTag === 'input' || activeTag === 'textarea') return;
+      if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select') return;
 
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
@@ -166,9 +152,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
       if (!isVisible) return;
 
       if (e.key === 'ArrowRight') {
-        goToNext();
+        goToNext(true);
       } else if (e.key === 'ArrowLeft') {
-        goToPrev();
+        goToPrev(true);
       }
     };
 
@@ -180,7 +166,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
   const handleTouchStart = (e: React.TouchEvent) => {
     if (spotlights.length <= 1) return;
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-    setIsPaused(true);
+    setIsHoverPaused(true);
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
     hasMovedRef.current = false;
@@ -192,14 +178,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     const diffX = touch.clientX - touchStartRef.current.x;
     const diffY = touch.clientY - touchStartRef.current.y;
 
-    // Check if horizontal intent is stronger than vertical scroll
-    if (Math.abs(diffX) > Math.abs(diffY)) {
-      if (Math.abs(diffX) > 10) {
-        hasMovedRef.current = true;
-        setIsDragging(true);
-        // Apply smooth tactile resistance
-        setDragOffset(diffX * 0.55);
-      }
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 10) {
+      hasMovedRef.current = true;
+      setIsDragging(true);
+      setDragOffset(diffX * 0.55);
     }
   };
 
@@ -209,11 +191,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     const elapsed = Date.now() - touchStartRef.current.time;
     const velocity = Math.abs(drag) / (elapsed || 1);
 
-    // Threshold check: displacement or fast flick
-    if (drag < -40 || (drag < -20 && velocity > 0.25)) {
-      goToNext();
-    } else if (drag > 40 || (drag > 20 && velocity > 0.25)) {
-      goToPrev();
+    if (drag < -38 || (drag < -20 && velocity > 0.25)) {
+      goToNext(true);
+    } else if (drag > 38 || (drag > 20 && velocity > 0.25)) {
+      goToPrev(true);
     }
 
     setDragOffset(0);
@@ -222,20 +203,19 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
 
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
     resumeTimerRef.current = setTimeout(() => {
-      setIsPaused(false);
+      setIsHoverPaused(false);
       hasMovedRef.current = false;
-    }, 3000);
+    }, 2800);
   };
 
-  // Mouse / Pointer Drag Handlers (desktop mouse/pen only; touch is handled by touch events)
+  // Mouse / Pointer Drag Handlers
   const handlePointerDown = (e: React.PointerEvent) => {
     if (e.pointerType === 'touch' || e.button !== 0 || spotlights.length <= 1) return;
     const target = e.target as HTMLElement;
-    // Don't hijack clicks on buttons, links, or inputs
     if (target.closest('button') || target.closest('a')) return;
 
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-    setIsPaused(true);
+    setIsHoverPaused(true);
     isPointerDownRef.current = true;
     hasMovedRef.current = false;
     touchStartRef.current = { x: e.clientX, y: e.clientY, time: Date.now() };
@@ -281,10 +261,14 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     currentAnime?.coverImage?.large ||
     '/animesenpai-banner.svg';
 
+  const padIndex = (n: number) => String(n).padStart(2, '0');
+
   return (
     <>
-      <div
+      <section
         ref={containerRef}
+        aria-roledescription="carousel"
+        aria-label="Featured anime spotlight"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -293,14 +277,14 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
-        onMouseEnter={() => setIsPaused(true)}
+        onMouseEnter={() => setIsHoverPaused(true)}
         onMouseLeave={() => {
-          if (!isDragging) setIsPaused(false);
+          if (!isDragging) setIsHoverPaused(false);
         }}
         style={{ touchAction: 'pan-y' }}
-        className="relative w-full overflow-hidden min-h-[430px] sm:min-h-[500px] md:min-h-[560px] lg:min-h-[620px] flex items-end border-b border-white/[0.06] bg-[#070d16] group select-none cursor-grab active:cursor-grabbing"
+        className="relative w-full overflow-hidden min-h-[440px] sm:min-h-[520px] md:min-h-[570px] lg:min-h-[610px] flex items-end border-b border-[#232329] bg-[#000000] select-none cursor-grab active:cursor-grabbing"
       >
-        {/* Background Image with Kinetic Depth Parallax */}
+        {/* Background Artwork with Smooth Reveal + Parallax */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <img
             key={currentAnime.id}
@@ -311,25 +295,30 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
             fetchPriority="high"
             style={{
               transform: isDragging
-                ? `translate3d(${dragOffset * 0.15}px, 0, 0) scale(1.03)`
+                ? `translate3d(${dragOffset * 0.16}px, 0, 0) scale(1.03)`
                 : undefined,
-              transition: isDragging ? 'none' : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease',
+              transition: isDragging
+                ? 'none'
+                : 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
-            className="w-full h-full object-cover object-center filter brightness-[0.44] sm:brightness-[0.46] contrast-[1.08] animate-fadeIn will-change-transform"
+            className="w-full h-full object-cover object-center filter brightness-[0.42] sm:brightness-[0.44] contrast-[1.06] animate-hero-bg will-change-transform"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#070d16] via-[#070d16]/75 sm:via-[#070d16]/65 to-[#070d16]/15 sm:to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#070d16] via-[#070d16]/70 sm:via-[#070d16]/75 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/75 sm:via-[#000000]/65 to-[#000000]/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#000000] via-[#000000]/72 sm:via-[#000000]/75 to-transparent" />
         </div>
 
-        {/* Hero Interactive Content Box */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-6 sm:py-12 md:py-16 pointer-events-none">
+        {/* Hero Foreground Slide Content */}
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-7 sm:py-14 md:py-16 pointer-events-none">
           <div
             key={currentAnime.id}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`${currentIndex + 1} of ${spotlights.length}: ${title}`}
             style={{
               transform: isDragging ? `translate3d(${dragOffset}px, 0, 0)` : undefined,
-              transition: isDragging ? 'none' : 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+              transition: isDragging ? 'none' : 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
-            className={`max-w-3xl space-y-3 sm:space-y-4 pointer-events-auto will-change-transform ${
+            className={`max-w-3xl space-y-3.5 sm:space-y-4 pointer-events-auto will-change-transform ${
               isDragging
                 ? ''
                 : slideDirection === 'next'
@@ -337,44 +326,44 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                 : 'animate-hero-slide-left'
             }`}
           >
-            {/* Top Badges */}
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <span className="liquid-glass-pill flex items-center gap-1.5 px-3 py-1 rounded-full text-[#7dd3fc] text-[11px] sm:text-xs font-bold uppercase tracking-wider">
-                <Sparkles aria-hidden="true" className="w-3.5 h-3.5" />
-                Spotlight #{currentIndex + 1}
+            {/* OpenLid-Style Clean Monochrome Metadata Pills */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0b0b0d]/90 border border-[#232329] text-white text-[11px] font-mono font-semibold tracking-wider uppercase tabular-nums shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                Spotlight {padIndex(currentIndex + 1)} / {padIndex(spotlights.length)}
               </span>
 
               {currentAnime.averageScore && (
-                <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#7bd555]/15 border border-[#7bd555]/30 text-[#8be066] text-[11px] sm:text-xs font-bold backdrop-blur-xl shadow-sm">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/12 border border-emerald-500/30 text-[#4ade80] text-[11px] sm:text-xs font-semibold tabular-nums">
                   <Smile aria-hidden="true" className="w-3 h-3" />
                   <span>{currentAnime.averageScore}%</span>
                 </span>
               )}
 
               {currentAnime.format && (
-                <span className="liquid-glass-pill flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[#edf1f5] text-[11px] sm:text-xs font-medium">
-                  <Tv aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0b0b0d]/85 border border-[#232329] text-[#c8c8d2] text-[11px] sm:text-xs font-medium tabular-nums">
+                  <Tv aria-hidden="true" className="w-3 h-3 text-[#9a9aa6]" />
                   {currentAnime.format.replace('_', ' ')} ·{' '}
                   {currentAnime.episodes ? `${currentAnime.episodes} eps` : 'Airing'}
                 </span>
               )}
             </div>
 
-            {/* Title (clamped on mobile so ultra-long light-novel titles stay crisp) */}
+            {/* Editorial Title */}
             <h2
               title={title}
-              className="text-xl min-[400px]:text-2xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-[1.15] line-clamp-3 sm:line-clamp-2 drop-shadow-md break-words"
+              className="text-2xl min-[400px]:text-3xl sm:text-4xl md:text-[3.1rem] font-extrabold text-white tracking-[-0.035em] leading-[1.08] line-clamp-3 sm:line-clamp-2 break-words"
             >
               {title}
             </h2>
 
-            {/* Genres (max 3 on mobile, 4 on sm+) */}
+            {/* Genres (clean muted monochrome pills) */}
             {currentAnime.genres && currentAnime.genres.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {currentAnime.genres.slice(0, 4).map((genre, idx) => (
                   <span
                     key={genre}
-                    className={`text-[11px] sm:text-xs px-2.5 py-0.5 rounded-full bg-white/[0.07] border border-white/10 text-slate-200 font-medium backdrop-blur-md ${
+                    className={`text-[11px] sm:text-xs px-2.5 py-0.5 rounded-full bg-[#151519]/90 border border-[#232329] text-[#c8c8d2] font-medium ${
                       idx >= 3 ? 'hidden sm:inline-flex' : ''
                     }`}
                   >
@@ -385,13 +374,13 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
             )}
 
             {/* Synopsis */}
-            <p className="text-xs sm:text-sm text-slate-300/90 line-clamp-3 sm:line-clamp-4 leading-relaxed max-w-2xl">
+            <p className="text-[13px] sm:text-sm text-[#9a9aa6] line-clamp-3 leading-relaxed max-w-2xl">
               {cleanDescription}
             </p>
 
-            {/* Action CTAs */}
+            {/* OpenLid Inverted White Pill Primary CTA + Bordered Secondary Pills */}
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 pt-2">
-              {currentAnime.trailer?.id && (
+              {currentAnime.trailer?.id ? (
                 <button
                   type="button"
                   onClick={(e) => {
@@ -399,23 +388,36 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                     e.stopPropagation();
                     setTrailerOpen(true);
                   }}
-                  className="col-span-2 sm:col-span-1 anilist-btn-primary flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] text-xs sm:text-sm font-bold cursor-pointer"
+                  className="col-span-2 sm:col-span-1 anilist-btn-primary flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] text-xs sm:text-[13.5px] cursor-pointer"
                 >
-                  <Play aria-hidden="true" className="w-4 h-4 fill-current" />
+                  <Play aria-hidden="true" className="w-3.5 h-3.5 fill-current" />
                   <span>Watch Trailer</span>
                 </button>
+              ) : (
+                <Link
+                  to={`/anime/${currentAnime.id}`}
+                  onClick={(e) => {
+                    if (hasMovedRef.current) e.preventDefault();
+                  }}
+                  className="col-span-2 sm:col-span-1 anilist-btn-primary flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] text-xs sm:text-[13.5px]"
+                >
+                  <Info aria-hidden="true" className="w-3.5 h-3.5" />
+                  <span>Explore Anime</span>
+                </Link>
               )}
 
-              <Link
-                to={`/anime/${currentAnime.id}`}
-                onClick={(e) => {
-                  if (hasMovedRef.current) e.preventDefault();
-                }}
-                className="anilist-btn-secondary flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] text-xs sm:text-sm"
-              >
-                <Info aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
-                <span>View Details</span>
-              </Link>
+              {currentAnime.trailer?.id && (
+                <Link
+                  to={`/anime/${currentAnime.id}`}
+                  onClick={(e) => {
+                    if (hasMovedRef.current) e.preventDefault();
+                  }}
+                  className="anilist-btn-secondary flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] text-xs sm:text-[13.5px]"
+                >
+                  <Info aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
+                  <span>View Details</span>
+                </Link>
+              )}
 
               <button
                 type="button"
@@ -428,75 +430,96 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                     addToWatchlist(currentAnime, 'plan_to_watch');
                   }
                 }}
-                className={`flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl font-bold text-xs sm:text-sm border transition backdrop-blur-xl cursor-pointer ${
+                className={`flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-full font-semibold text-xs sm:text-[13.5px] border transition cursor-pointer ${
                   inWatchlist
-                    ? 'bg-[#7bd555]/20 border-[#7bd555]/45 text-[#8be066]'
-                    : 'anilist-btn-secondary text-[#edf1f5]'
+                    ? 'bg-emerald-500/15 border-emerald-500/35 text-[#4ade80]'
+                    : 'anilist-btn-secondary'
                 }`}
               >
                 {inWatchlist ? (
                   <>
-                    <Check aria-hidden="true" className="w-4 h-4 text-[#8be066]" />
+                    <Check aria-hidden="true" className="w-3.5 h-3.5" />
                     <span>In Watchlist</span>
                   </>
                 ) : (
                   <>
-                    <Plus aria-hidden="true" className="w-4 h-4 text-[#9fadbd]" />
+                    <Plus aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
                     <span>Add to List</span>
                   </>
                 )}
               </button>
             </div>
 
-            {/* Smooth Liquid Glass Slide Indicators & Desktop Arrows */}
+            {/* Monochrome Slide Controls, Indicators & WCAG Pause Button */}
             {spotlights.length > 1 && (
               <div className="flex items-center justify-between gap-3 pt-3">
-                <div className="liquid-glass-pill inline-flex items-center gap-1 px-2 py-1 rounded-full">
-                  {spotlights.map((_, idx) => {
-                    const isCurrent = idx === currentIndex;
-                    return (
-                      <button
-                        type="button"
-                        key={idx}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          goToSlide(idx);
-                        }}
-                        className="min-w-[24px] h-7 px-1 flex items-center justify-center group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3db4f2] rounded-full cursor-pointer"
-                        aria-label={`Go to slide ${idx + 1}`}
-                        aria-current={isCurrent ? 'true' : undefined}
-                      >
-                        <div
-                          className={`relative h-1.5 rounded-full overflow-hidden transition-all duration-300 ${
-                            isCurrent
-                              ? 'w-9 bg-white/25'
-                              : 'w-2 bg-white/30 group-hover:bg-white/60'
-                          }`}
+                <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#0b0b0d]/90 border border-[#232329] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setUserPaused((p) => !p);
+                    }}
+                    aria-label={userPaused ? 'Play slideshow' : 'Pause slideshow'}
+                    title={userPaused ? 'Play slideshow' : 'Pause slideshow'}
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-[#9a9aa6] hover:text-white hover:bg-[#151519] transition cursor-pointer focus-visible:outline-2 focus-visible:outline-white"
+                  >
+                    {userPaused ? (
+                      <Play aria-hidden="true" className="w-3 h-3 fill-current" />
+                    ) : (
+                      <Pause aria-hidden="true" className="w-3 h-3 fill-current" />
+                    )}
+                  </button>
+
+                  <span className="w-px h-3.5 bg-[#232329] mx-0.5" aria-hidden="true" />
+
+                  <nav aria-label="Choose spotlight slide" className="inline-flex items-center">
+                    {spotlights.map((item, idx) => {
+                      const isCurrent = idx === currentIndex;
+                      return (
+                        <button
+                          type="button"
+                          key={item.id ?? idx}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            goToSlide(idx);
+                          }}
+                          className="min-w-[26px] h-7 px-1 flex items-center justify-center group focus-visible:outline-2 focus-visible:outline-white rounded-full cursor-pointer"
+                          aria-label={`Go to slide ${idx + 1} of ${spotlights.length}`}
+                          aria-current={isCurrent ? 'true' : undefined}
                         >
-                          {isCurrent && (
-                            <span
-                              key={`${currentIndex}-${isPaused ? 'paused' : 'play'}`}
-                              className={`absolute inset-0 rounded-full bg-[#3db4f2] ${
-                                isPaused ? 'w-full' : 'animate-hero-progress'
-                              }`}
-                            />
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
+                          <span
+                            className={`relative block h-1.5 rounded-full overflow-hidden transition-all duration-300 ${
+                              isCurrent
+                                ? 'w-8 bg-white/25'
+                                : 'w-2 bg-white/30 group-hover:bg-white/60'
+                            }`}
+                          >
+                            {isCurrent && (
+                              <span
+                                key={`${currentIndex}-${isPaused ? 'paused' : 'play'}`}
+                                className={`absolute inset-0 rounded-full bg-white ${
+                                  isPaused ? 'w-full' : 'animate-hero-progress'
+                                }`}
+                              />
+                            )}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </nav>
                 </div>
 
-                {/* Desktop Liquid Glass Slider Controls */}
+                {/* Desktop Prev / Next Monochrome Arrows */}
                 <div className="hidden sm:flex items-center gap-2">
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      goToPrev();
+                      goToPrev(true);
                     }}
                     aria-label="Previous featured anime"
-                    className="liquid-glass-pill w-9 h-9 rounded-full flex items-center justify-center text-slate-200 hover:text-white cursor-pointer active:scale-95"
+                    className="w-9 h-9 rounded-full bg-[#0b0b0d]/90 hover:bg-[#151519] border border-[#232329] hover:border-[#3a3a44] flex items-center justify-center text-[#c8c8d2] hover:text-white transition cursor-pointer active:scale-95"
                   >
                     <ChevronLeft aria-hidden="true" className="w-4 h-4" />
                   </button>
@@ -504,10 +527,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      goToNext();
+                      goToNext(true);
                     }}
                     aria-label="Next featured anime"
-                    className="liquid-glass-pill w-9 h-9 rounded-full flex items-center justify-center text-slate-200 hover:text-white cursor-pointer active:scale-95"
+                    className="w-9 h-9 rounded-full bg-[#0b0b0d]/90 hover:bg-[#151519] border border-[#232329] hover:border-[#3a3a44] flex items-center justify-center text-[#c8c8d2] hover:text-white transition cursor-pointer active:scale-95"
                   >
                     <ChevronRight aria-hidden="true" className="w-4 h-4" />
                   </button>
@@ -516,9 +539,13 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
             )}
           </div>
         </div>
-      </div>
 
-      {/* Trailer Modal */}
+        {/* Visually hidden polite live region announcing slide changes after user interaction */}
+        <p className="sr-only" role="status" aria-live="polite">
+          {hasInteracted ? `Slide ${currentIndex + 1} of ${spotlights.length}: ${title}` : ''}
+        </p>
+      </section>
+
       <TrailerModal
         isOpen={trailerOpen}
         onClose={() => setTrailerOpen(false)}
@@ -528,4 +555,5 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     </>
   );
 };
+
 export default HeroBanner;

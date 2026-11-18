@@ -39,7 +39,6 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
     { id: 'dropped', label: 'Dropped' },
   ];
 
-  // Helper for countdown
   const formatTimeUntilAiring = (seconds: number) => {
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
@@ -151,15 +150,15 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
       ref={cardRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`group relative flex flex-col anilist-card h-full transition-all duration-200 ${
+      className={`group relative flex flex-col anilist-card h-full ${
         isPopupVisible || showStatusMenu ? 'z-40' : 'z-10'
       }`}
     >
       {/* Poster Image Container */}
-      <div ref={posterRef} className="relative aspect-[185/265] w-full bg-[#0b131f] rounded-t-[13px]">
+      <div ref={posterRef} className="relative aspect-[185/265] w-full bg-[#151519] rounded-t-[15px]">
         <Link
           to={`/anime/${anime.id}`}
-          className="block w-full h-full overflow-hidden rounded-t-[13px]"
+          className="block w-full h-full overflow-hidden rounded-t-[15px]"
           aria-label={`View details for ${title}`}
         >
           {isVisible ? (
@@ -174,14 +173,14 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
               className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300 ease-out"
             />
           ) : (
-            <div className="w-full h-full bg-[#11161d]" />
+            <div className="w-full h-full bg-[#151519]" />
           )}
         </Link>
 
         {/* Top Badges */}
-        <div className="absolute top-1.5 left-1.5 right-1.5 sm:top-2 sm:left-2 sm:right-2 flex items-center justify-between gap-1 pointer-events-none z-20">
+        <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-1 pointer-events-none z-20">
           {anime.format ? (
-            <div className="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-[#0b1622]/85 text-[#edf1f5] backdrop-blur-md uppercase tracking-tight shadow truncate max-w-[48%]">
+            <div className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-semibold bg-black/80 text-white border border-white/10 backdrop-blur-md uppercase tracking-wide truncate max-w-[48%]">
               {anime.format.replace('_', ' ')}
             </div>
           ) : (
@@ -191,7 +190,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
           <div className="flex items-center gap-1 flex-shrink-0">
             {anime.averageScore ? (
               <div
-                className={`flex items-center gap-0.5 sm:gap-1 px-1.5 py-0.5 rounded text-[10px] sm:text-[11px] font-bold backdrop-blur-md shadow-md ${getScoreBadgeClass(
+                className={`flex items-center gap-0.5 sm:gap-1 px-1.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold backdrop-blur-md tabular-nums ${getScoreBadgeClass(
                   anime.averageScore
                 )}`}
               >
@@ -200,13 +199,13 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
               </div>
             ) : null}
 
-            {/* Touch Preview Trigger Button (Mobile visible, side-by-side with score so they never overlap) */}
+            {/* Mobile Quick Preview Trigger */}
             <button
               type="button"
               onClick={handleTouchToggle}
-              className="sm:hidden pointer-events-auto w-6 h-6 rounded-full bg-[#0b1622]/90 text-[#3db4f2] flex items-center justify-center border border-white/15 shadow-md active:scale-95"
+              className="sm:hidden pointer-events-auto w-6 h-6 rounded-full bg-black/85 text-white flex items-center justify-center border border-white/20 active:scale-95"
               aria-label={`Preview details for ${title}`}
-              title="Tap for quick preview"
+              title="Quick preview"
             >
               <Sparkles aria-hidden="true" className="w-3 h-3" />
             </button>
@@ -215,19 +214,18 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
 
         {/* Next Airing Episode Banner */}
         {anime.nextAiringEpisode && (
-          <div className="absolute bottom-2 left-1.5 sm:left-2 z-10 pointer-events-none max-w-[calc(100%-3.25rem)]">
-            <div className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded bg-[#0b1622]/90 border border-[#7bd555]/40 text-[#7bd555] text-[9px] sm:text-[10px] font-bold backdrop-blur-md truncate shadow">
+          <div className="absolute bottom-2 left-2 z-10 pointer-events-none max-w-[calc(100%-3.25rem)]">
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/85 border border-emerald-500/35 text-[#4ade80] text-[9px] sm:text-[10px] font-semibold backdrop-blur-md truncate tabular-nums">
               <Clock aria-hidden="true" className="w-2.5 h-2.5 flex-shrink-0" />
               <span className="truncate">
-                Ep {anime.nextAiringEpisode.episode} in{' '}
-                {formatTimeUntilAiring(anime.nextAiringEpisode.timeUntilAiring)}
+                Ep {anime.nextAiringEpisode.episode} · {formatTimeUntilAiring(anime.nextAiringEpisode.timeUntilAiring)}
               </span>
             </div>
           </div>
         )}
 
-        {/* Quick Add Button & Popover (Positioned outside Link, safe from overflow clipping) */}
-        <div className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 z-30 pointer-events-auto">
+        {/* Quick Add Button & Monochrome Popover */}
+        <div className="absolute bottom-2 right-2 z-30 pointer-events-auto">
           <div className="relative">
             <button
               type="button"
@@ -238,18 +236,21 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
                 setIsHovered(false);
                 setShowTouchPopup(false);
               }}
-              className={`w-8 h-8 rounded-md flex items-center justify-center backdrop-blur-md transition-all shadow-md active:scale-95 cursor-pointer ${
+              className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-lg active:scale-95 cursor-pointer ${
                 inWatchlist
-                  ? 'bg-[#7bd555] text-[#0b1622] font-bold'
-                  : 'bg-[#0b1622]/85 text-[#edf1f5] hover:text-white hover:bg-[#3db4f2] border border-white/10'
+                  ? 'bg-emerald-500 text-black font-bold'
+                  : 'bg-black/85 text-white hover:bg-white hover:text-black border border-white/20'
               }`}
               title={inWatchlist ? `In List (${currentItem?.status})` : 'Add to List'}
               aria-label={`Manage watchlist status for ${title}`}
             >
-              {inWatchlist ? <Check aria-hidden="true" className="w-4 h-4 stroke-[3]" /> : <Plus aria-hidden="true" className="w-4 h-4" />}
+              {inWatchlist ? (
+                <Check aria-hidden="true" className="w-4 h-4 stroke-[3]" />
+              ) : (
+                <Plus aria-hidden="true" className="w-4 h-4" />
+              )}
             </button>
 
-            {/* Status Selector Dropdown */}
             {showStatusMenu && (
               <>
                 <div
@@ -260,8 +261,8 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
                     setShowStatusMenu(false);
                   }}
                 />
-                <div className="absolute bottom-10 right-0 z-50 w-36 sm:w-40 p-1.5 rounded-xl bg-[#151f2e] border border-white/15 shadow-2xl space-y-0.5 animate-fadeIn">
-                  <div className="text-[10px] uppercase font-bold text-[#8ba0b2] px-2 py-1 tracking-wider border-b border-white/10">
+                <div className="absolute bottom-10 right-0 z-50 w-40 p-1.5 rounded-2xl bg-[#0b0b0d] border border-[#232329] shadow-2xl space-y-0.5 animate-fadeIn">
+                  <div className="text-[10px] uppercase font-mono font-semibold text-[#666672] px-2.5 py-1 tracking-wider border-b border-[#232329]">
                     Set Status
                   </div>
                   {statusLabels.map((st) => (
@@ -274,14 +275,14 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
                         addToWatchlist(anime, st.id);
                         setShowStatusMenu(false);
                       }}
-                      className={`w-full text-left px-2.5 py-1.5 text-xs rounded-lg flex items-center justify-between font-semibold transition cursor-pointer ${
+                      className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl flex items-center justify-between font-medium transition cursor-pointer ${
                         currentItem?.status === st.id
-                          ? 'bg-[#3db4f2] text-white shadow-sm'
-                          : 'text-[#edf1f5] hover:bg-white/10'
+                          ? 'bg-white text-black font-bold'
+                          : 'text-[#c8c8d2] hover:bg-[#151519] hover:text-white'
                       }`}
                     >
                       <span>{st.label}</span>
-                      {currentItem?.status === st.id && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                      {currentItem?.status === st.id && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                     </button>
                   ))}
                   {inWatchlist && (
@@ -293,7 +294,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
                         removeFromWatchlist(anime.id);
                         setShowStatusMenu(false);
                       }}
-                      className="w-full text-left px-2.5 py-1.5 text-xs text-[#e85d75] hover:bg-[#e85d75]/20 rounded-lg transition font-medium border-t border-white/10 mt-1 cursor-pointer"
+                      className="w-full text-left px-2.5 py-1.5 text-xs text-rose-400 hover:bg-rose-500/15 rounded-xl transition font-medium border-t border-[#232329] mt-1 cursor-pointer"
                     >
                       Remove from list
                     </button>
@@ -306,35 +307,35 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
       </div>
 
       {/* Info Card Content */}
-      <div className="p-2.5 sm:p-3 flex flex-col flex-1 justify-between gap-1.5 min-w-0">
+      <div className="p-2.5 sm:p-3 flex flex-col flex-1 justify-between gap-2 min-w-0">
         <div className="min-w-0">
           <Link
             to={`/anime/${anime.id}`}
-            className="font-semibold text-xs sm:text-sm text-[#edf1f5] group-hover:text-[#3db4f2] line-clamp-2 transition leading-snug min-h-[2.2rem] sm:min-h-[2.5rem]"
+            className="font-semibold text-xs sm:text-[13.5px] text-white group-hover:text-[#e4e4ec] line-clamp-2 transition leading-snug min-h-[2.15rem] sm:min-h-[2.45rem]"
             title={title}
           >
             {title}
           </Link>
           {studioName ? (
-            <p className="text-[11px] text-[#8ba0b2] mt-0.5 truncate font-medium">
+            <p className="text-[11px] text-[#666672] mt-0.5 truncate font-medium">
               {studioName}
             </p>
           ) : (
-            <p className="text-[11px] text-transparent mt-0.5 truncate font-medium select-none pointer-events-none">
+            <p className="text-[11px] text-transparent mt-0.5 truncate select-none pointer-events-none">
               &nbsp;
             </p>
           )}
         </div>
 
         {/* Bottom meta row */}
-        <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-[#8ba0b2] pt-1.5 border-t border-white/[0.04]">
+        <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-[#9a9aa6] pt-1.5 border-t border-[#232329] tabular-nums">
           <div className="flex items-center gap-1 min-w-0 truncate">
-            <Calendar aria-hidden="true" className="w-3 h-3 text-[#8ba0b2] flex-shrink-0" />
+            <Calendar aria-hidden="true" className="w-3 h-3 text-[#666672] flex-shrink-0" />
             <span className="truncate">{anime.seasonYear || (anime.season ? `${anime.season}` : 'TBA')}</span>
           </div>
 
           <div className="flex items-center gap-1 flex-shrink-0">
-            <Tv aria-hidden="true" className="w-3 h-3 text-[#8ba0b2] flex-shrink-0" />
+            <Tv aria-hidden="true" className="w-3 h-3 text-[#666672] flex-shrink-0" />
             <span className="whitespace-nowrap">
               {anime.episodes ? `${anime.episodes} eps` : anime.status === 'RELEASING' ? 'Airing' : 'Movie'}
             </span>
@@ -342,7 +343,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
         </div>
       </div>
 
-      {/* Desktop Hover Preview Popup */}
+      {/* Desktop Hover Preview Popup (OpenLid Obsidian Glass) */}
       {isHovered && !showTouchPopup && !showStatusMenu && placement !== 'center' && (
         <div
           onMouseEnter={() => {
@@ -350,36 +351,35 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
             setIsHovered(true);
           }}
           onMouseLeave={handleMouseLeave}
-          className={`hidden sm:block absolute z-50 p-4 rounded-xl bg-[#151f2e] border border-[#223348] shadow-2xl space-y-2.5 animate-fadeIn pointer-events-auto transition-all w-[270px] top-2 ${
+          className={`hidden sm:block absolute z-50 p-4 rounded-2xl bg-[#0b0b0d] border border-[#3a3a44] shadow-2xl space-y-2.5 animate-fadeIn pointer-events-auto w-[272px] top-2 ${
             placement === 'left' ? 'right-[calc(100%+10px)]' : 'left-[calc(100%+10px)]'
           }`}
-          style={{ filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.6))' }}
         >
           <div className="flex items-start justify-between gap-2">
-            <span className="font-extrabold text-sm text-[#edf1f5] tracking-tight line-clamp-2 leading-snug" title={title}>
+            <span className="font-bold text-sm text-white tracking-tight line-clamp-2 leading-snug" title={title}>
               {title}
             </span>
             {anime.averageScore ? (
-              <div className="flex items-center gap-1.5 text-xs font-bold text-[#7bd555] flex-shrink-0 pt-0.5">
-                <Smile aria-hidden="true" className="w-4 h-4 fill-[#7bd555]/20 stroke-[#7bd555]" />
+              <div className="flex items-center gap-1 text-xs font-bold text-[#4ade80] flex-shrink-0 pt-0.5 tabular-nums">
+                <Smile aria-hidden="true" className="w-3.5 h-3.5" />
                 <span>{anime.averageScore}%</span>
               </div>
             ) : null}
           </div>
 
           {studioName ? (
-            <div className="text-xs font-bold text-[#00c4d6] truncate">
+            <div className="text-xs font-medium text-[#c8c8d2] truncate">
               {studioName}
             </div>
           ) : null}
 
-          <div className="text-xs text-[#8ba0b2] font-medium flex items-center flex-wrap gap-1.5">
+          <div className="text-xs text-[#9a9aa6] flex items-center flex-wrap gap-1.5 tabular-nums">
             <span>{formatLabel}</span>
-            <span>•</span>
+            <span>·</span>
             <span>{episodeLabel}</span>
             {formatSeasonText() && (
               <>
-                <span>•</span>
+                <span>·</span>
                 <span>{formatSeasonText()}</span>
               </>
             )}
@@ -395,9 +395,9 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
                     e.stopPropagation();
                     setIsHovered(false);
                   }}
-                  className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#00c4d6] hover:bg-[#00a8ba] text-[#0b1622] lowercase transition duration-150 shadow-sm"
+                  className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#151519] hover:bg-white text-[#c8c8d2] hover:text-black border border-[#232329] transition"
                 >
-                  {genre.toLowerCase()}
+                  {genre}
                 </Link>
               ))}
             </div>
@@ -405,12 +405,12 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
         </div>
       )}
 
-      {/* Mobile Touch Preview Modal rendered via Portal so it never clips inside carousels */}
+      {/* Mobile Touch Preview Modal rendered via Portal */}
       {showTouchPopup && !showStatusMenu && typeof document !== 'undefined' &&
         createPortal(
           <div className="fixed inset-0 z-[99980] flex items-center justify-center p-4 sm:hidden animate-fadeIn">
             <div
-              className="fixed inset-0 bg-black/65 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/75 backdrop-blur-sm"
               onClick={() => setShowTouchPopup(false)}
               aria-hidden="true"
             />
@@ -418,17 +418,17 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
               role="dialog"
               aria-modal="true"
               aria-label={`${title} quick preview`}
-              className="relative z-10 w-[min(92dvw,340px)] max-h-[85dvh] overflow-y-auto p-4 rounded-2xl bg-[#151f2e] border border-[#223348] shadow-2xl space-y-3"
+              className="relative z-10 w-[min(92dvw,340px)] max-h-[85dvh] overflow-y-auto p-4 rounded-2xl bg-[#0b0b0d] border border-[#3a3a44] shadow-2xl space-y-3"
             >
               <div className="flex items-start justify-between gap-2">
-                <span className="font-extrabold text-sm text-[#edf1f5] tracking-tight leading-snug">
+                <span className="font-bold text-sm text-white tracking-tight leading-snug">
                   {title}
                 </span>
                 <button
                   type="button"
                   onClick={() => setShowTouchPopup(false)}
                   aria-label="Close preview"
-                  className="p-1.5 -mt-1 -mr-1 rounded-lg text-[#8ba0b2] hover:text-white hover:bg-white/10 flex-shrink-0"
+                  className="p-1.5 -mt-1 -mr-1 rounded-full text-[#9a9aa6] hover:text-white hover:bg-[#151519] flex-shrink-0"
                 >
                   <X aria-hidden="true" className="w-4 h-4" />
                 </button>
@@ -436,27 +436,27 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
 
               <div className="flex items-center justify-between gap-2">
                 {studioName ? (
-                  <div className="text-xs font-bold text-[#00c4d6] truncate">
+                  <div className="text-xs font-medium text-[#c8c8d2] truncate">
                     {studioName}
                   </div>
                 ) : (
                   <div />
                 )}
                 {anime.averageScore ? (
-                  <div className="flex items-center gap-1 text-xs font-bold text-[#7bd555] flex-shrink-0">
-                    <Smile aria-hidden="true" className="w-4 h-4 fill-[#7bd555]/20 stroke-[#7bd555]" />
+                  <div className="flex items-center gap-1 text-xs font-bold text-[#4ade80] flex-shrink-0 tabular-nums">
+                    <Smile aria-hidden="true" className="w-3.5 h-3.5" />
                     <span>{anime.averageScore}%</span>
                   </div>
                 ) : null}
               </div>
 
-              <div className="text-xs text-[#8ba0b2] font-medium flex items-center flex-wrap gap-1.5">
+              <div className="text-xs text-[#9a9aa6] flex items-center flex-wrap gap-1.5 tabular-nums">
                 <span>{formatLabel}</span>
-                <span>•</span>
+                <span>·</span>
                 <span>{episodeLabel}</span>
                 {formatSeasonText() && (
                   <>
-                    <span>•</span>
+                    <span>·</span>
                     <span>{formatSeasonText()}</span>
                   </>
                 )}
@@ -469,19 +469,19 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
                       key={genre}
                       to={`/discover?genre=${encodeURIComponent(genre)}`}
                       onClick={() => setShowTouchPopup(false)}
-                      className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#00c4d6] text-[#0b1622] lowercase shadow-sm"
+                      className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#151519] border border-[#232329] text-[#c8c8d2]"
                     >
-                      {genre.toLowerCase()}
+                      {genre}
                     </Link>
                   ))}
                 </div>
               )}
 
-              <div className="pt-2 border-t border-white/10">
+              <div className="pt-2 border-t border-[#232329]">
                 <Link
                   to={`/anime/${anime.id}`}
                   onClick={() => setShowTouchPopup(false)}
-                  className="w-full py-2.5 rounded-xl anilist-btn-primary text-xs font-bold flex items-center justify-center"
+                  className="w-full py-2.5 anilist-btn-primary text-xs font-bold flex items-center justify-center"
                 >
                   View Full Details
                 </Link>
@@ -493,4 +493,3 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
     </div>
   );
 };
-

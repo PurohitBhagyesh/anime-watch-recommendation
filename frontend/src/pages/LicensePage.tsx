@@ -36,8 +36,8 @@ export const LicensePage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-8 animate-fadeIn text-slate-300">
-      <div className="space-y-3 pb-6 border-b border-white/10">
-        <div className="liquid-glass-pill inline-flex items-center gap-2 px-3 py-1 rounded-full text-[#7dd3fc] text-xs font-bold">
+      <div className="space-y-3 pb-6 border-b border-[#232329]">
+        <div className="liquid-glass-pill inline-flex items-center gap-2 px-3 py-1 rounded-full text-[#c8c8d2] text-xs font-bold">
           <Scale aria-hidden="true" className="w-3.5 h-3.5" />
           <span>Open Source & Attribution</span>
         </div>
@@ -52,7 +52,7 @@ export const LicensePage: React.FC = () => {
       {/* MIT License */}
       <section className="space-y-3">
         <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <FileCode2 aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
+          <FileCode2 aria-hidden="true" className="w-4 h-4 text-white" />
           1. AnimeSenpai Software License (MIT)
         </h2>
         <div className="anilist-card-static p-5 sm:p-6 space-y-3 text-xs leading-relaxed font-mono text-slate-300">
@@ -72,7 +72,7 @@ export const LicensePage: React.FC = () => {
       {/* Anime Data & Media Attribution */}
       <section className="space-y-3">
         <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <Database aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
+          <Database aria-hidden="true" className="w-4 h-4 text-white" />
           2. Anime Database & Media Attribution
         </h2>
         <div className="anilist-card-static p-5 sm:p-6 space-y-3 text-xs sm:text-sm leading-relaxed">
@@ -82,7 +82,7 @@ export const LicensePage: React.FC = () => {
               href="https://anilist.co"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#3db4f2] hover:underline font-semibold inline-flex items-center gap-1"
+              className="text-white hover:underline font-semibold inline-flex items-center gap-1"
             >
               AniList GraphQL API
               <ExternalLink aria-hidden="true" className="w-3 h-3" />
@@ -101,7 +101,7 @@ export const LicensePage: React.FC = () => {
       {/* Third-Party Open Source Libraries */}
       <section className="space-y-3">
         <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <Code2 aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
+          <Code2 aria-hidden="true" className="w-4 h-4 text-white" />
           3. Third-Party Open Source Components
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -111,7 +111,7 @@ export const LicensePage: React.FC = () => {
                 <p className="text-xs sm:text-sm font-bold text-white truncate">{pkg.name}</p>
                 <p className="text-[11px] text-slate-400">{pkg.purpose}</p>
               </div>
-              <span className="px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/10 text-[10px] font-mono font-bold text-[#7dd3fc] flex-shrink-0">
+              <span className="px-2.5 py-1 rounded-full bg-white/[0.06] border border-[#232329] text-[10px] font-mono font-bold text-[#c8c8d2] flex-shrink-0">
                 {pkg.license}
               </span>
             </div>
@@ -128,7 +128,7 @@ export const LicensePage: React.FC = () => {
         <div className="anilist-card-static p-5 sm:p-6 text-xs sm:text-sm leading-relaxed space-y-2">
           <p>
             If you are a rights holder and want any specific reference, metadata entry, or external link reviewed or removed, contact{' '}
-            <a href="mailto:contact@animesenpai.online" className="text-[#3db4f2] hover:underline font-semibold">
+            <a href="mailto:contact@animesenpai.online" className="text-white hover:underline font-semibold">
               contact@animesenpai.online
             </a>
             . Valid notices are processed within 24 hours.
@@ -136,7 +136,7 @@ export const LicensePage: React.FC = () => {
         </div>
       </section>
 
-      <div className="pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="pt-6 border-t border-[#232329] flex flex-wrap items-center justify-between gap-3 text-xs">
         <Link to="/" className="anilist-btn-secondary px-4 py-2 text-xs font-bold">
           ← Return Home
         </Link>

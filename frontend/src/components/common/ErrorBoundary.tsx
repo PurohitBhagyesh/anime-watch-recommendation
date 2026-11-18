@@ -37,42 +37,44 @@ export class ErrorBoundary extends Component<Props, State> {
       localStorage.removeItem('animesenpai_home_data');
     } catch {}
     this.setState({ hasError: false, error: null });
-    window.location.hash = '#/';
+    window.location.href = '/';
   };
 
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-[70vh] flex items-center justify-center px-4 py-16">
-          <div className="max-w-md w-full text-center space-y-6 bg-[#151f2e] border border-white/10 rounded-2xl p-8 shadow-2xl backdrop-blur-xl">
+        <div className="min-h-[70dvh] flex items-center justify-center px-4 py-16">
+          <div className="max-w-md w-full text-center space-y-6 bg-[#0b0b0d] border border-[#232329] rounded-2xl p-8 shadow-2xl">
             <div className="flex justify-center">
-              <AppLogo size={52} />
+              <AppLogo size={44} />
             </div>
 
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 text-rose-400 text-xs font-bold uppercase tracking-wider bg-rose-500/10 px-3 py-1 rounded-full border border-rose-500/20">
-                <AlertOctagon className="w-3.5 h-3.5" />
+              <div className="inline-flex items-center gap-2 text-rose-400 text-xs font-semibold uppercase tracking-wider bg-rose-500/10 px-3 py-1 rounded-full border border-rose-500/25">
+                <AlertOctagon aria-hidden="true" className="w-3.5 h-3.5" />
                 <span>Application Notice</span>
               </div>
               <h2 className="text-xl font-bold text-white">Something went unexpectedly</h2>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                We encountered an unexpected rendering error. Your data and watchlists are safe.
+              <p className="text-xs text-[#9a9aa6] leading-relaxed">
+                We encountered an unexpected rendering error. Your watchlist and preferences remain safe.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <button
+                type="button"
                 onClick={this.handleReload}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#3db4f2] hover:bg-[#2ba2e0] text-white text-xs font-bold transition shadow-lg shadow-[#3db4f2]/20 active:scale-95"
+                className="w-full sm:w-auto anilist-btn-primary inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs cursor-pointer"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
+                <RefreshCw aria-hidden="true" className="w-3.5 h-3.5" />
                 <span>Reload Page</span>
               </button>
               <button
+                type="button"
                 onClick={this.handleGoHome}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-bold border border-white/10 transition active:scale-95"
+                className="w-full sm:w-auto anilist-btn-secondary inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs cursor-pointer"
               >
-                <Home className="w-3.5 h-3.5" />
+                <Home aria-hidden="true" className="w-3.5 h-3.5" />
                 <span>Go to Home</span>
               </button>
             </div>
