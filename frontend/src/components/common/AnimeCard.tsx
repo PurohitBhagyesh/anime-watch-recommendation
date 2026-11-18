@@ -11,7 +11,41 @@ interface AnimeCardProps {
   priority?: boolean;
 }
 
-export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false }) => {
+const STATUS_LABELS: { id: WatchlistStatus; label: string }[] = [
+  { id: 'watching', label: 'Watching' },
+  { id: 'plan_to_watch', label: 'Planning' },
+  { id: 'completed', label: 'Completed' },
+  { id: 'rewatching', label: 'Rewatching' },
+  { id: 'paused', label: 'Paused' },
+  { id: 'dropped', label: 'Dropped' },
+];
+
+const FORMAT_MAP: Record<string, string> = {
+  TV: 'TV Show',
+  TV_SHORT: 'TV Short',
+  MOVIE: 'Movie',
+  SPECIAL: 'Special',
+  OVA: 'OVA',
+  ONA: 'ONA',
+  MUSIC: 'Music',
+};
+
+const getScoreBadgeClass = (score: number | null) => {
+  if (!score) return '';
+  if (score >= 75) return 'score-pill-high';
+  if (score >= 60) return 'score-pill-med';
+  return 'score-pill-low';
+};
+
+const formatTimeUntilAiring = (seconds: number) => {
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  if (days > 0) return `${days}d ${hours}h`;
+  const mins = Math.floor((seconds % 3600) / 60);
+  return `${hours}h ${mins}m`;
+};
+
+const AnimeCardComponent: React.FC<AnimeCardProps> = ({ anime, priority = false }) => {
   const { isInWatchlist, getItem, addToWatchlist, removeFromWatchlist } = useWatchlist();
   const { getPreferredTitle } = usePreferences();
   const [showStatusMenu, setShowStatusMenu] = useState(false);
@@ -24,30 +58,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
   const title = getPreferredTitle(anime?.title, 'Anime');
   const inWatchlist = anime?.id ? isInWatchlist(anime.id) : false;
   const currentItem = anime?.id ? getItem(anime.id) : undefined;
-
-  const getScoreBadgeClass = (score: number | null) => {
-    if (!score) return '';
-    if (score >= 75) return 'score-pill-high';
-    if (score >= 60) return 'score-pill-med';
-    return 'score-pill-low';
-  };
-
-  const statusLabels: { id: WatchlistStatus; label: string }[] = [
-    { id: 'watching', label: 'Watching' },
-    { id: 'plan_to_watch', label: 'Planning' },
-    { id: 'completed', label: 'Completed' },
-    { id: 'rewatching', label: 'Rewatching' },
-    { id: 'paused', label: 'Paused' },
-    { id: 'dropped', label: 'Dropped' },
-  ];
-
-  const formatTimeUntilAiring = (seconds: number) => {
-    const days = Math.floor(seconds / 86400);
-    const hours = Math.floor((seconds % 86400) / 3600);
-    if (days > 0) return `${days}d ${hours}h`;
-    const mins = Math.floor((seconds % 3600) / 60);
-    return `${hours}h ${mins}m`;
-  };
+  const statusLabels = STATUS_LABELS;
 
   const formatSeasonText = () => {
     const seasonStr = anime.season
@@ -58,16 +69,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
     return anime.status === 'RELEASING' ? 'Releasing' : 'TBA';
   };
 
-  const formatMap: Record<string, string> = {
-    TV: 'TV Show',
-    TV_SHORT: 'TV Short',
-    MOVIE: 'Movie',
-    SPECIAL: 'Special',
-    OVA: 'OVA',
-    ONA: 'ONA',
-    MUSIC: 'Music',
-  };
-  const formatLabel = (anime.format && formatMap[anime.format]) || anime.format || 'Anime';
+  const formatLabel = (anime.format && FORMAT_MAP[anime.format]) || anime.format || 'Anime';
   const episodeLabel = anime.episodes
     ? `${anime.episodes} episodes`
     : anime.status === 'RELEASING'
@@ -113,30 +115,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
     setShowTouchPopup((prev) => !prev);
   };
 
-  const [isVisible, setIsVisible] = useState(priority || false);
   const [imgLoaded, setImgLoaded] = useState(false);
-  const posterRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (priority || isVisible) return;
-    if (typeof IntersectionObserver === 'undefined') {
-      setIsVisible(true);
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0] && entries[0].isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '300px' }
-    );
-    if (posterRef.current) {
-      observer.observe(posterRef.current);
-    }
-    return () => observer.disconnect();
-  }, [priority, isVisible]);
 
   useEffect(() => {
     return () => {
@@ -158,7 +137,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
       }`}
     >
       {/* Poster Image Container */}
-      <div ref={posterRef} className="relative aspect-[185/265] w-full bg-[#151519] rounded-t-[15px]">
+      <div className="relative aspect-[185/265] w-full bg-[#151519] rounded-t-[15px]">
         <Link
           to={`/anime/${anime.id}`}
           className="block w-full h-full overflow-hidden rounded-t-[15px] relative"
@@ -167,22 +146,20 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
           {!imgLoaded && (
             <div className="absolute inset-0 bg-[#16161b] shimmer-loading" aria-hidden="true" />
           )}
-          {isVisible && (
-            <img
-              src={anime.coverImage?.large || anime.coverImage?.medium || anime.coverImage?.extraLarge || '/animesenpai-banner.svg'}
-              alt={`${title} anime poster`}
-              width={185}
-              height={265}
-              loading={priority ? 'eager' : 'lazy'}
-              fetchPriority={priority ? 'high' : 'auto'}
-              decoding={priority ? 'sync' : 'async'}
-              onLoad={() => setImgLoaded(true)}
-              onError={() => setImgLoaded(true)}
-              className={`w-full h-full object-cover object-center group-hover:scale-105 transition-all duration-300 ease-out ${
-                imgLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
-            />
-          )}
+          <img
+            src={anime.coverImage?.large || anime.coverImage?.medium || anime.coverImage?.extraLarge || '/animesenpai-banner.svg'}
+            alt={`${title} anime poster`}
+            width={185}
+            height={265}
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'auto' : 'low'}
+            decoding="async"
+            onLoad={() => setImgLoaded(true)}
+            onError={() => setImgLoaded(true)}
+            className={`w-full h-full object-cover object-center group-hover:scale-[1.045] transition-[transform,opacity] duration-300 ease-out ${
+              imgLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
         </Link>
 
         {/* Top Badges */}
@@ -507,3 +484,12 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
     </div>
   );
 };
+
+export const AnimeCard = React.memo(
+  AnimeCardComponent,
+  (prev, next) =>
+    prev.anime?.id === next.anime?.id &&
+    prev.anime?.averageScore === next.anime?.averageScore &&
+    prev.anime?.episodes === next.anime?.episodes &&
+    prev.priority === next.priority
+);

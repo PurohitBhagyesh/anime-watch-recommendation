@@ -13,7 +13,7 @@ interface CarouselRowProps {
   priority?: boolean;
 }
 
-export const CarouselRow: React.FC<CarouselRowProps> = ({
+const CarouselRowComponent: React.FC<CarouselRowProps> = ({
   title,
   subtitle,
   icon: Icon,
@@ -110,3 +110,5 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
     </section>
   );
 };
+
+export const CarouselRow = React.memo(CarouselRowComponent);

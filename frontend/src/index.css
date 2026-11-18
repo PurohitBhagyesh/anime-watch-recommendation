@@ -41,6 +41,10 @@
     --glass-highlight: inset 0 1px 0 var(--glass-rim);
     --glass-shadow: 0 20px 44px -16px rgba(0, 0, 0, 0.72), 0 4px 14px -4px rgba(0, 0, 0, 0.45);
     --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-spring-physics: linear(
+      0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017,
+      1.041 20.5%, 1.049 22.8%, 1.041 25.5%, 1.006 34.4%, 0.996 42.3%, 1
+    );
     --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
 
     /* Semantic Status Accents */
@@ -212,13 +216,24 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
+  contain: layout style;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.28s var(--ease-spring);
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .anilist-card {
-    transition: transform 0.3s var(--ease-spring), border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.28s var(--ease-spring);
+    transition:
+      transform 0.42s var(--ease-spring),
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.32s var(--ease-spring);
+  }
+
+  @supports (animation-timing-function: linear(0, 1)) {
+    .anilist-card {
+      transition-timing-function: var(--ease-spring-physics), ease, ease, var(--ease-spring);
+    }
   }
 }
 
@@ -232,7 +247,8 @@
 
   @media (prefers-reduced-motion: no-preference) {
     .anilist-card:hover {
-      transform: translateY(-3px);
+      will-change: transform;
+      transform: translate3d(0, -4px, 0);
     }
   }
 }
@@ -269,10 +285,19 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .anilist-btn-primary:hover {
-    transform: translateY(-1px);
+    will-change: transform;
+    transform: translate3d(0, -1px, 0);
   }
   .anilist-btn-primary:active {
-    transform: scale(0.97);
+    transform: scale(0.965);
+  }
+}
+
+@supports (animation-timing-function: linear(0, 1)) {
+  @media (prefers-reduced-motion: no-preference) {
+    .anilist-btn-primary {
+      transition: background-color 0.18s ease, box-shadow 0.22s ease, transform 0.36s var(--ease-spring-physics);
+    }
   }
 }
 
@@ -899,7 +924,29 @@ body[data-text-size="lg"] {
 /* Below-the-fold rendering optimization (skip offscreen layout/paint) */
 .below-fold-section {
   content-visibility: auto;
-  contain-intrinsic-size: auto none auto 360px;
+  contain-intrinsic-block-size: auto 24rem;
+}
+
+/* Native CSS Scroll-Driven Section Reveal (zero JS, compositor-only) */
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    @keyframes scrollSectionReveal {
+      from {
+        opacity: 0.2;
+        translate: 0 18px;
+      }
+      to {
+        opacity: 1;
+        translate: 0 0;
+      }
+    }
+
+    .scroll-reveal-section {
+      animation: scrollSectionReveal auto linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 24%;
+    }
+  }
 }
 
 /* Landscape mobile viewport height guard (e.g. rotated iPhone) */
@@ -930,8 +977,11 @@ body[data-text-size="lg"] {
 [data-reduce-motion="true"] .animate-fadeIn,
 [data-reduce-motion="true"] .animate-hero-slide-right,
 [data-reduce-motion="true"] .animate-hero-slide-left,
-[data-reduce-motion="true"] .animate-hero-bg {
+[data-reduce-motion="true"] .animate-hero-bg,
+[data-reduce-motion="true"] .scroll-reveal-section {
   animation: none !important;
+  opacity: 1 !important;
+  translate: none !important;
 }
 
 /* =========================================================

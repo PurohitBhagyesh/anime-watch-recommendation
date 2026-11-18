@@ -156,7 +156,7 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        <div id="seasonal" className="py-5 sm:py-7 scroll-mt-20">
+        <div id="seasonal" className="py-5 sm:py-7 scroll-mt-20 scroll-reveal-section">
           <CarouselRow
             title={`Popular This Season · ${season} ${year}`}
             subtitle="Currently airing weekly anime series"
@@ -166,11 +166,11 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        <div className="py-5 sm:py-7 below-fold-section">
+        <div className="py-5 sm:py-7 below-fold-section scroll-reveal-section">
           <GenreGrid />
         </div>
 
-        <div id="popular" className="py-5 sm:py-7 scroll-mt-20 below-fold-section">
+        <div id="popular" className="py-5 sm:py-7 scroll-mt-20 below-fold-section scroll-reveal-section">
           <CarouselRow
             title="All-Time Popular"
             subtitle="Most followed anime series and movies worldwide"
@@ -180,7 +180,7 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        <div id="top100" className="py-5 sm:py-7 scroll-mt-20 below-fold-section">
+        <div id="top100" className="py-5 sm:py-7 scroll-mt-20 below-fold-section scroll-reveal-section">
           <CarouselRow
             title="Top 100 Anime"
             subtitle="Highest community-scored anime of all time"
@@ -190,7 +190,7 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        <div id="upcoming" className="pt-5 pb-4 sm:pt-7 sm:pb-6 scroll-mt-20 below-fold-section">
+        <div id="upcoming" className="pt-5 pb-4 sm:pt-7 sm:pb-6 scroll-mt-20 below-fold-section scroll-reveal-section">
           <CarouselRow
             title="Upcoming Next Season"
             subtitle="Confirmed anime scheduled for future release"

@@ -94,30 +94,69 @@ const CARD_FRAGMENT = `
   }
 `;
 
-// Helper GraphQL fetcher
+// Bounded in-memory TTL cache + in-flight request deduplication for zero-latency repeat navigation
+const GRAPHQL_CACHE_TTL_MS = 5 * 60 * 1000;
+const GRAPHQL_CACHE_MAX_ENTRIES = 80;
+const graphqlCache = new Map<string, { data: unknown; expiresAt: number }>();
+const inflightRequests = new Map<string, Promise<unknown>>();
+
+// Helper GraphQL fetcher with deduplication & caching
 async function fetchGraphQL<T>(query: string, variables: Record<string, any> = {}): Promise<T> {
-  const response = await fetch(ANILIST_GRAPHQL_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({
-      query,
-      variables,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`AniList API Error: ${response.status} ${response.statusText}`);
+  const cacheKey = JSON.stringify({ query, variables });
+  const now = Date.now();
+  const cached = graphqlCache.get(cacheKey);
+  if (cached && cached.expiresAt > now) {
+    // Refresh LRU order
+    graphqlCache.delete(cacheKey);
+    graphqlCache.set(cacheKey, cached);
+    return cached.data as T;
   }
 
-  const json = await response.json();
-  if (json.errors && json.errors.length > 0) {
-    throw new Error(json.errors.map((e: any) => e.message).join(', '));
+  const inflight = inflightRequests.get(cacheKey);
+  if (inflight) {
+    return inflight as Promise<T>;
   }
 
-  return json.data;
+  const requestPromise = (async (): Promise<T> => {
+    try {
+      const response = await fetch(ANILIST_GRAPHQL_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          query,
+          variables,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`AniList API Error: ${response.status} ${response.statusText}`);
+      }
+
+      const json = await response.json();
+      if (json.errors && json.errors.length > 0) {
+        throw new Error(json.errors.map((e: any) => e.message).join(', '));
+      }
+
+      if (graphqlCache.size >= GRAPHQL_CACHE_MAX_ENTRIES) {
+        const oldestKey = graphqlCache.keys().next().value;
+        if (oldestKey !== undefined) graphqlCache.delete(oldestKey);
+      }
+      graphqlCache.set(cacheKey, {
+        data: json.data,
+        expiresAt: Date.now() + GRAPHQL_CACHE_TTL_MS,
+      });
+
+      return json.data as T;
+    } finally {
+      inflightRequests.delete(cacheKey);
+    }
+  })();
+
+  inflightRequests.set(cacheKey, requestPromise);
+  return requestPromise;
 }
 
 export interface HomeSectionsData {
