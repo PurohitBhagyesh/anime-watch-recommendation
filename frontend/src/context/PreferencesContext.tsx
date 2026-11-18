@@ -3,10 +3,12 @@ import type { AnimeTitle } from '../api/types';
 
 export type TitleLanguage = 'english' | 'romaji' | 'native';
 export type LayoutDensity = 'comfortable' | 'compact';
+export type TextSize = 'sm' | 'md' | 'lg' | 'xl';
 
 export interface UserPreferences {
   titleLanguage: TitleLanguage;
   density: LayoutDensity;
+  textSize: TextSize;
   preferredAudio: 'sub' | 'dub';
   contentFilter: boolean;
   autoTrailer: boolean;
@@ -18,6 +20,7 @@ const PREFS_STORAGE_KEY = 'animesenpai_preferences_v1';
 export const DEFAULT_PREFERENCES: UserPreferences = {
   titleLanguage: 'english',
   density: 'comfortable',
+  textSize: 'md',
   preferredAudio: 'sub',
   contentFilter: true,
   autoTrailer: true,
@@ -35,6 +38,10 @@ function loadStoredPreferences(): UserPreferences {
             ? parsed.titleLanguage
             : 'english',
         density: parsed.density === 'compact' ? 'compact' : 'comfortable',
+        textSize:
+          parsed.textSize === 'sm' || parsed.textSize === 'lg' || parsed.textSize === 'xl'
+            ? parsed.textSize
+            : 'md',
         preferredAudio: parsed.preferredAudio === 'dub' ? 'dub' : 'sub',
         contentFilter: typeof parsed.contentFilter === 'boolean' ? parsed.contentFilter : true,
         autoTrailer: typeof parsed.autoTrailer === 'boolean' ? parsed.autoTrailer : true,
@@ -57,7 +64,7 @@ const PreferencesContext = createContext<PreferencesContextValue | undefined>(un
 export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [preferences, setPreferences] = useState<UserPreferences>(loadStoredPreferences);
 
-  // Sync density & motion attributes to document root for global adaptive CSS
+  // Sync density, motion, and body text size attributes
   useEffect(() => {
     const root = document.documentElement;
     root.dataset.density = preferences.density;
@@ -66,7 +73,13 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
     } else {
       delete root.dataset.reduceMotion;
     }
-  }, [preferences.density, preferences.reduceMotion]);
+
+    if (preferences.textSize === 'md') {
+      delete document.body.dataset.textSize;
+    } else {
+      document.body.dataset.textSize = preferences.textSize;
+    }
+  }, [preferences.density, preferences.reduceMotion, preferences.textSize]);
 
   const updatePreference = useCallback(
     <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => {

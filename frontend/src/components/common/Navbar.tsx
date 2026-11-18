@@ -20,6 +20,7 @@ import type { AnimeCardData } from '../../api/types';
 import { RandomAnimeModal } from './RandomAnimeModal';
 import { AppLogo } from './AppLogo';
 import { Spinner } from './Skeleton';
+import { UserAvatar } from './UserAvatar';
 
 export const Navbar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -354,12 +355,7 @@ export const Navbar: React.FC = () => {
                     aria-expanded={userMenuOpen}
                     className="flex items-center gap-2 h-8 pl-1 pr-2.5 rounded-full bg-[#0b0b0d] border border-[#232329] hover:border-[#3a3a44] transition group cursor-pointer"
                   >
-                    <img
-                      src={user.avatar}
-                      alt=""
-                      loading="lazy"
-                      className="w-6 h-6 rounded-full object-cover bg-[#151519]"
-                    />
+                    <UserAvatar src={user.avatar} name={user.username} size="xs" />
                     <span className="text-[13px] font-medium text-white max-w-[100px] truncate">
                       {user.username}
                     </span>
@@ -375,12 +371,7 @@ export const Navbar: React.FC = () => {
                     <div className="absolute top-full right-0 mt-2 w-56 max-w-[calc(100dvw-1.5rem)] p-1.5 rounded-2xl bg-[#0b0b0d] shadow-2xl border border-[#232329] z-50 animate-fadeIn space-y-0.5">
                       <div className="p-2.5 rounded-xl bg-[#151519] border border-[#232329] mb-1">
                         <div className="flex items-center gap-2.5">
-                          <img
-                            src={user.avatar}
-                            alt=""
-                            loading="lazy"
-                            className="w-8 h-8 rounded-full object-cover border border-[#3a3a44]"
-                          />
+                          <UserAvatar src={user.avatar} name={user.username} size="sm" />
                           <div className="min-w-0 flex-1">
                             <p className="text-xs font-semibold text-white truncate">
                               {user.username}
@@ -630,11 +621,7 @@ export const Navbar: React.FC = () => {
               ) : (
                 <div className="pt-3 mt-1 border-t border-[#232329] space-y-2.5">
                   <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl bg-[#151519] border border-[#232329]">
-                    <img
-                      src={user.avatar}
-                      alt=""
-                      className="w-8 h-8 rounded-full object-cover border border-[#3a3a44]"
-                    />
+                    <UserAvatar src={user.avatar} name={user.username} size="sm" />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-semibold text-white truncate">{user.username}</p>
                       <p className="text-[11px] text-[#9a9aa6] truncate">{user.email}</p>

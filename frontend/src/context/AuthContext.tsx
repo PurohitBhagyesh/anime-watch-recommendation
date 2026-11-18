@@ -28,44 +28,11 @@ export interface UserProfile {
   favoriteGenre?: string;
 }
 
-export const AVATAR_PRESETS = [
-  {
-    id: 'avatar-1',
-    name: 'Spike',
-    url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'avatar-2',
-    name: 'Cyberpunk',
-    url: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=150&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'avatar-3',
-    name: 'Sakura',
-    url: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=150&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'avatar-4',
-    name: 'Shonen',
-    url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=150&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'avatar-5',
-    name: 'Mecha',
-    url: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=150&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'avatar-6',
-    name: 'Fantasy',
-    url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80',
-  },
-];
-
 const DEFAULT_DEMO_USER: UserProfile = {
   id: 'usr_demo_101',
   username: 'OtakuMaster',
   email: 'otakumaster@animesenpai.io',
-  avatar: AVATAR_PRESETS[0].url,
+  avatar: '',
   bio: 'Anime enthusiast exploring new seasonal gems and 90s classics.',
   joinedDate: 'Joined September 2026',
   animeWatchedCount: 42,
@@ -129,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               id: firebaseUser.uid,
               username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
               email: firebaseUser.email || '',
-              avatar: firebaseUser.photoURL || AVATAR_PRESETS[0].url,
+              avatar: firebaseUser.photoURL || '',
               joinedDate: new Date().toLocaleDateString(),
             });
           }
@@ -139,7 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             id: firebaseUser.uid,
             username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
             email: firebaseUser.email || '',
-            avatar: firebaseUser.photoURL || AVATAR_PRESETS[0].url,
+            avatar: firebaseUser.photoURL || '',
             joinedDate: new Date().toLocaleDateString(),
           });
         }
@@ -191,7 +158,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: userCredential.user.uid,
         username: data.username.trim(),
         email: data.email.trim(),
-        avatar: data.avatar || AVATAR_PRESETS[0].url,
+        avatar: data.avatar || '',
         bio: 'Welcome to my AnimeSenpai profile!',
         joinedDate: new Date().toLocaleDateString(),
         animeWatchedCount: 0,
@@ -228,7 +195,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: firebaseUser.uid,
         username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'AnimeFan',
         email: firebaseUser.email || '',
-        avatar: firebaseUser.photoURL || AVATAR_PRESETS[0].url,
+        avatar: firebaseUser.photoURL || '',
         bio: 'Welcome to my AnimeSenpai profile!',
         joinedDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
         animeWatchedCount: 0,
