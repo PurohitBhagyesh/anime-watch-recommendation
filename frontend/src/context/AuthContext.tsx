@@ -316,7 +316,7 @@ function mapPhoneAuthError(error: unknown, isLinking = false): string {
     return 'Phone SMS requires Blaze billing in Firebase Console, or add a test phone number in Authentication → Sign-in method → Phone.';
   }
   if (code === 'auth/operation-not-allowed') {
-    return 'Phone sign-in or your country SMS region is not enabled in Firebase Console (Authentication → Sign-in method → Phone / Settings → SMS Region Policy).';
+    return 'Real SMS is blocked on Firebase Spark (free) plan or by SMS Region Policy. Add a test number in Firebase Console → Authentication → Sign-in method → Phone → "Phone numbers for testing", or upgrade to Blaze and enable your country in SMS Region Policy.';
   }
   if (code === 'auth/captcha-check-failed' || code === 'auth/missing-client-identifier') {
     return 'reCAPTCHA verification was blocked or expired. Disable ad/script blockers for this site and try again.';

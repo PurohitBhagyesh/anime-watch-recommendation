@@ -51,7 +51,20 @@ export const HomePage: React.FC = () => {
       setError(null);
       const res = await fetchHomeData();
       if (res && Array.isArray(res.trending) && res.trending.length > 0) {
-        setData(res);
+        setData((prev) => {
+          if (isBackground && prev?.spotlight) {
+            // Preserve the preloaded slide-0 hero banner during background refresh so LCP never shifts
+            const pinnedHero = prev.spotlight;
+            const liveOthers = (res.spotlights || []).filter((item) => item.id !== pinnedHero.id);
+            const mergedSpotlights = [pinnedHero, ...liveOthers].slice(0, 5);
+            return {
+              ...res,
+              spotlight: pinnedHero,
+              spotlights: mergedSpotlights,
+            };
+          }
+          return res;
+        });
         try {
           localStorage.setItem('animesenpai_home_data', JSON.stringify(res));
         } catch {}
@@ -118,7 +131,7 @@ export const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="w-full pb-2 sm:pb-4 animate-fadeIn">
+    <div className="w-full pb-2 sm:pb-4">
       {/* Primary Semantic H1 for Search Engine Crawlers */}
       <h1 className="sr-only">
         AnimeSenpai — Anime Discovery, Personal Watchlist Tracker & Recommendations

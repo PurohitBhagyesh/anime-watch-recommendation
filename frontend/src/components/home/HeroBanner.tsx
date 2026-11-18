@@ -284,8 +284,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
             key={currentAnime.id}
             src={bgImage}
             alt={`${title} anime featured banner`}
+            width={1920}
+            height={490}
             loading="eager"
-            decoding="sync"
+            decoding="async"
             fetchPriority="high"
             style={{
               transform: isDragging
@@ -295,7 +297,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                 ? 'none'
                 : 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
-            className="w-full h-full object-cover object-center filter brightness-[0.42] sm:brightness-[0.44] contrast-[1.06] animate-hero-bg will-change-transform"
+            className={`w-full h-full object-cover object-center filter brightness-[0.42] sm:brightness-[0.44] contrast-[1.06] ${
+              hasInteracted || currentIndex > 0 ? 'animate-hero-bg will-change-transform' : ''
+            }`}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/75 sm:via-[#000000]/65 to-[#000000]/20" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#000000] via-[#000000]/72 sm:via-[#000000]/75 to-transparent" />
@@ -312,12 +316,12 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
               transform: isDragging ? `translate3d(${dragOffset}px, 0, 0)` : undefined,
               transition: isDragging ? 'none' : 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
-            className={`max-w-3xl space-y-3.5 sm:space-y-4 pointer-events-auto will-change-transform ${
-              isDragging
+            className={`max-w-3xl space-y-3.5 sm:space-y-4 pointer-events-auto ${
+              isDragging || (!hasInteracted && currentIndex === 0)
                 ? ''
                 : slideDirection === 'next'
-                ? 'animate-hero-slide-right'
-                : 'animate-hero-slide-left'
+                ? 'animate-hero-slide-right will-change-transform'
+                : 'animate-hero-slide-left will-change-transform'
             }`}
           >
             {/* Editorial Title */}

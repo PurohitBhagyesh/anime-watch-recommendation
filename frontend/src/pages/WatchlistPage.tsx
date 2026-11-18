@@ -54,7 +54,6 @@ export const WatchlistPage: React.FC = () => {
     description:
       'Track your anime episode progress, organize watching status, and manage your personal anime list on AnimeSenpai.',
     canonicalUrl: `${SITE_URL}/watchlist`,
-    robots: 'noindex, follow',
   });
 
   const { user } = useAuth();

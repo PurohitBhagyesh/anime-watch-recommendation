@@ -138,8 +138,10 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
     title: 'Settings & Account • AnimeSenpai',
     description:
       'Customize AnimeSenpai display, text size, profile photo, Google sign-in, security, backups, or delete your account.',
-    canonicalUrl: `${SITE_URL}/settings`,
-    robots: 'noindex, nofollow',
+    canonicalUrl:
+      defaultTab === 'account' || location.pathname.includes('account')
+        ? `${SITE_URL}/account`
+        : `${SITE_URL}/settings`,
   });
 
   const initialSection: SettingsSection =

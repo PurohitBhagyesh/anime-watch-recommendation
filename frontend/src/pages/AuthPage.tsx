@@ -81,8 +81,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
         : 'Sign In • AnimeSenpai',
     description:
       'Sign in with Google, Phone SMS, or email to sync your AnimeSenpai watchlist across devices.',
-    canonicalUrl: `${SITE_URL}/login`,
-    robots: 'noindex, nofollow',
+    canonicalUrl: mode === 'signup' ? `${SITE_URL}/signup` : `${SITE_URL}/login`,
   });
 
   // Email login & signup state
