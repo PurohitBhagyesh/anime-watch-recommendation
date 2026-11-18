@@ -52,6 +52,7 @@ const AnimeCardComponent: React.FC<AnimeCardProps> = ({ anime, priority = false 
   const [isHovered, setIsHovered] = useState(false);
   const [showTouchPopup, setShowTouchPopup] = useState(false);
   const [placement, setPlacement] = useState<'right' | 'left' | 'center'>('right');
+  const [popupPos, setPopupPos] = useState<{ top: number; left: number } | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -82,12 +83,26 @@ const AnimeCardComponent: React.FC<AnimeCardProps> = ({ anime, priority = false 
     if (cardRef.current) {
       const rect = cardRef.current.getBoundingClientRect();
       const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+      const popupWidth = 276;
+      const estimatedHeight = 220;
+      const gap = 10;
+
       if (screenWidth < 640) {
         setPlacement('center');
-      } else if (rect.right + 280 > screenWidth) {
+        setPopupPos(null);
+      } else if (rect.right + popupWidth + gap + 12 > screenWidth) {
         setPlacement('left');
+        setPopupPos({
+          top: Math.max(72, Math.min(rect.top + 8, screenHeight - estimatedHeight - 16)),
+          left: Math.max(12, rect.left - popupWidth - gap),
+        });
       } else {
         setPlacement('right');
+        setPopupPos({
+          top: Math.max(72, Math.min(rect.top + 8, screenHeight - estimatedHeight - 16)),
+          left: Math.min(screenWidth - popupWidth - 12, rect.right + gap),
+        });
       }
     }
   };
@@ -116,6 +131,13 @@ const AnimeCardComponent: React.FC<AnimeCardProps> = ({ anime, priority = false 
   };
 
   const [imgLoaded, setImgLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!isHovered) return;
+    const closeOnScroll = () => setIsHovered(false);
+    window.addEventListener('scroll', closeOnScroll, { passive: true, capture: true });
+    return () => window.removeEventListener('scroll', closeOnScroll, true);
+  }, [isHovered]);
 
   useEffect(() => {
     return () => {
@@ -334,67 +356,73 @@ const AnimeCardComponent: React.FC<AnimeCardProps> = ({ anime, priority = false 
         </div>
       </div>
 
-      {/* Desktop Hover Preview Popup (OpenLid Obsidian Glass) */}
-      {isHovered && !showTouchPopup && !showStatusMenu && placement !== 'center' && (
-        <div
-          onMouseEnter={() => {
-            if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-            setIsHovered(true);
-          }}
-          onMouseLeave={handleMouseLeave}
-          className={`hidden sm:block absolute z-50 p-4 rounded-2xl bg-[#0b0b0d] border border-[#3a3a44] shadow-2xl space-y-2.5 animate-fadeIn pointer-events-auto w-[272px] top-2 ${
-            placement === 'left' ? 'right-[calc(100%+10px)]' : 'left-[calc(100%+10px)]'
-          }`}
-        >
-          <div className="flex items-start justify-between gap-2">
-            <span className="font-bold text-sm text-white tracking-tight line-clamp-2 leading-snug" title={title}>
-              {title}
-            </span>
-            {anime.averageScore ? (
-              <div className="flex items-center gap-1 text-xs font-bold text-[#4ade80] flex-shrink-0 pt-0.5 tabular-nums">
-                <Smile aria-hidden="true" className="w-3.5 h-3.5" />
-                <span>{anime.averageScore}%</span>
+      {/* Desktop Hover Preview Popup via Portal (never clipped by carousel overflow) */}
+      {isHovered &&
+        !showTouchPopup &&
+        !showStatusMenu &&
+        placement !== 'center' &&
+        popupPos &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            onMouseEnter={() => {
+              if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+              setIsHovered(true);
+            }}
+            onMouseLeave={handleMouseLeave}
+            style={{ top: `${popupPos.top}px`, left: `${popupPos.left}px` }}
+            className="hidden sm:block fixed z-[99950] p-4 rounded-2xl bg-[#0b0b0d]/95 backdrop-blur-xl border border-[#3a3a44] shadow-2xl space-y-2.5 animate-fadeIn pointer-events-auto w-[276px]"
+          >
+            <div className="flex items-start justify-between gap-2">
+              <span className="font-bold text-sm text-white tracking-tight line-clamp-2 leading-snug" title={title}>
+                {title}
+              </span>
+              {anime.averageScore ? (
+                <div className="flex items-center gap-1 text-xs font-bold text-[#4ade80] flex-shrink-0 pt-0.5 tabular-nums">
+                  <Smile aria-hidden="true" className="w-3.5 h-3.5" />
+                  <span>{anime.averageScore}%</span>
+                </div>
+              ) : null}
+            </div>
+
+            {studioName ? (
+              <div className="text-xs font-medium text-[#c8c8d2] truncate">
+                {studioName}
               </div>
             ) : null}
-          </div>
 
-          {studioName ? (
-            <div className="text-xs font-medium text-[#c8c8d2] truncate">
-              {studioName}
+            <div className="text-xs text-[#9a9aa6] flex items-center flex-wrap gap-1.5 tabular-nums">
+              <span>{formatLabel}</span>
+              <span>·</span>
+              <span>{episodeLabel}</span>
+              {formatSeasonText() && (
+                <>
+                  <span>·</span>
+                  <span>{formatSeasonText()}</span>
+                </>
+              )}
             </div>
-          ) : null}
 
-          <div className="text-xs text-[#9a9aa6] flex items-center flex-wrap gap-1.5 tabular-nums">
-            <span>{formatLabel}</span>
-            <span>·</span>
-            <span>{episodeLabel}</span>
-            {formatSeasonText() && (
-              <>
-                <span>·</span>
-                <span>{formatSeasonText()}</span>
-              </>
+            {anime.genres && anime.genres.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {anime.genres.slice(0, 5).map((genre) => (
+                  <Link
+                    key={genre}
+                    to={`/discover?genre=${encodeURIComponent(genre)}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsHovered(false);
+                    }}
+                    className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#151519] hover:bg-white text-[#c8c8d2] hover:text-black border border-[#232329] transition"
+                  >
+                    {genre}
+                  </Link>
+                ))}
+              </div>
             )}
-          </div>
-
-          {anime.genres && anime.genres.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {anime.genres.slice(0, 5).map((genre) => (
-                <Link
-                  key={genre}
-                  to={`/discover?genre=${encodeURIComponent(genre)}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsHovered(false);
-                  }}
-                  className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#151519] hover:bg-white text-[#c8c8d2] hover:text-black border border-[#232329] transition"
-                >
-                  {genre}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
 
       {/* Mobile Touch Preview Modal rendered via Portal */}
       {showTouchPopup && !showStatusMenu && typeof document !== 'undefined' &&

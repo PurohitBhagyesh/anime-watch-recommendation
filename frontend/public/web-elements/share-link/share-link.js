@@ -227,31 +227,83 @@
       const copyBadge = widget.querySelector('.wshare-copy-badge');
       const nativeBtn = widget.querySelector('.wshare-native-btn');
 
-      const toggleCard = (forceState) => {
+      let hoverOpenTimer = null;
+      let hoverCloseTimer = null;
+      let isPinned = false;
+      const supportsHover = () =>
+        typeof window !== 'undefined' &&
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+      const clearHoverTimers = () => {
+        if (hoverOpenTimer) {
+          clearTimeout(hoverOpenTimer);
+          hoverOpenTimer = null;
+        }
+        if (hoverCloseTimer) {
+          clearTimeout(hoverCloseTimer);
+          hoverCloseTimer = null;
+        }
+      };
+
+      const toggleCard = (forceState, pinnedState) => {
         const isActive =
           typeof forceState === 'boolean' ? forceState : !card.classList.contains('wshare-active');
         card.classList.toggle('wshare-active', isActive);
         pill.setAttribute('aria-expanded', String(isActive));
+        if (!isActive) {
+          isPinned = false;
+        } else if (typeof pinnedState === 'boolean') {
+          isPinned = pinnedState;
+        }
       };
+
+      widget.addEventListener('mouseenter', () => {
+        if (!supportsHover()) return;
+        clearHoverTimers();
+        if (!card.classList.contains('wshare-active')) {
+          hoverOpenTimer = setTimeout(() => {
+            toggleCard(true, false);
+          }, 120);
+        }
+      });
+
+      widget.addEventListener('mouseleave', () => {
+        if (!supportsHover()) return;
+        clearHoverTimers();
+        if (isPinned) return;
+        hoverCloseTimer = setTimeout(() => {
+          toggleCard(false);
+        }, 240);
+      });
 
       pill.addEventListener('click', (e) => {
         e.stopPropagation();
-        toggleCard();
+        clearHoverTimers();
+        if (card.classList.contains('wshare-active') && !isPinned) {
+          isPinned = true;
+          return;
+        }
+        const nextOpen = !card.classList.contains('wshare-active');
+        toggleCard(nextOpen, nextOpen);
       });
 
       closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
+        clearHoverTimers();
         toggleCard(false);
       });
 
       document.addEventListener('click', (e) => {
         if (!widget.contains(e.target) && card.classList.contains('wshare-active')) {
+          clearHoverTimers();
           toggleCard(false);
         }
       });
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && card.classList.contains('wshare-active')) {
+          clearHoverTimers();
           toggleCard(false);
         }
       });

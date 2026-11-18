@@ -314,35 +314,89 @@
       const editSaveBtn = widget.querySelector('.cupi-edit-save-btn');
       const editCancelBtn = widget.querySelector('.cupi-edit-cancel-btn');
 
-      const toggleCard = (forceState) => {
-        const isActive = typeof forceState === 'boolean' ? forceState : !card.classList.contains('cupi-active');
-        card.classList.toggle('cupi-active', isActive);
-        pill.setAttribute('aria-expanded', String(isActive));
-        if (isActive) {
-          this.updateQR(amountInput.value || this.config.defaultAmount);
-        } else if (editDrawer) {
-          editDrawer.style.display = 'none';
+      let hoverOpenTimer = null;
+      let hoverCloseTimer = null;
+      let isPinned = false;
+      const supportsHover = () =>
+        typeof window !== 'undefined' &&
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+      const clearHoverTimers = () => {
+        if (hoverOpenTimer) {
+          clearTimeout(hoverOpenTimer);
+          hoverOpenTimer = null;
+        }
+        if (hoverCloseTimer) {
+          clearTimeout(hoverCloseTimer);
+          hoverCloseTimer = null;
         }
       };
 
+      const toggleCard = (forceState, pinnedState) => {
+        const isActive = typeof forceState === 'boolean' ? forceState : !card.classList.contains('cupi-active');
+        card.classList.toggle('cupi-active', isActive);
+        pill.setAttribute('aria-expanded', String(isActive));
+        if (!isActive) {
+          isPinned = false;
+          if (editDrawer) editDrawer.style.display = 'none';
+        } else {
+          if (typeof pinnedState === 'boolean') isPinned = pinnedState;
+          this.updateQR(amountInput.value || this.config.defaultAmount);
+        }
+      };
+
+      widget.addEventListener('mouseenter', () => {
+        if (!supportsHover()) return;
+        clearHoverTimers();
+        if (!card.classList.contains('cupi-active')) {
+          hoverOpenTimer = setTimeout(() => {
+            toggleCard(true, false);
+          }, 120);
+        }
+      });
+
+      widget.addEventListener('mouseleave', () => {
+        if (!supportsHover()) return;
+        clearHoverTimers();
+        if (isPinned) return;
+        const activeEl = document.activeElement;
+        if (activeEl && card.contains(activeEl) && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+          return;
+        }
+        hoverCloseTimer = setTimeout(() => {
+          toggleCard(false);
+        }, 240);
+      });
+
       pill.addEventListener('click', (e) => {
         e.stopPropagation();
-        toggleCard();
+        clearHoverTimers();
+        if (card.classList.contains('cupi-active') && !isPinned) {
+          // Clicking while open via hover pins it open; clicking again closes
+          isPinned = true;
+          return;
+        }
+        const nextOpen = !card.classList.contains('cupi-active');
+        toggleCard(nextOpen, nextOpen);
       });
 
       closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
+        clearHoverTimers();
         toggleCard(false);
       });
 
       document.addEventListener('click', (e) => {
         if (!widget.contains(e.target) && card.classList.contains('cupi-active')) {
+          clearHoverTimers();
           toggleCard(false);
         }
       });
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && card.classList.contains('cupi-active')) {
+          clearHoverTimers();
           toggleCard(false);
         }
       });

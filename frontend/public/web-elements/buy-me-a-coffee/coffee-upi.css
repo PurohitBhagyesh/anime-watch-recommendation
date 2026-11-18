@@ -107,6 +107,16 @@
   display: flex;
 }
 
+/* Invisible hover bridge covering the 12px gap between pill and card */
+.cupi-card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -14px;
+  height: 14px;
+}
+
 @keyframes cupiPop {
   from {
     opacity: 0;
