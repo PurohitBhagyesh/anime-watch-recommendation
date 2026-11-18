@@ -184,8 +184,8 @@ export const Footer: React.FC = () => {
               </div>
             </div>
 
-            {/* Genres */}
-            <div className="lg:col-span-4">
+            {/* Genres (desktop footer only; on mobile Genres live inside the top-right menu) */}
+            <div className="hidden md:block lg:col-span-4">
               <h3 className="text-[11px] font-semibold uppercase tracking-widest text-white mb-3.5 font-mono">
                 Genres
               </h3>

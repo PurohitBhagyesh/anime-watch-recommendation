@@ -1,0 +1,237 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// This security rules file assumes the following data structures:
+//
+// Collection: users
+// Document ID: {userId} (must match Firebase Auth request.auth.uid)
+// Access: Strictly private to the document owner (contains email PII).
+//         All unauthenticated access and all collection list queries are denied.
+// Fields (strictly enforced via hasOnly):
+//   - id: string (required on create, immutable once set, must equal userId)
+//       Unique Firebase Auth UID for the user.
+//   - username: string (required, 3..24 chars, matches ^[a-zA-Z0-9._-]{3,24}$)
+//       User-chosen display handle.
+//   - usernameLower: string (optional, 3..24 chars, must equal username.lower())
+//       Normalized lowercase copy of username.
+//   - email: string (required, <= 254 chars, empty string or valid email format)
+//       User email address (PII — never exposed to other users or unauthenticated callers).
+//   - avatar: string (required, '' | https:// URL <= 2048 chars |
+//       base64 JPEG/JPG/PNG/WebP data URL <= 150000 chars)
+//       Profile photo URL or compressed 256x256 JPEG data URL.
+//   - banner: string (optional, '' | https:// URL <= 500 chars)
+//       Optional profile banner image URL.
+//   - bio: string (optional, 0..280 chars)
+//       Short user biography.
+//   - joinedDate: string (optional, 0..64 chars, immutable once set)
+//       Formatted join date string set on profile creation.
+//   - animeWatchedCount: int (optional, 0..100000)
+//       Total anime completed count.
+//   - episodesWatchedCount: int (optional, 0..10000000)
+//       Total episodes watched count.
+//   - daysWatched: number (optional, 0..100000)
+//       Total days spent watching anime (supports fractional values).
+//   - favoriteGenre: string (optional, 0..64 chars)
+//       User's selected favorite anime genre label.
+//
+// All other collections and subcollections are denied by default.
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    // Check if the user is authenticated via Firebase Auth
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if the authenticated user owns the path-scoped document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Verify the document's id field matches the authenticated owner on create
+    function uidUnchanged(userId) {
+      return 'id' in request.resource.data &&
+        request.resource.data.id is string &&
+        request.resource.data.id == userId &&
+        request.resource.data.id == request.auth.uid;
+    }
+
+    // Ensure the id field cannot be altered or removed on update
+    function uidNotModified(userId) {
+      return (!('id' in resource.data) ||
+        ('id' in request.resource.data &&
+          request.resource.data.id == resource.data.id)) &&
+        (!('id' in request.resource.data) ||
+          (request.resource.data.id is string &&
+            request.resource.data.id == userId));
+    }
+
+    // Validate required fields exist on the resulting document
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    // Enforce strict schema — reject any unexpected or injected fields
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // Ensure specified fields remain unchanged on update if already present
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    // Validate standard email format and RFC max length (254 chars)
+    function isValidEmail(email) {
+      return email is string &&
+        email.size() <= 254 &&
+        email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
+    }
+
+    // Validate HTTPS URL format (blocks http://, javascript:, data:, whitespace)
+    function isValidHttpsUrl(url) {
+      return url is string &&
+        url.size() >= 10 &&
+        url.matches('^https://[^\\s]+$');
+    }
+
+    // Validate compressed image data URL prefix in O(1) time (blocks SVG/HTML XSS)
+    function isValidAvatarDataUrl(val) {
+      return val is string &&
+        val.size() <= 150000 && (
+          (val.size() > 23 && val[0:23] == 'data:image/jpeg;base64,') ||
+          (val.size() > 22 && val[0:22] == 'data:image/jpg;base64,') ||
+          (val.size() > 22 && val[0:22] == 'data:image/png;base64,') ||
+          (val.size() > 23 && val[0:23] == 'data:image/webp;base64,')
+        );
+    }
+
+    // Validate avatar: empty string, HTTPS URL (<= 2048 chars), or raster image data URL (<= 150000 chars)
+    function isValidAvatar(avatar) {
+      return avatar is string && (
+        avatar == '' ||
+        (avatar.size() <= 2048 && isValidHttpsUrl(avatar)) ||
+        isValidAvatarDataUrl(avatar)
+      );
+    }
+
+    // Validate optional string field with explicit length bounds
+    function isValidOptionalString(data, field, minLen, maxLen) {
+      return !(field in data) || (
+        data[field] is string &&
+        data[field].size() >= minLen &&
+        data[field].size() <= maxLen
+      );
+    }
+
+    // Validate optional non-negative integer field with upper bound
+    function isValidOptionalInt(data, field, minVal, maxVal) {
+      return !(field in data) || (
+        data[field] is int &&
+        data[field] >= minVal &&
+        data[field] <= maxVal
+      );
+    }
+
+    // Validate optional non-negative number (int or float) field with upper bound
+    function isValidOptionalNumber(data, field, minVal, maxVal) {
+      return !(field in data) || (
+        data[field] is number &&
+        data[field] >= minVal &&
+        data[field] <= maxVal
+      );
+    }
+
+    // ===============================================================
+    // Domain Validators (MUST be called on both create and update)
+    // ===============================================================
+
+    function isValidUser(data, userId) {
+      return hasOnlyAllowedFields([
+          'id',
+          'username',
+          'usernameLower',
+          'email',
+          'avatar',
+          'banner',
+          'bio',
+          'joinedDate',
+          'animeWatchedCount',
+          'episodesWatchedCount',
+          'daysWatched',
+          'favoriteGenre'
+        ]) &&
+        hasRequiredFields(['username', 'email', 'avatar']) &&
+        (!('id' in data) || (data.id is string && data.id == userId)) &&
+        data.username is string &&
+        data.username.size() >= 3 &&
+        data.username.size() <= 24 &&
+        data.username.matches('^[a-zA-Z0-9._-]{3,24}$') &&
+        (!('usernameLower' in data) || (
+          data.usernameLower is string &&
+          data.usernameLower.size() >= 3 &&
+          data.usernameLower.size() <= 24 &&
+          data.usernameLower == data.username.lower()
+        )) &&
+        data.email is string &&
+        data.email.size() <= 254 &&
+        (data.email == '' || isValidEmail(data.email)) &&
+        isValidAvatar(data.avatar) &&
+        (!('banner' in data) || (
+          data.banner is string &&
+          data.banner.size() <= 500 &&
+          (data.banner == '' || isValidHttpsUrl(data.banner))
+        )) &&
+        isValidOptionalString(data, 'bio', 0, 280) &&
+        isValidOptionalString(data, 'joinedDate', 0, 64) &&
+        isValidOptionalInt(data, 'animeWatchedCount', 0, 100000) &&
+        isValidOptionalInt(data, 'episodesWatchedCount', 0, 10000000) &&
+        isValidOptionalNumber(data, 'daysWatched', 0, 100000) &&
+        isValidOptionalString(data, 'favoriteGenre', 0, 64);
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      // Strictly owner-only document reads to protect user email & PII
+      allow get: if isOwner(userId);
+
+      // Explicitly deny collection-wide list/query operations (prevents PII scraping & enumeration)
+      allow list: if false;
+
+      // Owner can create their own profile document with strict schema & identity validation
+      allow create: if isOwner(userId) &&
+        uidUnchanged(userId) &&
+        isValidUser(request.resource.data, userId);
+
+      // Owner can update their own profile document while enforcing full validation & immutability
+      allow update: if isOwner(userId) &&
+        uidNotModified(userId) &&
+        (!('joinedDate' in resource.data) || areImmutableFieldsUnchanged(['joinedDate'])) &&
+        isValidUser(request.resource.data, userId);
+
+      // Owner can delete only their own profile document (used during account deletion)
+      allow delete: if isOwner(userId);
+    }
+
+    // ===============================================================
+    // Default Deny — block all other collections and subcollections
+    // ===============================================================
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

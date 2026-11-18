@@ -232,14 +232,24 @@ function createGoogleProvider(): GoogleAuthProvider {
   return provider;
 }
 
+function sanitizeOAuthUsername(raw: string | null | undefined, fallback = 'AnimeFan'): string {
+  const cleaned = (raw || '')
+    .trim()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-zA-Z0-9._-]/g, '')
+    .slice(0, 24);
+  if (cleaned.length >= 3) return cleaned;
+  return fallback;
+}
+
 async function buildAndSyncUserProfile(
   firebaseUser: FirebaseUser,
   defaultNameFallback = 'AnimeFan'
 ): Promise<UserProfile> {
-  const fallbackUsername =
-    firebaseUser.displayName?.trim() ||
-    firebaseUser.email?.split('@')[0]?.replace(/[^a-zA-Z0-9._-]/g, '') ||
-    defaultNameFallback;
+  const fallbackUsername = sanitizeOAuthUsername(
+    firebaseUser.displayName || firebaseUser.email?.split('@')[0],
+    defaultNameFallback
+  );
 
   const fallbackUser: UserProfile = {
     id: firebaseUser.uid,

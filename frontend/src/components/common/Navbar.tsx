@@ -15,7 +15,7 @@ import {
 import { useWatchlist } from '../../context/WatchlistContext';
 import { useAuth } from '../../context/AuthContext';
 import { usePreferences } from '../../context/PreferencesContext';
-import { searchAnimeAutocomplete } from '../../api/anilist';
+import { searchAnimeAutocomplete, GENRE_LIST } from '../../api/anilist';
 import type { AnimeCardData } from '../../api/types';
 import { RandomAnimeModal } from './RandomAnimeModal';
 import { AppLogo } from './AppLogo';
@@ -30,6 +30,7 @@ export const Navbar: React.FC = () => {
   const [randomModalOpen, setRandomModalOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileGenresOpen, setMobileGenresOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -46,10 +47,11 @@ export const Navbar: React.FC = () => {
   // Close popovers on route change
   useEffect(() => {
     setMobileMenuOpen(false);
+    setMobileGenresOpen(false);
     setMobileSearchOpen(false);
     setShowAutocomplete(false);
     setUserMenuOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
 
   // Auto-focus mobile search input when expanded
   useEffect(() => {
@@ -562,6 +564,43 @@ export const Navbar: React.FC = () => {
                   </Link>
                 );
               })}
+
+              {/* Mobile Genres Accordion inside Menu */}
+              <div className="border-b border-[#23232b]">
+                <button
+                  type="button"
+                  tabIndex={mobileMenuOpen ? 0 : -1}
+                  aria-expanded={mobileGenresOpen}
+                  onClick={() => setMobileGenresOpen((prev) => !prev)}
+                  className="w-full flex items-center justify-between py-3 text-[15px] font-medium text-[#9a9aa6] hover:text-white transition text-left cursor-pointer"
+                >
+                  <span>Genres</span>
+                  <ChevronDown
+                    aria-hidden="true"
+                    className={`w-4 h-4 text-[#666672] transition-transform duration-200 ${
+                      mobileGenresOpen ? 'rotate-180 text-white' : ''
+                    }`}
+                  />
+                </button>
+                {mobileGenresOpen && (
+                  <div className="pb-3.5 pt-0.5 flex flex-wrap gap-1.5 animate-fadeIn">
+                    {GENRE_LIST.slice(0, 12).map((genre) => (
+                      <Link
+                        key={genre}
+                        to={`/discover?genre=${encodeURIComponent(genre)}`}
+                        tabIndex={mobileMenuOpen ? 0 : -1}
+                        onClick={() => {
+                          setMobileGenresOpen(false);
+                          setMobileMenuOpen(false);
+                        }}
+                        className="text-xs px-3 py-1.5 rounded-full bg-[#151519] hover:bg-[#1e1e26] border border-[#23232b] text-[#d2d2dc] hover:text-white transition"
+                      >
+                        {genre}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <button
                 type="button"
