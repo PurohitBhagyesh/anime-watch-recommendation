@@ -13,7 +13,7 @@ import type { HomeSectionsData } from '../api/anilist';
 import { HeroBanner } from '../components/home/HeroBanner';
 import { CarouselRow } from '../components/home/CarouselRow';
 import { GenreGrid } from '../components/home/GenreGrid';
-import { HeroSkeleton, CardSkeleton } from '../components/common/Skeleton';
+import { HeroSkeleton, CarouselRowSkeleton } from '../components/common/Skeleton';
 import initialHomeData from '../data/initialHomeData.json';
 import { useSEO, SITE_URL } from '../utils/seo';
 
@@ -94,17 +94,12 @@ export const HomePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="w-full pb-20 space-y-12 min-h-screen">
+      <div className="w-full pb-4 min-h-screen">
         <HeroSkeleton />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pt-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 divide-y divide-[#1a1a22]">
           {[1, 2, 3].map((row) => (
-            <div key={row} className="space-y-4">
-              <div className="h-6 bg-[#0b0b0d] rounded-lg w-44 shimmer-loading" />
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <CardSkeleton key={`row${row}-${i}`} />
-                ))}
-              </div>
+            <div key={row} className="py-5 sm:py-7">
+              <CarouselRowSkeleton />
             </div>
           ))}
         </div>
