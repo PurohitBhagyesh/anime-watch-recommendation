@@ -283,7 +283,15 @@
       const qrImg = this.widgetEl.querySelector('.cupi-qr-img');
       if (!qrImg) return;
       const { generic } = this.buildUPIUri(amount);
-      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&format=svg&data=${encodeURIComponent(generic)}`;
+      const encoded = encodeURIComponent(generic);
+      qrImg.onerror = () => {
+        if (!qrImg.dataset.fallbackUsed) {
+          qrImg.dataset.fallbackUsed = '1';
+          qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&format=png&data=${encoded}`;
+        }
+      };
+      delete qrImg.dataset.fallbackUsed;
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&format=svg&data=${encoded}`;
     }
 
     bindEvents() {
