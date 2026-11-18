@@ -844,6 +844,12 @@ progress.loading-spinner.loading-spinner-lg:indeterminate {
   }
 }
 
+/* Below-the-fold rendering optimization (skip offscreen layout/paint) */
+.below-fold-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto none auto 360px;
+}
+
 /* Landscape mobile viewport height guard (e.g. rotated iPhone) */
 @media (max-height: 500px) and (orientation: landscape) {
   .hero-adaptive {

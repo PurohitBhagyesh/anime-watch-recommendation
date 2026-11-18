@@ -39,7 +39,7 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
   if (!animes || animes.length === 0) return null;
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-3">
       {/* Section Header */}
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
@@ -96,12 +96,12 @@ export const CarouselRow: React.FC<CarouselRowProps> = ({
       {/* Smooth Horizontal Scroll-Snap Slider */}
       <div
         ref={scrollContainerRef}
-        className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 pt-0.5 no-scrollbar touch-scroll-smooth"
+        className="flex gap-2.5 sm:gap-3.5 overflow-x-auto pb-1 pt-0.5 no-scrollbar touch-scroll-smooth"
       >
         {animes.map((anime, idx) => (
           <div
             key={anime?.id || idx}
-            className="flex-shrink-0 w-[136px] min-[400px]:w-[152px] sm:w-[178px] md:w-[192px] snap-start"
+            className="flex-shrink-0 w-[134px] min-[400px]:w-[148px] sm:w-[172px] md:w-[184px] snap-start"
           >
             <AnimeCard anime={anime} priority={priority && idx < 3} />
           </div>

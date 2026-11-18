@@ -366,7 +366,7 @@ export const DiscoverPage: React.FC = () => {
     : 'Discover';
 
   return (
-    <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-9 space-y-6 animate-fadeIn">
+    <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-5 sm:py-7 space-y-4 animate-fadeIn">
       {/* Header Row */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="space-y-1">

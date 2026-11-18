@@ -280,7 +280,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
           if (!isDragging) setIsHoverPaused(false);
         }}
         style={{ touchAction: 'pan-y' }}
-        className="hero-adaptive relative w-full overflow-hidden min-h-[430px] sm:min-h-[500px] md:min-h-[560px] lg:min-h-[600px] flex items-end border-b border-[#23232b] bg-[#000000] select-none cursor-grab active:cursor-grabbing"
+        className="hero-adaptive relative w-full overflow-hidden min-h-[370px] sm:min-h-[420px] md:min-h-[460px] lg:min-h-[490px] flex items-end border-b border-[#23232b] bg-[#000000] select-none cursor-grab active:cursor-grabbing"
       >
         {/* Background Artwork with Smooth Reveal + Parallax */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -306,7 +306,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
         </div>
 
         {/* Hero Foreground Slide Content */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-7 sm:py-14 md:py-16 pointer-events-none">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6 sm:py-10 md:py-12 pointer-events-none">
           <div
             key={currentAnime.id}
             role="group"

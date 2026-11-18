@@ -53,10 +53,10 @@ export const Footer: React.FC = () => {
 
   return (
     <>
-      <footer className="mt-10 sm:mt-16 border-t border-[#232329] bg-[#000000] text-[#9a9aa6] text-sm relative overflow-x-clip">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-12 pb-24 sm:pb-16 space-y-10">
+      <footer className="mt-2 sm:mt-4 border-t border-[#23232b] bg-[#000000] text-[#9a9aa6] text-sm relative overflow-x-clip">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-7 sm:pt-8 pb-20 sm:pb-20 space-y-6">
           {/* Main Footer Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-8">
             {/* Brand & Live Database Attribution */}
             <div className="lg:col-span-4 space-y-4">
               <Link to="/" className="inline-block">
@@ -244,8 +244,8 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Bottom Bar */}
-          <div className="pt-6 border-t border-[#232329] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#666672] text-center sm:text-left">
+          {/* Bottom Bar (clears floating corner pills cleanly on both mobile & desktop) */}
+          <div className="pt-5 border-t border-[#23232b] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#666672] text-center sm:text-left">
             <p>
               © {new Date().getFullYear()} AnimeSenpai (animesenpai.online) · MIT License · Data via AniList GraphQL.
             </p>

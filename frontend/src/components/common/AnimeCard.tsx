@@ -345,7 +345,13 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
           <div className="flex items-center gap-1 flex-shrink-0">
             <Tv aria-hidden="true" className="w-3 h-3 text-[#666672] flex-shrink-0" />
             <span className="whitespace-nowrap">
-              {anime.episodes ? `${anime.episodes} eps` : anime.status === 'RELEASING' ? 'Airing' : 'Movie'}
+              {anime.episodes
+                ? `${anime.episodes} eps`
+                : anime.format === 'MOVIE'
+                ? 'Movie'
+                : anime.status === 'RELEASING'
+                ? 'Airing'
+                : 'TBA'}
             </span>
           </div>
         </div>

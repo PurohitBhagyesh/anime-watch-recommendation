@@ -222,7 +222,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
   ];
 
   return (
-    <div className="settings-workspace w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-10 animate-fadeIn space-y-6">
+    <div className="settings-workspace w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-7 animate-fadeIn space-y-5">
       {/* Clean Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-5 border-b border-[#23232b]">
         <div className="space-y-1">

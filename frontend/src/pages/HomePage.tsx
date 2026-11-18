@@ -118,7 +118,7 @@ export const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="w-full pb-12 sm:pb-16 animate-fadeIn">
+    <div className="w-full pb-2 sm:pb-4 animate-fadeIn">
       {/* Primary Semantic H1 for Search Engine Crawlers */}
       <h1 className="sr-only">
         AnimeSenpai — Anime Discovery, Personal Watchlist Tracker & Recommendations
@@ -132,7 +132,7 @@ export const HomePage: React.FC = () => {
 
       {/* Main Editorial Catalog Sections */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 divide-y divide-[#1a1a22]">
-        <div id="trending" className="py-8 sm:py-12 scroll-mt-20">
+        <div id="trending" className="py-5 sm:py-7 scroll-mt-20">
           <CarouselRow
             title="Trending Now"
             subtitle="Most active and discussed anime across AniList right now"
@@ -143,7 +143,7 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        <div id="seasonal" className="py-8 sm:py-12 scroll-mt-20">
+        <div id="seasonal" className="py-5 sm:py-7 scroll-mt-20">
           <CarouselRow
             title={`Popular This Season · ${season} ${year}`}
             subtitle="Currently airing weekly anime series"
@@ -153,11 +153,11 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        <div className="py-8 sm:py-12">
+        <div className="py-5 sm:py-7 below-fold-section">
           <GenreGrid />
         </div>
 
-        <div id="popular" className="py-8 sm:py-12 scroll-mt-20">
+        <div id="popular" className="py-5 sm:py-7 scroll-mt-20 below-fold-section">
           <CarouselRow
             title="All-Time Popular"
             subtitle="Most followed anime series and movies worldwide"
@@ -167,7 +167,7 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        <div id="top100" className="py-8 sm:py-12 scroll-mt-20">
+        <div id="top100" className="py-5 sm:py-7 scroll-mt-20 below-fold-section">
           <CarouselRow
             title="Top 100 Anime"
             subtitle="Highest community-scored anime of all time"
@@ -177,7 +177,7 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        <div id="upcoming" className="py-8 sm:py-12 scroll-mt-20">
+        <div id="upcoming" className="pt-5 pb-4 sm:pt-7 sm:pb-6 scroll-mt-20 below-fold-section">
           <CarouselRow
             title="Upcoming Next Season"
             subtitle="Confirmed anime scheduled for future release"

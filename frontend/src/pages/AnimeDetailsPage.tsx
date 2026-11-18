@@ -228,7 +228,7 @@ export const AnimeDetailsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 pb-16 animate-fadeIn">
+    <div className="space-y-6 pb-8 animate-fadeIn">
       {/* Top Banner Header */}
       <div className="relative w-full h-44 min-[480px]:h-56 sm:h-72 md:h-84 lg:h-96 overflow-hidden bg-[#000000]">
         <img
