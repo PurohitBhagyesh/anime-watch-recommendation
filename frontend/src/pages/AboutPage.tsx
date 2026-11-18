@@ -15,7 +15,6 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { AppLogo } from '../components/common/AppLogo';
-import { SupportUpiCard } from '../components/common/SupportUpiCard';
 import { useSEO, SITE_URL } from '../utils/seo';
 
 export const AboutPage: React.FC = () => {
@@ -251,11 +250,6 @@ export const AboutPage: React.FC = () => {
             </a>
           </div>
         </div>
-      </section>
-
-      {/* Voluntary UPI Support */}
-      <section id="support" className="space-y-4 scroll-mt-24">
-        <SupportUpiCard variant="full" />
       </section>
 
       {/* Creator & Contact Details */}

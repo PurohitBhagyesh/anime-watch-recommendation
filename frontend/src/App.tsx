@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext';
 import { Navbar } from './components/common/Navbar';
 import { BottomTabBar } from './components/common/BottomTabBar';
 import { Footer } from './components/common/Footer';
+import { WebElementsBridge } from './components/common/WebElementsBridge';
 
 import { HomePage } from './pages/HomePage';
 
@@ -67,6 +68,7 @@ export const App: React.FC = () => {
           </main>
             <Footer />
             <BottomTabBar />
+            <WebElementsBridge />
           </div>
         </BrowserRouter>
       </WatchlistProvider>

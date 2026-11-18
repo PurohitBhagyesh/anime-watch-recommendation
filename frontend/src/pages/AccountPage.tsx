@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import { useAuth, AVATAR_PRESETS } from '../context/AuthContext';
 import { useWatchlist } from '../context/WatchlistContext';
-import { SupportUpiCard } from '../components/common/SupportUpiCard';
 import { useSEO, SITE_URL } from '../utils/seo';
 
 interface AccountPageProps {
@@ -474,8 +473,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                 </div>
               </div>
             </div>
-
-            <SupportUpiCard variant="full" />
           </div>
         </div>
       )}

@@ -1,0 +1,539 @@
+/**
+ * Coffee UPI - Plug & Play Buy Me A Coffee (UPI) Floating Widget
+ * Supports: FamApp, Google Pay, PhonePe, Paytm, Amazon Pay, WhatsApp, BHIM
+ * Author: Web Elements (github.com/PurohitBhagyesh)
+ * License: MIT
+ */
+
+:root {
+  --cupi-bg: #121316;
+  --cupi-surface: #1a1c22;
+  --cupi-surface-hover: #23262e;
+  --cupi-border: rgba(255, 255, 255, 0.1);
+  --cupi-border-focus: rgba(255, 255, 255, 0.25);
+  --cupi-accent: #22c55e;
+  --cupi-accent-soft: rgba(34, 197, 94, 0.15);
+  --cupi-text: #f4f4f5;
+  --cupi-text-muted: #a1a1aa;
+  --cupi-text-dim: #71717a;
+  --cupi-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  --cupi-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Light theme overrides when data-theme="light" or user class */
+[data-theme="light"] {
+  --cupi-bg: #f8fafc;
+  --cupi-surface: #ffffff;
+  --cupi-surface-hover: #f1f5f9;
+  --cupi-border: rgba(0, 0, 0, 0.1);
+  --cupi-border-focus: rgba(0, 0, 0, 0.25);
+  --cupi-accent: #16a34a;
+  --cupi-accent-soft: rgba(22, 163, 74, 0.12);
+  --cupi-text: #0f172a;
+  --cupi-text-muted: #64748b;
+  --cupi-text-dim: #94a3b8;
+  --cupi-shadow: 0 16px 36px rgba(0, 0, 0, 0.15);
+}
+
+.cupi-widget {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 9990;
+  font-family: var(--cupi-font);
+  font-size: 14px;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.cupi-widget *,
+.cupi-widget *::before,
+.cupi-widget *::after {
+  box-sizing: border-box;
+}
+
+/* Floating Trigger Pill */
+.cupi-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--cupi-surface);
+  color: var(--cupi-text);
+  border: 1px solid var(--cupi-border);
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+  transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+  user-select: none;
+}
+
+.cupi-pill:hover {
+  background-color: var(--cupi-surface-hover);
+  border-color: var(--cupi-accent);
+  transform: translateY(-2px);
+}
+
+.cupi-pill:active {
+  transform: translateY(0);
+}
+
+.cupi-pill-icon {
+  display: flex;
+  align-items: center;
+  color: #f59e0b;
+}
+
+/* Flyout Card Modal */
+.cupi-card {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 0;
+  width: 320px;
+  background-color: var(--cupi-surface);
+  border: 1px solid var(--cupi-border);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: var(--cupi-shadow);
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  animation: cupiPop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.cupi-card.cupi-active {
+  display: flex;
+}
+
+@keyframes cupiPop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Card Header */
+.cupi-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--cupi-border);
+  padding-bottom: 10px;
+}
+
+.cupi-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cupi-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--cupi-text);
+  margin: 0;
+}
+
+.cupi-id-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cupi-copy-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--cupi-surface-hover);
+  border: 1px solid var(--cupi-border);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: var(--cupi-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: fit-content;
+}
+
+.cupi-copy-id:hover {
+  border-color: var(--cupi-accent);
+  color: var(--cupi-text);
+}
+
+.cupi-copy-id code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+}
+
+.cupi-edit-btn {
+  background-color: var(--cupi-surface-hover);
+  border: 1px solid var(--cupi-border);
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 11px;
+  color: var(--cupi-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.cupi-edit-btn:hover {
+  border-color: var(--cupi-accent);
+  color: var(--cupi-accent);
+}
+
+/* Inline Edit Drawer */
+.cupi-edit-drawer {
+  background: var(--cupi-bg);
+  border: 1px solid var(--cupi-border);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: cupiPop 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.cupi-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cupi-edit-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cupi-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cupi-edit-field input {
+  background: var(--cupi-surface);
+  border: 1px solid var(--cupi-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--cupi-text);
+  font-family: inherit;
+  font-size: 12.5px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.cupi-edit-field input:focus {
+  border-color: var(--cupi-accent);
+}
+
+.cupi-edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.cupi-edit-save-btn {
+  background: var(--cupi-accent);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.cupi-edit-save-btn:hover {
+  opacity: 0.9;
+}
+
+.cupi-edit-cancel-btn {
+  background: transparent;
+  color: var(--cupi-text-muted);
+  border: 1px solid var(--cupi-border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cupi-edit-cancel-btn:hover {
+  color: var(--cupi-text);
+  border-color: var(--cupi-text-dim);
+}
+
+.cupi-close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--cupi-text-dim);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.cupi-close-btn:hover {
+  color: var(--cupi-text);
+  background-color: var(--cupi-surface-hover);
+}
+
+/* Card Body */
+.cupi-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* QR Code Section */
+.cupi-qr-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.cupi-qr-pad {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  min-height: 156px;
+  width: 156px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cupi-qr-pad img {
+  display: block;
+  width: 140px;
+  height: 140px;
+}
+
+.cupi-qr-caption {
+  font-size: 11px;
+  color: var(--cupi-text-dim);
+  text-align: center;
+}
+
+/* Amount Input */
+.cupi-input-wrap {
+  display: flex;
+  align-items: center;
+  background-color: var(--cupi-surface-hover);
+  border: 1px solid var(--cupi-border);
+  border-radius: 8px;
+  padding: 0 12px;
+  height: 38px;
+  transition: border-color 0.15s;
+}
+
+.cupi-input-wrap:focus-within {
+  border-color: var(--cupi-accent);
+}
+
+.cupi-currency {
+  font-size: 15px;
+  color: var(--cupi-text-muted);
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.cupi-amount-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--cupi-text);
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 600;
+  width: 100%;
+}
+
+/* Presets Chips */
+.cupi-presets {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.cupi-preset-chip {
+  background-color: var(--cupi-surface-hover);
+  border: 1px solid var(--cupi-border);
+  color: var(--cupi-text-muted);
+  padding: 6px 0;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.cupi-preset-chip:hover {
+  border-color: var(--cupi-border-focus);
+  color: var(--cupi-text);
+}
+
+.cupi-preset-chip.active {
+  background-color: var(--cupi-accent-soft);
+  border-color: var(--cupi-accent);
+  color: var(--cupi-accent);
+  font-weight: 700;
+}
+
+/* Direct UPI App Section */
+.cupi-apps-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.cupi-apps-header {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--cupi-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cupi-apps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.cupi-app-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  background: var(--cupi-surface-hover);
+  border: 1px solid var(--cupi-border);
+  border-radius: 8px;
+  color: var(--cupi-text);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cupi-app-btn:hover {
+  background: var(--cupi-surface);
+  border-color: var(--cupi-accent);
+  transform: translateY(-1px);
+}
+
+.cupi-app-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.2px;
+}
+
+.cupi-fam-badge { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.cupi-amz-badge { background: linear-gradient(135deg, #232f3e, #131921); color: #ff9900; border: 1px solid rgba(255,153,0,0.4); }
+.cupi-pe-badge { background: linear-gradient(135deg, #5f259f, #7c3aed); }
+.cupi-gpay-badge { background: linear-gradient(135deg, #4285f4, #0f9d58); }
+.cupi-paytm-badge { background: linear-gradient(135deg, #00b9f5, #002e6e); }
+.cupi-wa-badge { background: linear-gradient(135deg, #25d366, #128c7e); }
+
+/* Alert Notice */
+.cupi-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background-color: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 4px;
+  text-align: left;
+}
+
+.cupi-alert-icon {
+  color: #ef4444;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.cupi-alert-text strong {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #ef4444;
+}
+
+.cupi-alert-text p {
+  font-size: 10.5px;
+  color: var(--cupi-text-muted);
+  line-height: 1.4;
+  margin: 2px 0 0;
+}
+
+.cupi-alert-close {
+  background: transparent;
+  border: none;
+  color: var(--cupi-text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.cupi-footer-note {
+  font-size: 11px;
+  color: var(--cupi-text-dim);
+  text-align: center;
+  margin: 0;
+}
+
+/* Hover-to-open on desktop pointer */
+@media (hover: hover) and (pointer: fine) {
+  .cupi-widget:hover .cupi-card,
+  .cupi-card:hover {
+    display: flex;
+  }
+}
+
+/* Mobile responsive bottom sheet */
+@media (max-width: 480px) {
+  .cupi-widget {
+    left: 14px;
+    bottom: max(14px, env(safe-area-inset-bottom));
+  }
+
+  .cupi-card {
+    position: fixed;
+    left: 14px;
+    right: 14px;
+    bottom: max(64px, calc(env(safe-area-inset-bottom) + 56px));
+    width: auto;
+    max-width: 360px;
+    margin: 0 auto;
+    max-height: 82vh;
+    overflow-y: auto;
+  }
+}
+

@@ -546,3 +546,86 @@ dialog.liquid-dialog[open] {
 .horizontal-swipe-row > * {
   scroll-snap-align: start;
 }
+
+/* =========================================================
+   Web Elements (Coffee UPI & Share Link) Liquid Glass Theme
+   & Mobile Floating Dock Clearance
+   ========================================================= */
+:root {
+  --cupi-bg: #070d16;
+  --cupi-surface: rgba(14, 22, 35, 0.86);
+  --cupi-surface-hover: rgba(24, 36, 54, 0.9);
+  --cupi-border: rgba(255, 255, 255, 0.14);
+  --cupi-border-focus: rgba(125, 211, 252, 0.45);
+  --cupi-accent: #3db4f2;
+  --cupi-accent-soft: rgba(61, 180, 242, 0.18);
+  --cupi-text: #f1f5f9;
+  --cupi-text-muted: #a4b3c4;
+  --cupi-text-dim: #8698ab;
+
+  --wshare-bg: #070d16;
+  --wshare-surface: rgba(14, 22, 35, 0.86);
+  --wshare-surface-hover: rgba(24, 36, 54, 0.9);
+  --wshare-border: rgba(255, 255, 255, 0.14);
+  --wshare-border-focus: rgba(125, 211, 252, 0.45);
+  --wshare-accent: #3db4f2;
+  --wshare-accent-soft: rgba(61, 180, 242, 0.18);
+  --wshare-text: #f1f5f9;
+  --wshare-text-muted: #a4b3c4;
+  --wshare-text-dim: #8698ab;
+}
+
+.cupi-pill,
+.wshare-pill {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%), rgba(12, 20, 33, 0.78) !important;
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 12px 30px -8px rgba(0, 0, 0, 0.6) !important;
+}
+
+.cupi-card,
+.wshare-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 100%), rgba(12, 20, 33, 0.92) !important;
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: 20px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 24px 56px -12px rgba(0, 0, 0, 0.78) !important;
+}
+
+/* On mobile (< 768px), lift web-elements pills above the floating BottomTabBar */
+@media (max-width: 767px) {
+  .cupi-widget {
+    left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 45 !important;
+  }
+
+  .wshare-widget {
+    right: max(12px, env(safe-area-inset-right, 0px)) !important;
+    bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 45 !important;
+  }
+
+  .cupi-pill,
+  .wshare-pill {
+    padding: 7px 12px !important;
+    font-size: 12px !important;
+    gap: 6px !important;
+  }
+
+  .cupi-card,
+  .wshare-card {
+    position: fixed !important;
+    left: 12px !important;
+    right: 12px !important;
+    bottom: calc(8.75rem + env(safe-area-inset-bottom, 0px)) !important;
+    width: auto !important;
+    max-width: 360px !important;
+    margin: 0 auto !important;
+    max-height: 70dvh !important;
+    overflow-y: auto !important;
+  }
+}
+

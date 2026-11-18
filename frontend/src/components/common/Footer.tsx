@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { GENRE_LIST } from '../../api/anilist';
 import { AppLogo } from './AppLogo';
-import { SupportUpiCard } from './SupportUpiCard';
 
 export const Footer: React.FC = () => {
   const topGenres = GENRE_LIST.slice(0, 12);
@@ -30,10 +29,7 @@ export const Footer: React.FC = () => {
       {/* Subtle top specular hairline */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 max-w-4xl h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-8 sm:pb-10 space-y-10">
-        {/* Voluntary Developer Support Bar (UPI: Purohit2009@fam) */}
-        <SupportUpiCard variant="compact" />
-
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-12 pb-8 sm:pb-10 space-y-10">
         {/* Main Footer Links & Directory */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10">
           {/* Brand & Live Database Attribution (Span 4) */}

@@ -30,6 +30,7 @@ export const LicensePage: React.FC = () => {
     { name: 'Vite', license: 'MIT', purpose: 'Frontend build tool' },
     { name: 'Tailwind CSS', license: 'MIT', purpose: 'Utility CSS framework' },
     { name: 'Lucide Icons', license: 'ISC', purpose: 'Interface iconography' },
+    { name: 'Web Elements (Coffee UPI & Share Link)', license: 'MIT', purpose: 'Floating UPI & native Web Share widgets' },
     { name: 'Firebase Web SDK', license: 'Apache-2.0', purpose: 'Optional authentication & profile storage' },
   ];
 
