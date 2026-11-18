@@ -444,8 +444,8 @@ export const Navbar: React.FC = () => {
                 }}
                 className={`md:hidden w-9 h-9 rounded-full border transition flex items-center justify-center flex-shrink-0 cursor-pointer ${
                   mobileSearchOpen
-                    ? 'bg-white text-black border-white'
-                    : 'bg-[#0b0b0d] text-[#c8c8d2] border-[#232329] hover:border-[#3a3a44]'
+                    ? 'btn-accent-active'
+                    : 'bg-[#0c0c0f] text-[#d2d2dc] border-[#23232b] hover:border-[#383844]'
                 }`}
                 aria-label={mobileSearchOpen ? 'Close search' : 'Search anime'}
                 aria-expanded={mobileSearchOpen}
@@ -467,8 +467,8 @@ export const Navbar: React.FC = () => {
                 }}
                 className={`md:hidden w-9 h-9 rounded-full border transition flex items-center justify-center flex-shrink-0 cursor-pointer ${
                   mobileMenuOpen
-                    ? 'bg-white text-black border-white'
-                    : 'bg-[#0b0b0d] text-white border-[#232329] hover:border-[#3a3a44]'
+                    ? 'btn-accent-active'
+                    : 'bg-[#0c0c0f] text-[#f5f5f7] border-[#23232b] hover:border-[#383844]'
                 }`}
                 aria-label="Toggle navigation menu"
                 aria-expanded={mobileMenuOpen}

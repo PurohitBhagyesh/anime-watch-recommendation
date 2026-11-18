@@ -326,10 +326,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                 : 'animate-hero-slide-left'
             }`}
           >
-            {/* OpenLid-Style Clean Monochrome Metadata Pills */}
+            {/* Clean 2-Color UI Metadata Pills */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0b0b0d]/90 border border-[#232329] text-white text-[11px] font-mono font-semibold tracking-wider uppercase tabular-nums shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
-                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0c0c0f]/90 border border-[#23232b] text-[#f5f5f7] text-[11px] font-mono font-semibold tracking-wider uppercase tabular-nums shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#5360e6]" />
                 Spotlight {padIndex(currentIndex + 1)} / {padIndex(spotlights.length)}
               </span>
 
@@ -498,7 +498,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                             {isCurrent && (
                               <span
                                 key={`${currentIndex}-${isPaused ? 'paused' : 'play'}`}
-                                className={`absolute inset-0 rounded-full bg-white ${
+                                className={`absolute inset-0 rounded-full bg-[#5360e6] ${
                                   isPaused ? 'w-full' : 'animate-hero-progress'
                                 }`}
                               />

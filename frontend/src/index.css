@@ -6,17 +6,25 @@
     --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Plus Jakarta Sans', 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'SF Mono', Menlo, Monaco, Consolas, ui-monospace, monospace;
 
-    /* OpenLid-Inspired True Monochrome Obsidian Palette */
+    /* 3-Color Luxury Palette:
+       1. Obsidian (#000000 / #0c0c0f) — UI Base & Surfaces (60%)
+       2. Platinum (#f5f5f7 / #9a9aa6) — UI Typography & Hairlines (30%)
+       3. Luminous Indigo (#5360e6) — Primary Buttons & Active Controls Only (10%) */
     --bg: #000000;
-    --surface: #0b0b0d;
-    --surface-alt: #151519;
-    --surface-hover: #1c1c22;
-    --border: #232329;
-    --border-strong: #3a3a44;
-    --glass-rim: rgba(255, 255, 255, 0.12);
+    --surface: #0c0c0f;
+    --surface-alt: #16161b;
+    --surface-hover: #1d1d24;
+    --border: #23232b;
+    --border-strong: #383844;
+    --glass-rim: rgba(255, 255, 255, 0.11);
     --nav-bg: rgba(0, 0, 0, 0.86);
 
-    /* Legacy token aliases mapped to monochrome obsidian */
+    --btn-accent: #5360e6;
+    --btn-accent-hover: #6470f2;
+    --btn-accent-glow: rgba(83, 96, 230, 0.34);
+    --btn-accent-text: #ffffff;
+
+    /* Legacy token aliases mapped cleanly */
     --color-anilist-bg: var(--bg);
     --color-anilist-nav: var(--nav-bg);
     --color-anilist-card: var(--surface);
@@ -26,27 +34,27 @@
     --color-anilist-footer: var(--bg);
 
     /* Apple Liquid Glass Specular Surfaces */
-    --glass-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.01) 100%), rgba(11, 11, 13, 0.84);
-    --glass-bg-strong: linear-gradient(180deg, rgba(255, 255, 255, 0.065) 0%, rgba(255, 255, 255, 0.015) 100%), rgba(11, 11, 13, 0.94);
+    --glass-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.01) 100%), rgba(12, 12, 15, 0.86);
+    --glass-bg-strong: linear-gradient(180deg, rgba(255, 255, 255, 0.065) 0%, rgba(255, 255, 255, 0.015) 100%), rgba(12, 12, 15, 0.95);
     --glass-border: var(--border);
     --glass-border-hover: var(--border-strong);
     --glass-highlight: inset 0 1px 0 var(--glass-rim);
     --glass-shadow: 0 20px 44px -16px rgba(0, 0, 0, 0.72), 0 4px 14px -4px rgba(0, 0, 0, 0.45);
     --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
 
-    /* Semantic Accents (restrained: monochrome primary, semantic status only) */
-    --color-anilist-blue: #ffffff;
-    --color-anilist-blue-hover: #e4e4ec;
-    --color-anilist-blue-dark: #d4d4dc;
+    /* Semantic Status Accents */
+    --color-anilist-blue: var(--btn-accent);
+    --color-anilist-blue-hover: var(--btn-accent-hover);
+    --color-anilist-blue-dark: #434fd4;
     --color-anilist-red: #f43f5e;
     --color-anilist-green: #22c55e;
     --color-anilist-orange: #eab308;
 
-    /* Text Hierarchy */
-    --color-text-primary: #ffffff;
+    /* Platinum Text Hierarchy */
+    --color-text-primary: #f5f5f7;
     --color-text-secondary: #9a9aa6;
     --color-text-muted: #666672;
-    --color-text-sub: #c8c8d2;
+    --color-text-sub: #d2d2dc;
   }
 
   html {
@@ -105,8 +113,8 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: var(--color-text-primary);
-  opacity: 0.9;
+  background: var(--btn-accent);
+  opacity: 0.95;
   z-index: 120;
   pointer-events: none;
   transform-origin: 0 50%;
@@ -242,21 +250,20 @@
   box-shadow: inset 0 1px 0 var(--glass-rim), 0 18px 40px -12px rgba(0, 0, 0, 0.78);
 }
 
-/* OpenLid Inverted Monochrome Primary Pill Button */
+/* 3rd-Color Accent Primary Pill Button (Luminous Indigo) */
 .anilist-btn-primary {
-  background: #ffffff;
-  color: #000000;
+  background: var(--btn-accent);
+  color: var(--btn-accent-text);
   border-radius: 9999px;
   font-weight: 700;
-  border: 1px solid #ffffff;
-  box-shadow: 0 2px 12px rgba(255, 255, 255, 0.08);
-  transition: background-color 0.18s ease, opacity 0.18s ease, box-shadow 0.22s ease, transform 0.22s var(--ease-spring);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 8px 22px -8px var(--btn-accent-glow);
+  transition: background-color 0.18s ease, box-shadow 0.22s ease, transform 0.22s var(--ease-spring);
 }
 
 .anilist-btn-primary:hover {
-  background: #ececf2;
-  border-color: #ececf2;
-  box-shadow: 0 8px 24px -6px rgba(255, 255, 255, 0.2);
+  background: var(--btn-accent-hover);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 12px 28px -8px var(--btn-accent-glow);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -266,6 +273,14 @@
   .anilist-btn-primary:active {
     transform: scale(0.97);
   }
+}
+
+/* Active Pill State using 3rd-Color Button Accent */
+.btn-accent-active {
+  background: var(--btn-accent);
+  color: var(--btn-accent-text);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 /* OpenLid Secondary Monochrome Bordered Pill Button */
@@ -689,24 +704,24 @@ dialog.liquid-dialog::backdrop {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 24px 60px rgba(0, 0, 0, 0.78) !important;
 }
 
-/* Inverted crisp white primary buttons inside web-elements cards */
+/* 3rd-Color Accent Primary Buttons inside web-elements cards */
 .cupi-pay-btn,
 .wshare-copy-btn {
-  background: #ffffff !important;
-  color: #000000 !important;
+  background: var(--btn-accent) !important;
+  color: var(--btn-accent-text) !important;
   border-radius: 12px !important;
   font-weight: 700 !important;
 }
 
 .cupi-pay-btn:hover,
 .wshare-copy-btn:hover {
-  background: #ececf2 !important;
+  background: var(--btn-accent-hover) !important;
 }
 
 .cupi-preset.active {
-  background: #ffffff !important;
-  color: #000000 !important;
-  border-color: #ffffff !important;
+  background: var(--btn-accent) !important;
+  color: var(--btn-accent-text) !important;
+  border-color: var(--btn-accent) !important;
 }
 
 /* Hide inline edit buttons in production so visitors cannot alter payee UPI or share config */

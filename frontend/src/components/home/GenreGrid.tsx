@@ -62,7 +62,7 @@ export const GenreGrid: React.FC = () => {
               to={`/discover?genre=${encodeURIComponent(item.name)}`}
               className="anilist-card px-3.5 py-2.5 sm:px-3.5 sm:py-3 flex items-center gap-2.5 group flex-shrink-0 snap-start min-h-[44px]"
             >
-              <div className="w-7 h-7 rounded-lg bg-[#151519] border border-[#232329] text-[#9a9aa6] group-hover:bg-white group-hover:text-black group-hover:border-white transition flex items-center justify-center flex-shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-[#16161b] border border-[#23232b] text-[#9a9aa6] group-hover:bg-[#5360e6] group-hover:text-white group-hover:border-[#5360e6] transition flex items-center justify-center flex-shrink-0">
                 <Icon aria-hidden="true" className="w-3.5 h-3.5" />
               </div>
               <span className="font-semibold text-xs sm:text-[13px] text-[#c8c8d2] group-hover:text-white transition whitespace-nowrap sm:truncate">

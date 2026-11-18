@@ -188,9 +188,9 @@ export const WatchlistPage: React.FC = () => {
               type="button"
               onClick={() => setViewMode('table')}
               aria-label="List view"
-              className={`p-2 rounded text-xs font-bold transition flex items-center gap-1 ${
+              className={`p-2 rounded-full text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
                 viewMode === 'table'
-                  ? 'bg-white text-black shadow-sm'
+                  ? 'btn-accent-active'
                   : 'text-[#9a9aa6] hover:text-white'
               }`}
               title="List View"
@@ -201,9 +201,9 @@ export const WatchlistPage: React.FC = () => {
               type="button"
               onClick={() => setViewMode('grid')}
               aria-label="Grid view"
-              className={`p-2 rounded text-xs font-bold transition flex items-center gap-1 ${
+              className={`p-2 rounded-full text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
                 viewMode === 'grid'
-                  ? 'bg-white text-black shadow-sm'
+                  ? 'btn-accent-active'
                   : 'text-[#9a9aa6] hover:text-white'
               }`}
               title="Grid View"
@@ -389,15 +389,15 @@ export const WatchlistPage: React.FC = () => {
               onClick={() => setFilterStatus(tab.id)}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold transition flex-shrink-0 whitespace-nowrap active:scale-95 cursor-pointer ${
                 isActive
-                  ? 'bg-white text-black font-bold'
-                  : 'bg-[#0b0b0d] hover:bg-[#151519] text-[#c8c8d2] hover:text-white border border-[#232329]'
+                  ? 'btn-accent-active font-bold'
+                  : 'bg-[#0c0c0f] hover:bg-[#16161b] text-[#d2d2dc] hover:text-white border border-[#23232b]'
               }`}
             >
               <Icon aria-hidden="true" className="w-3.5 h-3.5 flex-shrink-0" />
               <span>{tab.label}</span>
               <span
                 className={`px-1.5 py-0.2 text-[10px] rounded-full font-mono tabular-nums ${
-                  isActive ? 'bg-black/15 text-black' : 'bg-[#151519] text-[#9a9aa6]'
+                  isActive ? 'bg-black/25 text-white' : 'bg-[#16161b] text-[#9a9aa6]'
                 }`}
               >
                 {count}

@@ -148,8 +148,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
         </div>
 
         <div className="anilist-card-static p-6 sm:p-8 rounded-3xl relative">
-          {/* OpenLid-Style Segmented Mode Switcher */}
-          <div className="grid grid-cols-2 p-1 rounded-full bg-[#151519] border border-[#232329] mb-6">
+          {/* 3-Color Segmented Mode Switcher */}
+          <div className="grid grid-cols-2 p-1 rounded-full bg-[#16161b] border border-[#23232b] mb-6">
             <button
               type="button"
               onClick={() => {
@@ -158,7 +158,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
               }}
               className={`py-2 rounded-full text-xs font-semibold transition flex items-center justify-center gap-2 cursor-pointer ${
                 mode === 'login'
-                  ? 'bg-white text-black font-bold'
+                  ? 'btn-accent-active font-bold'
                   : 'text-[#9a9aa6] hover:text-white'
               }`}
             >
@@ -173,7 +173,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
               }}
               className={`py-2 rounded-full text-xs font-semibold transition flex items-center justify-center gap-2 cursor-pointer ${
                 mode === 'signup'
-                  ? 'bg-white text-black font-bold'
+                  ? 'btn-accent-active font-bold'
                   : 'text-[#9a9aa6] hover:text-white'
               }`}
             >

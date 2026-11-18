@@ -239,7 +239,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
               className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-lg active:scale-95 cursor-pointer ${
                 inWatchlist
                   ? 'bg-emerald-500 text-black font-bold'
-                  : 'bg-black/85 text-white hover:bg-white hover:text-black border border-white/20'
+                  : 'bg-black/85 text-white hover:bg-[#5360e6] hover:border-[#5360e6] border border-white/20'
               }`}
               title={inWatchlist ? `In List (${currentItem?.status})` : 'Add to List'}
               aria-label={`Manage watchlist status for ${title}`}
@@ -277,8 +277,8 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
                       }}
                       className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl flex items-center justify-between font-medium transition cursor-pointer ${
                         currentItem?.status === st.id
-                          ? 'bg-white text-black font-bold'
-                          : 'text-[#c8c8d2] hover:bg-[#151519] hover:text-white'
+                          ? 'btn-accent-active font-bold'
+                          : 'text-[#d2d2dc] hover:bg-[#16161b] hover:text-white'
                       }`}
                     >
                       <span>{st.label}</span>

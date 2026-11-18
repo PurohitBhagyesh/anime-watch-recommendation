@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
   TrendingUp,
   PlaySquare,
@@ -8,10 +7,6 @@ import {
   RefreshCw,
   AlertTriangle,
   Flame,
-  Film,
-  Sparkles,
-  Swords,
-  Heart,
 } from 'lucide-react';
 import { fetchHomeData, getCurrentSeason } from '../api/anilist';
 import type { HomeSectionsData } from '../api/anilist';
@@ -122,18 +117,6 @@ export const HomePage: React.FC = () => {
     );
   }
 
-  const quickCategories = [
-    { label: 'Trending', link: '/discover?sort=TRENDING_DESC', icon: Flame },
-    { label: `${season} ${year}`, link: `/discover?season=${season}&year=${year}`, icon: PlaySquare },
-    { label: 'All-Time Popular', link: '/discover?sort=POPULARITY_DESC', icon: TrendingUp },
-    { label: 'Top 100', link: '/discover?sort=SCORE_DESC', icon: Trophy },
-    { label: 'Upcoming', link: '/discover?status=NOT_YET_RELEASED', icon: Clock },
-    { label: 'Movies', link: '/discover?format=MOVIE', icon: Film },
-    { label: 'Action', link: '/discover?genre=Action', icon: Swords },
-    { label: 'Romance', link: '/discover?genre=Romance', icon: Heart },
-    { label: 'Fantasy', link: '/discover?genre=Fantasy', icon: Sparkles },
-  ];
-
   return (
     <div className="w-full pb-12 sm:pb-16 animate-fadeIn">
       {/* Primary Semantic H1 for Search Engine Crawlers */}
@@ -147,29 +130,8 @@ export const HomePage: React.FC = () => {
         anime={data?.spotlight || (initialHomeData as any).spotlight}
       />
 
-      {/* Quick Category Pill Strip (OpenLid-style monochrome pills) */}
-      <div className="border-b border-[#232329] bg-[#000000]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar touch-scroll-smooth">
-            {quickCategories.map((cat) => {
-              const Icon = cat.icon;
-              return (
-                <Link
-                  key={cat.label}
-                  to={cat.link}
-                  className="liquid-glass-pill flex items-center gap-1.5 px-3.5 py-2 min-h-[36px] rounded-full text-xs font-medium whitespace-nowrap text-[#c8c8d2] hover:text-white flex-shrink-0 snap-start active:scale-95"
-                >
-                  <Icon aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
-                  <span>{cat.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
       {/* Main Editorial Catalog Sections */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 divide-y divide-[#1a1a20]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 divide-y divide-[#1a1a22]">
         <div id="trending" className="py-8 sm:py-12 scroll-mt-20">
           <CarouselRow
             title="Trending Now"

@@ -436,8 +436,8 @@ export const AnimeDetailsPage: React.FC = () => {
                       }}
                       className={`px-2.5 py-2 min-h-[38px] rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer ${
                         isActive
-                          ? 'bg-white text-black font-bold'
-                          : 'bg-[#151519] hover:bg-[#1c1c22] text-[#c8c8d2] hover:text-white border border-[#232329]'
+                          ? 'btn-accent-active font-bold'
+                          : 'bg-[#16161b] hover:bg-[#1d1d24] text-[#d2d2dc] hover:text-white border border-[#23232b]'
                       }`}
                     >
                       {isActive && <Check aria-hidden="true" className="w-3.5 h-3.5" />}
@@ -625,7 +625,7 @@ export const AnimeDetailsPage: React.FC = () => {
                     onClick={() => setActiveTab(tab.id as any)}
                     className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition flex-shrink-0 whitespace-nowrap cursor-pointer ${
                       active
-                        ? 'bg-white text-black font-bold'
+                        ? 'btn-accent-active font-bold'
                         : 'text-[#9a9aa6] hover:text-white'
                     }`}
                   >

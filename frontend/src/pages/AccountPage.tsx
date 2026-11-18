@@ -293,14 +293,14 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
         </div>
       </div>
 
-      {/* OpenLid-Style Segmented Tab Switcher */}
-      <div className="bg-[#0b0b0d] border border-[#232329] p-1 rounded-full grid grid-cols-2 sm:inline-grid sm:grid-cols-2 gap-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+      {/* 3-Color Segmented Tab Switcher */}
+      <div className="bg-[#0c0c0f] border border-[#23232b] p-1 rounded-full grid grid-cols-2 sm:inline-grid sm:grid-cols-2 gap-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
         <button
           type="button"
           onClick={() => setActiveTab('account')}
           className={`flex items-center justify-center gap-2 px-5 py-2.5 min-h-[40px] rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
             activeTab === 'account'
-              ? 'bg-white text-black font-bold'
+              ? 'btn-accent-active font-bold'
               : 'text-[#9a9aa6] hover:text-white'
           }`}
         >
@@ -313,7 +313,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
           onClick={() => setActiveTab('settings')}
           className={`flex items-center justify-center gap-2 px-5 py-2.5 min-h-[40px] rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
             activeTab === 'settings'
-              ? 'bg-white text-black font-bold'
+              ? 'btn-accent-active font-bold'
               : 'text-[#9a9aa6] hover:text-white'
           }`}
         >
@@ -508,10 +508,10 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   <button
                     type="button"
                     onClick={() => updatePreference('preferredAudio', 'sub')}
-                    className={`flex-1 px-3 py-2 min-h-[40px] rounded-xl text-xs font-bold transition cursor-pointer ${
+                    className={`flex-1 px-3 py-2 min-h-[40px] rounded-full text-xs font-bold transition cursor-pointer ${
                       prefs.preferredAudio === 'sub'
-                        ? 'bg-white text-black'
-                        : 'bg-white/5 text-slate-300 hover:text-white border border-[#232329]'
+                        ? 'btn-accent-active'
+                        : 'bg-[#16161b] text-[#d2d2dc] hover:text-white border border-[#23232b]'
                     }`}
                   >
                     Original Japanese (Sub)
@@ -519,10 +519,10 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   <button
                     type="button"
                     onClick={() => updatePreference('preferredAudio', 'dub')}
-                    className={`flex-1 px-3 py-2 min-h-[40px] rounded-xl text-xs font-bold transition cursor-pointer ${
+                    className={`flex-1 px-3 py-2 min-h-[40px] rounded-full text-xs font-bold transition cursor-pointer ${
                       prefs.preferredAudio === 'dub'
-                        ? 'bg-white text-black'
-                        : 'bg-white/5 text-slate-300 hover:text-white border border-[#232329]'
+                        ? 'btn-accent-active'
+                        : 'bg-[#16161b] text-[#d2d2dc] hover:text-white border border-[#23232b]'
                     }`}
                   >
                     English (Dub)
