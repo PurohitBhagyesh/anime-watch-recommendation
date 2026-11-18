@@ -83,30 +83,30 @@ export const AppLogo: React.FC<AppLogoProps> = ({
     if (typeof size === 'number') {
       return {
         iconSize: size,
-        textSize: 'text-[15px]',
+        textSize: 'text-lg',
       };
     }
     switch (size) {
       case 'sm':
         return {
-          iconSize: 28,
-          textSize: 'text-[15px]',
+          iconSize: 36,
+          textSize: 'text-[17px] sm:text-[19px]',
         };
       case 'lg':
         return {
-          iconSize: 42,
-          textSize: 'text-xl sm:text-2xl',
+          iconSize: 52,
+          textSize: 'text-2xl sm:text-3xl',
         };
       case 'xl':
         return {
-          iconSize: 50,
-          textSize: 'text-2xl sm:text-3xl',
+          iconSize: 64,
+          textSize: 'text-3xl sm:text-4xl',
         };
       case 'md':
       default:
         return {
-          iconSize: 32,
-          textSize: 'text-base',
+          iconSize: 42,
+          textSize: 'text-xl',
         };
     }
   };

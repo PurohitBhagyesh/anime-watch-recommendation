@@ -231,7 +231,7 @@ export const Navbar: React.FC = () => {
     <>
       <header className="sticky top-0 z-50 w-full anilist-nav safe-area-top">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 safe-area-x">
-          <div className="flex items-center justify-between h-[52px] sm:h-14 gap-3 sm:gap-5">
+          <div className="flex items-center justify-between h-[56px] sm:h-16 gap-3 sm:gap-5">
             {/* Left: Brand */}
             <Link
               to="/"

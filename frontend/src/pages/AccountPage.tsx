@@ -19,6 +19,13 @@ import {
   Image as ImageIcon,
   FolderOpen,
   Type,
+  Info,
+  Shield,
+  FileText,
+  Scale,
+  Lock,
+  ChevronRight,
+  ExternalLink,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useWatchlist } from '../context/WatchlistContext';
@@ -29,13 +36,14 @@ import {
   type TextSize,
 } from '../context/PreferencesContext';
 import { UserAvatar } from '../components/common/UserAvatar';
+import { AppLogo } from '../components/common/AppLogo';
 import { useSEO, SITE_URL } from '../utils/seo';
 
 interface AccountPageProps {
   defaultTab?: 'account' | 'settings';
 }
 
-type SettingsSection = 'preferences' | 'profile' | 'data' | 'danger';
+type SettingsSection = 'preferences' | 'profile' | 'data' | 'about';
 
 const TEXT_SIZE_STEPS: { id: TextSize; label: string; pct: string }[] = [
   { id: 'sm', label: 'Small', pct: '90%' },
@@ -386,11 +394,44 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
     TEXT_SIZE_STEPS.findIndex((s) => s.id === preferences.textSize)
   );
 
-  const navItems: { id: SettingsSection; label: string; icon: React.ElementType; danger?: boolean }[] = [
+  const navItems: { id: SettingsSection; label: string; icon: React.ElementType }[] = [
     { id: 'preferences', label: 'Display', icon: Sliders },
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'data', label: 'Data', icon: Database },
-    ...(user ? [{ id: 'danger' as const, label: 'Delete', icon: Trash2, danger: true }] : []),
+    { id: 'about', label: 'About', icon: Info },
+  ];
+
+  const legalLinks = [
+    {
+      to: '/about',
+      title: 'About AnimeSenpai',
+      subtitle: 'Platform mission, independence, and transparency',
+      icon: Info,
+    },
+    {
+      to: '/privacy',
+      title: 'Privacy Policy',
+      subtitle: 'Zero data selling, local storage, and erasure rights',
+      icon: Lock,
+    },
+    {
+      to: '/terms',
+      title: 'Terms of Service',
+      subtitle: 'Usage guidelines and third-party media notices',
+      icon: FileText,
+    },
+    {
+      to: '/license',
+      title: 'Licenses',
+      subtitle: 'MIT open-source license and AniList attribution',
+      icon: Scale,
+    },
+    {
+      to: '/security',
+      title: 'Security',
+      subtitle: 'Vulnerability disclosure and security policy',
+      icon: Shield,
+    },
   ];
 
   return (
@@ -450,11 +491,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   aria-current={isActive ? 'page' : undefined}
                   className={`settings-nav-btn flex items-center gap-1.5 sm:gap-2.5 px-2.5 sm:px-3.5 py-2 min-h-[38px] text-xs font-semibold transition cursor-pointer ${
                     isActive
-                      ? item.danger
-                        ? 'bg-rose-600 text-white'
-                        : 'btn-accent-active'
-                      : item.danger
-                      ? 'text-rose-400 hover:bg-rose-500/10'
+                      ? 'btn-accent-active'
                       : 'text-[#9a9aa6] hover:text-[#f5f5f7] hover:bg-[#16161b]'
                   }`}
                 >
@@ -893,115 +930,164 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
             </div>
           )}
 
-          {/* SECTION 3: Data Ownership & Backups */}
+          {/* SECTION 3: Data Ownership, Backups & Permanent Account Deletion */}
           {activeSection === 'data' && (
-            <div className="anilist-card-static p-5 space-y-5 animate-fadeIn">
-              <div className="border-b border-[#23232b] pb-3">
-                <h2 className="text-sm sm:text-base font-bold text-[#f5f5f7]">Your Data & Backups</h2>
-                <p className="text-xs text-[#9a9aa6] mt-0.5">
-                  Export a portable JSON backup of your anime list, restore one, or clear local browser data anytime.
-                </p>
+            <div className="space-y-4 animate-fadeIn">
+              <div className="anilist-card-static p-5 space-y-5">
+                <div className="border-b border-[#23232b] pb-3">
+                  <h2 className="text-sm sm:text-base font-bold text-[#f5f5f7]">Your Data & Backups</h2>
+                  <p className="text-xs text-[#9a9aa6] mt-0.5">
+                    Export a portable JSON backup of your anime list, restore one, or clear local browser data anytime.
+                  </p>
+                </div>
+
+                {importStatus && (
+                  <div
+                    className={`p-3 rounded-xl text-xs font-semibold border animate-fadeIn ${
+                      importStatus.ok
+                        ? 'bg-emerald-500/12 border-emerald-500/30 text-[#4ade80]'
+                        : 'bg-rose-500/12 border-rose-500/30 text-rose-300'
+                    }`}
+                  >
+                    {importStatus.text}
+                  </div>
+                )}
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".json"
+                  onChange={handleImportFile}
+                  className="hidden"
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={exportWatchlist}
+                    className="anilist-btn-primary px-4 py-3 text-xs flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Download aria-hidden="true" className="w-4 h-4" />
+                    <span>Export JSON</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="anilist-btn-secondary px-4 py-3 text-xs flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Upload aria-hidden="true" className="w-4 h-4 text-[#9a9aa6]" />
+                    <span>Import Backup</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('Clear your local watchlist on this browser?')) {
+                        clearWatchlist();
+                      }
+                    }}
+                    className="px-4 py-3 rounded-full bg-[#16161b] hover:bg-rose-500/15 border border-[#23232b] hover:border-rose-500/35 text-xs font-semibold text-[#d2d2dc] hover:text-rose-300 transition flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Trash2 aria-hidden="true" className="w-4 h-4" />
+                    <span>Clear Local List</span>
+                  </button>
+                </div>
               </div>
 
-              {importStatus && (
-                <div
-                  className={`p-3 rounded-xl text-xs font-semibold border animate-fadeIn ${
-                    importStatus.ok
-                      ? 'bg-emerald-500/12 border-emerald-500/30 text-[#4ade80]'
-                      : 'bg-rose-500/12 border-rose-500/30 text-rose-300'
-                  }`}
-                >
-                  {importStatus.text}
+              {user && (
+                <div className="anilist-card-static p-5 border-rose-500/30 space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-rose-500/12 border border-rose-500/30 flex items-center justify-center text-rose-400 flex-shrink-0">
+                      <AlertTriangle aria-hidden="true" className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-1">
+                      <h2 className="text-sm sm:text-base font-bold text-[#f5f5f7]">
+                        Delete Account & Erase All Data
+                      </h2>
+                      <p className="text-xs text-[#9a9aa6] leading-relaxed">
+                        We never keep, sell, or retain your personal data after deletion. Permanently deleting your account removes your login profile, cloud record, local watchlist, and preferences immediately.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-[#23232b]">
+                    <p className="text-xs text-[#9a9aa6]">
+                      Export your JSON backup first if you want a local copy.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={openDeleteDialog}
+                      className="anilist-btn-danger px-5 py-2.5 min-h-[42px] text-xs inline-flex items-center justify-center gap-2 cursor-pointer flex-shrink-0"
+                    >
+                      <Trash2 aria-hidden="true" className="w-3.5 h-3.5" />
+                      <span>Delete My Account</span>
+                    </button>
+                  </div>
                 </div>
               )}
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                onChange={handleImportFile}
-                className="hidden"
-              />
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <button
-                  type="button"
-                  onClick={exportWatchlist}
-                  className="anilist-btn-primary px-4 py-3 text-xs flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Download aria-hidden="true" className="w-4 h-4" />
-                  <span>Export JSON</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="anilist-btn-secondary px-4 py-3 text-xs flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Upload aria-hidden="true" className="w-4 h-4 text-[#9a9aa6]" />
-                  <span>Import Backup</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (window.confirm('Clear your local watchlist on this browser?')) {
-                      clearWatchlist();
-                    }
-                  }}
-                  className="px-4 py-3 rounded-full bg-[#16161b] hover:bg-rose-500/15 border border-[#23232b] hover:border-rose-500/35 text-xs font-semibold text-[#d2d2dc] hover:text-rose-300 transition flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Trash2 aria-hidden="true" className="w-4 h-4" />
-                  <span>Clear Local List</span>
-                </button>
-              </div>
-
-              <div className="pt-3 border-t border-[#23232b] flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[#9a9aa6]">
-                <Link to="/privacy" className="hover:text-[#f5f5f7] transition">
-                  Privacy Policy →
-                </Link>
-                <Link to="/terms" className="hover:text-[#f5f5f7] transition">
-                  Terms of Service →
-                </Link>
-                <Link to="/license" className="hover:text-[#f5f5f7] transition">
-                  Open Source Licenses →
-                </Link>
-                <Link to="/security" className="hover:text-[#f5f5f7] transition">
-                  Security Policy →
-                </Link>
-              </div>
             </div>
           )}
 
-          {/* SECTION 4: Permanent Account Deletion */}
-          {activeSection === 'danger' && user && (
-            <div className="anilist-card-static p-5 border-rose-500/30 space-y-4 animate-fadeIn">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-rose-500/12 border border-rose-500/30 flex items-center justify-center text-rose-400 flex-shrink-0">
-                  <AlertTriangle aria-hidden="true" className="w-5 h-5" />
-                </div>
-                <div className="space-y-1">
-                  <h2 className="text-sm sm:text-base font-bold text-[#f5f5f7]">
-                    Delete Account & Erase All Data
-                  </h2>
-                  <p className="text-xs text-[#9a9aa6] leading-relaxed">
-                    We never keep, sell, or retain your personal data after deletion. Permanently deleting your account removes your login profile, cloud record, local watchlist, and preferences immediately.
-                  </p>
+          {/* SECTION 4: About, Legal & Security */}
+          {activeSection === 'about' && (
+            <div className="space-y-4 animate-fadeIn">
+              {/* Brand Overview Card */}
+              <div className="anilist-card-static p-5 space-y-3">
+                <AppLogo size="md" subtitle="" />
+                <p className="text-xs sm:text-sm text-[#9a9aa6] leading-relaxed">
+                  Independent, ad-free anime discovery catalog and personal watchlist tracker. Real-time community scores, seasonal airing schedules, voice cast, and official trailers powered by AniList GraphQL.
+                </p>
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <a
+                    href="https://anilist.co"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#16161b] border border-[#23232b] hover:border-[#383844] text-xs font-medium text-[#f5f5f7] transition"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span>Live data via AniList GraphQL</span>
+                    <ExternalLink aria-hidden="true" className="w-3 h-3 text-[#9a9aa6]" />
+                  </a>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-[#23232b]">
-                <p className="text-xs text-[#9a9aa6]">
-                  Export your JSON backup first if you want a local copy.
-                </p>
-                <button
-                  type="button"
-                  onClick={openDeleteDialog}
-                  className="anilist-btn-danger px-5 py-2.5 min-h-[42px] text-xs inline-flex items-center justify-center gap-2 cursor-pointer flex-shrink-0"
-                >
-                  <Trash2 aria-hidden="true" className="w-3.5 h-3.5" />
-                  <span>Delete My Account</span>
-                </button>
+              {/* Legal & Security Grouped List */}
+              <div className="anilist-card-static overflow-hidden divide-y divide-[#23232b]">
+                <div className="px-5 py-3.5">
+                  <h2 className="text-[11px] font-mono font-semibold uppercase tracking-widest text-[#9a9aa6]">
+                    Legal & Security
+                  </h2>
+                </div>
+
+                {legalLinks.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      className="flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-[#16161b] transition group"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="w-8 h-8 rounded-xl bg-[#16161b] border border-[#23232b] group-hover:border-[#383844] flex items-center justify-center text-[#9a9aa6] group-hover:text-[#f5f5f7] flex-shrink-0 transition">
+                          <Icon aria-hidden="true" className="w-4 h-4" />
+                        </span>
+                        <div className="min-w-0">
+                          <span className="text-sm font-semibold text-[#f5f5f7] block truncate">
+                            {item.title}
+                          </span>
+                          <span className="text-xs text-[#9a9aa6] block truncate">
+                            {item.subtitle}
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronRight
+                        aria-hidden="true"
+                        className="w-4 h-4 text-[#666672] group-hover:text-[#f5f5f7] group-hover:translate-x-0.5 transition flex-shrink-0"
+                      />
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}

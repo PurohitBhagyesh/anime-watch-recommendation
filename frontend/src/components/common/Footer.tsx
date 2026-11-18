@@ -184,12 +184,12 @@ export const Footer: React.FC = () => {
               </div>
             </div>
 
-            {/* Genres & Legal */}
+            {/* Genres */}
             <div className="lg:col-span-4">
               <h3 className="text-[11px] font-semibold uppercase tracking-widest text-white mb-3.5 font-mono">
                 Genres
               </h3>
-              <div className="flex flex-wrap gap-1.5 mb-6">
+              <div className="flex flex-wrap gap-1.5">
                 {topGenres.map((genre) => (
                   <Link
                     key={genre}
@@ -199,31 +199,6 @@ export const Footer: React.FC = () => {
                     {genre}
                   </Link>
                 ))}
-              </div>
-
-              <h4 className="text-[11px] font-semibold uppercase tracking-widest text-[#666672] mb-2.5 font-mono">
-                Legal & Security
-              </h4>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
-                <Link to="/about" className="text-[#c8c8d2] hover:text-white transition">
-                  About
-                </Link>
-                <span aria-hidden="true" className="text-[#3a3a44]">·</span>
-                <Link to="/privacy" className="hover:text-white transition">
-                  Privacy
-                </Link>
-                <span aria-hidden="true" className="text-[#3a3a44]">·</span>
-                <Link to="/terms" className="hover:text-white transition">
-                  Terms
-                </Link>
-                <span aria-hidden="true" className="text-[#3a3a44]">·</span>
-                <Link to="/license" className="hover:text-white transition">
-                  Licenses
-                </Link>
-                <span aria-hidden="true" className="text-[#3a3a44]">·</span>
-                <Link to="/security" className="hover:text-white transition">
-                  Security
-                </Link>
               </div>
             </div>
           </div>
