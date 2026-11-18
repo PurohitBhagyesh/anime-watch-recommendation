@@ -6,6 +6,8 @@ import {
   Info,
   Check,
   Plus,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import type { AnimeCardData } from '../../api/types';
 import { TrailerModal } from '../common/TrailerModal';
@@ -33,6 +35,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
 
   const containerRef = useRef<HTMLElement | null>(null);
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const dragOffsetRef = useRef<number>(0);
   const isPointerDownRef = useRef<boolean>(false);
   const hasMovedRef = useRef<boolean>(false);
   const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -167,6 +170,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     setIsHoverPaused(true);
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+    dragOffsetRef.current = 0;
     hasMovedRef.current = false;
   };
 
@@ -177,15 +181,17 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     const diffY = touch.clientY - touchStartRef.current.y;
 
     if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 10) {
+      const nextDrag = diffX * 0.55;
       hasMovedRef.current = true;
+      dragOffsetRef.current = nextDrag;
       setIsDragging(true);
-      setDragOffset(diffX * 0.55);
+      setDragOffset(nextDrag);
     }
   };
 
   const handleTouchEnd = () => {
     if (!touchStartRef.current) return;
-    const drag = dragOffset;
+    const drag = dragOffsetRef.current;
     const elapsed = Date.now() - touchStartRef.current.time;
     const velocity = Math.abs(drag) / (elapsed || 1);
 
@@ -195,6 +201,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
       goToPrev(true);
     }
 
+    dragOffsetRef.current = 0;
     setDragOffset(0);
     setIsDragging(false);
     touchStartRef.current = null;
@@ -215,6 +222,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
     setIsHoverPaused(true);
     isPointerDownRef.current = true;
+    dragOffsetRef.current = 0;
     hasMovedRef.current = false;
     touchStartRef.current = { x: e.clientX, y: e.clientY, time: Date.now() };
   };
@@ -225,9 +233,11 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     const diffY = e.clientY - touchStartRef.current.y;
 
     if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 8) {
+      const nextDrag = diffX * 0.45;
       hasMovedRef.current = true;
+      dragOffsetRef.current = nextDrag;
       setIsDragging(true);
-      setDragOffset(diffX * 0.45);
+      setDragOffset(nextDrag);
     }
   };
 
@@ -282,7 +292,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
           if (!isDragging) setIsHoverPaused(false);
         }}
         style={{ touchAction: 'pan-y' }}
-        className="hero-adaptive relative w-full overflow-hidden min-h-[470px] min-[400px]:min-h-[510px] sm:min-h-[430px] md:min-h-[465px] lg:min-h-[500px] flex items-end border-b border-[#23232b] bg-[#000000] select-none cursor-grab active:cursor-grabbing"
+        className="hero-adaptive relative w-full overflow-hidden overscroll-x-contain min-h-[470px] min-[400px]:min-h-[510px] sm:min-h-[430px] md:min-h-[465px] lg:min-h-[500px] flex items-end border-b border-[#23232b] bg-[#000000] select-none cursor-grab active:cursor-grabbing"
       >
         {/* Responsive Art-Directed Background: Portrait Key Art on Mobile, Wide Banner on Desktop */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -316,6 +326,39 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
           <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/65 to-[#000000]/20" />
           <div className="hidden sm:block absolute inset-0 bg-gradient-to-r from-[#000000] via-[#000000]/75 to-transparent" />
         </div>
+
+        {/* Mobile Left / Right Swipe Arrows (Both Sides, clear of title & CTAs) */}
+        {spotlights.length > 1 && (
+          <div className="sm:hidden absolute inset-x-0 top-[96px] min-[400px]:top-[112px] -translate-y-1/2 z-20 pointer-events-none flex items-center justify-between px-2.5 min-[400px]:px-3.5">
+            <button
+              type="button"
+              onClick={(e) => {
+                if (hasMovedRef.current) return;
+                e.stopPropagation();
+                goToPrev(true);
+              }}
+              aria-label="Previous featured anime slide"
+              style={{ touchAction: 'manipulation' }}
+              className="pointer-events-auto w-11 h-11 rounded-full bg-[#0b0b0d]/75 hover:bg-[#151519] active:bg-[#151519] border border-white/20 backdrop-blur-md flex items-center justify-center text-white/95 active:text-white transition-all cursor-pointer active:scale-95 shadow-[0_2px_12px_rgba(0,0,0,0.65)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              <ChevronLeft aria-hidden="true" className="w-5 h-5 -ml-0.5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                if (hasMovedRef.current) return;
+                e.stopPropagation();
+                goToNext(true);
+              }}
+              aria-label="Next featured anime slide"
+              style={{ touchAction: 'manipulation' }}
+              className="pointer-events-auto w-11 h-11 rounded-full bg-[#0b0b0d]/75 hover:bg-[#151519] active:bg-[#151519] border border-white/20 backdrop-blur-md flex items-center justify-center text-white/95 active:text-white transition-all cursor-pointer active:scale-95 shadow-[0_2px_12px_rgba(0,0,0,0.65)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              <ChevronRight aria-hidden="true" className="w-5 h-5 -mr-0.5" />
+            </button>
+          </div>
+        )}
 
         {/* Hero Foreground Slide Content */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-40 min-[400px]:pt-48 pb-5 sm:py-10 md:py-12 pointer-events-none">
@@ -437,9 +480,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
               </button>
             </div>
 
-            {/* Monochrome Slide Controls, Indicators & WCAG Pause Button */}
+            {/* Monochrome Slide Controls, Indicators & WCAG Pause Button (Desktop) */}
             {spotlights.length > 1 && (
-              <div className="flex items-center justify-between gap-3 pt-2 sm:pt-3">
+              <div className="hidden sm:flex items-center justify-between gap-3 pt-2 sm:pt-3">
                 <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#0b0b0d]/90 border border-[#232329] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
                   <button
                     type="button"

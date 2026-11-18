@@ -152,6 +152,12 @@ export const HeroSkeleton: React.FC = () => {
       {/* Subtle shimmer backdrop */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#111118] via-[#09090d] to-[#000000]" />
 
+      {/* Mobile Left / Right Arrow Skeletons */}
+      <div className="sm:hidden absolute inset-x-0 top-[96px] min-[400px]:top-[112px] -translate-y-1/2 z-20 flex items-center justify-between px-2.5 min-[400px]:px-3.5">
+        <div className="w-11 h-11 rounded-full bg-[#0e0e13] border border-[#23232b] shimmer-loading" />
+        <div className="w-11 h-11 rounded-full bg-[#0e0e13] border border-[#23232b] shimmer-loading" />
+      </div>
+
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-40 min-[400px]:pt-48 pb-5 sm:py-10 md:py-12">
         <div className="max-w-3xl space-y-3 sm:space-y-4">
           {/* Editorial Title */}
@@ -181,8 +187,8 @@ export const HeroSkeleton: React.FC = () => {
             <div className="h-11 sm:w-32 rounded-full bg-[#121218] border border-[#23232b] shimmer-loading" />
           </div>
 
-          {/* Bottom Slide Pill */}
-          <div className="flex items-center pt-2 sm:pt-3">
+          {/* Bottom Slide Pill (Desktop only) */}
+          <div className="hidden sm:flex items-center pt-2 sm:pt-3">
             <div className="h-9 w-44 rounded-full bg-[#0e0e13] border border-[#23232b] shimmer-loading" />
           </div>
         </div>
