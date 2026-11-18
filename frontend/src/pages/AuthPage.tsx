@@ -749,13 +749,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                         maxLength={24}
                         value={signupUsername}
                         onChange={(e) => setSignupUsername(e.target.value)}
-                        placeholder="e.g. Tanjiro_Fan"
+                        placeholder="e.g. Bhagyesh Purohit"
                         className="anilist-input w-full pl-10 pr-4 py-2.5 text-base sm:text-sm text-white placeholder:text-[#666672]"
                       />
                       <User aria-hidden="true" className="w-4 h-4 text-[#666672] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                     <p className="text-[11px] text-[#666672]">
-                      3–24 characters: letters, numbers, dots, underscores, or hyphens.
+                      3–24 characters: letters, numbers, spaces, dots, underscores, or hyphens.
                     </p>
                   </div>
 

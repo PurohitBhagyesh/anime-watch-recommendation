@@ -153,7 +153,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
 
   // Profile form state
   const [username, setUsername] = useState(user?.username || '');
-  const [bio, setBio] = useState(user?.bio || '');
   const [favoriteGenre, setFavoriteGenre] = useState(user?.favoriteGenre || 'Action / Shonen');
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
@@ -225,7 +224,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
   useEffect(() => {
     if (user) {
       setUsername(user.username || '');
-      setBio(user.bio || '');
       setFavoriteGenre(user.favoriteGenre || 'Action / Shonen');
     }
   }, [user]);
@@ -389,8 +387,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
     setIsSaving(true);
     try {
       const res = await updateProfile({
-        username: username.trim(),
-        bio: bio.trim(),
+        username: username.trim().replace(/\s+/g, ' '),
         favoriteGenre,
       });
       if (res.success) {
@@ -1052,7 +1049,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   <div className="space-y-1">
                     <h2 className="text-base font-bold text-[#f5f5f7]">Sign in to edit your profile</h2>
                     <p className="text-xs text-[#9a9aa6] max-w-sm mx-auto">
-                      Sign in with Google or email to upload a photo, customize your bio, and sync your watchlist.
+                      Sign in with Google, Phone SMS, or email to upload a photo, customize your profile, and sync your watchlist.
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
@@ -1191,7 +1188,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                             className="anilist-input w-full px-3.5 py-2.5 text-base sm:text-sm"
                           />
                           <p className="text-[11px] text-[#666672]">
-                            3–24 characters: letters, numbers, dots, underscores, or hyphens.
+                            3–24 characters: letters, numbers, spaces, dots, underscores, or hyphens.
                           </p>
                         </div>
 
@@ -1213,21 +1210,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                             <option value="Comedy / Parody">Comedy / Parody</option>
                           </select>
                         </div>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label htmlFor="profile-bio" className="text-xs font-semibold text-[#d2d2dc] block">
-                          Bio
-                        </label>
-                        <textarea
-                          id="profile-bio"
-                          rows={3}
-                          maxLength={280}
-                          value={bio}
-                          onChange={(e) => setBio(e.target.value)}
-                          placeholder="Share a short bio or favorite series..."
-                          className="anilist-input w-full px-3.5 py-2.5 text-base sm:text-sm resize-none"
-                        />
                       </div>
 
                       <button

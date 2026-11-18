@@ -59,7 +59,7 @@ export const PrivacyPage: React.FC = () => {
             2. Local Storage & Optional Account Data
           </h2>
           <p>
-            Your watchlist entries, episode progress, ratings, and browsing preferences are stored locally in your browser via <code>localStorage</code>. If you optionally create an account using email or Google Sign-In, only your chosen display name, email address, avatar, bio, and favorite genre are stored via Firebase to maintain your profile.
+            Your watchlist entries, episode progress, ratings, and browsing preferences are stored locally in your browser via <code>localStorage</code>. If you optionally create an account using email, Google Sign-In, or Phone SMS, only your chosen display name, email address or phone number, avatar, and favorite genre are stored via Firebase to maintain your profile.
           </p>
           <ul className="list-disc list-inside space-y-1 text-slate-400 pl-1">
             <li>Export your complete watchlist as a portable JSON file at any time.</li>

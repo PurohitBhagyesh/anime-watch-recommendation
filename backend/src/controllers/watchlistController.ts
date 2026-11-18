@@ -2,15 +2,42 @@ import { Response } from 'express';
 import { prisma } from '../config/db';
 import { AuthRequest } from '../middleware/authMiddleware';
 
+const ALLOWED_STATUSES = new Set([
+  'watching',
+  'plan_to_watch',
+  'completed',
+  'rewatching',
+  'paused',
+  'dropped',
+  'favorite',
+]);
+
+function parsePositiveInt(val: unknown): number | null {
+  const num = Number(val);
+  if (!Number.isSafeInteger(num) || num <= 0) return null;
+  return num;
+}
+
+function clampInt(val: unknown, min: number, max: number, fallback: number): number {
+  const num = Number(val);
+  if (!Number.isFinite(num)) return fallback;
+  return Math.max(min, Math.min(max, Math.round(num)));
+}
+
 export const watchlistController = {
   // GET /api/watchlist
   async getWatchlist(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id || (req.query.userId as string) || 'usr_demo_101';
-      const status = req.query.status as string;
+      if (!req.user?.id) {
+        res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+        return;
+      }
 
-      const whereClause: any = { userId };
-      if (status && status !== 'all') {
+      const userId = req.user.id;
+      const status = typeof req.query.status === 'string' ? req.query.status : '';
+
+      const whereClause: { userId: string; status?: string } = { userId };
+      if (status && status !== 'all' && ALLOWED_STATUSES.has(status)) {
         whereClause.status = status;
       }
 
@@ -19,7 +46,6 @@ export const watchlistController = {
         orderBy: { updatedAt: 'desc' },
       });
 
-      // Transform items to match frontend structure
       const formatted = items.map((item) => {
         let genres: string[] = [];
         try {
@@ -64,15 +90,20 @@ export const watchlistController = {
           total: formatted.length,
         },
       });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: { message: err.message } });
+    } catch {
+      res.status(500).json({ success: false, error: { message: 'Unable to load watchlist.' } });
     }
   },
 
   // POST /api/watchlist
   async addOrUpdateItem(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id || req.body.userId || 'usr_demo_101';
+      if (!req.user?.id) {
+        res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+        return;
+      }
+
+      const userId = req.user.id;
       const {
         animeId,
         title,
@@ -88,71 +119,91 @@ export const watchlistController = {
         genres,
       } = req.body;
 
-      if (!animeId || !title) {
-        res.status(400).json({ success: false, error: { message: 'Anime ID and Title are required' } });
+      const parsedAnimeId = parsePositiveInt(animeId);
+      if (!parsedAnimeId || typeof title !== 'string' || !title.trim()) {
+        res.status(400).json({ success: false, error: { message: 'Valid Anime ID and Title are required.' } });
         return;
       }
 
-      const genresJson = Array.isArray(genres) ? JSON.stringify(genres) : (typeof genres === 'string' ? genres : null);
+      const safeStatus =
+        typeof status === 'string' && ALLOWED_STATUSES.has(status) ? status : 'watching';
+      const safeTitle = title.trim().slice(0, 200);
+      const safeRomaji = typeof romajiTitle === 'string' ? romajiTitle.trim().slice(0, 200) : safeTitle;
+      const safeCover = typeof coverImage === 'string' ? coverImage.slice(0, 500) : '';
+      const safeBanner = typeof bannerImage === 'string' ? bannerImage.slice(0, 500) : null;
+      const safeFormat = typeof format === 'string' ? format.trim().slice(0, 32) : 'TV';
+      const safeNotes = typeof notes === 'string' ? notes.trim().slice(0, 500) : null;
+      const genresJson = Array.isArray(genres)
+        ? JSON.stringify(genres.filter((g) => typeof g === 'string').slice(0, 20))
+        : null;
 
       const item = await prisma.watchlistItem.upsert({
         where: {
           userId_animeId: {
             userId,
-            animeId: Number(animeId),
+            animeId: parsedAnimeId,
           },
         },
         update: {
-          ...(title && { title }),
-          ...(romajiTitle !== undefined && { romajiTitle }),
-          ...(coverImage !== undefined && { coverImage }),
-          ...(bannerImage !== undefined && { bannerImage }),
-          ...(format !== undefined && { format }),
-          ...(status && { status }),
-          ...(currentEpisode !== undefined && { currentEpisode: Number(currentEpisode) }),
-          ...(totalEpisodes !== undefined && { totalEpisodes: Number(totalEpisodes) }),
-          ...(userRating !== undefined && { userRating: Number(userRating) }),
-          ...(notes !== undefined && { notes }),
+          title: safeTitle,
+          romajiTitle: safeRomaji,
+          ...(coverImage !== undefined && { coverImage: safeCover }),
+          ...(bannerImage !== undefined && { bannerImage: safeBanner }),
+          ...(format !== undefined && { format: safeFormat }),
+          ...(status !== undefined && { status: safeStatus }),
+          ...(currentEpisode !== undefined && { currentEpisode: clampInt(currentEpisode, 0, 10000, 0) }),
+          ...(totalEpisodes !== undefined && { totalEpisodes: clampInt(totalEpisodes, 0, 10000, 0) }),
+          ...(userRating !== undefined && { userRating: clampInt(userRating, 0, 10, 0) }),
+          ...(notes !== undefined && { notes: safeNotes }),
           ...(genresJson && { genres: genresJson }),
         },
         create: {
           userId,
-          animeId: Number(animeId),
-          title,
-          romajiTitle: romajiTitle || title,
-          coverImage: coverImage || '',
-          bannerImage: bannerImage || null,
-          format: format || 'TV',
-          status: status || 'watching',
-          currentEpisode: Number(currentEpisode) || 0,
-          totalEpisodes: Number(totalEpisodes) || 0,
-          userRating: userRating !== undefined ? Number(userRating) : null,
-          notes: notes || null,
+          animeId: parsedAnimeId,
+          title: safeTitle,
+          romajiTitle: safeRomaji,
+          coverImage: safeCover,
+          bannerImage: safeBanner,
+          format: safeFormat,
+          status: safeStatus,
+          currentEpisode: clampInt(currentEpisode, 0, 10000, 0),
+          totalEpisodes: clampInt(totalEpisodes, 0, 10000, 0),
+          userRating: userRating !== undefined ? clampInt(userRating, 0, 10, 0) : null,
+          notes: safeNotes,
           genres: genresJson,
         },
       });
 
-      // Log activity
       await prisma.activityLog.create({
         data: {
           userId,
           action: 'ADDED_TO_WATCHLIST',
-          animeId: Number(animeId),
+          animeId: parsedAnimeId,
           metadata: JSON.stringify({ status: item.status, episode: item.currentEpisode }),
         },
       });
 
       res.status(200).json({ success: true, data: { item } });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: { message: err.message } });
+    } catch {
+      res.status(500).json({ success: false, error: { message: 'Unable to update watchlist.' } });
     }
   },
 
   // PATCH /api/watchlist/:animeId/progress
   async updateProgress(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id || (req.query.userId as string) || 'usr_demo_101';
-      const animeId = parseInt(String(req.params.animeId), 10);
+      if (!req.user?.id) {
+        res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+        return;
+      }
+
+      const userId = req.user.id;
+      const animeId = parsePositiveInt(req.params.animeId);
+      if (!animeId) {
+        res.status(400).json({ success: false, error: { message: 'Invalid anime ID.' } });
+        return;
+      }
+
       const { currentEpisode, status } = req.body;
 
       const existing = await prisma.watchlistItem.findUnique({
@@ -164,8 +215,12 @@ export const watchlistController = {
         return;
       }
 
-      let newStatus = status || existing.status;
-      const targetEp = currentEpisode !== undefined ? Number(currentEpisode) : existing.currentEpisode;
+      let newStatus =
+        typeof status === 'string' && ALLOWED_STATUSES.has(status) ? status : existing.status;
+      const targetEp =
+        currentEpisode !== undefined
+          ? clampInt(currentEpisode, 0, 10000, existing.currentEpisode)
+          : existing.currentEpisode;
 
       if (existing.totalEpisodes && targetEp >= existing.totalEpisodes) {
         newStatus = 'completed';
@@ -180,33 +235,46 @@ export const watchlistController = {
       });
 
       res.json({ success: true, data: { item: updated } });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: { message: err.message } });
+    } catch {
+      res.status(500).json({ success: false, error: { message: 'Unable to update episode progress.' } });
     }
   },
 
   // DELETE /api/watchlist/:animeId
   async removeItem(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id || (req.query.userId as string) || 'usr_demo_101';
-      const animeId = parseInt(String(req.params.animeId), 10);
+      if (!req.user?.id) {
+        res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+        return;
+      }
+
+      const userId = req.user.id;
+      const animeId = parsePositiveInt(req.params.animeId);
+      if (!animeId) {
+        res.status(400).json({ success: false, error: { message: 'Invalid anime ID.' } });
+        return;
+      }
 
       await prisma.watchlistItem.deleteMany({
         where: { userId, animeId },
       });
 
       res.json({ success: true, message: 'Item removed from watchlist.' });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: { message: err.message } });
+    } catch {
+      res.status(500).json({ success: false, error: { message: 'Unable to remove item.' } });
     }
   },
 
   // POST /api/watchlist/export
   async exportWatchlist(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id || (req.query.userId as string) || 'usr_demo_101';
+      if (!req.user?.id) {
+        res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+        return;
+      }
+
       const items = await prisma.watchlistItem.findMany({
-        where: { userId },
+        where: { userId: req.user.id },
       });
 
       res.json({
@@ -216,55 +284,82 @@ export const watchlistController = {
         total: items.length,
         items,
       });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: { message: err.message } });
+    } catch {
+      res.status(500).json({ success: false, error: { message: 'Unable to export watchlist.' } });
     }
   },
 
   // POST /api/watchlist/import
   async importWatchlist(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id || req.body.userId || 'usr_demo_101';
+      if (!req.user?.id) {
+        res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+        return;
+      }
+
+      const userId = req.user.id;
       const { items } = req.body;
 
-      if (!Array.isArray(items)) {
-        res.status(400).json({ success: false, error: { message: 'Invalid payload: items array required.' } });
+      if (!Array.isArray(items) || items.length > 500) {
+        res.status(400).json({
+          success: false,
+          error: { message: 'Invalid payload: items array required (max 500 items per import).' },
+        });
         return;
       }
 
       let importedCount = 0;
       for (const item of items) {
-        const aId = item.anime?.id || item.animeId;
-        const title = item.anime?.title?.userPreferred || item.anime?.title?.english || item.title;
-        if (!aId || !title) continue;
+        const aId = parsePositiveInt(item?.anime?.id ?? item?.animeId);
+        const rawTitle = item?.anime?.title?.userPreferred || item?.anime?.title?.english || item?.title;
+        if (!aId || typeof rawTitle !== 'string' || !rawTitle.trim()) continue;
 
-        const coverImage = item.anime?.coverImage?.large || item.coverImage || '';
-        const bannerImage = item.anime?.bannerImage || item.bannerImage || null;
-        const format = item.anime?.format || item.format || 'TV';
-        const genresJson = item.anime?.genres ? JSON.stringify(item.anime.genres) : null;
+        const safeTitle = rawTitle.trim().slice(0, 200);
+        const safeStatus =
+          typeof item?.status === 'string' && ALLOWED_STATUSES.has(item.status)
+            ? item.status
+            : 'watching';
+        const coverImage =
+          typeof (item?.anime?.coverImage?.large || item?.coverImage) === 'string'
+            ? String(item?.anime?.coverImage?.large || item?.coverImage).slice(0, 500)
+            : '';
+        const bannerImage =
+          typeof (item?.anime?.bannerImage || item?.bannerImage) === 'string'
+            ? String(item?.anime?.bannerImage || item?.bannerImage).slice(0, 500)
+            : null;
+        const format =
+          typeof (item?.anime?.format || item?.format) === 'string'
+            ? String(item?.anime?.format || item?.format).slice(0, 32)
+            : 'TV';
+        const genresJson = Array.isArray(item?.anime?.genres)
+          ? JSON.stringify(item.anime.genres.filter((g: unknown) => typeof g === 'string').slice(0, 20))
+          : null;
 
         await prisma.watchlistItem.upsert({
-          where: { userId_animeId: { userId, animeId: Number(aId) } },
+          where: { userId_animeId: { userId, animeId: aId } },
           update: {
-            title,
-            status: item.status || 'watching',
-            currentEpisode: Number(item.currentEpisode) || 0,
-            userRating: item.userRating ? Number(item.userRating) : null,
-            notes: item.notes || null,
+            title: safeTitle,
+            status: safeStatus,
+            currentEpisode: clampInt(item?.currentEpisode, 0, 10000, 0),
+            userRating: item?.userRating ? clampInt(item.userRating, 0, 10, 0) : null,
+            notes: typeof item?.notes === 'string' ? item.notes.trim().slice(0, 500) : null,
           },
           create: {
             userId,
-            animeId: Number(aId),
-            title,
-            romajiTitle: item.anime?.title?.romaji || title,
+            animeId: aId,
+            title: safeTitle,
+            romajiTitle:
+              typeof item?.anime?.title?.romaji === 'string'
+                ? item.anime.title.romaji.trim().slice(0, 200)
+                : safeTitle,
             coverImage,
             bannerImage,
             format,
-            status: item.status || 'watching',
-            currentEpisode: Number(item.currentEpisode) || 0,
-            totalEpisodes: Number(item.anime?.episodes || item.totalEpisodes || 0),
-            userRating: item.userRating ? Number(item.userRating) : null,
-            notes: item.notes || null,
+            status: safeStatus,
+            currentEpisode: clampInt(item?.currentEpisode, 0, 10000, 0),
+            totalEpisodes: clampInt(item?.anime?.episodes ?? item?.totalEpisodes, 0, 10000, 0),
+            userRating: item?.userRating ? clampInt(item.userRating, 0, 10, 0) : null,
+            notes: typeof item?.notes === 'string' ? item.notes.trim().slice(0, 500) : null,
             genres: genresJson,
           },
         });
@@ -272,8 +367,8 @@ export const watchlistController = {
       }
 
       res.json({ success: true, message: `Successfully imported ${importedCount} items.` });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: { message: err.message } });
+    } catch {
+      res.status(500).json({ success: false, error: { message: 'Unable to import watchlist.' } });
     }
   },
 };

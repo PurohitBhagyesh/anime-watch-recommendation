@@ -6,8 +6,10 @@ import { getJwtSecret } from '../config/env';
 import { AuthRequest } from '../middleware/authMiddleware';
 
 const JWT_SECRET = getJwtSecret();
-const USERNAME_REGEX = /^[a-zA-Z0-9._-]{3,24}$/;
+const USERNAME_REGEX = /^[a-zA-Z0-9._-]+(?: [a-zA-Z0-9._-]+)*$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+const normalizeUsername = (raw: string) => raw.trim().replace(/\s+/g, ' ');
 
 const generateToken = (userId: string, username: string, email: string) => {
   return jwt.sign({ id: userId, username, email }, JWT_SECRET, {
@@ -21,7 +23,6 @@ const sanitizeUser = (user: {
   email: string;
   avatar: string | null;
   banner: string | null;
-  bio: string | null;
   favoriteGenre: string | null;
   joinedDate: Date;
 }) => ({
@@ -30,7 +31,6 @@ const sanitizeUser = (user: {
   email: user.email,
   avatar: user.avatar,
   banner: user.banner,
-  bio: user.bio,
   favoriteGenre: user.favoriteGenre,
   joinedDate: user.joinedDate,
 });
@@ -39,20 +39,20 @@ export const authController = {
   // Register new user
   async register(req: Request, res: Response): Promise<void> {
     try {
-      const { username, email, password, avatar, bio, favoriteGenre } = req.body;
+      const { username, email, password, avatar, favoriteGenre } = req.body;
 
       if (typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
         res.status(400).json({ success: false, error: { message: 'Username, Email, and Password are required.' } });
         return;
       }
 
-      const cleanUsername = username.trim();
+      const cleanUsername = normalizeUsername(username);
       const cleanEmail = email.trim().toLowerCase();
 
-      if (!USERNAME_REGEX.test(cleanUsername)) {
+      if (cleanUsername.length < 3 || cleanUsername.length > 24 || !USERNAME_REGEX.test(cleanUsername)) {
         res.status(400).json({
           success: false,
-          error: { message: 'Username must be 3–24 characters using letters, numbers, dots, underscores, or hyphens.' },
+          error: { message: 'Username must be 3–24 characters using letters, numbers, spaces, dots, underscores, or hyphens.' },
         });
         return;
       }
@@ -62,10 +62,10 @@ export const authController = {
         return;
       }
 
-      if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
+      if (password.length < 8 || password.length > 128 || !/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
         res.status(400).json({
           success: false,
-          error: { message: 'Password must be at least 8 characters and include both letters and numbers.' },
+          error: { message: 'Password must be 8–128 characters and include both letters and numbers.' },
         });
         return;
       }
@@ -88,9 +88,8 @@ export const authController = {
           username: cleanUsername,
           email: cleanEmail,
           passwordHash,
-          avatar: typeof avatar === 'string' ? avatar : '',
-          bio: typeof bio === 'string' ? bio.trim().slice(0, 280) : 'Anime enthusiast tracking anime with AnimeSenpai.',
-          favoriteGenre: typeof favoriteGenre === 'string' ? favoriteGenre : 'Action',
+          avatar: typeof avatar === 'string' && avatar.length <= 150000 ? avatar : '',
+          favoriteGenre: typeof favoriteGenre === 'string' ? favoriteGenre.trim().slice(0, 64) : 'Action',
         },
       });
 
@@ -103,7 +102,7 @@ export const authController = {
           token,
         },
       });
-    } catch (err: any) {
+    } catch {
       res.status(500).json({ success: false, error: { message: 'Unable to complete registration.' } });
     }
   },
@@ -118,7 +117,7 @@ export const authController = {
         return;
       }
 
-      const identifier = emailOrUsername.trim();
+      const identifier = normalizeUsername(emailOrUsername);
 
       const user = await prisma.user.findFirst({
         where: {
@@ -139,7 +138,6 @@ export const authController = {
 
       const token = generateToken(user.id, user.username, user.email);
 
-      // Compute quick stats
       const animeCount = await prisma.watchlistItem.count({ where: { userId: user.id } });
       const completedCount = await prisma.watchlistItem.count({ where: { userId: user.id, status: 'completed' } });
 
@@ -174,7 +172,6 @@ export const authController = {
             email: 'otakumaster@animesenpai.io',
             avatar: '',
             banner: '',
-            bio: 'Anime enthusiast exploring new seasonal gems and 90s classics.',
             favoriteGenre: 'Sci-Fi / Psychological',
           },
         });
@@ -239,13 +236,19 @@ export const authController = {
         return;
       }
 
-      const { username, avatar, banner, bio, favoriteGenre } = req.body;
+      const { username, avatar, banner, favoriteGenre } = req.body;
+      let cleanUsername: string | undefined;
 
       if (username !== undefined) {
-        if (typeof username !== 'string' || !USERNAME_REGEX.test(username.trim())) {
+        if (typeof username !== 'string') {
+          res.status(400).json({ success: false, error: { message: 'Invalid username.' } });
+          return;
+        }
+        cleanUsername = normalizeUsername(username);
+        if (cleanUsername.length < 3 || cleanUsername.length > 24 || !USERNAME_REGEX.test(cleanUsername)) {
           res.status(400).json({
             success: false,
-            error: { message: 'Username must be 3–24 characters using letters, numbers, dots, underscores, or hyphens.' },
+            error: { message: 'Username must be 3–24 characters using letters, numbers, spaces, dots, underscores, or hyphens.' },
           });
           return;
         }
@@ -254,11 +257,10 @@ export const authController = {
       const updated = await prisma.user.update({
         where: { id: req.user.id },
         data: {
-          ...(typeof username === 'string' && { username: username.trim() }),
-          ...(typeof avatar === 'string' && { avatar }),
-          ...(typeof banner === 'string' && { banner }),
-          ...(typeof bio === 'string' && { bio: bio.trim().slice(0, 280) }),
-          ...(typeof favoriteGenre === 'string' && { favoriteGenre }),
+          ...(cleanUsername && { username: cleanUsername }),
+          ...(typeof avatar === 'string' && avatar.length <= 150000 && { avatar }),
+          ...(typeof banner === 'string' && banner.length <= 500 && { banner }),
+          ...(typeof favoriteGenre === 'string' && { favoriteGenre: favoriteGenre.trim().slice(0, 64) }),
         },
       });
 

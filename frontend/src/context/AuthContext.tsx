@@ -32,6 +32,7 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  deleteField,
   collection,
   query,
   where,
@@ -48,7 +49,6 @@ export interface UserProfile {
   email: string;
   avatar: string;
   banner?: string;
-  bio?: string;
   joinedDate: string;
   animeWatchedCount?: number;
   episodesWatchedCount?: number;
@@ -73,18 +73,22 @@ export interface PasswordStrength {
   };
 }
 
-const USERNAME_REGEX = /^[a-zA-Z0-9._-]{3,24}$/;
+const USERNAME_REGEX = /^[a-zA-Z0-9._-]+(?: [a-zA-Z0-9._-]+)*$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const E164_PHONE_REGEX = /^\+[1-9]\d{6,14}$/;
 
+export function normalizeUsername(raw: string): string {
+  return raw.trim().replace(/\s+/g, ' ');
+}
+
 export function validateUsername(raw: string): string | null {
-  const cleaned = raw.trim();
+  const cleaned = normalizeUsername(raw);
   if (!cleaned) return 'Username is required.';
   if (cleaned.length < 3 || cleaned.length > 24) {
     return 'Username must be between 3 and 24 characters.';
   }
   if (!USERNAME_REGEX.test(cleaned)) {
-    return 'Username can only contain letters, numbers, dots, underscores, and hyphens.';
+    return 'Username can only contain letters, numbers, spaces, dots, underscores, and hyphens.';
   }
   return null;
 }
@@ -157,7 +161,6 @@ const DEFAULT_DEMO_USER: UserProfile = {
   usernameLower: 'otakumaster',
   email: 'otakumaster@animesenpai.io',
   avatar: '',
-  bio: 'Anime enthusiast exploring new seasonal gems and 90s classics.',
   joinedDate: 'Joined September 2026',
   animeWatchedCount: 42,
   episodesWatchedCount: 680,
@@ -216,10 +219,12 @@ function createGoogleProvider(): GoogleAuthProvider {
 function sanitizeOAuthUsername(raw: string | null | undefined, fallback = 'AnimeFan'): string {
   const cleaned = (raw || '')
     .trim()
-    .replace(/\s+/g, '_')
-    .replace(/[^a-zA-Z0-9._-]/g, '')
-    .slice(0, 24);
-  if (cleaned.length >= 3) return cleaned;
+    .replace(/[^a-zA-Z0-9._ -]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 24)
+    .trim();
+  if (cleaned.length >= 3 && USERNAME_REGEX.test(cleaned)) return cleaned;
   return fallback;
 }
 
@@ -242,7 +247,6 @@ async function buildAndSyncUserProfile(
     usernameLower: fallbackUsername.toLowerCase(),
     email: firebaseUser.email || '',
     avatar: firebaseUser.photoURL || '',
-    bio: 'Welcome to my AnimeSenpai profile!',
     joinedDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
     animeWatchedCount: 0,
     episodesWatchedCount: 0,
@@ -259,7 +263,9 @@ async function buildAndSyncUserProfile(
       return fallbackUser;
     }
 
-    const data = docSnap.data() as Partial<UserProfile>;
+    const rawData = docSnap.data() as Record<string, unknown>;
+    const { bio: legacyBio, ...cleanData } = rawData;
+    const data = cleanData as Partial<UserProfile>;
     const merged: UserProfile = {
       ...fallbackUser,
       ...data,
@@ -267,7 +273,10 @@ async function buildAndSyncUserProfile(
       email: firebaseUser.email || data.email || '',
     };
 
-    const patch: Partial<UserProfile> = {};
+    const patch: Record<string, unknown> = {};
+    if (legacyBio !== undefined) {
+      patch.bio = deleteField();
+    }
     if (merged.username && data.usernameLower !== merged.username.toLowerCase()) {
       patch.usernameLower = merged.username.toLowerCase();
     }
@@ -527,7 +536,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     password: string;
     avatar?: string;
   }): Promise<AuthActionResult> => {
-    const cleanUsername = data.username.trim();
+    const cleanUsername = normalizeUsername(data.username);
     const cleanEmail = data.email.trim().toLowerCase();
 
     const usernameError = validateUsername(cleanUsername);
@@ -575,7 +584,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         usernameLower: cleanUsername.toLowerCase(),
         email: cleanEmail,
         avatar: data.avatar || '',
-        bio: 'Welcome to my AnimeSenpai profile!',
         joinedDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
         animeWatchedCount: 0,
         episodesWatchedCount: 0,
@@ -944,12 +952,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (typeof updates.username === 'string') {
       const err = validateUsername(updates.username);
       if (err) return { success: false, error: err };
-      safeUpdates.username = updates.username.trim();
+      safeUpdates.username = normalizeUsername(updates.username);
       safeUpdates.usernameLower = safeUpdates.username.toLowerCase();
-    }
-
-    if (typeof updates.bio === 'string') {
-      safeUpdates.bio = updates.bio.trim().slice(0, 280);
     }
 
     try {
@@ -959,7 +963,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         );
       }
 
-      await updateDoc(doc(db, 'users', user.id), safeUpdates);
+      // Remove legacy bio field if it existed on older user documents
+      await updateDoc(doc(db, 'users', user.id), {
+        ...safeUpdates,
+        bio: deleteField(),
+      });
       setUser((prev) => (prev ? { ...prev, ...safeUpdates } : null));
       return { success: true };
     } catch (error) {

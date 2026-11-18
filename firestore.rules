@@ -13,8 +13,8 @@ rules_version = '2';
 // Fields (strictly enforced via hasOnly):
 //   - id: string (required on create, immutable once set, must equal userId)
 //       Unique Firebase Auth UID for the user.
-//   - username: string (required, 3..24 chars, matches ^[a-zA-Z0-9._-]{3,24}$)
-//       User-chosen display handle.
+//   - username: string (required, 3..24 chars, matches ^[a-zA-Z0-9._-]+( [a-zA-Z0-9._-]+)*$)
+//       User-chosen display handle (single internal spaces allowed; no leading/trailing/double spaces or special chars).
 //   - usernameLower: string (optional, 3..24 chars, must equal username.lower())
 //       Normalized lowercase copy of username.
 //   - email: string (required, <= 254 chars, empty string or valid email format)
@@ -24,8 +24,6 @@ rules_version = '2';
 //       Profile photo URL or compressed 256x256 JPEG data URL.
 //   - banner: string (optional, '' | https:// URL <= 500 chars)
 //       Optional profile banner image URL.
-//   - bio: string (optional, 0..280 chars)
-//       Short user biography.
 //   - joinedDate: string (optional, 0..64 chars, immutable once set)
 //       Formatted join date string set on profile creation.
 //   - animeWatchedCount: int (optional, 0..100000)
@@ -34,8 +32,9 @@ rules_version = '2';
 //       Total episodes watched count.
 //   - daysWatched: number (optional, 0..100000)
 //       Total days spent watching anime (supports fractional values).
-//   - favoriteGenre: string (optional, 0..64 chars)
+//   - favoriteGenre: string (optional, 0..64 chars, matches ^[a-zA-Z0-9 /&-]{0,64}$)
 //       User's selected favorite anime genre label.
+//   (Note: legacy 'bio' field is explicitly disallowed on both create and update.)
 //
 // All other collections and subcollections are denied by default.
 //
@@ -164,19 +163,19 @@ service cloud.firestore {
           'email',
           'avatar',
           'banner',
-          'bio',
           'joinedDate',
           'animeWatchedCount',
           'episodesWatchedCount',
           'daysWatched',
           'favoriteGenre'
         ]) &&
+        !('bio' in data) &&
         hasRequiredFields(['username', 'email', 'avatar']) &&
         (!('id' in data) || (data.id is string && data.id == userId)) &&
         data.username is string &&
         data.username.size() >= 3 &&
         data.username.size() <= 24 &&
-        data.username.matches('^[a-zA-Z0-9._-]{3,24}$') &&
+        data.username.matches('^[a-zA-Z0-9._-]+( [a-zA-Z0-9._-]+)*$') &&
         (!('usernameLower' in data) || (
           data.usernameLower is string &&
           data.usernameLower.size() >= 3 &&
@@ -192,12 +191,15 @@ service cloud.firestore {
           data.banner.size() <= 500 &&
           (data.banner == '' || isValidHttpsUrl(data.banner))
         )) &&
-        isValidOptionalString(data, 'bio', 0, 280) &&
         isValidOptionalString(data, 'joinedDate', 0, 64) &&
         isValidOptionalInt(data, 'animeWatchedCount', 0, 100000) &&
         isValidOptionalInt(data, 'episodesWatchedCount', 0, 10000000) &&
         isValidOptionalNumber(data, 'daysWatched', 0, 100000) &&
-        isValidOptionalString(data, 'favoriteGenre', 0, 64);
+        (!('favoriteGenre' in data) || (
+          data.favoriteGenre is string &&
+          data.favoriteGenre.size() <= 64 &&
+          data.favoriteGenre.matches('^[a-zA-Z0-9 /&-]{0,64}$')
+        ));
     }
 
     // ===============================================================

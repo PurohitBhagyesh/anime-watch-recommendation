@@ -19,7 +19,7 @@
     <img src="https://img.shields.io/badge/Backend-Render%20Cloud-151519?style=for-the-badge&logo=render&logoColor=white" alt="Render" />
   </a>
   <a href="SECURITY.md">
-    <img src="https://img.shields.io/badge/Security-Policy-22c55e?style=for-the-badge&logo=shield&logoColor=white" alt="Security Policy" />
+    <img src="https://img.shields.io/badge/Security-Hardened-5360e6?style=for-the-badge&logo=shield&logoColor=white" alt="Security Hardened" />
   </a>
 </p>
 
@@ -35,9 +35,9 @@
 
 ## 📚 Documentation & Governance
 
-* 🏛️ **[Architecture Guide (architecture.md)](architecture.md)** — Edge topology, AniList GraphQL pipelines, state flow, and caching strategy.
-* 🎨 **[Design System (design.md)](design.md)** — Monochrome obsidian tokens, liquid-glass specular rims, responsive breakpoints, and accessibility specs.
-* 🛡️ **[Security Policy (SECURITY.md)](SECURITY.md)** — Responsible vulnerability disclosure, data handling, and key hygiene.
+* 🏛️ **[Architecture Guide (architecture.md)](architecture.md)** — Edge topology, AniList GraphQL pipelines, Pub/Sub event bus, and caching strategy.
+* 🎨 **[Design System (design.md)](design.md)** — Monochrome Obsidian/Platinum tokens, Luminous Indigo button accent, responsive container queries, and accessibility specs.
+* 🛡️ **[Security Policy (SECURITY.md)](SECURITY.md)** — Responsible vulnerability disclosure, Firestore rules, CSP, and SQLi protection.
 * 🤝 **[Contributing (CONTRIBUTING.md)](CONTRIBUTING.md)** & **[Code of Conduct (CODE_OF_CONDUCT.md)](CODE_OF_CONDUCT.md)** — Guidelines for pull requests and community standards.
 * ⚖️ **[License (LICENSE)](LICENSE)** — Open-source MIT License.
 
@@ -51,11 +51,15 @@
 
 ---
 
-## 🏆 Performance & SEO
+## ✨ Features at a Glance
 
-* **Structured Data (JSON-LD)**: `Organization`, `WebSite` (Sitelinks Searchbox), `WebApplication`, `SiteNavigationElement`, `FAQPage`, `BreadcrumbList`, and per-anime `TVSeries`/`Movie` schemas built exclusively from real AniList metadata.
-* **Automated Sitemap**: `scripts/generate-sitemap.mjs` generates 76 canonical URLs at build time (`frontend/public/sitemap.xml`).
-* **Agentic Discovery**: Includes `llms.txt`, `/.well-known/ai-catalog.json`, `/.well-known/ard.json`, and `/.well-known/security.txt`.
+* **🎨 3-Color Luxury UI (Obsidian · Platinum · Luminous Indigo):** Pure `#000000` / `#0c0c0f` surfaces and `#f5f5f7` / `#9a9aa6` typography across the interface, reserving `#5360e6` Luminous Indigo strictly for primary CTA buttons and active controls.
+* **📡 Publisher–Subscriber (Pub/Sub) Event Architecture:** Typed client event broker (`frontend/src/utils/pubsub.ts`) backed by `BroadcastChannel` for decoupled real-time cross-tab synchronization of watchlists, preferences, auth state, and instant Undo toasts.
+* **🔐 Multi-Method Firebase Authentication:** Sign in or link accounts with **Email & Password**, **Google OAuth**, or **Phone Number (SMS OTP with invisible reCAPTCHA)** — plus Email Verification, Forgot Password, Change Email (`verifyBeforeUpdateEmail`), Change Password, and self-service Permanent Account Deletion.
+* **📸 Apple-Style Settings & Profile Photo Picker:** Live **Small / Default / Large** text size controls, English/Romaji/Japanese title switcher, catalog density toggle, live camera capture (`getUserMedia`) & Photo Library uploader, and organized **Display · Profile · Security · Data · About** workspace.
+* **⏳ Smooth Skeleton & Native Circle Loading:** Layout-matched shimmer skeletons paired with accessible native `<progress>` circular loaders and GPU-composited Apple-spring transitions.
+* **🔍 Live AniList GraphQL Catalog & Watchlist Tracker:** Real-time autocomplete search, seasonal schedules, studios, voice cast, franchise relations, episode progress bars with auto-complete, personal 1–10 score distribution chart, clickable genre filters, and portable JSON backup export/import.
+* **🎬 Privacy-First Trailer & Share Experience:** Sandboxed `youtube-nocookie.com` official trailers, Random Anime Picker, and a minimal Share sheet (Copy Link + native device share sheet, zero social tracker buttons).
 
 ---
 
@@ -63,27 +67,26 @@
 
 | Device Category | Target Viewports | Responsive Behavior |
 | :--- | :--- | :--- |
-| **📱 Mobile Phones** | `320px – 480px` | • Single `52px` sticky glass top bar + smooth sliding navigation drawer<br>• Touch-friendly horizontal snap carousels & genre strip<br>• Floating corner `Buy me a Coffee` (UPI) and `Share` pills with centered bottom-sheet popups |
-| **📟 Tablets & Foldables** | `640px – 1024px` | • Adaptive 3–4 column grids and split Anime Details sidebar<br>• Clean segmented pill tabs for Overview, Characters, and Relations |
+| **📱 Mobile Phones** | `320px – 480px` | • Single sticky glass top bar + smooth sliding navigation drawer (with collapsible **Genres** menu)<br>• Touch-friendly horizontal snap carousels & responsive watchlist cards<br>• Floating corner `Buy me a Coffee` (UPI) and minimal `Share` pills |
+| **📟 Tablets & Foldables** | `640px – 1024px` | • Adaptive 3–4 column grids and split Anime Details sidebar<br>• Scroll-safe segmented pill navigation across Settings & Watchlist |
 | **💻 Laptops & Desktops** | `1024px – 2560px+` | • Expansive 5–6 column catalog grids and native CSS scroll progress line<br>• Keyboard shortcuts (`/` or `⌘K` search focus, `←`/`→` hero slide, `ESC` dismiss)<br>• Instant hover preview cards and live autocomplete search |
 
 ---
 
-## ✨ Features at a Glance
+## 🔒 Defense-in-Depth Security Architecture
 
-* **🎨 3-Color Luxury UI (Obsidian · Platinum · Luminous Indigo):** Deep `#000000` / `#0c0c0f` surfaces and `#f5f5f7` / `#9a9aa6` typography across the interface, reserving `#5360e6` Luminous Indigo strictly for primary CTA buttons and active controls.
-* **⏳ Smooth Skeleton & Native Circle Loading:** Layout-matched shimmer skeletons (cards, list rows, hero, and details) paired with accessible native `<progress>` circular page & search loaders and smooth poster fade-ins.
-* **🔐 Privacy-First Accounts & Zero Hardcoded Secrets:** Firebase Auth & Firestore config and backend JWT secrets load strictly from environment variables (never committed to Git). Includes JSON backup export/import and instant permanent account deletion.
-* **🔍 Live AniList GraphQL Catalog:** Instant autocomplete search, real community scores, rankings, seasonal airing countdowns, studios, voice cast (Seiyuu), franchise relations, and verified official links.
-* **📋 Personal Watchlist Tracker:** Track titles across `Watching`, `Planning`, `Completed`, `Rewatching`, `Paused`, and `Dropped` with episode counters and personal 1–10 scoring.
-* **🎬 Official Trailer Embeds & Random Picker:** Privacy-enhanced YouTube (`youtube-nocookie.com`) trailer modal and a Random Anime Picker powered by live AniList rankings.
+* **Zero SQL Injection Surface:** All backend database operations use **100% parameterized Prisma ORM queries** (zero `$queryRaw` / `$executeRaw` anywhere in the codebase), reinforced by a global **API Input Security Guard** (`backend/src/middleware/securityMiddleware.ts`) that strips prototype-pollution keys (`__proto__`, `constructor`, `prototype`), normalizes HTTP Parameter Pollution, and rejects null bytes and SQLi probes at the boundary.
+* **IDOR & Brute-Force Protection:** Every private Watchlist, Review mutation, and Personalized Recommendation route enforces `requireAuth` and scopes strictly to `req.user.id` (never trusting client-supplied `userId`). Express rate limiters guard `/api/auth` (`25 req / 15 min`) and `/api` (`180 req / min`) with `1mb` payload caps and `bcrypt` (cost `12`) password hashing.
+* **Strict Edge HTTP Headers (`vercel.json`):** Enforces a tight **Content-Security-Policy (CSP)**, `X-Frame-Options: DENY`, `Strict-Transport-Security` (HSTS preload), `X-Content-Type-Options: nosniff`, `Cross-Origin-Opener-Policy`, `Referrer-Policy`, and `Permissions-Policy` (`camera=(self)` only). Production source maps are disabled (`sourcemap: false`).
+* **Hardened Firestore Security Rules (`firestore.rules`):** Strict owner-only access (`request.auth.uid == userId`), `allow list: if false` (blocks PII/email scraping), `hasOnly` strict schema enforcement, immutable `id`/`joinedDate`, validated usernames (3–24 chars with safe spaces), O(1) raster-only avatar checks, and default-deny on all other collections.
+* **Zero Hardcoded Secrets:** Firebase client credentials and backend JWT secrets load strictly from environment variables (`.env` files are gitignored), and the browser Firebase API key is locked via Google Cloud HTTP referrer & API restrictions.
 
 ---
 
 ## ⚡ Local Development Quick Start
 
 ### Prerequisites
-- **Node.js**: `v18.0+` or `v20.0+`
+- **Node.js**: `v20.0+`
 - **npm**: `v9.0+`
 
 ### 1. Clone Repository & Setup Environment
@@ -91,18 +94,16 @@
 git clone https://github.com/PurohitBhagyesh/anime-watch-recommendation.git
 cd anime-watch-recommendation
 
-# Copy environment template
 cp frontend/.env.example frontend/.env
 cp backend/.env.example backend/.env
 ```
 
-> **Note on API Keys**: Sensitive API keys and credentials are never stored in plaintext inside the repository. For local development or custom deployments, populate `frontend/.env` with your own Firebase project credentials from the [Firebase Console](https://console.firebase.google.com).
+> **Environment Variables**: Populate `frontend/.env` with your Firebase project config from the [Firebase Console](https://console.firebase.google.com) and set a strong `JWT_SECRET` in `backend/.env`. Never commit `.env` files.
 
 ### 2. One-Step Workspace Setup
 ```bash
 npm run setup
 ```
-*(Installs all dependencies across workspaces, generates the Prisma client, pushes the database schema, and seeds initial data).*
 
 ### 3. Start Both Frontend & Backend Concurrently
 ```bash
@@ -112,28 +113,10 @@ npm run dev
 * ⚙️ **Backend REST API:** [http://localhost:5000](http://localhost:5000)
 * 🩺 **API Health Check:** [http://localhost:5000/api/health](http://localhost:5000/api/health)
 
----
-
-## 🛠️ Independent Tier Management
-
-You can run and manage each layer independently:
-
-### Frontend Tier (`/frontend`)
+### 4. Deploy Firestore Security Rules
 ```bash
-cd frontend
-npm run dev      # Start Vite dev server with Hot Module Replacement (HMR)
-npm run build    # Type-check and produce optimized production bundle
-npm run preview  # Preview production build locally
-```
-
-### Backend Tier (`/backend`)
-```bash
-cd backend
-npm run dev        # Run API server with hot-reload (tsx)
-npm run build      # Compile TypeScript to JavaScript
-npm run start      # Launch compiled production server
-npm run db:push    # Push Prisma schema changes to SQLite (dev.db)
-npm run db:studio  # Open Prisma Studio visual database browser
+npx firebase-tools login
+npx firebase-tools deploy --only firestore:rules
 ```
 
 ---
@@ -142,37 +125,30 @@ npm run db:studio  # Open Prisma Studio visual database browser
 
 | Module | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- | :--- |
-| **Ping** | `GET` | `/ping` | Lightweight 200 OK for UptimeRobot keep-alive | No |
+| **Ping** | `GET` | `/ping` | Lightweight 200 OK keep-alive | No |
 | **Health** | `GET` | `/api/health` | Service uptime and status metadata | No |
-| **Auth** | `POST` | `/api/auth/register` | Register new account | No |
+| **Auth** | `POST` | `/api/auth/register` | Register new account (validated username/email/password) | No |
 | **Auth** | `POST` | `/api/auth/login` | Login with credentials | No |
 | **Auth** | `POST` | `/api/auth/demo` | Instant demo login session | No |
 | **Auth** | `GET` | `/api/auth/me` | Fetch authenticated user profile | Yes (Bearer) |
+| **Auth** | `PUT` | `/api/auth/profile` | Update authenticated user profile | Yes (Bearer) |
 | **Anime** | `GET` | `/api/anime/trending` | Top community trending titles | No |
 | **Anime** | `GET` | `/api/anime/seasonal` | Airing seasonal releases | No |
 | **Anime** | `GET` | `/api/anime/top` | Top 100 highest rated anime | No |
 | **Anime** | `GET` | `/api/anime/popular` | All-time most popular anime | No |
 | **Anime** | `GET` | `/api/anime/search` | Multi-parameter search with filters | No |
 | **Anime** | `GET` | `/api/anime/:id` | Full details, cast, official links, trailer | No |
-| **Watchlist** | `GET` | `/api/watchlist` | Fetch user watchlist | Optional |
-| **Watchlist** | `POST` | `/api/watchlist` | Add or update watchlist item | Optional |
-| **Watchlist** | `PATCH`| `/api/watchlist/:id/progress` | Quick episode count increment | Optional |
-| **Watchlist** | `DELETE`| `/api/watchlist/:id` | Remove item from watchlist | Optional |
-| **Watchlist** | `POST` | `/api/watchlist/export` | Export watchlist JSON payload | Optional |
-| **Watchlist** | `POST` | `/api/watchlist/import` | Import watchlist items | Optional |
-| **Recommendations** | `GET` | `/api/recommendations/personalized` | AI/Genre-affinity recommendations | Optional |
-| **Reviews** | `GET` | `/api/reviews/anime/:id` | Fetch community reviews for anime | No |
-| **Reviews** | `POST` | `/api/reviews` | Post a user review and rating | Yes (Bearer) |
-
----
-
-## 🔒 Security & Best Practices
-
-* **Decoupled Environment Variables:** No credentials, tokens, or private keys are exposed in git tracking.
-* **Obfuscated Fallbacks:** Runtime fallbacks prevent automated secret scraping while keeping the deployed web client online.
-* **Password Hashing:** Salted `bcrypt` hashing with signed JWT authentication tokens on the Express backend.
-* **Client-Side Resilience:** LocalStorage sync with automatic fallback ensures watchlists remain available offline.
-* **Zero Telemetry / Privacy First:** Clean, ad-free interface without user-tracking scripts.
+| **Watchlist** | `GET` | `/api/watchlist` | Fetch authenticated user watchlist | Yes (Bearer) |
+| **Watchlist** | `POST` | `/api/watchlist` | Add or update watchlist item | Yes (Bearer) |
+| **Watchlist** | `PATCH` | `/api/watchlist/:animeId/progress` | Update episode count & status | Yes (Bearer) |
+| **Watchlist** | `DELETE` | `/api/watchlist/:animeId` | Remove item from watchlist | Yes (Bearer) |
+| **Watchlist** | `POST` | `/api/watchlist/export` | Export watchlist JSON payload | Yes (Bearer) |
+| **Watchlist** | `POST` | `/api/watchlist/import` | Import validated watchlist items (max 500) | Yes (Bearer) |
+| **Recommendations** | `GET` | `/api/recommendations/personalized` | Genre-affinity recommendations | Yes (Bearer) |
+| **Recommendations** | `GET` | `/api/recommendations/anime/:id` | Similar & related titles | No |
+| **Reviews** | `GET` | `/api/reviews/anime/:animeId` | Fetch community reviews for anime | No |
+| **Reviews** | `POST` | `/api/reviews` | Post a validated user review and rating | Yes (Bearer) |
+| **Reviews** | `POST` | `/api/reviews/:id/like` | Like a community review | Yes (Bearer) |
 
 ---
 

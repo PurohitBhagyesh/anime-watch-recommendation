@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { watchlistController } from '../controllers/watchlistController';
-import { optionalAuth } from '../middleware/authMiddleware';
+import { requireAuth } from '../middleware/authMiddleware';
 
 const router = Router();
 
-router.use(optionalAuth);
+// Strictly authenticated — prevents cross-user IDOR access
+router.use(requireAuth);
 
 router.get('/', watchlistController.getWatchlist);
 router.post('/', watchlistController.addOrUpdateItem);

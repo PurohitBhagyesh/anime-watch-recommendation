@@ -7,22 +7,30 @@ export const recommendationController = {
   // GET /api/recommendations/personalized
   async getPersonalized(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id || (req.query.userId as string) || 'usr_demo_101';
-      const limit = parseInt(req.query.limit as string, 10) || 12;
+      if (!req.user?.id) {
+        res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+        return;
+      }
+
+      const userId = req.user.id;
+      const rawLimit = Number(req.query.limit);
+      const limit = Number.isFinite(rawLimit)
+        ? Math.max(1, Math.min(50, Math.round(rawLimit)))
+        : 12;
 
       const result = await recommendationService.getPersonalizedRecommendations(userId, limit);
       res.json({ success: true, data: result });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: { message: err.message } });
+    } catch {
+      res.status(500).json({ success: false, error: { message: 'Unable to load recommendations.' } });
     }
   },
 
   // GET /api/recommendations/anime/:id
   async getSimilar(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const animeId = parseInt(String(req.params.id), 10);
-      if (isNaN(animeId)) {
-        res.status(400).json({ success: false, error: { message: 'Invalid anime ID' } });
+      const animeId = Number(req.params.id);
+      if (!Number.isSafeInteger(animeId) || animeId <= 0) {
+        res.status(400).json({ success: false, error: { message: 'Invalid anime ID.' } });
         return;
       }
 
@@ -41,8 +49,8 @@ export const recommendationController = {
           })),
         },
       });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: { message: err.message } });
+    } catch {
+      res.status(500).json({ success: false, error: { message: 'Unable to load similar anime.' } });
     }
   },
 };

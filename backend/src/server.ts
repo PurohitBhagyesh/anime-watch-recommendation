@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import apiRoutes from './routes';
 import { errorHandler } from './middleware/errorHandler';
+import { securityInputGuard } from './middleware/securityMiddleware';
 import { connectDB } from './config/db';
 
 dotenv.config();
@@ -93,9 +94,10 @@ function createRateLimiter(windowMs: number, maxRequests: number) {
   };
 }
 
-// Strict payload size caps (prevents large-body DoS)
+// Strict payload size caps (prevents large-body DoS) & input firewall (SQLi + prototype pollution)
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+app.use(securityInputGuard);
 
 // Minimal request logger (never logs authorization headers or bodies)
 app.use((req, _res, next) => {
