@@ -10,7 +10,7 @@
     {
       "identifier": "urn:air:animesenpai.online:tools:searchAnime",
       "displayName": "Search Anime",
-      "type": "application/json",
+      "type": "text/markdown",
       "description": "Search 20,000+ anime titles, genres, and seasonal releases on AnimeSenpai.",
       "url": "https://www.animesenpai.online/llms.txt",
       "tags": [

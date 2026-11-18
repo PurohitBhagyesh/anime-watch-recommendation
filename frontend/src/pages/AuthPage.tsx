@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   LogIn,
@@ -13,6 +13,7 @@ import {
   Eye,
   EyeOff,
   KeyRound,
+  Clock,
 } from 'lucide-react';
 import {
   useAuth,
@@ -22,6 +23,14 @@ import {
   getPasswordStrength,
 } from '../context/AuthContext';
 import { AppLogo } from '../components/common/AppLogo';
+import { AuthCaptcha } from '../components/common/AuthCaptcha';
+import {
+  checkRateLimit,
+  recordRateLimitAttempt,
+  resetRateLimit,
+  formatCooldown,
+  type RateLimitBucket,
+} from '../utils/rateLimiter';
 import { useSEO, SITE_URL } from '../utils/seo';
 
 interface AuthPageProps {
@@ -82,6 +91,39 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [oauthBusy, setOauthBusy] = useState(false);
 
+  // Human-verification CAPTCHA & client-side rate-limit state
+  const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [captchaResetKey, setCaptchaResetKey] = useState(0);
+  const [cooldownMs, setCooldownMs] = useState(0);
+
+  const activeBucket: RateLimitBucket =
+    mode === 'signup' ? 'auth:signup' : mode === 'reset' ? 'auth:reset' : 'auth:login';
+
+  const syncCooldown = useCallback(() => {
+    const status = checkRateLimit(activeBucket);
+    setCooldownMs(status.allowed ? 0 : status.retryAfterMs);
+  }, [activeBucket]);
+
+  useEffect(() => {
+    syncCooldown();
+  }, [syncCooldown]);
+
+  useEffect(() => {
+    if (cooldownMs <= 0) return;
+    const interval = setInterval(() => {
+      syncCooldown();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldownMs, syncCooldown]);
+
+  const switchMode = (nextMode: 'login' | 'signup' | 'reset') => {
+    setMode(nextMode);
+    setError(null);
+    setSuccessMsg(null);
+    setCaptchaVerified(false);
+    setCaptchaResetKey((k) => k + 1);
+  };
+
   useEffect(() => {
     if (initialMode) {
       setMode(initialMode);
@@ -107,17 +149,44 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
     e.preventDefault();
     setError(null);
     setSuccessMsg(null);
-    setIsSubmitting(true);
 
+    const rl = checkRateLimit('auth:login');
+    if (!rl.allowed) {
+      setCooldownMs(rl.retryAfterMs);
+      setError(`Too many sign-in attempts. Please wait ${formatCooldown(rl.retryAfterMs)} before trying again.`);
+      return;
+    }
+
+    if (!captchaVerified) {
+      setError('Please complete the Human Verification security check first.');
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
       const res = await login(emailOrUsername, password, rememberMe);
       if (res.success) {
+        resetRateLimit('auth:login');
+        setCooldownMs(0);
         setSuccessMsg('Welcome back to AnimeSenpai!');
         setTimeout(() => navigate('/'), 700);
       } else {
-        setError(res.error || 'Login failed. Please check your credentials.');
+        const nextRl = recordRateLimitAttempt('auth:login');
+        setCaptchaVerified(false);
+        setCaptchaResetKey((k) => k + 1);
+        if (!nextRl.allowed) {
+          setCooldownMs(nextRl.retryAfterMs);
+          setError(`Too many failed attempts. Locked for ${formatCooldown(nextRl.retryAfterMs)}.`);
+        } else {
+          setError(
+            `${res.error || 'Login failed. Please check your credentials.'} (${nextRl.remaining} attempt${nextRl.remaining === 1 ? '' : 's'} remaining)`
+          );
+        }
       }
     } catch {
+      recordRateLimitAttempt('auth:login');
+      setCaptchaVerified(false);
+      setCaptchaResetKey((k) => k + 1);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -128,6 +197,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
     e.preventDefault();
     setError(null);
     setSuccessMsg(null);
+
+    const rl = checkRateLimit('auth:signup');
+    if (!rl.allowed) {
+      setCooldownMs(rl.retryAfterMs);
+      setError(`Too many sign-up attempts. Please wait ${formatCooldown(rl.retryAfterMs)} before trying again.`);
+      return;
+    }
 
     const uErr = validateUsername(signupUsername);
     if (uErr) {
@@ -152,6 +228,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
       setError('Please agree to the Terms of Service and Privacy Policy to create an account.');
       return;
     }
+    if (!captchaVerified) {
+      setError('Please complete the Human Verification security check to create your account.');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -162,12 +242,25 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
       });
 
       if (res.success) {
+        resetRateLimit('auth:signup');
+        setCooldownMs(0);
         setSuccessMsg('Account created! Check your inbox to verify your email address.');
         setTimeout(() => navigate('/'), 1000);
       } else {
-        setError(res.error || 'Sign up failed. Please try again.');
+        const nextRl = recordRateLimitAttempt('auth:signup');
+        setCaptchaVerified(false);
+        setCaptchaResetKey((k) => k + 1);
+        if (!nextRl.allowed) {
+          setCooldownMs(nextRl.retryAfterMs);
+          setError(`Too many sign-up attempts. Please wait ${formatCooldown(nextRl.retryAfterMs)}.`);
+        } else {
+          setError(res.error || 'Sign up failed. Please try again.');
+        }
       }
     } catch {
+      recordRateLimitAttempt('auth:signup');
+      setCaptchaVerified(false);
+      setCaptchaResetKey((k) => k + 1);
       setError('An unexpected error occurred during signup.');
     } finally {
       setIsSubmitting(false);
@@ -177,18 +270,30 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
   const handleGoogleSignIn = async () => {
     setError(null);
     setSuccessMsg(null);
-    setOauthBusy(true);
 
+    const rl = checkRateLimit('auth:google');
+    if (!rl.allowed) {
+      setCooldownMs(rl.retryAfterMs);
+      setError(`Too many Google sign-in attempts. Please wait ${formatCooldown(rl.retryAfterMs)}.`);
+      return;
+    }
+
+    setOauthBusy(true);
     try {
       const res = await loginWithGoogle(rememberMe);
 
       if (res.success) {
+        resetRateLimit('auth:google');
+        setCooldownMs(0);
         setSuccessMsg('Signed in with Google!');
         setTimeout(() => navigate('/'), 600);
       } else if (res.error) {
+        const nextRl = recordRateLimitAttempt('auth:google');
+        if (!nextRl.allowed) setCooldownMs(nextRl.retryAfterMs);
         setError(res.error);
       }
     } catch {
+      recordRateLimitAttempt('auth:google');
       setError('Sign-in could not be completed. Please try again.');
     } finally {
       setOauthBusy(false);
@@ -200,15 +305,31 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
     setError(null);
     setSuccessMsg(null);
 
+    const rl = checkRateLimit('auth:reset');
+    if (!rl.allowed) {
+      setCooldownMs(rl.retryAfterMs);
+      setError(`Too many password reset requests. Please wait ${formatCooldown(rl.retryAfterMs)}.`);
+      return;
+    }
+
     const eErr = validateEmail(resetEmail);
     if (eErr) {
       setError(eErr);
+      return;
+    }
+    if (!captchaVerified) {
+      setError('Please complete the Human Verification security check first.');
       return;
     }
 
     setIsSubmitting(true);
     try {
       const res = await sendPasswordReset(resetEmail);
+      const nextRl = recordRateLimitAttempt('auth:reset');
+      setCaptchaVerified(false);
+      setCaptchaResetKey((k) => k + 1);
+      if (!nextRl.allowed) setCooldownMs(nextRl.retryAfterMs);
+
       if (res.success) {
         setSuccessMsg(
           'If an account exists for that email, a password reset link has been sent. Check your inbox and spam folder.'
@@ -221,6 +342,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
     }
   };
 
+  const isRateLimited = cooldownMs > 0;
   const anyBusy = isSubmitting || oauthBusy;
 
   return (
@@ -268,6 +390,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                 </div>
               )}
 
+              {isRateLimited && (
+                <div className="p-3 rounded-xl bg-amber-500/12 border border-amber-500/30 text-amber-200 text-xs font-medium flex items-center gap-2">
+                  <Clock aria-hidden="true" className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  <span>Rate limit active. Try again in {formatCooldown(cooldownMs)}.</span>
+                </div>
+              )}
+
               <div className="space-y-1.5">
                 <label htmlFor="reset-email" className="text-xs font-medium text-[#d2d2dc] block">
                   Account Email Address
@@ -287,22 +416,30 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                 </div>
               </div>
 
+              <AuthCaptcha
+                onVerifyChange={setCaptchaVerified}
+                resetTrigger={captchaResetKey}
+                disabled={isSubmitting || isRateLimited}
+              />
+
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isRateLimited || !captchaVerified}
                 className="w-full py-3 anilist-btn-primary text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                <span>{isSubmitting ? 'Sending Reset Link…' : 'Send Reset Link'}</span>
+                <span>
+                  {isRateLimited
+                    ? `Try again in ${formatCooldown(cooldownMs)}`
+                    : isSubmitting
+                    ? 'Sending Reset Link…'
+                    : 'Send Reset Link'}
+                </span>
                 <ArrowRight aria-hidden="true" className="w-4 h-4" />
               </button>
 
               <button
                 type="button"
-                onClick={() => {
-                  setMode('login');
-                  setError(null);
-                  setSuccessMsg(null);
-                }}
+                onClick={() => switchMode('login')}
                 className="w-full py-2.5 anilist-btn-secondary text-xs flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <ArrowLeft aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
@@ -314,11 +451,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
               <div className="grid grid-cols-2 p-1 rounded-full bg-[#16161b] border border-[#23232b] mb-6">
                 <button
                   type="button"
-                  onClick={() => {
-                    setMode('login');
-                    setError(null);
-                    setSuccessMsg(null);
-                  }}
+                  onClick={() => switchMode('login')}
                   className={`py-2 rounded-full text-xs font-semibold transition flex items-center justify-center gap-2 cursor-pointer ${
                     mode === 'login'
                       ? 'btn-accent-active font-bold'
@@ -330,11 +463,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setMode('signup');
-                    setError(null);
-                    setSuccessMsg(null);
-                  }}
+                  onClick={() => switchMode('signup')}
                   className={`py-2 rounded-full text-xs font-semibold transition flex items-center justify-center gap-2 cursor-pointer ${
                     mode === 'signup'
                       ? 'btn-accent-active font-bold'
@@ -345,6 +474,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                   <span>Create Account</span>
                 </button>
               </div>
+
+              {isRateLimited && (
+                <div className="mb-4 p-3 rounded-xl bg-amber-500/12 border border-amber-500/30 text-amber-200 text-xs font-medium flex items-center gap-2 animate-fadeIn">
+                  <Clock aria-hidden="true" className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  <span>Too many attempts. Please wait {formatCooldown(cooldownMs)} before retrying.</span>
+                </div>
+              )}
 
               {error && (
                 <div className="mb-4 p-3 rounded-xl bg-rose-500/12 border border-rose-500/30 text-rose-300 text-xs font-medium flex items-center gap-2 animate-fadeIn">
@@ -363,7 +499,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
               {/* Fast Sign-In Provider: Google */}
               <button
                 type="button"
-                disabled={anyBusy}
+                disabled={anyBusy || isRateLimited}
                 onClick={handleGoogleSignIn}
                 className="w-full py-3 px-4 rounded-full bg-white hover:bg-[#ececf2] text-black text-xs sm:text-sm font-bold transition flex items-center justify-center gap-3 active:scale-[0.99] disabled:opacity-60 cursor-pointer"
               >
@@ -410,9 +546,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                         type="button"
                         onClick={() => {
                           setResetEmail(emailOrUsername.includes('@') ? emailOrUsername : '');
-                          setMode('reset');
-                          setError(null);
-                          setSuccessMsg(null);
+                          switchMode('reset');
                         }}
                         className="text-[11px] font-medium text-[#9a9aa6] hover:text-[#f5f5f7] transition cursor-pointer"
                       >
@@ -454,12 +588,24 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                     </label>
                   </div>
 
+                  <AuthCaptcha
+                    onVerifyChange={setCaptchaVerified}
+                    resetTrigger={captchaResetKey}
+                    disabled={anyBusy || isRateLimited}
+                  />
+
                   <button
                     type="submit"
-                    disabled={anyBusy}
+                    disabled={anyBusy || isRateLimited || !captchaVerified}
                     className="w-full py-3 anilist-btn-primary text-xs sm:text-sm flex items-center justify-center gap-2 mt-2 cursor-pointer disabled:opacity-50"
                   >
-                    <span>{isSubmitting ? 'Signing In…' : 'Sign In'}</span>
+                    <span>
+                      {isRateLimited
+                        ? `Try again in ${formatCooldown(cooldownMs)}`
+                        : isSubmitting
+                        ? 'Signing In…'
+                        : 'Sign In'}
+                    </span>
                     <ArrowRight aria-hidden="true" className="w-4 h-4" />
                   </button>
                 </form>
@@ -607,12 +753,24 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                     </label>
                   </div>
 
+                  <AuthCaptcha
+                    onVerifyChange={setCaptchaVerified}
+                    resetTrigger={captchaResetKey}
+                    disabled={anyBusy || isRateLimited}
+                  />
+
                   <button
                     type="submit"
-                    disabled={anyBusy}
+                    disabled={anyBusy || isRateLimited || !captchaVerified}
                     className="w-full py-3 anilist-btn-primary text-xs sm:text-sm flex items-center justify-center gap-2 mt-2 cursor-pointer disabled:opacity-50"
                   >
-                    <span>{isSubmitting ? 'Creating Account…' : 'Create Account'}</span>
+                    <span>
+                      {isRateLimited
+                        ? `Try again in ${formatCooldown(cooldownMs)}`
+                        : isSubmitting
+                        ? 'Creating Account…'
+                        : 'Create Account'}
+                    </span>
                     <ArrowRight aria-hidden="true" className="w-4 h-4" />
                   </button>
                 </form>
@@ -623,7 +781,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
 
         <div className="flex items-center justify-center gap-2 text-[11px] text-[#666672]">
           <ShieldCheck aria-hidden="true" className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Protected by Firebase Authentication & Google OAuth</span>
+          <span>Protected by CAPTCHA, Rate Limiting &amp; Firebase Auth</span>
         </div>
       </div>
     </div>

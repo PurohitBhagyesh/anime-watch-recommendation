@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import apiRoutes from './routes';
 import { errorHandler } from './middleware/errorHandler';
 import { securityInputGuard } from './middleware/securityMiddleware';
+import { createRateLimiter } from './middleware/rateLimitMiddleware';
 import { connectDB } from './config/db';
 
 dotenv.config();
@@ -57,43 +58,6 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// Lightweight in-memory sliding-window rate limiter
-function createRateLimiter(windowMs: number, maxRequests: number) {
-  const hits = new Map<string, { count: number; resetAt: number }>();
-
-  setInterval(() => {
-    const now = Date.now();
-    for (const [ip, entry] of hits.entries()) {
-      if (entry.resetAt <= now) hits.delete(ip);
-    }
-  }, Math.max(windowMs, 60_000)).unref();
-
-  return (req: Request, res: Response, next: NextFunction): void => {
-    const ip = req.ip || req.socket.remoteAddress || 'unknown';
-    const now = Date.now();
-    const existing = hits.get(ip);
-
-    if (!existing || existing.resetAt <= now) {
-      hits.set(ip, { count: 1, resetAt: now + windowMs });
-      next();
-      return;
-    }
-
-    existing.count += 1;
-    if (existing.count > maxRequests) {
-      const retryAfterSec = Math.ceil((existing.resetAt - now) / 1000);
-      res.setHeader('Retry-After', String(retryAfterSec));
-      res.status(429).json({
-        success: false,
-        error: { message: 'Too many requests. Please slow down and try again shortly.' },
-      });
-      return;
-    }
-
-    next();
-  };
-}
-
 // Strict payload size caps (prevents large-body DoS) & input firewall (SQLi + prototype pollution)
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
@@ -120,12 +84,28 @@ app.get('/', (_req, res) => {
 });
 
 // Brute-force & flood protection on Auth and API routes
-app.use('/api/auth', (_req, res, next) => {
-  res.setHeader('Cache-Control', 'no-store');
-  next();
-}, createRateLimiter(15 * 60 * 1000, 25));
+app.use(
+  '/api/auth',
+  (_req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store');
+    next();
+  },
+  createRateLimiter({
+    windowMs: 15 * 60 * 1000,
+    maxRequests: 25,
+    message: 'Too many authentication requests. Please wait a few minutes and try again.',
+  })
+);
 
-app.use('/api', createRateLimiter(60 * 1000, 180), apiRoutes);
+app.use(
+  '/api',
+  createRateLimiter({
+    windowMs: 60 * 1000,
+    maxRequests: 150,
+    message: 'Rate limit exceeded. Please slow down and try again shortly.',
+  }),
+  apiRoutes
+);
 
 // 404 Fallback Handler
 app.use((_req, res) => {
