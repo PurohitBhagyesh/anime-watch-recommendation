@@ -11,7 +11,6 @@ import {
   Menu,
   User,
   Settings,
-  ArrowUpRight,
 } from 'lucide-react';
 import { useWatchlist } from '../../context/WatchlistContext';
 import { useAuth } from '../../context/AuthContext';
@@ -602,23 +601,11 @@ export const Navbar: React.FC = () => {
                 to="/about"
                 tabIndex={mobileMenuOpen ? 0 : -1}
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between py-3 text-[15px] font-medium text-[#9a9aa6] hover:text-white border-b border-[#232329] transition"
+                className="flex items-center justify-between py-3 text-[15px] font-medium text-[#9a9aa6] hover:text-white transition"
               >
                 <span>About & Legal</span>
                 <span className="text-xs text-[#666672]">MIT</span>
               </Link>
-
-              <a
-                href="https://github.com/PurohitBhagyesh/anime-watch-recommendation"
-                target="_blank"
-                rel="noopener noreferrer"
-                tabIndex={mobileMenuOpen ? 0 : -1}
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between py-3 text-[15px] font-medium text-[#9a9aa6] hover:text-white transition"
-              >
-                <span>GitHub</span>
-                <ArrowUpRight aria-hidden="true" className="w-4 h-4 text-[#666672]" />
-              </a>
 
               {/* Auth Actions */}
               {!isAuthenticated || !user ? (

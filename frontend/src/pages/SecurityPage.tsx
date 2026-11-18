@@ -46,32 +46,30 @@ export const SecurityPage: React.FC = () => {
           1. Reporting a Vulnerability Privately
         </h2>
         <p className="text-xs sm:text-sm leading-relaxed">
-          Please <strong>do not</strong> open a public GitHub issue for security vulnerabilities. Report issues privately so we can patch them before public disclosure:
+          Please report security vulnerabilities privately so we can patch them before public disclosure:
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
           <a
-            href="https://github.com/PurohitBhagyesh/anime-watch-recommendation/security"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-[#232329] transition flex items-start justify-between gap-2"
-          >
-            <div className="space-y-1">
-              <span className="text-xs font-bold text-white block">GitHub Private Advisory</span>
-              <span className="text-[11px] text-slate-400 block">
-                Use "Report a vulnerability" in the repository Security tab.
-              </span>
-            </div>
-            <ExternalLink aria-hidden="true" className="w-3.5 h-3.5 text-white flex-shrink-0 mt-0.5" />
-          </a>
-
-          <a
             href="mailto:security@animesenpai.online"
-            className="p-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-[#232329] transition flex items-start justify-between gap-2"
+            className="p-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-[#23232b] transition flex items-start justify-between gap-2"
           >
             <div className="space-y-1">
               <span className="text-xs font-bold text-white block">Direct Security Email</span>
               <span className="text-[11px] text-[#c8c8d2] font-mono block">
                 security@animesenpai.online
+              </span>
+            </div>
+            <Mail aria-hidden="true" className="w-3.5 h-3.5 text-white flex-shrink-0 mt-0.5" />
+          </a>
+
+          <a
+            href="mailto:contact@animesenpai.online"
+            className="p-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-[#23232b] transition flex items-start justify-between gap-2"
+          >
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-white block">General Support</span>
+              <span className="text-[11px] text-[#c8c8d2] font-mono block">
+                contact@animesenpai.online
               </span>
             </div>
             <Mail aria-hidden="true" className="w-3.5 h-3.5 text-white flex-shrink-0 mt-0.5" />
@@ -136,15 +134,6 @@ export const SecurityPage: React.FC = () => {
             className="anilist-btn-secondary px-3.5 py-2 inline-flex items-center gap-1.5 font-mono text-xs"
           >
             <span>/.well-known/security.txt</span>
-            <ExternalLink aria-hidden="true" className="w-3 h-3 text-white" />
-          </a>
-          <a
-            href="https://github.com/PurohitBhagyesh/anime-watch-recommendation/blob/main/SECURITY.md"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="anilist-btn-secondary px-3.5 py-2 inline-flex items-center gap-1.5 font-mono text-xs"
-          >
-            <span>GitHub SECURITY.md</span>
             <ExternalLink aria-hidden="true" className="w-3 h-3 text-white" />
           </a>
         </div>
