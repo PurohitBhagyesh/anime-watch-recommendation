@@ -42,6 +42,7 @@ import {
   getDocs,
 } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
+import { eventBus } from '../utils/pubsub';
 
 export interface UserProfile {
   id: string;
@@ -332,9 +333,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         syncFirebaseSecurityMeta(firebaseUser);
         const profile = await buildAndSyncUserProfile(firebaseUser);
         setUser(profile);
+        eventBus.publish('auth:changed', { isAuthenticated: true, userId: firebaseUser.uid });
       } else {
         syncFirebaseSecurityMeta(null);
         setUser(null);
+        eventBus.publish('auth:changed', { isAuthenticated: false, userId: null });
       }
       setLoading(false);
     });

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { AnimeTitle } from '../api/types';
+import { eventBus } from '../utils/pubsub';
 
 export type TitleLanguage = 'english' | 'romaji' | 'native';
 export type LayoutDensity = 'comfortable' | 'compact';
@@ -83,6 +84,14 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   }, [preferences.density, preferences.reduceMotion, preferences.textSize]);
 
+  // Subscribe to cross-tab preference updates via Pub/Sub
+  useEffect(() => {
+    return eventBus.subscribe('preferences:changed', (_payload, meta) => {
+      if (!meta.isRemote) return;
+      setPreferences(loadStoredPreferences());
+    });
+  }, []);
+
   const updatePreference = useCallback(
     <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => {
       setPreferences((prev) => {
@@ -92,6 +101,7 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
         } catch {}
         return next;
       });
+      eventBus.publish('preferences:changed', { key, value }, { broadcast: true });
     },
     []
   );
