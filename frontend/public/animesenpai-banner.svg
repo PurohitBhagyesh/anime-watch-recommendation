@@ -1,66 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 80" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 84" fill="none">
   <defs>
-    <linearGradient id="bannerHexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00d2ff" />
-      <stop offset="45%" stop-color="#3db4f2" />
-      <stop offset="100%" stop-color="#1e40af" />
+    <linearGradient id="asBannerObsidian" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#17171f" />
+      <stop offset="100%" stop-color="#060609" />
     </linearGradient>
-    <linearGradient id="bannerAccentGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ffffff" />
-      <stop offset="60%" stop-color="#c7d2fe" />
-      <stop offset="100%" stop-color="#38bdf8" />
+    <linearGradient id="asBannerIndigo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7582ff" />
+      <stop offset="100%" stop-color="#5360e6" />
     </linearGradient>
-    <linearGradient id="bannerGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fef08a" />
-      <stop offset="100%" stop-color="#f59e0b" />
-    </linearGradient>
-    <linearGradient id="textBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38bdf8" />
-      <stop offset="100%" stop-color="#0284c7" />
-    </linearGradient>
-    <filter id="bannerGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="4" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-    </filter>
   </defs>
 
-  <!-- Hexagon Badge Group -->
-  <g transform="translate(10, 5) scale(0.7)">
-    <!-- Hexagon -->
-    <polygon
-      points="50,6 88,26 88,74 50,94 12,74 12,26"
-      fill="url(#bannerHexGrad)"
-      stroke="rgba(255,255,255,0.4)"
-      stroke-width="3.5"
-      stroke-linejoin="round"
-    />
-
-    <!-- Stylized Origami Anime 'A' -->
-    <path
-      d="M50 20 L73 66 L59 66 L54 54 L46 54 L50 42 L50 20 Z"
-      fill="#ffffff"
-      opacity="0.95"
-    />
-    <path
-      d="M50 20 L27 66 L41 66 L46 54 L54 54 L50 42 L50 20 Z"
-      fill="url(#bannerAccentGrad)"
-      opacity="0.90"
-    />
-
-    <!-- Dynamic Gold Bar -->
-    <path
-      d="M30 74 L70 74 L65 82 L25 82 Z"
-      fill="url(#bannerGoldGrad)"
-    />
-
-    <!-- Sparkle Star -->
-    <polygon
-      points="76,16 79,22 85,25 79,28 76,34 73,28 67,25 73,22"
-      fill="#ffffff"
-    />
+  <!-- Icon Mark -->
+  <g transform="translate(10, 7) scale(0.7)">
+    <rect x="4" y="4" width="92" height="92" rx="24" fill="url(#asBannerObsidian)" stroke="#2b2b38" stroke-width="3.5" />
+    <path d="M50 18 L24 78 L37.5 78 L50 47 L55.5 60.5 L67 60.5 L50 18 Z" fill="#f5f5f7" />
+    <path d="M58.5 67 L76 78 L63 78 L54 71.5 Z" fill="url(#asBannerIndigo)" />
+    <circle cx="71.5" cy="30.5" r="5.5" fill="url(#asBannerIndigo)" />
   </g>
 
-  <!-- Typography -->
-  <text x="85" y="52" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="900" fill="#f8fafc" letter-spacing="-0.5">Anime</text>
-  <text x="195" y="52" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="900" fill="url(#textBlueGrad)" letter-spacing="-0.5">Senpai</text>
+  <!-- Editorial Wordmark -->
+  <text x="94" y="51" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="800" fill="#f5f5f7" letter-spacing="-1">Anime</text>
+  <text x="196" y="51" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="500" fill="#9a9aa6" letter-spacing="-0.8">Senpai</text>
+  <circle cx="308" cy="46" r="4" fill="url(#asBannerIndigo)" />
 </svg>

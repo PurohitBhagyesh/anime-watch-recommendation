@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 interface AppLogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | number;
@@ -13,6 +13,10 @@ export const AnimeSenpaiLogoIcon: React.FC<{
   className?: string;
   size?: number;
 }> = ({ className = '', size = 28 }) => {
+  const uid = useId().replace(/:/g, '');
+  const bgId = `asObsidian-${uid}`;
+  const accentId = `asIndigo-${uid}`;
+
   return (
     <div
       style={{ width: size, height: size }}
@@ -27,33 +31,40 @@ export const AnimeSenpaiLogoIcon: React.FC<{
         aria-hidden="true"
       >
         <defs>
-          <linearGradient id="senpaiMonoSurface" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#1e1e24" />
-            <stop offset="100%" stopColor="#09090b" />
+          <linearGradient id={bgId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#17171f" />
+            <stop offset="100%" stopColor="#060609" />
+          </linearGradient>
+          <linearGradient id={accentId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#7582ff" />
+            <stop offset="100%" stopColor="#5360e6" />
           </linearGradient>
         </defs>
 
-        {/* Crisp OpenLid-inspired monochrome squircle badge */}
+        {/* Precision Obsidian Squircle */}
         <rect
           x="4"
           y="4"
           width="92"
           height="92"
           rx="24"
-          fill="url(#senpaiMonoSurface)"
-          stroke="rgba(255,255,255,0.22)"
+          fill={`url(#${bgId})`}
+          stroke="#2b2b38"
           strokeWidth="3"
         />
 
-        {/* Minimalist geometric 'A' fold */}
+        {/* Platinum Origami 'A' Blade */}
         <path
-          d="M50 20 L74 70 L61 70 L55 56 L45 56 L39 70 L26 70 Z"
-          fill="#ffffff"
+          d="M50 18 L24 78 L37.5 78 L50 47 L55.5 60.5 L67 60.5 L50 18 Z"
+          fill="#f5f5f7"
         />
-        <polygon points="50,36 54,48 46,48" fill="#09090b" />
 
-        {/* Subtle underline slash */}
-        <rect x="33" y="76" width="34" height="5" rx="2.5" fill="rgba(255,255,255,0.45)" />
+        {/* Luminous Indigo Accent Wing & Spark */}
+        <path
+          d="M58.5 67 L76 78 L63 78 L54 71.5 Z"
+          fill={`url(#${accentId})`}
+        />
+        <circle cx="71.5" cy="30.5" r="5.5" fill={`url(#${accentId})`} />
       </svg>
     </div>
   );
@@ -78,23 +89,23 @@ export const AppLogo: React.FC<AppLogoProps> = ({
     switch (size) {
       case 'sm':
         return {
-          iconSize: 26,
+          iconSize: 28,
           textSize: 'text-[15px]',
         };
       case 'lg':
         return {
-          iconSize: 40,
+          iconSize: 42,
           textSize: 'text-xl sm:text-2xl',
         };
       case 'xl':
         return {
-          iconSize: 48,
+          iconSize: 50,
           textSize: 'text-2xl sm:text-3xl',
         };
       case 'md':
       default:
         return {
-          iconSize: 30,
+          iconSize: 32,
           textSize: 'text-base',
         };
     }
@@ -108,12 +119,13 @@ export const AppLogo: React.FC<AppLogoProps> = ({
       {withText && (
         <div className="flex flex-col">
           <div
-            className={`${dims.textSize} font-bold tracking-[-0.025em] text-white leading-none flex items-center`}
+            className={`${dims.textSize} font-extrabold tracking-[-0.03em] text-[#f5f5f7] leading-none flex items-center`}
           >
             {brandName === 'AnimeSenpai' ? (
               <>
                 <span>Anime</span>
                 <span className="text-[#9a9aa6] font-medium">Senpai</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#5360e6] ml-0.5 translate-y-[2px]" aria-hidden="true" />
               </>
             ) : (
               brandName

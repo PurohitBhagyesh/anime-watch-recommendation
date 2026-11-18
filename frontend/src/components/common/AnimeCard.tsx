@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Check, Plus, Calendar, Tv, Clock, Smile, Sparkles, X } from 'lucide-react';
 import type { AnimeCardData, WatchlistStatus } from '../../api/types';
 import { useWatchlist } from '../../context/WatchlistContext';
+import { usePreferences } from '../../context/PreferencesContext';
 
 interface AnimeCardProps {
   anime: AnimeCardData;
@@ -12,6 +13,7 @@ interface AnimeCardProps {
 
 export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false }) => {
   const { isInWatchlist, getItem, addToWatchlist, removeFromWatchlist } = useWatchlist();
+  const { getPreferredTitle } = usePreferences();
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showTouchPopup, setShowTouchPopup] = useState(false);
@@ -19,7 +21,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
   const cardRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const title = anime?.title?.userPreferred || anime?.title?.english || anime?.title?.romaji || 'Anime';
+  const title = getPreferredTitle(anime?.title, 'Anime');
   const inWatchlist = anime?.id ? isInWatchlist(anime.id) : false;
   const currentItem = anime?.id ? getItem(anime.id) : undefined;
 

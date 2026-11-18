@@ -27,6 +27,7 @@ import { RelationsGrid } from '../components/anime/RelationsGrid';
 import { RecommendationsGrid } from '../components/anime/RecommendationsGrid';
 import { DetailsSkeleton } from '../components/common/Skeleton';
 import { useWatchlist } from '../context/WatchlistContext';
+import { usePreferences } from '../context/PreferencesContext';
 import { useSEO, SITE_URL } from '../utils/seo';
 
 export const AnimeDetailsPage: React.FC = () => {
@@ -49,6 +50,7 @@ export const AnimeDetailsPage: React.FC = () => {
     updateRating,
   } = useWatchlist();
 
+  const { getPreferredTitle } = usePreferences();
   const animeId = Number(id);
   const inWatchlist = isInWatchlist(animeId);
   const watchlistItem = getItem(animeId);
@@ -192,7 +194,7 @@ export const AnimeDetailsPage: React.FC = () => {
     );
   }
 
-  const title = anime.title.userPreferred || anime.title.english || anime.title.romaji;
+  const title = getPreferredTitle(anime.title, 'Anime');
   const banner = anime.bannerImage || anime.coverImage.extraLarge;
 
   const handleShare = () => {

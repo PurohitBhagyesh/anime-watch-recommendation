@@ -170,6 +170,11 @@ export const Footer: React.FC = () => {
                     </Link>
                   </li>
                   <li>
+                    <Link to="/settings" className="hover:text-white transition">
+                      Settings & Preferences
+                    </Link>
+                  </li>
+                  <li>
                     <Link to="/account" className="hover:text-white transition">
                       Account & Data
                     </Link>

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useWatchlist } from '../../context/WatchlistContext';
 import { useAuth } from '../../context/AuthContext';
+import { usePreferences } from '../../context/PreferencesContext';
 import { searchAnimeAutocomplete } from '../../api/anilist';
 import type { AnimeCardData } from '../../api/types';
 import { RandomAnimeModal } from './RandomAnimeModal';
@@ -35,6 +36,7 @@ export const Navbar: React.FC = () => {
   const location = useLocation();
   const { watchlist } = useWatchlist();
   const { user, isAuthenticated, logout } = useAuth();
+  const { getPreferredTitle } = usePreferences();
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const mobileSearchContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -166,8 +168,7 @@ export const Navbar: React.FC = () => {
               <span className="text-[#9a9aa6]">AniList Live</span>
             </div>
             {autocompleteResults.map((item) => {
-              const itemTitle =
-                item.title.english || item.title.romaji || item.title.userPreferred;
+              const itemTitle = getPreferredTitle(item.title, 'Anime');
               return (
                 <Link
                   key={item.id}
@@ -305,16 +306,29 @@ export const Navbar: React.FC = () => {
                 {renderAutocompleteDropdown(false)}
               </div>
 
-              {/* Desktop Randomizer Button */}
+              {/* Desktop Randomizer & Settings Buttons */}
               <button
                 type="button"
                 onClick={() => setRandomModalOpen(true)}
-                className="hidden md:flex w-8 h-8 rounded-full bg-[#0b0b0d] hover:bg-[#151519] border border-[#232329] hover:border-[#3a3a44] text-[#9a9aa6] hover:text-white transition items-center justify-center flex-shrink-0 group cursor-pointer"
+                className="hidden md:flex w-8 h-8 rounded-full bg-[#0c0c0f] hover:bg-[#16161b] border border-[#23232b] hover:border-[#383844] text-[#9a9aa6] hover:text-white transition items-center justify-center flex-shrink-0 group cursor-pointer"
                 title="Roll a Random Anime"
                 aria-label="Roll a Random Anime"
               >
                 <Dices aria-hidden="true" className="w-3.5 h-3.5 group-hover:rotate-45 transition-transform duration-300" />
               </button>
+
+              <Link
+                to="/settings"
+                className={`hidden md:flex w-8 h-8 rounded-full border transition items-center justify-center flex-shrink-0 ${
+                  isActive('/settings')
+                    ? 'btn-accent-active'
+                    : 'bg-[#0c0c0f] hover:bg-[#16161b] border-[#23232b] hover:border-[#383844] text-[#9a9aa6] hover:text-white'
+                }`}
+                title="Settings"
+                aria-label="Settings"
+              >
+                <Settings aria-hidden="true" className="w-3.5 h-3.5" />
+              </Link>
 
               {/* Desktop Auth / User Profile */}
               {!isAuthenticated || !user ? (
@@ -566,11 +580,23 @@ export const Navbar: React.FC = () => {
                   setMobileMenuOpen(false);
                   setRandomModalOpen(true);
                 }}
-                className="flex items-center justify-between py-3 text-[15px] font-medium text-[#9a9aa6] hover:text-white border-b border-[#232329] transition text-left cursor-pointer"
+                className="flex items-center justify-between py-3 text-[15px] font-medium text-[#9a9aa6] hover:text-white border-b border-[#23232b] transition text-left cursor-pointer"
               >
                 <span>Random Anime Picker</span>
                 <Dices aria-hidden="true" className="w-4 h-4 text-[#666672]" />
               </button>
+
+              <Link
+                to="/settings"
+                tabIndex={mobileMenuOpen ? 0 : -1}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-between py-3 text-[15px] font-medium border-b border-[#23232b] transition ${
+                  isActive('/settings') ? 'text-white' : 'text-[#9a9aa6] hover:text-white'
+                }`}
+              >
+                <span>Settings</span>
+                <Settings aria-hidden="true" className="w-4 h-4 text-[#666672]" />
+              </Link>
 
               <Link
                 to="/about"

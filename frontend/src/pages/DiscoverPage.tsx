@@ -17,6 +17,7 @@ import type { AnimeCardData, PageInfo, WatchlistStatus } from '../api/types';
 import { AnimeCard } from '../components/common/AnimeCard';
 import { CardSkeleton, TableRowSkeleton } from '../components/common/Skeleton';
 import { useWatchlist } from '../context/WatchlistContext';
+import { usePreferences } from '../context/PreferencesContext';
 import { useSEO, SITE_URL } from '../utils/seo';
 
 function getPaginationRange(current: number, total: number): (number | string)[] {
@@ -35,6 +36,7 @@ function getPaginationRange(current: number, total: number): (number | string)[]
 export const DiscoverPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isInWatchlist, getItem, addToWatchlist, removeFromWatchlist } = useWatchlist();
+  const { getPreferredTitle } = usePreferences();
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedGenre, setSelectedGenre] = useState<string>(searchParams.get('genre') || '');
@@ -721,8 +723,7 @@ export const DiscoverPage: React.FC = () => {
         ) : (
           <div className="space-y-2">
             {results.map((anime, index) => {
-              const title =
-                anime.title.userPreferred || anime.title.english || anime.title.romaji;
+              const title = getPreferredTitle(anime.title, 'Anime');
               const inWatchlist = isInWatchlist(anime.id);
               const currentItem = getItem(anime.id);
               const rankNum = (currentPage - 1) * 24 + index + 1;

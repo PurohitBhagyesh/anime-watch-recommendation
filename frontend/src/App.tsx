@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { WatchlistProvider } from './context/WatchlistContext';
 import { AuthProvider } from './context/AuthContext';
+import { PreferencesProvider } from './context/PreferencesContext';
 import { ScrollProgressLine } from './components/common/ScrollProgressLine';
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
@@ -32,41 +33,43 @@ if (typeof window !== 'undefined' && window.location.hash.startsWith('#/')) {
 
 export const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <WatchlistProvider>
-        <BrowserRouter>
-          <div className="flex flex-col min-h-dvh bg-[#000000] text-[#9a9aa6] selection:bg-[#5360e6] selection:text-white">
-            <ScrollProgressLine />
-            <Navbar />
-            <main className="flex-1 flex flex-col min-w-0">
-              <ErrorBoundary>
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/discover" element={<DiscoverPage />} />
-                    <Route path="/anime/:id" element={<AnimeDetailsPage />} />
-                    <Route path="/watchlist" element={<WatchlistPage />} />
-                    <Route path="/account" element={<AccountPage defaultTab="account" />} />
-                    <Route path="/settings" element={<AccountPage defaultTab="settings" />} />
-                    <Route path="/login" element={<AuthPage initialMode="login" />} />
-                    <Route path="/signup" element={<AuthPage initialMode="signup" />} />
-                    <Route path="/auth" element={<AuthPage />} />
-                    <Route path="/privacy" element={<PrivacyPage />} />
-                    <Route path="/terms" element={<TermsPage />} />
-                    <Route path="/license" element={<LicensePage />} />
-                    <Route path="/security" element={<SecurityPage />} />
-                    <Route path="/about" element={<AboutPage />} />
-                    <Route path="*" element={<NotFoundPage />} />
-                  </Routes>
-                </Suspense>
-              </ErrorBoundary>
-            </main>
-            <Footer />
-            <WebElementsBridge />
-          </div>
-        </BrowserRouter>
-      </WatchlistProvider>
-    </AuthProvider>
+    <PreferencesProvider>
+      <AuthProvider>
+        <WatchlistProvider>
+          <BrowserRouter>
+            <div className="adaptive-shell flex flex-col min-h-dvh bg-[#000000] text-[#9a9aa6] selection:bg-[#5360e6] selection:text-white">
+              <ScrollProgressLine />
+              <Navbar />
+              <main className="flex-1 flex flex-col min-w-0">
+                <ErrorBoundary>
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/discover" element={<DiscoverPage />} />
+                      <Route path="/anime/:id" element={<AnimeDetailsPage />} />
+                      <Route path="/watchlist" element={<WatchlistPage />} />
+                      <Route path="/account" element={<AccountPage defaultTab="account" />} />
+                      <Route path="/settings" element={<AccountPage defaultTab="settings" />} />
+                      <Route path="/login" element={<AuthPage initialMode="login" />} />
+                      <Route path="/signup" element={<AuthPage initialMode="signup" />} />
+                      <Route path="/auth" element={<AuthPage />} />
+                      <Route path="/privacy" element={<PrivacyPage />} />
+                      <Route path="/terms" element={<TermsPage />} />
+                      <Route path="/license" element={<LicensePage />} />
+                      <Route path="/security" element={<SecurityPage />} />
+                      <Route path="/about" element={<AboutPage />} />
+                      <Route path="*" element={<NotFoundPage />} />
+                    </Routes>
+                  </Suspense>
+                </ErrorBoundary>
+              </main>
+              <Footer />
+              <WebElementsBridge />
+            </div>
+          </BrowserRouter>
+        </WatchlistProvider>
+      </AuthProvider>
+    </PreferencesProvider>
   );
 };
 

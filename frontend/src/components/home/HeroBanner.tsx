@@ -14,6 +14,7 @@ import {
 import type { AnimeCardData } from '../../api/types';
 import { TrailerModal } from '../common/TrailerModal';
 import { useWatchlist } from '../../context/WatchlistContext';
+import { usePreferences } from '../../context/PreferencesContext';
 
 interface HeroBannerProps {
   animeList?: AnimeCardData[];
@@ -32,6 +33,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
   const [trailerOpen, setTrailerOpen] = useState(false);
 
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
+  const { getPreferredTitle } = usePreferences();
 
   const containerRef = useRef<HTMLElement | null>(null);
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
@@ -241,11 +243,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
 
   if (!currentAnime) return null;
 
-  const title =
-    currentAnime?.title?.userPreferred ||
-    currentAnime?.title?.english ||
-    currentAnime?.title?.romaji ||
-    'Featured Anime';
+  const title = getPreferredTitle(currentAnime?.title, 'Featured Anime');
   const inWatchlist = currentAnime?.id ? isInWatchlist(currentAnime.id) : false;
 
   const cleanDescription = currentAnime?.description
@@ -282,7 +280,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
           if (!isDragging) setIsHoverPaused(false);
         }}
         style={{ touchAction: 'pan-y' }}
-        className="relative w-full overflow-hidden min-h-[440px] sm:min-h-[520px] md:min-h-[570px] lg:min-h-[610px] flex items-end border-b border-[#232329] bg-[#000000] select-none cursor-grab active:cursor-grabbing"
+        className="hero-adaptive relative w-full overflow-hidden min-h-[430px] sm:min-h-[500px] md:min-h-[560px] lg:min-h-[600px] flex items-end border-b border-[#23232b] bg-[#000000] select-none cursor-grab active:cursor-grabbing"
       >
         {/* Background Artwork with Smooth Reveal + Parallax */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">

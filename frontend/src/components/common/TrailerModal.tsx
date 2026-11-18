@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Play, AlertCircle, ExternalLink, Video } from 'lucide-react';
 import type { AnimeTrailer } from '../../api/types';
+import { usePreferences } from '../../context/PreferencesContext';
 
 interface TrailerModalProps {
   isOpen: boolean;
@@ -16,6 +17,8 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
   trailer,
   title,
 }) => {
+  const { preferences } = usePreferences();
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -39,11 +42,12 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
   const isYouTube = trailer?.site === 'youtube' && trailer?.id;
   const isDailymotion = trailer?.site === 'dailymotion' && trailer?.id;
 
+  const autoPlayFlag = preferences.autoTrailer ? 1 : 0;
   let embedUrl: string | null = null;
   if (isYouTube) {
-    embedUrl = `https://www.youtube-nocookie.com/embed/${trailer.id}?autoplay=1&rel=0&modestbranding=1`;
+    embedUrl = `https://www.youtube-nocookie.com/embed/${trailer.id}?autoplay=${autoPlayFlag}&rel=0&modestbranding=1`;
   } else if (isDailymotion) {
-    embedUrl = `https://www.dailymotion.com/embed/video/${trailer.id}?autoplay=1`;
+    embedUrl = `https://www.dailymotion.com/embed/video/${trailer.id}?autoplay=${autoPlayFlag}`;
   }
 
   const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(
