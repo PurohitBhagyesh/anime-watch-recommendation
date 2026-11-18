@@ -1066,22 +1066,22 @@ export const DiscoverPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowCountInfo(!showCountInfo)}
-                  className="px-2.5 py-0.5 rounded-full bg-[#151519] hover:bg-white hover:text-black/25 border border-[#3a3a44] text-white text-xs font-bold font-mono transition flex items-center gap-1.5 cursor-pointer"
-                  title="Click to view database details"
+                  className="px-2.5 py-0.5 rounded-full bg-[#151519] hover:bg-white hover:text-black border border-[#3a3a44] text-white text-xs font-bold font-mono transition flex items-center gap-1.5 cursor-pointer group"
+                  title="Click to view catalog details"
                 >
                   <span>
                     {selectedGenre && currentGenreMeta
                       ? pageInfo.total >= 5000
-                        ? `5,000+ ${selectedGenre} available (from ${currentGenreMeta.formattedCount} in database)`
+                        ? `5,000+ ${selectedGenre} available (${currentGenreMeta.formattedCount} indexed)`
                         : `${pageInfo.total.toLocaleString()} ${selectedGenre} anime found`
                       : pageInfo.total >= 5000
-                      ? '5,000+ available (from 20,000+ database)'
+                      ? '5,000+ ranked titles'
                       : `${pageInfo.total.toLocaleString()} anime found`}
                   </span>
-                  <Info className="w-3 h-3 text-white" />
+                  <Info className="w-3 h-3" />
                 </button>
 
-                {/* Popover explaining the 5,000 count & 20,000+ database */}
+                {/* Popover explaining query ranking & genre totals */}
                 {showCountInfo && (
                   <>
                     <div
@@ -1089,18 +1089,16 @@ export const DiscoverPage: React.FC = () => {
                       onClick={() => setShowCountInfo(false)}
                       aria-hidden="true"
                     />
-                    <div className="fixed inset-x-4 top-20 sm:inset-x-auto sm:top-full sm:absolute sm:left-0 sm:mt-2 sm:w-84 p-3.5 rounded-xl bg-[#0b0b0d]/98 backdrop-blur-2xl border border-white/20 shadow-2xl z-50 text-xs text-slate-200 animate-fadeIn space-y-2.5">
+                    <div className="fixed inset-x-4 top-20 sm:inset-x-auto sm:top-full sm:absolute sm:left-0 sm:mt-2 sm:w-84 p-3.5 rounded-2xl bg-[#0b0b0d]/98 backdrop-blur-2xl border border-[#3a3a44] shadow-2xl z-50 text-xs text-slate-200 animate-fadeIn space-y-2.5">
                       <div className="flex items-center justify-between font-bold text-white border-b border-[#232329] pb-1.5">
                         <span className="flex items-center gap-1.5 text-white">
                           <Sparkles aria-hidden="true" className="w-3.5 h-3.5" />{' '}
-                          {selectedGenre
-                            ? `${selectedGenre} Anime Catalog`
-                            : '20,000+ Anime Database'}
+                          {selectedGenre ? `${selectedGenre} Anime Catalog` : 'AniList Live Catalog'}
                         </span>
                         <button
                           type="button"
                           onClick={() => setShowCountInfo(false)}
-                          aria-label="Close database info"
+                          aria-label="Close catalog info"
                           className="text-slate-400 hover:text-white p-1"
                         >
                           <X aria-hidden="true" className="w-3.5 h-3.5" />
@@ -1110,7 +1108,7 @@ export const DiscoverPage: React.FC = () => {
                       {selectedGenre && currentGenreMeta ? (
                         <div className="space-y-1.5 text-[11px] leading-relaxed">
                           <p className="text-slate-200">
-                            The AniList database indexes approximately{' '}
+                            The AniList catalog indexes approximately{' '}
                             <strong className="text-white">{currentGenreMeta.formattedCount} {selectedGenre}</strong> anime titles ({currentGenreMeta.description}).
                           </p>
                           <p className="text-slate-400">
@@ -1124,10 +1122,10 @@ export const DiscoverPage: React.FC = () => {
                       ) : (
                         <div className="space-y-1.5 text-[11px] leading-relaxed">
                           <p className="text-slate-300">
-                            <strong>AnimeSenpai</strong> connects directly to the live AniList database containing over <strong className="text-white">20,000+ indexed anime titles</strong>.
+                            <strong>AnimeSenpai</strong> connects directly to the live AniList GraphQL catalog in real time.
                           </p>
                           <p className="text-slate-400">
-                            Broad queries return the top <strong>5,000 ranked anime</strong> across 208 pages. Filtering by <strong>Genre, Year, Format, or Search keywords</strong> queries the entire 20,000+ database!
+                            Broad queries return the top <strong>5,000 ranked anime</strong> across 208 pages. Filter by <strong>Genre, Year, Format, or Search keywords</strong> to find any title.
                           </p>
                         </div>
                       )}
@@ -1138,7 +1136,7 @@ export const DiscoverPage: React.FC = () => {
                           setShowCountInfo(false);
                           setShowGenreStatsModal(true);
                         }}
-                        className="w-full text-center py-2 rounded-lg bg-[#151519] hover:bg-white hover:text-black/30 border border-[#3a3a44] text-white text-xs font-bold transition flex items-center justify-center gap-1.5"
+                        className="w-full text-center py-2 rounded-full bg-[#151519] hover:bg-white hover:text-black border border-[#3a3a44] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <BarChart2 aria-hidden="true" className="w-3.5 h-3.5" />
                         <span>View All 18 Genre Totals</span>
