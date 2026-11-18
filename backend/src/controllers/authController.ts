@@ -2,9 +2,10 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../config/db';
+import { getJwtSecret } from '../config/env';
 import { AuthRequest } from '../middleware/authMiddleware';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'animesenpai_jwt_secret_dev_key_2026';
+const JWT_SECRET = getJwtSecret();
 
 const generateToken = (userId: string, username: string, email: string) => {
   return jwt.sign({ id: userId, username, email }, JWT_SECRET, {

@@ -17,10 +17,15 @@ dist
 dist-ssr
 build
 
-# Environment files
+# Environment files & private keys (never commit secrets)
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+serviceAccountKey*.json
+*firebase-adminsdk*.json
 
 # Database & SQLite files
 *.db

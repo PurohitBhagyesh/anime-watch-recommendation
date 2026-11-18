@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { getJwtSecret } from '../config/env';
 
 export interface AuthRequest extends Request {
   user?: {
@@ -9,7 +10,7 @@ export interface AuthRequest extends Request {
   };
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'animesenpai_jwt_secret_dev_key_2026';
+const JWT_SECRET = getJwtSecret();
 
 export const requireAuth = (
   req: AuthRequest,

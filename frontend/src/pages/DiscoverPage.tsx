@@ -15,7 +15,7 @@ import {
 import { searchAnime, GENRE_LIST, getCurrentSeason } from '../api/anilist';
 import type { AnimeCardData, PageInfo, WatchlistStatus } from '../api/types';
 import { AnimeCard } from '../components/common/AnimeCard';
-import { CardSkeleton } from '../components/common/Skeleton';
+import { CardSkeleton, TableRowSkeleton } from '../components/common/Skeleton';
 import { useWatchlist } from '../context/WatchlistContext';
 import { useSEO, SITE_URL } from '../utils/seo';
 
@@ -698,11 +698,19 @@ export const DiscoverPage: React.FC = () => {
 
       {/* Results Grid / List */}
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
-          {Array.from({ length: 18 }).map((_, i) => (
-            <CardSkeleton key={i} />
-          ))}
-        </div>
+        viewMode === 'grid' ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
+            {Array.from({ length: 18 }).map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <TableRowSkeleton key={i} />
+            ))}
+          </div>
+        )
       ) : results.length > 0 ? (
         viewMode === 'grid' ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">

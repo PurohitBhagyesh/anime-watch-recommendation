@@ -71,8 +71,9 @@
 
 ## ✨ Features at a Glance
 
-* **🎨 Monochrome Obsidian Liquid-Glass UI:** Pure `#000000` / `#0b0b0d` / `#151519` surfaces, crisp `#232329` hairlines, inverted high-contrast white primary pill buttons, and compositor-driven sliding animations.
-* **🔐 Privacy-First Accounts & Permanent Deletion:** Optional Firebase Auth (Email/Password & Google Sign-In) with Firestore cloud sync, JSON backup export/import, and instant permanent account deletion erasing cloud and local data.
+* **🎨 3-Color Luxury UI (Obsidian · Platinum · Luminous Indigo):** Deep `#000000` / `#0c0c0f` surfaces and `#f5f5f7` / `#9a9aa6` typography across the interface, reserving `#5360e6` Luminous Indigo strictly for primary CTA buttons and active controls.
+* **⏳ Smooth Skeleton & Native Circle Loading:** Layout-matched shimmer skeletons (cards, list rows, hero, and details) paired with accessible native `<progress>` circular page & search loaders and smooth poster fade-ins.
+* **🔐 Privacy-First Accounts & Zero Hardcoded Secrets:** Firebase Auth & Firestore config and backend JWT secrets load strictly from environment variables (never committed to Git). Includes JSON backup export/import and instant permanent account deletion.
 * **🔍 Live AniList GraphQL Catalog:** Instant autocomplete search, real community scores, rankings, seasonal airing countdowns, studios, voice cast (Seiyuu), franchise relations, and verified official links.
 * **📋 Personal Watchlist Tracker:** Track titles across `Watching`, `Planning`, `Completed`, `Rewatching`, `Paused`, and `Dropped` with episode counters and personal 1–10 scoring.
 * **🎬 Official Trailer Embeds & Random Picker:** Privacy-enhanced YouTube (`youtube-nocookie.com`) trailer modal and a Random Anime Picker powered by live AniList rankings.

@@ -112,6 +112,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
   };
 
   const [isVisible, setIsVisible] = useState(priority || false);
+  const [imgLoaded, setImgLoaded] = useState(false);
   const posterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -158,10 +159,13 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
       <div ref={posterRef} className="relative aspect-[185/265] w-full bg-[#151519] rounded-t-[15px]">
         <Link
           to={`/anime/${anime.id}`}
-          className="block w-full h-full overflow-hidden rounded-t-[15px]"
+          className="block w-full h-full overflow-hidden rounded-t-[15px] relative"
           aria-label={`View details for ${title}`}
         >
-          {isVisible ? (
+          {!imgLoaded && (
+            <div className="absolute inset-0 bg-[#16161b] shimmer-loading" aria-hidden="true" />
+          )}
+          {isVisible && (
             <img
               src={anime.coverImage?.large || anime.coverImage?.medium || anime.coverImage?.extraLarge || '/animesenpai-banner.svg'}
               alt={`${title} anime poster`}
@@ -170,10 +174,12 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
               loading={priority ? 'eager' : 'lazy'}
               fetchPriority={priority ? 'high' : 'auto'}
               decoding={priority ? 'sync' : 'async'}
-              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300 ease-out"
+              onLoad={() => setImgLoaded(true)}
+              onError={() => setImgLoaded(true)}
+              className={`w-full h-full object-cover object-center group-hover:scale-105 transition-all duration-300 ease-out ${
+                imgLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
             />
-          ) : (
-            <div className="w-full h-full bg-[#151519]" />
           )}
         </Link>
 

@@ -7,6 +7,7 @@ import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
 import { WebElementsBridge } from './components/common/WebElementsBridge';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { PageLoader } from './components/common/Skeleton';
 
 import { HomePage } from './pages/HomePage';
 
@@ -23,12 +24,6 @@ const SecurityPage = React.lazy(() => import('./pages/SecurityPage').then(m => (
 const AboutPage = React.lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
-const LoadingFallback = () => (
-  <div className="flex-1 flex items-center justify-center min-h-[60dvh]">
-    <div className="w-8 h-8 rounded-full border-2 border-[#232329] border-t-white animate-spin" />
-  </div>
-);
-
 // Seamlessly migrate legacy hash routes (e.g. /#/about -> /about) to clean URLs
 if (typeof window !== 'undefined' && window.location.hash.startsWith('#/')) {
   const cleanPath = window.location.hash.slice(1);
@@ -40,12 +35,12 @@ export const App: React.FC = () => {
     <AuthProvider>
       <WatchlistProvider>
         <BrowserRouter>
-          <div className="flex flex-col min-h-dvh bg-[#000000] text-[#9a9aa6] selection:bg-white selection:text-black">
+          <div className="flex flex-col min-h-dvh bg-[#000000] text-[#9a9aa6] selection:bg-[#5360e6] selection:text-white">
             <ScrollProgressLine />
             <Navbar />
             <main className="flex-1 flex flex-col min-w-0">
               <ErrorBoundary>
-                <Suspense fallback={<LoadingFallback />}>
+                <Suspense fallback={<PageLoader />}>
                   <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/discover" element={<DiscoverPage />} />

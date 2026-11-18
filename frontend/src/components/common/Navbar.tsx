@@ -19,6 +19,7 @@ import { searchAnimeAutocomplete } from '../../api/anilist';
 import type { AnimeCardData } from '../../api/types';
 import { RandomAnimeModal } from './RandomAnimeModal';
 import { AppLogo } from './AppLogo';
+import { Spinner } from './Skeleton';
 
 export const Navbar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -154,9 +155,9 @@ export const Navbar: React.FC = () => {
         }`}
       >
         {isSearching ? (
-          <div className="p-4 text-center text-xs text-[#9a9aa6] flex items-center justify-center gap-2">
-            <div className="w-3.5 h-3.5 border-2 border-[#3a3a44] border-t-white rounded-full animate-spin" />
-            <span>Searching 20,000+ titles...</span>
+          <div className="p-4 text-center text-xs text-[#9a9aa6] flex items-center justify-center gap-2.5">
+            <Spinner size="sm" label="Searching anime" />
+            <span>Searching catalog…</span>
           </div>
         ) : autocompleteResults.length > 0 ? (
           <>
@@ -496,7 +497,7 @@ export const Navbar: React.FC = () => {
                   <input
                     ref={mobileSearchInputRef}
                     type="search"
-                    placeholder="Search 20,000+ anime titles..."
+                    placeholder="Search anime titles..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => {
