@@ -251,11 +251,19 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
         .replace(/&#039;/g, "'")
     : 'Discover 20,000+ anime titles, track your watchlist, and explore trailers on AnimeSenpai.';
 
-  const bgImage =
+  const desktopBanner =
     currentAnime?.bannerImage ||
     currentAnime?.coverImage?.extraLarge ||
     currentAnime?.coverImage?.large ||
     '/animesenpai-banner.svg';
+
+  const mobileArtwork =
+    currentAnime?.coverImage?.extraLarge ||
+    currentAnime?.coverImage?.large ||
+    currentAnime?.bannerImage ||
+    '/animesenpai-banner.svg';
+
+  const hasTrailer = Boolean(currentAnime.trailer?.id);
 
   return (
     <>
@@ -276,37 +284,43 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
           if (!isDragging) setIsHoverPaused(false);
         }}
         style={{ touchAction: 'pan-y' }}
-        className="hero-adaptive relative w-full overflow-hidden min-h-[370px] sm:min-h-[420px] md:min-h-[460px] lg:min-h-[490px] flex items-end border-b border-[#23232b] bg-[#000000] select-none cursor-grab active:cursor-grabbing"
+        className="hero-adaptive relative w-full overflow-hidden min-h-[470px] min-[400px]:min-h-[510px] sm:min-h-[430px] md:min-h-[465px] lg:min-h-[500px] flex items-end border-b border-[#23232b] bg-[#000000] select-none cursor-grab active:cursor-grabbing"
       >
-        {/* Background Artwork with Smooth Reveal + Parallax */}
+        {/* Responsive Art-Directed Background: Portrait Key Art on Mobile, Wide Banner on Desktop */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <img
-            key={currentAnime.id}
-            src={bgImage}
-            alt={`${title} anime featured banner`}
-            width={1920}
-            height={490}
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
-            style={{
-              transform: isDragging
-                ? `translate3d(${dragOffset * 0.16}px, 0, 0) scale(1.03)`
-                : undefined,
-              transition: isDragging
-                ? 'none'
-                : 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
-            className={`w-full h-full object-cover object-center filter brightness-[0.42] sm:brightness-[0.44] contrast-[1.06] ${
-              hasInteracted || currentIndex > 0 ? 'animate-hero-bg will-change-transform' : ''
-            }`}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/75 sm:via-[#000000]/65 to-[#000000]/20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#000000] via-[#000000]/72 sm:via-[#000000]/75 to-transparent" />
+          <picture key={currentAnime.id} className="block w-full h-full">
+            <source media="(min-width: 640px)" srcSet={desktopBanner} />
+            <img
+              src={mobileArtwork}
+              alt={`${title} anime featured banner`}
+              width={1920}
+              height={490}
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+              style={{
+                transform: isDragging
+                  ? `translate3d(${dragOffset * 0.16}px, 0, 0) scale(1.03)`
+                  : undefined,
+                transition: isDragging
+                  ? 'none'
+                  : 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)',
+              }}
+              className={`w-full h-full object-cover object-[center_18%] sm:object-center filter brightness-[0.76] sm:brightness-[0.46] contrast-[1.05] ${
+                hasInteracted || currentIndex > 0 ? 'animate-hero-bg will-change-transform' : ''
+              }`}
+            />
+          </picture>
+          {/* Mobile vertical cinema vignette (keeps top artwork vibrant, bottom text crisp) */}
+          <div className="absolute inset-0 sm:hidden bg-gradient-to-b from-[#000000]/35 via-[#000000]/15 via-35% to-[#000000]" />
+          <div className="absolute inset-x-0 bottom-0 h-[66%] sm:hidden bg-gradient-to-t from-[#000000] via-[#000000]/88 to-transparent" />
+          {/* Desktop cinematic dual-axis vignette */}
+          <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/65 to-[#000000]/20" />
+          <div className="hidden sm:block absolute inset-0 bg-gradient-to-r from-[#000000] via-[#000000]/75 to-transparent" />
         </div>
 
         {/* Hero Foreground Slide Content */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6 sm:py-10 md:py-12 pointer-events-none">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-40 min-[400px]:pt-48 pb-5 sm:py-10 md:py-12 pointer-events-none">
           <div
             key={currentAnime.id}
             role="group"
@@ -316,7 +330,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
               transform: isDragging ? `translate3d(${dragOffset}px, 0, 0)` : undefined,
               transition: isDragging ? 'none' : 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
-            className={`max-w-3xl space-y-3.5 sm:space-y-4 pointer-events-auto ${
+            className={`max-w-3xl space-y-3 sm:space-y-4 pointer-events-auto ${
               isDragging || (!hasInteracted && currentIndex === 0)
                 ? ''
                 : slideDirection === 'next'
@@ -327,7 +341,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
             {/* Editorial Title */}
             <h2
               title={title}
-              className="text-2xl min-[400px]:text-3xl sm:text-4xl md:text-[3.1rem] font-extrabold text-white tracking-[-0.035em] leading-[1.08] line-clamp-3 sm:line-clamp-2 break-words"
+              className="text-[1.6rem] min-[400px]:text-[1.85rem] sm:text-4xl md:text-[3.1rem] font-extrabold text-white tracking-[-0.035em] leading-[1.1] line-clamp-2 break-words drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)]"
             >
               {title}
             </h2>
@@ -338,7 +352,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                 {currentAnime.genres.slice(0, 4).map((genre, idx) => (
                   <span
                     key={genre}
-                    className={`text-[11px] sm:text-xs px-2.5 py-0.5 rounded-full bg-[#151519]/90 border border-[#232329] text-[#c8c8d2] font-medium ${
+                    className={`text-[11px] sm:text-xs px-2.5 py-0.5 rounded-full bg-[#121218]/90 backdrop-blur-sm border border-[#2a2a36] text-[#d4d4de] font-medium ${
                       idx >= 3 ? 'hidden sm:inline-flex' : ''
                     }`}
                   >
@@ -349,13 +363,13 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
             )}
 
             {/* Synopsis */}
-            <p className="text-[13px] sm:text-sm text-[#9a9aa6] line-clamp-3 leading-relaxed max-w-2xl">
+            <p className="text-[12.5px] sm:text-sm text-[#b4b4c0] sm:text-[#9a9aa6] line-clamp-2 sm:line-clamp-3 leading-relaxed max-w-2xl">
               {cleanDescription}
             </p>
 
-            {/* OpenLid Inverted White Pill Primary CTA + Bordered Secondary Pills */}
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 pt-2">
-              {currentAnime.trailer?.id ? (
+            {/* Primary CTA + Secondary Pills (Balanced 2-col on mobile, inline flex on desktop) */}
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 pt-1 sm:pt-2">
+              {hasTrailer ? (
                 <button
                   type="button"
                   onClick={(e) => {
@@ -374,14 +388,14 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                   onClick={(e) => {
                     if (hasMovedRef.current) e.preventDefault();
                   }}
-                  className="col-span-2 sm:col-span-1 anilist-btn-primary flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] text-xs sm:text-[13.5px]"
+                  className="anilist-btn-primary flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 min-h-[44px] text-xs sm:text-[13.5px]"
                 >
                   <Info aria-hidden="true" className="w-3.5 h-3.5" />
                   <span>Explore Anime</span>
                 </Link>
               )}
 
-              {currentAnime.trailer?.id && (
+              {hasTrailer && (
                 <Link
                   to={`/anime/${currentAnime.id}`}
                   onClick={(e) => {
@@ -427,7 +441,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
 
             {/* Monochrome Slide Controls, Indicators & WCAG Pause Button */}
             {spotlights.length > 1 && (
-              <div className="flex items-center justify-between gap-3 pt-3">
+              <div className="flex items-center justify-between gap-3 pt-2 sm:pt-3">
                 <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#0b0b0d]/90 border border-[#232329] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
                   <button
                     type="button"
@@ -459,14 +473,14 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                             e.stopPropagation();
                             goToSlide(idx);
                           }}
-                          className="min-w-[26px] h-7 px-1 flex items-center justify-center group focus-visible:outline-2 focus-visible:outline-white rounded-full cursor-pointer"
+                          className="min-w-[24px] sm:min-w-[26px] h-7 px-1 flex items-center justify-center group focus-visible:outline-2 focus-visible:outline-white rounded-full cursor-pointer"
                           aria-label={`Go to slide ${idx + 1} of ${spotlights.length}`}
                           aria-current={isCurrent ? 'true' : undefined}
                         >
                           <span
                             className={`relative block h-1.5 rounded-full overflow-hidden transition-all duration-300 ${
                               isCurrent
-                                ? 'w-8 bg-white/25'
+                                ? 'w-7 sm:w-8 bg-white/25'
                                 : 'w-2 bg-white/30 group-hover:bg-white/60'
                             }`}
                           >
@@ -485,8 +499,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                   </nav>
                 </div>
 
-                {/* Desktop Prev / Next Monochrome Arrows */}
-                <div className="hidden sm:flex items-center gap-2">
+                {/* Prev / Next Monochrome Arrows (Mobile & Desktop) */}
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <button
                     type="button"
                     onClick={(e) => {
@@ -494,7 +508,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                       goToPrev(true);
                     }}
                     aria-label="Previous featured anime"
-                    className="w-9 h-9 rounded-full bg-[#0b0b0d]/90 hover:bg-[#151519] border border-[#232329] hover:border-[#3a3a44] flex items-center justify-center text-[#c8c8d2] hover:text-white transition cursor-pointer active:scale-95"
+                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0b0b0d]/90 hover:bg-[#151519] border border-[#232329] hover:border-[#3a3a44] flex items-center justify-center text-[#c8c8d2] hover:text-white transition cursor-pointer active:scale-95"
                   >
                     <ChevronLeft aria-hidden="true" className="w-4 h-4" />
                   </button>
@@ -505,7 +519,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                       goToNext(true);
                     }}
                     aria-label="Next featured anime"
-                    className="w-9 h-9 rounded-full bg-[#0b0b0d]/90 hover:bg-[#151519] border border-[#232329] hover:border-[#3a3a44] flex items-center justify-center text-[#c8c8d2] hover:text-white transition cursor-pointer active:scale-95"
+                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0b0b0d]/90 hover:bg-[#151519] border border-[#232329] hover:border-[#3a3a44] flex items-center justify-center text-[#c8c8d2] hover:text-white transition cursor-pointer active:scale-95"
                   >
                     <ChevronRight aria-hidden="true" className="w-4 h-4" />
                   </button>

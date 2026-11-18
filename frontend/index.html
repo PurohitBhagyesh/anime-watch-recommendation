@@ -273,7 +273,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://s4.anilist.co">
   <link rel="dns-prefetch" href="https://s4.anilist.co">
-  <link rel="preload" as="image" href="https://s4.anilist.co/file/anilistcdn/media/anime/banner/210482-pYAD0IbzNbgS.jpg"
+  <link rel="preload" as="image" media="(min-width: 640px)"
+    href="https://s4.anilist.co/file/anilistcdn/media/anime/banner/210482-pYAD0IbzNbgS.jpg"
+    fetchpriority="high">
+  <link rel="preload" as="image" media="(max-width: 639px)"
+    href="https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx210482-P1VNKbqdJ6Zj.jpg"
     fetchpriority="high">
   <link rel="preconnect" href="https://graphql.anilist.co" crossorigin>
   <link rel="dns-prefetch" href="https://graphql.anilist.co">
