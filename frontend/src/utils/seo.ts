@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 export const SITE_URL = 'https://www.animesenpai.online';
 export const SITE_NAME = 'AnimeSenpai';
-export const DEFAULT_OG_IMAGE = 'https://www.animesenpai.online/og-banner.png?v=6';
+export const DEFAULT_OG_IMAGE = 'https://www.animesenpai.online/og-banner.jpg?v=7';
 export const DEFAULT_ROBOTS = 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1';
 
 export interface SEOProps {
