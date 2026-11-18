@@ -249,32 +249,21 @@ export const Footer: React.FC = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-3">
             <a
-              href="mailto:contact@animesenpai.online?subject=AnimeSenpai%20Issue%20Report"
+              href="mailto:Purohitunofficialbhagyesh@gmail.com?subject=AnimeSenpai%20Issue%20Report"
               onClick={() => issueDialogRef.current?.close()}
               className="p-4 rounded-2xl bg-[#16161b] border border-[#23232b] hover:border-[#383844] transition space-y-1.5 block"
             >
-              <div className="text-sm font-semibold text-white inline-flex items-center gap-1.5">
-                <Mail aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
-                <span>General Support</span>
+              <div className="text-sm font-semibold text-white inline-flex items-center gap-2">
+                <Mail aria-hidden="true" className="w-4 h-4 text-[#9a9aa6]" />
+                <span>Email Support</span>
               </div>
-              <p className="text-xs text-[#9a9aa6] leading-relaxed">
-                Report bugs or broken metadata via contact@animesenpai.online.
+              <p className="text-xs text-[#d2d2dc] font-mono break-all">
+                Purohitunofficialbhagyesh@gmail.com
               </p>
-            </a>
-
-            <a
-              href="mailto:security@animesenpai.online?subject=AnimeSenpai%20Security%20Report"
-              onClick={() => issueDialogRef.current?.close()}
-              className="p-4 rounded-2xl bg-[#16161b] border border-[#23232b] hover:border-[#383844] transition space-y-1.5 block"
-            >
-              <div className="text-sm font-semibold text-white inline-flex items-center gap-1.5">
-                <AlertCircle aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
-                <span>Security Report</span>
-              </div>
               <p className="text-xs text-[#9a9aa6] leading-relaxed">
-                Disclose vulnerabilities privately to security@animesenpai.online.
+                Send bug reports, broken metadata notices, or feature requests directly.
               </p>
             </a>
           </div>
