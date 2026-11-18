@@ -1,13 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
   onAuthStateChanged,
   signInWithPopup,
-  GoogleAuthProvider
+  GoogleAuthProvider,
+  deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  reauthenticateWithPopup,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 
 export interface UserProfile {
@@ -73,12 +77,14 @@ const DEFAULT_DEMO_USER: UserProfile = {
 interface AuthContextType {
   user: UserProfile | null;
   isAuthenticated: boolean;
+  authProvider: 'google' | 'password' | 'demo';
   login: (emailOrUsername: string, password?: string) => Promise<{ success: boolean; error?: string }>;
   signup: (data: { username: string; email: string; password?: string; avatar?: string }) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   quickDemoLogin: () => void;
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
+  deleteAccount: (password?: string) => Promise<{ success: boolean; requiresRecentLogin?: boolean; error?: string }>;
   loading: boolean;
 }
 
@@ -282,6 +288,92 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser((prev) => (prev ? { ...prev, ...updates } : null));
     } catch (error) {
       console.error("Error updating profile: ", error);
+      // Fallback: still apply locally if Firestore write is unavailable
+      setUser((prev) => (prev ? { ...prev, ...updates } : null));
+    }
+  };
+
+  const getAuthProvider = (): 'google' | 'password' | 'demo' => {
+    const current = auth.currentUser;
+    if (!current) return 'demo';
+    const providers = current.providerData.map((p) => p.providerId);
+    if (providers.includes('google.com')) return 'google';
+    return 'password';
+  };
+
+  const clearLocalUserData = () => {
+    try {
+      localStorage.removeItem('animesenpai_watchlist_v1');
+      localStorage.removeItem('anime_pulse_watchlist_v1');
+      localStorage.removeItem('animesenpai_preferences_v1');
+      localStorage.removeItem('animesenpai_user_session');
+    } catch {}
+  };
+
+  const deleteAccount = async (
+    password?: string
+  ): Promise<{ success: boolean; requiresRecentLogin?: boolean; error?: string }> => {
+    const current = auth.currentUser;
+
+    // Demo or local-only session cleanup
+    if (!current) {
+      clearLocalUserData();
+      setUser(null);
+      return { success: true };
+    }
+
+    try {
+      const provider = getAuthProvider();
+
+      // Re-authenticate first if credentials were provided or Google popup was requested
+      if (password && current.email) {
+        const credential = EmailAuthProvider.credential(current.email, password);
+        await reauthenticateWithCredential(current, credential);
+      } else if (provider === 'google' && password === '__google_reauth__') {
+        await reauthenticateWithPopup(current, new GoogleAuthProvider());
+      }
+
+      // 1. Delete user profile document in Firestore
+      try {
+        await deleteDoc(doc(db, 'users', current.uid));
+      } catch (firestoreErr) {
+        console.warn('Firestore profile cleanup warning:', firestoreErr);
+      }
+
+      // 2. Permanently delete Firebase Authentication account
+      await deleteUser(current);
+
+      // 3. Erase all locally stored watchlist, preferences, and session data
+      clearLocalUserData();
+      setUser(null);
+
+      return { success: true };
+    } catch (error: any) {
+      if (error?.code === 'auth/requires-recent-login') {
+        return {
+          success: false,
+          requiresRecentLogin: true,
+          error: 'For your security, please verify your login one more time to permanently delete your account.',
+        };
+      }
+      if (error?.code === 'auth/wrong-password' || error?.code === 'auth/invalid-credential') {
+        return {
+          success: false,
+          requiresRecentLogin: true,
+          error: 'Incorrect password. Please try again.',
+        };
+      }
+      if (error?.code === 'auth/popup-closed-by-user' || error?.code === 'auth/cancelled-popup-request') {
+        return {
+          success: false,
+          requiresRecentLogin: true,
+          error: 'Verification popup was closed before completing.',
+        };
+      }
+      return {
+        success: false,
+        error: error?.message || 'Unable to delete account right now. Please sign out, sign back in, and try again.',
+      };
     }
   };
 
@@ -290,12 +382,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user,
         isAuthenticated: !!user,
+        authProvider: getAuthProvider(),
         login,
         signup,
         loginWithGoogle,
         logout: handleLogout,
         quickDemoLogin,
         updateProfile,
+        deleteAccount,
         loading
       }}
     >

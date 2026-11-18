@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { Check, Plus, Calendar, Tv, Clock, Smile, Sparkles, X } from 'lucide-react';
 import type { AnimeCardData, WatchlistStatus } from '../../api/types';
@@ -89,6 +90,7 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
   };
 
   const handleMouseEnter = () => {
+    if (typeof window !== 'undefined' && !window.matchMedia('(hover: hover)').matches) return;
     calculatePlacement();
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     hoverTimeoutRef.current = setTimeout(() => {
@@ -177,32 +179,45 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
         </Link>
 
         {/* Top Badges */}
-        <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none z-10">
+        <div className="absolute top-1.5 left-1.5 right-1.5 sm:top-2 sm:left-2 sm:right-2 flex items-center justify-between gap-1 pointer-events-none z-20">
           {anime.format ? (
-            <div className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#0b1622]/85 text-[#edf1f5] backdrop-blur-md uppercase tracking-tight shadow">
+            <div className="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-[#0b1622]/85 text-[#edf1f5] backdrop-blur-md uppercase tracking-tight shadow truncate max-w-[48%]">
               {anime.format.replace('_', ' ')}
             </div>
           ) : (
             <div />
           )}
 
-          {anime.averageScore ? (
-            <div
-              className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-bold backdrop-blur-md shadow-md ${getScoreBadgeClass(
-                anime.averageScore
-              )}`}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {anime.averageScore ? (
+              <div
+                className={`flex items-center gap-0.5 sm:gap-1 px-1.5 py-0.5 rounded text-[10px] sm:text-[11px] font-bold backdrop-blur-md shadow-md ${getScoreBadgeClass(
+                  anime.averageScore
+                )}`}
+              >
+                <Smile aria-hidden="true" className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                <span>{anime.averageScore}%</span>
+              </div>
+            ) : null}
+
+            {/* Touch Preview Trigger Button (Mobile visible, side-by-side with score so they never overlap) */}
+            <button
+              type="button"
+              onClick={handleTouchToggle}
+              className="sm:hidden pointer-events-auto w-6 h-6 rounded-full bg-[#0b1622]/90 text-[#3db4f2] flex items-center justify-center border border-white/15 shadow-md active:scale-95"
+              aria-label={`Preview details for ${title}`}
+              title="Tap for quick preview"
             >
-              <Smile className="w-3 h-3" />
-              <span>{anime.averageScore}%</span>
-            </div>
-          ) : null}
+              <Sparkles aria-hidden="true" className="w-3 h-3" />
+            </button>
+          </div>
         </div>
 
         {/* Next Airing Episode Banner */}
         {anime.nextAiringEpisode && (
-          <div className="absolute bottom-2 left-2 z-10 pointer-events-none max-w-[calc(100%-3rem)]">
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#0b1622]/90 border border-[#7bd555]/40 text-[#7bd555] text-[10px] font-bold backdrop-blur-md truncate shadow">
-              <Clock className="w-2.5 h-2.5 flex-shrink-0" />
+          <div className="absolute bottom-2 left-1.5 sm:left-2 z-10 pointer-events-none max-w-[calc(100%-3.25rem)]">
+            <div className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded bg-[#0b1622]/90 border border-[#7bd555]/40 text-[#7bd555] text-[9px] sm:text-[10px] font-bold backdrop-blur-md truncate shadow">
+              <Clock aria-hidden="true" className="w-2.5 h-2.5 flex-shrink-0" />
               <span className="truncate">
                 Ep {anime.nextAiringEpisode.episode} in{' '}
                 {formatTimeUntilAiring(anime.nextAiringEpisode.timeUntilAiring)}
@@ -211,19 +226,8 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
           </div>
         )}
 
-        {/* Touch Preview Trigger Button (Mobile visible) */}
-        <button
-          type="button"
-          onClick={handleTouchToggle}
-          className="sm:hidden absolute top-2 right-2 z-20 w-6 h-6 rounded-full bg-[#0b1622]/80 text-[#3db4f2] flex items-center justify-center text-[11px] font-bold border border-white/10"
-          aria-label="Preview anime details"
-          title="Tap for details"
-        >
-          <Sparkles className="w-3 h-3" />
-        </button>
-
         {/* Quick Add Button & Popover (Positioned outside Link, safe from overflow clipping) */}
-        <div className="absolute bottom-2 right-2 z-30 pointer-events-auto">
+        <div className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 z-30 pointer-events-auto">
           <div className="relative">
             <button
               type="button"
@@ -234,15 +238,15 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
                 setIsHovered(false);
                 setShowTouchPopup(false);
               }}
-              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-md flex items-center justify-center backdrop-blur-md transition-all shadow-md active:scale-95 cursor-pointer ${
+              className={`w-8 h-8 rounded-md flex items-center justify-center backdrop-blur-md transition-all shadow-md active:scale-95 cursor-pointer ${
                 inWatchlist
                   ? 'bg-[#7bd555] text-[#0b1622] font-bold'
                   : 'bg-[#0b1622]/85 text-[#edf1f5] hover:text-white hover:bg-[#3db4f2] border border-white/10'
               }`}
               title={inWatchlist ? `In List (${currentItem?.status})` : 'Add to List'}
-              aria-label="Manage watchlist status"
+              aria-label={`Manage watchlist status for ${title}`}
             >
-              {inWatchlist ? <Check className="w-4 h-4 stroke-[3]" /> : <Plus className="w-4 h-4" />}
+              {inWatchlist ? <Check aria-hidden="true" className="w-4 h-4 stroke-[3]" /> : <Plus aria-hidden="true" className="w-4 h-4" />}
             </button>
 
             {/* Status Selector Dropdown */}
@@ -302,8 +306,8 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
       </div>
 
       {/* Info Card Content */}
-      <div className="p-3 flex flex-col flex-1 justify-between gap-1.5">
-        <div>
+      <div className="p-2.5 sm:p-3 flex flex-col flex-1 justify-between gap-1.5 min-w-0">
+        <div className="min-w-0">
           <Link
             to={`/anime/${anime.id}`}
             className="font-semibold text-xs sm:text-sm text-[#edf1f5] group-hover:text-[#3db4f2] line-clamp-2 transition leading-snug min-h-[2.2rem] sm:min-h-[2.5rem]"
@@ -323,113 +327,169 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
         </div>
 
         {/* Bottom meta row */}
-        <div className="flex items-center justify-between text-[11px] text-[#8ba0b2] pt-1.5 border-t border-white/[0.04]">
-          <div className="flex items-center gap-1">
-            <Calendar className="w-3 h-3 text-[#8ba0b2]" />
-            <span>{anime.seasonYear || (anime.season ? `${anime.season}` : 'TBA')}</span>
+        <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-[#8ba0b2] pt-1.5 border-t border-white/[0.04]">
+          <div className="flex items-center gap-1 min-w-0 truncate">
+            <Calendar aria-hidden="true" className="w-3 h-3 text-[#8ba0b2] flex-shrink-0" />
+            <span className="truncate">{anime.seasonYear || (anime.season ? `${anime.season}` : 'TBA')}</span>
           </div>
 
-          <div className="flex items-center gap-1">
-            <Tv className="w-3 h-3 text-[#8ba0b2]" />
-            <span>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <Tv aria-hidden="true" className="w-3 h-3 text-[#8ba0b2] flex-shrink-0" />
+            <span className="whitespace-nowrap">
               {anime.episodes ? `${anime.episodes} eps` : anime.status === 'RELEASING' ? 'Airing' : 'Movie'}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Floating Hover/Touch AniList Preview Popup Card */}
-      {isPopupVisible && (
-        <>
-          {showTouchPopup && (
-            <div
-              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] sm:hidden"
-              onClick={() => setShowTouchPopup(false)}
-            />
+      {/* Desktop Hover Preview Popup */}
+      {isHovered && !showTouchPopup && !showStatusMenu && placement !== 'center' && (
+        <div
+          onMouseEnter={() => {
+            if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+            setIsHovered(true);
+          }}
+          onMouseLeave={handleMouseLeave}
+          className={`hidden sm:block absolute z-50 p-4 rounded-xl bg-[#151f2e] border border-[#223348] shadow-2xl space-y-2.5 animate-fadeIn pointer-events-auto transition-all w-[270px] top-2 ${
+            placement === 'left' ? 'right-[calc(100%+10px)]' : 'left-[calc(100%+10px)]'
+          }`}
+          style={{ filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.6))' }}
+        >
+          <div className="flex items-start justify-between gap-2">
+            <span className="font-extrabold text-sm text-[#edf1f5] tracking-tight line-clamp-2 leading-snug" title={title}>
+              {title}
+            </span>
+            {anime.averageScore ? (
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#7bd555] flex-shrink-0 pt-0.5">
+                <Smile aria-hidden="true" className="w-4 h-4 fill-[#7bd555]/20 stroke-[#7bd555]" />
+                <span>{anime.averageScore}%</span>
+              </div>
+            ) : null}
+          </div>
+
+          {studioName ? (
+            <div className="text-xs font-bold text-[#00c4d6] truncate">
+              {studioName}
+            </div>
+          ) : null}
+
+          <div className="text-xs text-[#8ba0b2] font-medium flex items-center flex-wrap gap-1.5">
+            <span>{formatLabel}</span>
+            <span>•</span>
+            <span>{episodeLabel}</span>
+            {formatSeasonText() && (
+              <>
+                <span>•</span>
+                <span>{formatSeasonText()}</span>
+              </>
+            )}
+          </div>
+
+          {anime.genres && anime.genres.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {anime.genres.slice(0, 5).map((genre) => (
+                <Link
+                  key={genre}
+                  to={`/discover?genre=${encodeURIComponent(genre)}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsHovered(false);
+                  }}
+                  className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#00c4d6] hover:bg-[#00a8ba] text-[#0b1622] lowercase transition duration-150 shadow-sm"
+                >
+                  {genre.toLowerCase()}
+                </Link>
+              ))}
+            </div>
           )}
+        </div>
+      )}
 
-          <div
-            onMouseEnter={() => {
-              if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-              setIsHovered(true);
-            }}
-            onMouseLeave={handleMouseLeave}
-            className={`absolute z-50 p-4 rounded-xl bg-[#151f2e] border border-[#223348] shadow-2xl space-y-2.5 animate-fadeIn pointer-events-auto transition-all ${
-              placement === 'center'
-                ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[88vw] max-w-[320px]'
-                : placement === 'left'
-                ? 'right-[calc(100%+10px)] top-2 w-[270px]'
-                : 'left-[calc(100%+10px)] top-2 w-[270px]'
-            }`}
-            style={{ filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.6))' }}
-          >
-            {/* Header: Anime Name on left, Score on right */}
-            <div className="flex items-start justify-between gap-2">
-              <span className="font-extrabold text-sm text-[#edf1f5] tracking-tight line-clamp-2 leading-snug" title={title}>
-                {title}
-              </span>
+      {/* Mobile Touch Preview Modal rendered via Portal so it never clips inside carousels */}
+      {showTouchPopup && !showStatusMenu && typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[99980] flex items-center justify-center p-4 sm:hidden animate-fadeIn">
+            <div
+              className="fixed inset-0 bg-black/65 backdrop-blur-sm"
+              onClick={() => setShowTouchPopup(false)}
+              aria-hidden="true"
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${title} quick preview`}
+              className="relative z-10 w-[min(92dvw,340px)] max-h-[85dvh] overflow-y-auto p-4 rounded-2xl bg-[#151f2e] border border-[#223348] shadow-2xl space-y-3"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <span className="font-extrabold text-sm text-[#edf1f5] tracking-tight leading-snug">
+                  {title}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowTouchPopup(false)}
+                  aria-label="Close preview"
+                  className="p-1.5 -mt-1 -mr-1 rounded-lg text-[#8ba0b2] hover:text-white hover:bg-white/10 flex-shrink-0"
+                >
+                  <X aria-hidden="true" className="w-4 h-4" />
+                </button>
+              </div>
 
-              <div className="flex items-center gap-2 flex-shrink-0 pt-0.5">
+              <div className="flex items-center justify-between gap-2">
+                {studioName ? (
+                  <div className="text-xs font-bold text-[#00c4d6] truncate">
+                    {studioName}
+                  </div>
+                ) : (
+                  <div />
+                )}
                 {anime.averageScore ? (
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#7bd555]">
-                    <Smile className="w-4 h-4 fill-[#7bd555]/20 stroke-[#7bd555]" />
+                  <div className="flex items-center gap-1 text-xs font-bold text-[#7bd555] flex-shrink-0">
+                    <Smile aria-hidden="true" className="w-4 h-4 fill-[#7bd555]/20 stroke-[#7bd555]" />
                     <span>{anime.averageScore}%</span>
                   </div>
                 ) : null}
+              </div>
 
-                {showTouchPopup && (
-                  <button
-                    onClick={() => setShowTouchPopup(false)}
-                    className="sm:hidden p-1 text-[#8ba0b2] hover:text-white"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+              <div className="text-xs text-[#8ba0b2] font-medium flex items-center flex-wrap gap-1.5">
+                <span>{formatLabel}</span>
+                <span>•</span>
+                <span>{episodeLabel}</span>
+                {formatSeasonText() && (
+                  <>
+                    <span>•</span>
+                    <span>{formatSeasonText()}</span>
+                  </>
                 )}
               </div>
-            </div>
 
-            {/* Studio row in cyan */}
-            {studioName ? (
-              <div className="text-xs font-bold text-[#00c4d6] hover:underline cursor-pointer truncate">
-                {studioName}
-              </div>
-            ) : null}
-
-            {/* Format, Episodes & Season */}
-            <div className="text-xs text-[#8ba0b2] font-medium flex items-center flex-wrap gap-1.5">
-              <span>{formatLabel}</span>
-              <span>•</span>
-              <span>{episodeLabel}</span>
-              {formatSeasonText() && (
-                <>
-                  <span>•</span>
-                  <span>{formatSeasonText()}</span>
-                </>
+              {anime.genres && anime.genres.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {anime.genres.slice(0, 5).map((genre) => (
+                    <Link
+                      key={genre}
+                      to={`/discover?genre=${encodeURIComponent(genre)}`}
+                      onClick={() => setShowTouchPopup(false)}
+                      className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#00c4d6] text-[#0b1622] lowercase shadow-sm"
+                    >
+                      {genre.toLowerCase()}
+                    </Link>
+                  ))}
+                </div>
               )}
-            </div>
 
-            {/* Interactive Genre Pills */}
-            {anime.genres && anime.genres.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {anime.genres.slice(0, 5).map((genre) => (
-                  <Link
-                    key={genre}
-                    to={`/discover?genre=${encodeURIComponent(genre)}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsHovered(false);
-                      setShowTouchPopup(false);
-                    }}
-                    className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#00c4d6] hover:bg-[#00a8ba] text-[#0b1622] lowercase transition duration-150 shadow-sm"
-                  >
-                    {genre.toLowerCase()}
-                  </Link>
-                ))}
+              <div className="pt-2 border-t border-white/10">
+                <Link
+                  to={`/anime/${anime.id}`}
+                  onClick={() => setShowTouchPopup(false)}
+                  className="w-full py-2.5 rounded-xl anilist-btn-primary text-xs font-bold flex items-center justify-center"
+                >
+                  View Full Details
+                </Link>
               </div>
-            )}
-          </div>
-        </>
-      )}
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

@@ -124,7 +124,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
   const dims = getDimensions();
 
   return (
-    <div className={`flex items-center gap-2.5 group cursor-pointer select-none ${className}`}>
+    <div className={`flex items-center gap-2 sm:gap-2.5 group cursor-pointer select-none ${className}`}>
       <AnimeSenpaiLogoIcon size={dims.iconSize} />
       {withText && (
         <div className="flex flex-col">

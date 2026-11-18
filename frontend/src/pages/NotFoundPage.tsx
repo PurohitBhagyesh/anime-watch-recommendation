@@ -22,7 +22,7 @@ export const NotFoundPage: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center min-h-[calc(100vh-10rem)] px-4 py-16 animate-fadeIn">
+    <div className="flex-1 flex items-center justify-center min-h-[calc(100dvh-10rem)] px-4 py-12 sm:py-16 animate-fadeIn">
       <div className="max-w-xl w-full text-center space-y-6 p-6 sm:p-8 rounded-2xl anilist-card-static border border-white/10 shadow-2xl">
         {/* Error Badge */}
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#e85d75]/15 border border-[#e85d75]/30 text-[#e85d75] shadow-inner mx-auto">
@@ -45,11 +45,11 @@ export const NotFoundPage: React.FC = () => {
         {/* Search Bar for Discoverability */}
         <form onSubmit={handleSearch} className="relative max-w-md mx-auto">
           <input
-            type="text"
+            type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search 20,000+ anime titles..."
-            className="w-full text-xs sm:text-sm pl-10 pr-24 py-2.5 bg-[#0b1622] hover:bg-[#111927] focus:bg-[#111927] border border-white/15 focus:border-[#3db4f2] rounded-xl text-white placeholder-slate-400 outline-none transition shadow-inner focus:ring-1 focus:ring-[#3db4f2]/40"
+            className="w-full text-base sm:text-sm pl-10 pr-24 py-2.5 bg-[#0b1622] hover:bg-[#111927] focus:bg-[#111927] border border-white/15 focus:border-[#3db4f2] rounded-xl text-white placeholder-slate-400 outline-none transition shadow-inner focus:ring-1 focus:ring-[#3db4f2]/40"
           />
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <button

@@ -15,6 +15,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { AppLogo } from '../components/common/AppLogo';
+import { SupportUpiCard } from '../components/common/SupportUpiCard';
 import { useSEO, SITE_URL } from '../utils/seo';
 
 export const AboutPage: React.FC = () => {
@@ -101,9 +102,9 @@ export const AboutPage: React.FC = () => {
       </div>
 
       {/* Official Disambiguation & Authenticity Notice */}
-      <section className="p-6 rounded-2xl bg-[#151f2e] border border-amber-500/30 relative overflow-hidden shadow-xl">
+      <section className="p-5 sm:p-6 rounded-2xl bg-[#151f2e] border border-amber-500/30 relative overflow-hidden shadow-xl">
         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
-        <div className="flex items-start gap-4">
+        <div className="flex flex-col sm:flex-row items-start gap-3.5 sm:gap-4">
           <div className="p-2.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400 flex-shrink-0">
             <AlertTriangle className="w-6 h-6" />
           </div>
@@ -252,6 +253,11 @@ export const AboutPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Voluntary UPI Support */}
+      <section id="support" className="space-y-4 scroll-mt-24">
+        <SupportUpiCard variant="full" />
+      </section>
+
       {/* Creator & Contact Details */}
       <section className="space-y-4">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -281,17 +287,21 @@ export const AboutPage: React.FC = () => {
       </section>
 
       {/* Back to Home Action */}
-      <div className="pt-6 border-t border-white/10 flex items-center justify-between">
+      <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
         <Link
           to="/"
-          className="px-5 py-2.5 rounded-xl bg-[#3db4f2] hover:bg-[#2ba2e0] text-[#0b1622] font-bold text-xs transition shadow-lg"
+          className="px-5 py-2.5 rounded-xl anilist-btn-primary font-bold text-xs"
         >
           ← Return to Home
         </Link>
-        <div className="flex items-center gap-4 text-xs text-slate-400">
+        <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-slate-400">
           <Link to="/privacy" className="hover:text-white transition">Privacy Policy</Link>
-          <span>•</span>
+          <span>·</span>
           <Link to="/terms" className="hover:text-white transition">Terms of Service</Link>
+          <span>·</span>
+          <Link to="/license" className="hover:text-white transition">Licenses</Link>
+          <span>·</span>
+          <Link to="/security" className="hover:text-white transition">Security</Link>
         </div>
       </div>
     </div>

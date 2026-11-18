@@ -228,7 +228,7 @@ export const AnimeDetailsPage: React.FC = () => {
   return (
     <div className="space-y-8 pb-16 animate-fadeIn">
       {/* Top Banner Header */}
-      <div className="relative w-full h-48 min-[480px]:h-60 sm:h-72 md:h-84 lg:h-96 overflow-hidden bg-[#0b1622]">
+      <div className="relative w-full h-44 min-[480px]:h-56 sm:h-72 md:h-84 lg:h-96 overflow-hidden bg-[#0b1622]">
         <img
           src={banner}
           alt={`${title} anime banner`}
@@ -238,24 +238,24 @@ export const AnimeDetailsPage: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0b1622] via-[#0b1622]/60 to-transparent" />
 
         {/* Back Link */}
-        <div className="absolute top-4 left-4 sm:left-8 z-10">
+        <div className="absolute top-3 left-3 sm:top-4 sm:left-8 z-10">
           <Link
             to={-1 as any}
-            className="anilist-btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold shadow-md border border-white/10 active:scale-95"
+            className="anilist-btn-secondary inline-flex items-center gap-1.5 px-3 py-2 min-h-[38px] text-xs font-bold shadow-md border border-white/10 active:scale-95"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <ArrowLeft aria-hidden="true" className="w-3.5 h-3.5" />
             <span>Back</span>
           </Link>
         </div>
       </div>
 
       {/* Main Content Layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 min-[480px]:-mt-28 sm:-mt-36 lg:-mt-44 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
-          {/* Left Column: Poster, Status Tracker & Metadata Sidebar */}
-          <div className="md:col-span-5 lg:col-span-4 xl:col-span-3 space-y-4">
-            {/* Poster Card */}
-            <div className="relative rounded-xl overflow-hidden border border-white/10 bg-[#11161d] aspect-[185/265] max-w-[240px] md:max-w-none mx-auto shadow-2xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 min-[480px]:-mt-24 sm:-mt-32 lg:-mt-40 relative z-10 space-y-6">
+        {/* Row 1: Poster + Title & Primary Actions (immediately visible on mobile!) */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6 lg:gap-8 md:items-end">
+          {/* Poster Card */}
+          <div className="md:col-span-4 lg:col-span-3">
+            <div className="relative rounded-xl overflow-hidden border border-white/10 bg-[#11161d] aspect-[185/265] max-w-[180px] sm:max-w-[220px] md:max-w-none mx-auto shadow-2xl">
               <img
                 src={anime.coverImage.extraLarge || anime.coverImage.large}
                 alt={`${title} anime poster`}
@@ -268,20 +268,102 @@ export const AnimeDetailsPage: React.FC = () => {
               {/* Score Overlay */}
               {anime.averageScore && (
                 <div
-                  className={`absolute top-3 right-3 px-2 py-0.5 rounded font-bold text-xs backdrop-blur-md shadow-lg flex items-center gap-1 ${getScoreBadgeClass(
+                  className={`absolute top-2.5 right-2.5 px-2 py-0.5 rounded font-bold text-xs backdrop-blur-md shadow-lg flex items-center gap-1 ${getScoreBadgeClass(
                     anime.averageScore
                   )}`}
                 >
-                  <Smile className="w-3.5 h-3.5" />
+                  <Smile aria-hidden="true" className="w-3.5 h-3.5" />
                   <span>{anime.averageScore}%</span>
                 </div>
               )}
             </div>
+          </div>
 
+          {/* Title, Rankings, Genres & Action Buttons */}
+          <div className="md:col-span-8 lg:col-span-9 space-y-3 text-center md:text-left">
+            {/* Rankings Badges */}
+            {anime.rankings && anime.rankings.length > 0 && (
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                {anime.rankings.slice(0, 2).map((rank) => (
+                  <span
+                    key={rank.id}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#3db4f2]/15 border border-[#3db4f2]/30 text-[#3db4f2] text-xs font-bold backdrop-blur-md"
+                  >
+                    <Award aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
+                    #{rank.rank} {rank.context}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#edf1f5] tracking-tight leading-tight">
+              {title}
+            </h1>
+
+            {anime.title.native && (
+              <p className="text-xs sm:text-sm text-[#8ba0b2] font-medium font-sans">
+                {anime.title.native}
+              </p>
+            )}
+
+            {/* Genres */}
+            {anime.genres && anime.genres.length > 0 && (
+              <div className="flex flex-wrap justify-center md:justify-start gap-1.5 pt-1">
+                {anime.genres.map((genre) => (
+                  <Link
+                    key={genre}
+                    to={`/discover?genre=${encodeURIComponent(genre)}`}
+                    className="text-xs px-2.5 py-1 rounded bg-[#151f2e] hover:bg-[#1f2c3f] border border-white/10 text-[#edf1f5] font-semibold transition"
+                  >
+                    {genre}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {/* Action Buttons Bar */}
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 pt-2">
+              {anime.trailer?.id && (
+                <button
+                  type="button"
+                  onClick={() => setTrailerModalOpen(true)}
+                  className="anilist-btn-primary flex items-center justify-center gap-2 px-4 py-2.5 min-h-[42px] text-xs sm:text-sm font-bold flex-1 sm:flex-none cursor-pointer"
+                >
+                  <Play aria-hidden="true" className="w-4 h-4 fill-current" />
+                  <span>Watch Trailer</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={handleShare}
+                className="anilist-btn-secondary flex items-center justify-center gap-2 px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm font-semibold border border-white/10 cursor-pointer"
+              >
+                <Share2 aria-hidden="true" className="w-4 h-4 text-[#8ba0b2]" />
+                <span>{copiedShare ? 'Link Copied!' : 'Share'}</span>
+              </button>
+
+              <a
+                href={`https://anilist.co/anime/${anime.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="anilist-btn-secondary flex items-center justify-center gap-2 px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm font-semibold border border-white/10"
+              >
+                <ExtLinkIcon aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
+                <span>AniList</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 2: Left Sidebar (Tracker + Info) & Right Main Content (Synopsis + Tabs) */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+          {/* Left Column: Status Tracker & Metadata Sidebar */}
+          <div className="md:col-span-4 lg:col-span-3 space-y-4">
             {/* Next Airing Countdown Banner if applicable */}
             {anime.nextAiringEpisode && (
               <div className="p-3 rounded-lg bg-[#0b1622]/90 border border-[#7bd555]/35 text-[#7bd555] flex items-center gap-2.5 text-xs">
-                <Clock className="w-4 h-4 text-[#7bd555] flex-shrink-0 animate-pulse" />
+                <Clock aria-hidden="true" className="w-4 h-4 text-[#7bd555] flex-shrink-0 animate-pulse" />
                 <div>
                   <p className="font-bold">
                     Episode {anime.nextAiringEpisode.episode} airing soon
@@ -307,11 +389,12 @@ export const AnimeDetailsPage: React.FC = () => {
               </div>
 
               {/* Status Selector Grid */}
-              <div className="grid grid-cols-2 gap-1.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 gap-1.5">
                 {statusOptions.map((st) => {
                   const isActive = inWatchlist && watchlistItem?.status === st.id;
                   return (
                     <button
+                      type="button"
                       key={st.id}
                       onClick={() => {
                         if (inWatchlist) {
@@ -320,13 +403,13 @@ export const AnimeDetailsPage: React.FC = () => {
                           addToWatchlist(anime, st.id);
                         }
                       }}
-                      className={`px-2.5 py-2 rounded text-xs font-bold flex items-center justify-center gap-1.5 transition ${
+                      className={`px-2.5 py-2.5 min-h-[40px] rounded text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
                         isActive
                           ? 'anilist-btn-primary'
                           : 'bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10'
                       }`}
                     >
-                      {isActive && <Check className="w-3.5 h-3.5" />}
+                      {isActive && <Check aria-hidden="true" className="w-3.5 h-3.5" />}
                       <span>{st.label}</span>
                     </button>
                   );
@@ -337,25 +420,28 @@ export const AnimeDetailsPage: React.FC = () => {
               {inWatchlist && (
                 <div className="pt-2.5 border-t border-white/[0.06] space-y-2.5">
                   {/* Episode progress counter */}
-                  <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center justify-between gap-2 text-xs">
                     <span className="text-[#8ba0b2] font-semibold">Episodes Watched:</span>
                     <div className="flex items-center gap-1.5">
                       <button
+                        type="button"
                         onClick={() =>
                           updateProgress(
                             anime.id,
                             Math.max(0, (watchlistItem?.currentEpisode || 0) - 1)
                           )
                         }
-                        className="p-1 rounded bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10"
+                        className="w-8 h-8 flex items-center justify-center rounded bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10 cursor-pointer"
                         title="Decrement episode"
+                        aria-label="Decrement episode"
                       >
-                        <Minus className="w-3 h-3" />
+                        <Minus aria-hidden="true" className="w-3.5 h-3.5" />
                       </button>
-                      <span className="font-mono font-bold text-[#3db4f2] min-w-[2.5rem] text-center">
+                      <span className="font-mono font-bold text-[#3db4f2] min-w-[3rem] text-center">
                         {watchlistItem?.currentEpisode || 0} / {anime.episodes || '??'}
                       </span>
                       <button
+                        type="button"
                         onClick={() => {
                           const max = anime.episodes || 9999;
                           updateProgress(
@@ -363,21 +449,23 @@ export const AnimeDetailsPage: React.FC = () => {
                             Math.min(max, (watchlistItem?.currentEpisode || 0) + 1)
                           );
                         }}
-                        className="p-1 rounded bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10"
+                        className="w-8 h-8 flex items-center justify-center rounded bg-[#0b1622] hover:bg-[#1f2c3f] text-[#edf1f5] border border-white/10 cursor-pointer"
                         title="Increment episode"
+                        aria-label="Increment episode"
                       >
-                        <Plus className="w-3 h-3" />
+                        <Plus aria-hidden="true" className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
 
                   {/* Personal Rating */}
-                  <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center justify-between gap-2 text-xs">
                     <span className="text-[#8ba0b2] font-semibold">My Rating:</span>
                     <select
                       value={watchlistItem?.userRating || 0}
                       onChange={(e) => updateRating(anime.id, Number(e.target.value))}
-                      className="anilist-input text-xs px-2 py-1 font-bold text-[#e4a834]"
+                      aria-label="My rating"
+                      className="anilist-input text-xs px-2.5 py-1.5 min-h-[36px] font-bold text-[#e4a834]"
                     >
                       <option value="0">Unrated</option>
                       {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
@@ -390,8 +478,9 @@ export const AnimeDetailsPage: React.FC = () => {
 
                   {/* Remove action */}
                   <button
+                    type="button"
                     onClick={() => removeFromWatchlist(anime.id)}
-                    className="w-full text-center text-xs text-[#e85d75] hover:underline pt-1 font-semibold"
+                    className="w-full text-center text-xs text-[#e85d75] hover:underline py-1.5 font-semibold cursor-pointer"
                   >
                     Remove from List
                   </button>
@@ -399,142 +488,73 @@ export const AnimeDetailsPage: React.FC = () => {
               )}
             </div>
 
-            {/* Information Sidebar */}
-            <div className="p-4 rounded-xl anilist-card-static space-y-2.5 text-xs">
+            {/* Information Sidebar (2-col compact grid on mobile, vertical list on md+) */}
+            <div className="p-4 rounded-xl anilist-card-static space-y-3 text-xs">
               <h2 className="font-bold uppercase tracking-wider text-[#8ba0b2] pb-2 border-b border-white/[0.06]">
                 Anime Information
               </h2>
 
-              <div className="flex justify-between">
-                <span className="text-[#8ba0b2]">Format:</span>
-                <span className="font-bold text-[#edf1f5] uppercase">{anime.format || 'Unknown'}</span>
-              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-1 gap-3 md:gap-2.5">
+                <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
+                  <span className="text-[#8ba0b2] text-[11px] md:text-xs">Format</span>
+                  <span className="font-bold text-[#edf1f5] uppercase md:text-right">{anime.format?.replace('_', ' ') || 'Unknown'}</span>
+                </div>
 
-              <div className="flex justify-between">
-                <span className="text-[#8ba0b2]">Status:</span>
-                <span className="font-bold text-[#edf1f5] capitalize">
-                  {anime.status ? anime.status.toLowerCase().replace('_', ' ') : 'Unknown'}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-[#8ba0b2]">Episodes:</span>
-                <span className="font-bold text-[#edf1f5]">{anime.episodes || 'TBA'}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-[#8ba0b2]">Episode Duration:</span>
-                <span className="font-bold text-[#edf1f5]">
-                  {anime.duration ? `${anime.duration} mins` : 'Unknown'}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-[#8ba0b2]">Season:</span>
-                <span className="font-bold text-[#edf1f5]">
-                  {anime.season && anime.seasonYear ? `${anime.season} ${anime.seasonYear}` : 'TBA'}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-[#8ba0b2]">Studio:</span>
-                <span className="font-bold text-[#3db4f2]">
-                  {anime.studios?.nodes?.[0]?.name || 'Unknown'}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-[#8ba0b2]">Source:</span>
-                <span className="font-bold text-[#edf1f5] capitalize">
-                  {anime.source ? anime.source.toLowerCase().replace('_', ' ') : 'Original'}
-                </span>
-              </div>
-
-              {anime.favourites && (
-                <div className="flex justify-between">
-                  <span className="text-[#8ba0b2]">Favorites:</span>
-                  <span className="font-bold text-[#e85d75] flex items-center gap-1">
-                    <Heart className="w-3 h-3 fill-[#e85d75]" />
-                    {anime.favourites.toLocaleString()}
+                <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
+                  <span className="text-[#8ba0b2] text-[11px] md:text-xs">Status</span>
+                  <span className="font-bold text-[#edf1f5] capitalize md:text-right">
+                    {anime.status ? anime.status.toLowerCase().replace(/_/g, ' ') : 'Unknown'}
                   </span>
                 </div>
-              )}
+
+                <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
+                  <span className="text-[#8ba0b2] text-[11px] md:text-xs">Episodes</span>
+                  <span className="font-bold text-[#edf1f5] md:text-right">{anime.episodes || 'TBA'}</span>
+                </div>
+
+                <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
+                  <span className="text-[#8ba0b2] text-[11px] md:text-xs">Duration</span>
+                  <span className="font-bold text-[#edf1f5] md:text-right">
+                    {anime.duration ? `${anime.duration} mins` : 'Unknown'}
+                  </span>
+                </div>
+
+                <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
+                  <span className="text-[#8ba0b2] text-[11px] md:text-xs">Season</span>
+                  <span className="font-bold text-[#edf1f5] md:text-right">
+                    {anime.season && anime.seasonYear ? `${anime.season} ${anime.seasonYear}` : 'TBA'}
+                  </span>
+                </div>
+
+                <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
+                  <span className="text-[#8ba0b2] text-[11px] md:text-xs">Studio</span>
+                  <span className="font-bold text-[#3db4f2] md:text-right truncate">
+                    {anime.studios?.nodes?.[0]?.name || 'Unknown'}
+                  </span>
+                </div>
+
+                <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
+                  <span className="text-[#8ba0b2] text-[11px] md:text-xs">Source</span>
+                  <span className="font-bold text-[#edf1f5] capitalize md:text-right">
+                    {anime.source ? anime.source.toLowerCase().replace(/_/g, ' ') : 'Original'}
+                  </span>
+                </div>
+
+                {anime.favourites && (
+                  <div className="flex flex-col md:flex-row md:justify-between md:gap-3">
+                    <span className="text-[#8ba0b2] text-[11px] md:text-xs">Favorites</span>
+                    <span className="font-bold text-[#e85d75] flex items-center gap-1 md:justify-end">
+                      <Heart aria-hidden="true" className="w-3 h-3 fill-[#e85d75]" />
+                      {anime.favourites.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Right Column: Details, Rankings, Navigation Tabs & Content */}
-          <div className="lg:col-span-8 xl:col-span-9 space-y-6">
-            {/* Title & Action Buttons */}
-            <div className="space-y-3">
-              {/* Rankings Badges */}
-              <div className="flex flex-wrap items-center gap-2">
-                {anime.rankings?.slice(0, 2).map((rank) => (
-                  <span
-                    key={rank.id}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#3db4f2]/15 border border-[#3db4f2]/30 text-[#3db4f2] text-xs font-bold backdrop-blur-md"
-                  >
-                    <Award className="w-3.5 h-3.5 text-[#3db4f2]" />
-                    #{rank.rank} {rank.context}
-                  </span>
-                ))}
-              </div>
-
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#edf1f5] tracking-tight leading-tight">
-                {title}
-              </h1>
-
-              {anime.title.native && (
-                <p className="text-xs sm:text-sm text-[#8ba0b2] font-medium font-sans">
-                  {anime.title.native}
-                </p>
-              )}
-
-              {/* Genres */}
-              {anime.genres && anime.genres.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {anime.genres.map((genre) => (
-                    <Link
-                      key={genre}
-                      to={`/discover?genre=${encodeURIComponent(genre)}`}
-                      className="text-xs px-2.5 py-1 rounded bg-[#151f2e] hover:bg-[#1f2c3f] border border-white/10 text-[#edf1f5] font-semibold transition"
-                    >
-                      {genre}
-                    </Link>
-                  ))}
-                </div>
-              )}
-
-              {/* Action Buttons Bar */}
-              <div className="flex flex-wrap items-center gap-2.5 pt-2">
-                {anime.trailer?.id && (
-                  <button
-                    onClick={() => setTrailerModalOpen(true)}
-                    className="anilist-btn-primary flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold"
-                  >
-                    <Play className="w-4 h-4 fill-white" />
-                    <span>Watch Trailer</span>
-                  </button>
-                )}
-
-                <button
-                  onClick={handleShare}
-                  className="anilist-btn-secondary flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-semibold border border-white/10"
-                >
-                  <Share2 className="w-4 h-4 text-[#8ba0b2]" />
-                  <span>{copiedShare ? 'Link Copied!' : 'Share'}</span>
-                </button>
-
-                <a
-                  href={`https://anilist.co/anime/${anime.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="anilist-btn-secondary flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-semibold border border-white/10"
-                >
-                  <ExtLinkIcon className="w-3.5 h-3.5 text-[#3db4f2]" />
-                  <span>AniList</span>
-                </a>
-              </div>
-            </div>
+          {/* Right Column: Synopsis, Navigation Tabs & Content */}
+          <div className="md:col-span-8 lg:col-span-9 space-y-6 min-w-0">
 
             {/* Synopsis */}
             <div className="space-y-2.5 p-4 sm:p-5 rounded-xl anilist-card-static">

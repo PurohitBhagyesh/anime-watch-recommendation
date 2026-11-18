@@ -134,7 +134,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
   };
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-10 sm:py-16 relative overflow-hidden animate-fadeIn">
+    <div className="min-h-[calc(100dvh-8rem)] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-16 relative overflow-hidden animate-fadeIn">
       {/* Dynamic Background Glow Elements */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-[#3db4f2]/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-1/4 w-[350px] h-[350px] bg-[#3db4f2]/5 rounded-full blur-2xl pointer-events-none" />
@@ -147,13 +147,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
           </Link>
           <p className="text-xs sm:text-sm text-slate-400">
             {mode === 'login'
-              ? 'Sign in to access your anime watchlist and statistics'
-              : 'Join the next-generation anime tracking platform'}
+              ? 'Sign in to access your anime watchlist and progress'
+              : 'Create a free account to sync your watchlist across devices'}
           </p>
         </div>
 
         {/* Main Card Container */}
-        <div className="anilist-card-static p-6 sm:p-8 rounded-2xl border border-white/10 shadow-2xl relative backdrop-blur-xl bg-[#151f2e]/90">
+        <div className="liquid-glass-strong p-6 sm:p-8 rounded-3xl relative">
           
           {/* Mode Switcher Tabs */}
           <div className="grid grid-cols-2 p-1 rounded-xl bg-[#0b1622] border border-white/10 mb-6">
@@ -256,9 +256,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                     value={emailOrUsername}
                     onChange={(e) => setEmailOrUsername(e.target.value)}
                     placeholder="Enter email or username"
-                    className="anilist-input w-full pl-10 pr-4 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100 placeholder:text-slate-500"
+                    className="anilist-input w-full pl-10 pr-4 py-2.5 rounded-xl text-base sm:text-sm text-slate-100 placeholder:text-slate-500"
                   />
-                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
+                  <User aria-hidden="true" className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
               </div>
 
@@ -273,15 +273,16 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="anilist-input w-full pl-10 pr-10 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100 placeholder:text-slate-500"
+                    className="anilist-input w-full pl-10 pr-11 py-2.5 rounded-xl text-base sm:text-sm text-slate-100 placeholder:text-slate-500"
                   />
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
+                  <Lock aria-hidden="true" className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-3 text-slate-400 hover:text-white"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-white"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? <EyeOff aria-hidden="true" className="w-4 h-4" /> : <Eye aria-hidden="true" className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -319,9 +320,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                     value={signupUsername}
                     onChange={(e) => setSignupUsername(e.target.value)}
                     placeholder="e.g. TanjiroFan"
-                    className="anilist-input w-full pl-10 pr-4 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100 placeholder:text-slate-500"
+                    className="anilist-input w-full pl-10 pr-4 py-2.5 rounded-xl text-base sm:text-sm text-slate-100 placeholder:text-slate-500"
                   />
-                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
+                  <User aria-hidden="true" className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
               </div>
 
@@ -334,9 +335,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                     value={signupEmail}
                     onChange={(e) => setSignupEmail(e.target.value)}
                     placeholder="you@domain.com"
-                    className="anilist-input w-full pl-10 pr-4 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100 placeholder:text-slate-500"
+                    className="anilist-input w-full pl-10 pr-4 py-2.5 rounded-xl text-base sm:text-sm text-slate-100 placeholder:text-slate-500"
                   />
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
+                  <Mail aria-hidden="true" className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
               </div>
 
@@ -350,15 +351,16 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                     value={signupPassword}
                     onChange={(e) => setSignupPassword(e.target.value)}
                     placeholder="At least 6 characters"
-                    className="anilist-input w-full pl-10 pr-10 py-2.5 rounded-xl text-xs sm:text-sm text-slate-100 placeholder:text-slate-500"
+                    className="anilist-input w-full pl-10 pr-11 py-2.5 rounded-xl text-base sm:text-sm text-slate-100 placeholder:text-slate-500"
                   />
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
+                  <Lock aria-hidden="true" className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-3 text-slate-400 hover:text-white"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-white"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? <EyeOff aria-hidden="true" className="w-4 h-4" /> : <Eye aria-hidden="true" className="w-4 h-4" />}
                   </button>
                 </div>
               </div>

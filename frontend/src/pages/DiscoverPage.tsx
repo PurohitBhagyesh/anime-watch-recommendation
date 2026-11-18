@@ -416,21 +416,90 @@ export const DiscoverPage: React.FC = () => {
   };
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  const activeDropdownCount = [
+    selectedGenre,
+    selectedYear,
+    selectedSeason,
+    selectedFormat,
+    selectedStatus,
+  ].filter(Boolean).length;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 animate-fadeIn">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-5 sm:space-y-6 animate-fadeIn">
       {/* AniList Minimalist Filter Bar */}
       <div className="space-y-3">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5 sm:gap-3 items-end">
-          {/* 1. Search */}
-          <div className="col-span-2 sm:col-span-1 lg:col-span-2">
+        {/* Mobile Compact Search + Filter Toggle Bar (< sm) */}
+        <div className="flex sm:hidden items-center gap-2">
+          <form onSubmit={handleSearchSubmit} className="relative flex-1 min-w-0">
+            <Search aria-hidden="true" className="w-4 h-4 text-[#8ba0b2] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                updateFiltersInUrl({ search: e.target.value });
+              }}
+              placeholder="Search anime..."
+              className="w-full bg-[#151f2e] text-[#edf1f5] text-base font-medium pl-9 pr-8 py-2.5 rounded-xl border border-white/10 focus:border-[#3db4f2]/60 focus:ring-1 focus:ring-[#3db4f2]/40 outline-none transition placeholder-[#8ba0b2]"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  updateFiltersInUrl({ search: '' });
+                }}
+                aria-label="Clear search"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-[#8ba0b2] hover:text-white"
+              >
+                <X aria-hidden="true" className="w-4 h-4" />
+              </button>
+            )}
+          </form>
+
+          <button
+            type="button"
+            onClick={() => setMobileFiltersOpen((prev) => !prev)}
+            aria-expanded={mobileFiltersOpen}
+            className={`flex items-center gap-1.5 px-3.5 py-2.5 min-h-[44px] rounded-xl border text-xs font-bold flex-shrink-0 transition ${
+              mobileFiltersOpen || activeDropdownCount > 0
+                ? 'bg-[#3db4f2] text-[#0b1622] border-[#3db4f2]'
+                : 'bg-[#151f2e] text-[#edf1f5] border-white/10'
+            }`}
+          >
+            <SlidersHorizontal aria-hidden="true" className="w-4 h-4" />
+            <span>Filters</span>
+            {activeDropdownCount > 0 && (
+              <span
+                className={`px-1.5 py-0.2 text-[10px] font-extrabold rounded-full ${
+                  mobileFiltersOpen || activeDropdownCount > 0
+                    ? 'bg-[#0b1622] text-[#3db4f2]'
+                    : 'bg-[#3db4f2] text-[#0b1622]'
+                }`}
+              >
+                {activeDropdownCount}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Full Filter Grid (always visible on sm+, collapsible on mobile) */}
+        <div
+          className={`${
+            mobileFiltersOpen ? 'grid' : 'hidden sm:grid'
+          } grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5 sm:gap-3 items-end`}
+        >
+          {/* 1. Search (hidden on mobile since shown in compact bar above) */}
+          <div className="hidden sm:block sm:col-span-1 lg:col-span-2">
             <label className="block text-[11px] font-bold text-[#8ba0b2] tracking-wider mb-1">
               Search
             </label>
             <form onSubmit={handleSearchSubmit} className="relative">
-              <Search className="w-3.5 h-3.5 text-[#8ba0b2] absolute left-3 top-3 pointer-events-none" />
+              <Search aria-hidden="true" className="w-3.5 h-3.5 text-[#8ba0b2] absolute left-3 top-3 pointer-events-none" />
               <input
-                type="text"
+                type="search"
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -446,9 +515,10 @@ export const DiscoverPage: React.FC = () => {
                     setSearchQuery('');
                     updateFiltersInUrl({ search: '' });
                   }}
+                  aria-label="Clear search"
                   className="absolute right-2.5 top-2.5 text-[#8ba0b2] hover:text-white"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X aria-hidden="true" className="w-3.5 h-3.5" />
                 </button>
               )}
             </form>
@@ -466,7 +536,7 @@ export const DiscoverPage: React.FC = () => {
                   setSelectedGenre(e.target.value);
                   updateFiltersInUrl({ genre: e.target.value });
                 }}
-                className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 rounded-lg border border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
+                className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 min-h-[40px] rounded-lg border border-white/10 sm:border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
               >
                 <option value="">Any</option>
                 {GENRE_LIST.map((g) => (
@@ -475,7 +545,7 @@ export const DiscoverPage: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <ChevronRight className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-3 rotate-90 pointer-events-none" />
+              <ChevronRight aria-hidden="true" className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
             </div>
           </div>
 
@@ -491,7 +561,7 @@ export const DiscoverPage: React.FC = () => {
                   setSelectedYear(e.target.value);
                   updateFiltersInUrl({ year: e.target.value });
                 }}
-                className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 rounded-lg border border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
+                className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 min-h-[40px] rounded-lg border border-white/10 sm:border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
               >
                 <option value="">Any</option>
                 {yearsList.map((y) => (
@@ -500,7 +570,7 @@ export const DiscoverPage: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <ChevronRight className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-3 rotate-90 pointer-events-none" />
+              <ChevronRight aria-hidden="true" className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
             </div>
           </div>
 
@@ -516,7 +586,7 @@ export const DiscoverPage: React.FC = () => {
                   setSelectedSeason(e.target.value);
                   updateFiltersInUrl({ season: e.target.value });
                 }}
-                className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 rounded-lg border border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
+                className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 min-h-[40px] rounded-lg border border-white/10 sm:border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
               >
                 <option value="">Any</option>
                 <option value="WINTER" className="bg-[#151f2e] text-[#edf1f5]">Winter</option>
@@ -524,7 +594,7 @@ export const DiscoverPage: React.FC = () => {
                 <option value="SUMMER" className="bg-[#151f2e] text-[#edf1f5]">Summer</option>
                 <option value="FALL" className="bg-[#151f2e] text-[#edf1f5]">Fall</option>
               </select>
-              <ChevronRight className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-3 rotate-90 pointer-events-none" />
+              <ChevronRight aria-hidden="true" className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
             </div>
           </div>
 
@@ -540,7 +610,7 @@ export const DiscoverPage: React.FC = () => {
                   setSelectedFormat(e.target.value);
                   updateFiltersInUrl({ format: e.target.value });
                 }}
-                className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 rounded-lg border border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
+                className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 min-h-[40px] rounded-lg border border-white/10 sm:border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
               >
                 <option value="">Any</option>
                 <option value="TV" className="bg-[#151f2e] text-[#edf1f5]">TV Show</option>
@@ -550,13 +620,13 @@ export const DiscoverPage: React.FC = () => {
                 <option value="ONA" className="bg-[#151f2e] text-[#edf1f5]">ONA</option>
                 <option value="SPECIAL" className="bg-[#151f2e] text-[#edf1f5]">Special</option>
               </select>
-              <ChevronRight className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-3 rotate-90 pointer-events-none" />
+              <ChevronRight aria-hidden="true" className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
             </div>
           </div>
 
-          {/* 6. Airing Status & 7. Toggle Filter Button */}
-          <div className="flex items-end gap-2">
-            <div className="flex-1">
+          {/* 6. Airing Status & 7. Toggle Filter Button (spans 2 cols on mobile so Status dropdown isn't cramped) */}
+          <div className="col-span-2 sm:col-span-1 flex items-end gap-2">
+            <div className="flex-1 min-w-0">
               <label className="block text-[11px] font-bold text-[#8ba0b2] tracking-wider mb-1">
                 Airing Status
               </label>
@@ -567,7 +637,7 @@ export const DiscoverPage: React.FC = () => {
                     setSelectedStatus(e.target.value);
                     updateFiltersInUrl({ status: e.target.value });
                   }}
-                  className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 rounded-lg border border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
+                  className="w-full bg-[#151f2e] text-[#edf1f5] text-xs font-semibold px-3 py-2.5 min-h-[40px] rounded-lg border border-white/10 sm:border-white/5 focus:border-[#3db4f2]/50 outline-none appearance-none cursor-pointer pr-8"
                 >
                   <option value="">Any</option>
                   <option value="RELEASING" className="bg-[#151f2e] text-[#edf1f5]">Airing</option>
@@ -575,7 +645,7 @@ export const DiscoverPage: React.FC = () => {
                   <option value="NOT_YET_RELEASED" className="bg-[#151f2e] text-[#edf1f5]">Not Yet Aired</option>
                   <option value="CANCELLED" className="bg-[#151f2e] text-[#edf1f5]">Cancelled</option>
                 </select>
-                <ChevronRight className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-3 rotate-90 pointer-events-none" />
+                <ChevronRight aria-hidden="true" className="w-3.5 h-3.5 text-[#8ba0b2] absolute right-3 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
               </div>
             </div>
 
@@ -583,14 +653,16 @@ export const DiscoverPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-              className={`p-2.5 rounded-lg border transition ${
+              aria-label="Toggle advanced filter options"
+              aria-expanded={showAdvancedOptions}
+              className={`p-2.5 min-w-[40px] min-h-[40px] rounded-lg border transition flex items-center justify-center flex-shrink-0 ${
                 showAdvancedOptions || hasActiveFilters
-                  ? 'bg-[#3db4f2] text-white border-[#3db4f2]'
-                  : 'bg-[#151f2e] text-[#8ba0b2] hover:text-[#edf1f5] border-white/5'
+                  ? 'bg-[#3db4f2] text-[#0b1622] border-[#3db4f2]'
+                  : 'bg-[#151f2e] text-[#8ba0b2] hover:text-[#edf1f5] border-white/10 sm:border-white/5'
               }`}
               title="Advanced Filter Options"
             >
-              <SlidersHorizontal className="w-4 h-4" />
+              <SlidersHorizontal aria-hidden="true" className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -828,13 +900,13 @@ export const DiscoverPage: React.FC = () => {
                 key={cat.id}
                 type="button"
                 onClick={() => applyCategoryPreset(cat.id)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 cursor-pointer ${
+                className={`px-3.5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 cursor-pointer active:scale-95 ${
                   cat.active
-                    ? 'bg-[#3db4f2] text-white shadow-md shadow-[#3db4f2]/25 scale-[1.02]'
-                    : 'bg-[#151f2e] text-[#8ba0b2] hover:text-[#edf1f5] hover:bg-[#1c2a3f] border border-white/5'
+                    ? 'bg-[#3db4f2] text-[#06101c] shadow-md shadow-[#3db4f2]/30 border border-white/25'
+                    : 'liquid-glass-pill text-slate-300 hover:text-white'
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${cat.active ? 'text-white' : cat.color}`} />
+                <Icon aria-hidden="true" className={`w-3.5 h-3.5 ${cat.active ? 'text-[#06101c]' : cat.color}`} />
                 <span>{cat.label}</span>
               </button>
             );
@@ -1011,59 +1083,68 @@ export const DiscoverPage: React.FC = () => {
 
                 {/* Popover explaining the 5,000 count & 20,000+ database */}
                 {showCountInfo && (
-                  <div className="absolute left-0 top-full mt-2 w-72 sm:w-84 p-3.5 rounded-xl bg-[#111927]/98 backdrop-blur-2xl border border-white/20 shadow-2xl z-50 text-xs text-slate-200 animate-fadeIn space-y-2.5">
-                    <div className="flex items-center justify-between font-bold text-white border-b border-white/10 pb-1.5">
-                      <span className="flex items-center gap-1.5 text-[#3db4f2]">
-                        <Sparkles className="w-3.5 h-3.5" />{' '}
-                        {selectedGenre
-                          ? `${selectedGenre} Anime Catalog`
-                          : '20,000+ Anime Database'}
-                      </span>
+                  <>
+                    <div
+                      className="fixed inset-0 z-40 bg-black/40 sm:hidden"
+                      onClick={() => setShowCountInfo(false)}
+                      aria-hidden="true"
+                    />
+                    <div className="fixed inset-x-4 top-20 sm:inset-x-auto sm:top-full sm:absolute sm:left-0 sm:mt-2 sm:w-84 p-3.5 rounded-xl bg-[#111927]/98 backdrop-blur-2xl border border-white/20 shadow-2xl z-50 text-xs text-slate-200 animate-fadeIn space-y-2.5">
+                      <div className="flex items-center justify-between font-bold text-white border-b border-white/10 pb-1.5">
+                        <span className="flex items-center gap-1.5 text-[#3db4f2]">
+                          <Sparkles aria-hidden="true" className="w-3.5 h-3.5" />{' '}
+                          {selectedGenre
+                            ? `${selectedGenre} Anime Catalog`
+                            : '20,000+ Anime Database'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setShowCountInfo(false)}
+                          aria-label="Close database info"
+                          className="text-slate-400 hover:text-white p-1"
+                        >
+                          <X aria-hidden="true" className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {selectedGenre && currentGenreMeta ? (
+                        <div className="space-y-1.5 text-[11px] leading-relaxed">
+                          <p className="text-slate-200">
+                            The AniList database indexes approximately{' '}
+                            <strong className="text-[#3db4f2]">{currentGenreMeta.formattedCount} {selectedGenre}</strong> anime titles ({currentGenreMeta.description}).
+                          </p>
+                          <p className="text-slate-400">
+                            To maintain instant query speeds, AniList GraphQL API serves up to the top{' '}
+                            <strong className="text-slate-200">5,000 ranked entries (208 pages)</strong> per query.
+                          </p>
+                          <p className="text-slate-400">
+                            Tip: Use the <strong>Year</strong>, <strong>Season</strong>, or <strong>Format</strong> filters to narrow down exact subsets.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-1.5 text-[11px] leading-relaxed">
+                          <p className="text-slate-300">
+                            <strong>AnimeSenpai</strong> connects directly to the live AniList database containing over <strong className="text-[#3db4f2]">20,000+ indexed anime titles</strong>.
+                          </p>
+                          <p className="text-slate-400">
+                            Broad queries return the top <strong>5,000 ranked anime</strong> across 208 pages. Filtering by <strong>Genre, Year, Format, or Search keywords</strong> queries the entire 20,000+ database!
+                          </p>
+                        </div>
+                      )}
+
                       <button
-                        onClick={() => setShowCountInfo(false)}
-                        className="text-slate-400 hover:text-white"
+                        type="button"
+                        onClick={() => {
+                          setShowCountInfo(false);
+                          setShowGenreStatsModal(true);
+                        }}
+                        className="w-full text-center py-2 rounded-lg bg-[#3db4f2]/20 hover:bg-[#3db4f2]/30 border border-[#3db4f2]/40 text-[#3db4f2] text-xs font-bold transition flex items-center justify-center gap-1.5"
                       >
-                        <X className="w-3.5 h-3.5" />
+                        <BarChart2 aria-hidden="true" className="w-3.5 h-3.5" />
+                        <span>View All 18 Genre Totals</span>
                       </button>
                     </div>
-
-                    {selectedGenre && currentGenreMeta ? (
-                      <div className="space-y-1.5 text-[11px] leading-relaxed">
-                        <p className="text-slate-200">
-                          The AniList database indexes approximately{' '}
-                          <strong className="text-[#3db4f2]">{currentGenreMeta.formattedCount} {selectedGenre}</strong> anime titles ({currentGenreMeta.description}).
-                        </p>
-                        <p className="text-slate-400">
-                          To maintain instant query speeds, AniList GraphQL API serves up to the top{' '}
-                          <strong className="text-slate-200">5,000 ranked entries (208 pages)</strong> per query.
-                        </p>
-                        <p className="text-slate-400">
-                          💡 <em>Tip: Use the <strong>Year</strong> (e.g. 2024), <strong>Season</strong>, or <strong>Format</strong> filters to browse specific subsets with exact counts.</em>
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="space-y-1.5 text-[11px] leading-relaxed">
-                        <p className="text-slate-300">
-                          <strong>AnimeSenpai</strong> connects directly to the live AniList database containing over <strong className="text-[#3db4f2]">20,000+ indexed anime titles</strong>.
-                        </p>
-                        <p className="text-slate-400">
-                          Broad queries return the top <strong>5,000 ranked anime</strong> across 208 pages. Filtering by <strong>Genre, Year, Format, or Search keywords</strong> queries the entire 20,000+ database!
-                        </p>
-                      </div>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowCountInfo(false);
-                        setShowGenreStatsModal(true);
-                      }}
-                      className="w-full text-center py-1.5 rounded-lg bg-[#3db4f2]/20 hover:bg-[#3db4f2]/30 border border-[#3db4f2]/40 text-[#3db4f2] text-xs font-bold transition flex items-center justify-center gap-1.5"
-                    >
-                      <BarChart2 className="w-3.5 h-3.5" />
-                      <span>View All 18 Genre Totals</span>
-                    </button>
-                  </div>
+                  </>
                 )}
               </div>
             )}
@@ -1080,13 +1161,14 @@ export const DiscoverPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 self-end sm:self-auto">
+        <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
           {/* Quick Sort Dropdown */}
-          <div className="flex items-center gap-1.5 bg-[#151f2e] px-2.5 py-1.5 rounded-lg border border-white/10 text-xs">
-            <ArrowUpDown className="w-3.5 h-3.5 text-[#3db4f2]" />
+          <div className="flex items-center gap-1.5 bg-[#151f2e] px-2.5 py-1.5 min-h-[38px] rounded-lg border border-white/10 text-xs">
+            <ArrowUpDown aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2] flex-shrink-0" />
             <span className="text-[11px] font-bold text-[#8ba0b2] hidden sm:inline">Sort:</span>
             <select
               value={selectedSort}
+              aria-label="Sort results"
               onChange={(e) => {
                 setSelectedSort(e.target.value);
                 setCurrentPage(1);
@@ -1094,68 +1176,74 @@ export const DiscoverPage: React.FC = () => {
               }}
               className="bg-transparent text-xs font-bold text-[#edf1f5] outline-none cursor-pointer pr-1"
             >
-              <option value="TRENDING_DESC" className="bg-[#0b1622] text-white">🔥 Trending</option>
-              <option value="POPULARITY_DESC" className="bg-[#0b1622] text-white">🌟 Popular</option>
-              <option value="SCORE_DESC" className="bg-[#0b1622] text-white">🏆 Top Rated</option>
-              <option value="START_DATE_DESC" className="bg-[#0b1622] text-white">📅 Release Date</option>
-              <option value="FAVOURITES_DESC" className="bg-[#0b1622] text-white">❤️ Most Favorited</option>
-              <option value="TITLE_ROMAJI" className="bg-[#0b1622] text-white">🔤 Title (A–Z)</option>
+              <option value="TRENDING_DESC" className="bg-[#0b1622] text-white">Trending</option>
+              <option value="POPULARITY_DESC" className="bg-[#0b1622] text-white">Most Popular</option>
+              <option value="SCORE_DESC" className="bg-[#0b1622] text-white">Top Rated</option>
+              <option value="START_DATE_DESC" className="bg-[#0b1622] text-white">Release Date</option>
+              <option value="FAVOURITES_DESC" className="bg-[#0b1622] text-white">Most Favorited</option>
+              <option value="TITLE_ROMAJI" className="bg-[#0b1622] text-white">Title (A–Z)</option>
             </select>
           </div>
 
+          <div className="flex items-center gap-2">
           {/* Top Mini-Pagination Switcher */}
           {pageInfo && pageInfo.lastPage > 1 && (
-            <div className="flex items-center gap-1 bg-[#151f2e] p-1 rounded-lg border border-white/10 text-xs font-mono">
+            <div className="flex items-center gap-1 bg-[#151f2e] p-1 min-h-[38px] rounded-lg border border-white/10 text-xs font-mono">
               <button
                 type="button"
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage <= 1 || loading}
-                className="p-1 rounded hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-[#8ba0b2] hover:text-white cursor-pointer"
+                className="p-1.5 rounded hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-[#8ba0b2] hover:text-white cursor-pointer"
                 title="Previous Page"
                 aria-label="Previous Page"
               >
-                <ChevronLeft className="w-3.5 h-3.5" />
+                <ChevronLeft aria-hidden="true" className="w-3.5 h-3.5" />
               </button>
-              <span className="px-1.5 text-[11px] text-slate-300">
+              <span className="px-1 text-[11px] text-slate-300">
                 <strong className="text-[#3db4f2]">{currentPage}</strong>/{pageInfo.lastPage}
               </span>
               <button
                 type="button"
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={!pageInfo.hasNextPage || loading}
-                className="p-1 rounded hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-[#8ba0b2] hover:text-white cursor-pointer"
+                className="p-1.5 rounded hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-[#8ba0b2] hover:text-white cursor-pointer"
                 title="Next Page"
                 aria-label="Next Page"
               >
-                <ChevronRight className="w-3.5 h-3.5" />
+                <ChevronRight aria-hidden="true" className="w-3.5 h-3.5" />
               </button>
             </div>
           )}
 
           {/* View mode toggle */}
-          <div className="flex items-center p-0.5 rounded bg-[#151f2e] border border-white/10">
+          <div className="flex items-center p-0.5 min-h-[38px] rounded-lg bg-[#151f2e] border border-white/10">
             <button
+              type="button"
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded text-xs font-bold transition cursor-pointer ${
+              aria-label="Grid View"
+              className={`p-2 rounded text-xs font-bold transition cursor-pointer ${
                 viewMode === 'grid'
-                  ? 'bg-[#3db4f2] text-white shadow-sm'
+                  ? 'bg-[#3db4f2] text-[#0b1622] shadow-sm'
                   : 'text-[#8ba0b2] hover:text-white'
               }`}
               title="Grid View"
             >
-              <LayoutGrid className="w-3.5 h-3.5" />
+              <LayoutGrid aria-hidden="true" className="w-3.5 h-3.5" />
             </button>
             <button
+              type="button"
               onClick={() => setViewMode('table')}
-              className={`p-1.5 rounded text-xs font-bold transition cursor-pointer ${
+              aria-label="List View"
+              className={`p-2 rounded text-xs font-bold transition cursor-pointer ${
                 viewMode === 'table'
-                  ? 'bg-[#3db4f2] text-white shadow-sm'
+                  ? 'bg-[#3db4f2] text-[#0b1622] shadow-sm'
                   : 'text-[#8ba0b2] hover:text-white'
               }`}
-              title="Table View"
+              title="List View"
             >
-              <List className="w-3.5 h-3.5" />
+              <List aria-hidden="true" className="w-3.5 h-3.5" />
             </button>
+          </div>
           </div>
         </div>
       </div>
@@ -1188,10 +1276,10 @@ export const DiscoverPage: React.FC = () => {
               return (
                 <div
                   key={anime.id}
-                  className="flex items-center justify-between p-2.5 sm:p-3 rounded-lg anilist-table-row gap-3 sm:gap-4"
+                  className="flex items-center justify-between p-2.5 sm:p-3 rounded-lg anilist-table-row gap-2 sm:gap-4"
                 >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <span className="text-xs sm:text-sm font-bold text-[#8ba0b2] w-6 text-right flex-shrink-0">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                    <span className="text-[11px] sm:text-sm font-bold text-[#8ba0b2] w-6 sm:w-7 text-right flex-shrink-0">
                       #{rankNum}
                     </span>
 
@@ -1215,8 +1303,8 @@ export const DiscoverPage: React.FC = () => {
                       >
                         {title}
                       </Link>
-                      <div className="flex items-center gap-2 text-[11px] text-[#8ba0b2] mt-0.5">
-                        <span className="text-[#3db4f2] font-semibold">
+                      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] sm:text-[11px] text-[#8ba0b2] mt-0.5">
+                        <span className="text-[#3db4f2] font-semibold truncate max-w-[110px] sm:max-w-none">
                           {anime.studios?.nodes?.[0]?.name || 'Studio'}
                         </span>
                         <span>·</span>
@@ -1227,7 +1315,7 @@ export const DiscoverPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 flex-shrink-0">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                     {anime.averageScore ? (
                       <div
                         className={`px-2 py-0.5 rounded text-xs font-bold ${getScoreBadgeClass(
@@ -1349,36 +1437,38 @@ export const DiscoverPage: React.FC = () => {
           <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
             {/* First Page */}
             <button
+              type="button"
               onClick={() => goToPage(1)}
               disabled={currentPage <= 1 || loading}
-              className="px-2.5 sm:px-3 py-2 rounded-lg bg-[#151f2e] border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition text-xs font-bold flex items-center gap-1 cursor-pointer"
+              className="hidden sm:flex px-2.5 sm:px-3 py-2 rounded-lg bg-[#151f2e] border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition text-xs font-bold items-center gap-1 cursor-pointer"
               title="First Page"
               aria-label="First Page"
             >
-              <ChevronsLeft className="w-4 h-4" />
+              <ChevronsLeft aria-hidden="true" className="w-4 h-4" />
               <span className="hidden md:inline">First</span>
             </button>
 
             {/* Prev Page */}
             <button
+              type="button"
               onClick={() => goToPage(currentPage - 1)}
               disabled={currentPage <= 1 || loading}
-              className="px-2.5 sm:px-3 py-2 rounded-lg bg-[#151f2e] border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition text-xs font-bold flex items-center gap-1 cursor-pointer"
+              className="px-2.5 sm:px-3 py-2 min-h-[38px] rounded-lg bg-[#151f2e] border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition text-xs font-bold flex items-center gap-1 cursor-pointer"
               title="Previous Page"
               aria-label="Previous Page"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft aria-hidden="true" className="w-4 h-4" />
               <span className="hidden sm:inline">Prev</span>
             </button>
 
             {/* Page Number Buttons */}
-            <div className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center justify-center gap-1">
               {getPaginationRange(currentPage, pageInfo.lastPage).map((item, idx) => {
                 if (item === '...') {
                   return (
                     <span
                       key={`ellipsis-${idx}`}
-                      className="px-1.5 sm:px-2 py-1 text-slate-500 font-mono text-xs select-none"
+                      className="px-1 sm:px-2 py-1 text-slate-500 font-mono text-xs select-none"
                     >
                       …
                     </span>
@@ -1390,12 +1480,13 @@ export const DiscoverPage: React.FC = () => {
 
                 return (
                   <button
+                    type="button"
                     key={pageNum}
                     onClick={() => goToPage(pageNum)}
                     disabled={loading}
                     className={`min-w-[34px] sm:min-w-[38px] h-9 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center font-mono cursor-pointer ${
                       isCurrent
-                        ? 'bg-[#3db4f2] text-white shadow-lg shadow-[#3db4f2]/30 scale-105 ring-1 ring-[#3db4f2]'
+                        ? 'bg-[#3db4f2] text-[#0b1622] shadow-lg shadow-[#3db4f2]/30 ring-1 ring-[#3db4f2]'
                         : 'bg-[#151f2e] text-slate-300 hover:text-white hover:bg-white/10 border border-white/5'
                     }`}
                     aria-label={`Page ${pageNum}`}
@@ -1409,26 +1500,28 @@ export const DiscoverPage: React.FC = () => {
 
             {/* Next Page */}
             <button
+              type="button"
               onClick={() => goToPage(currentPage + 1)}
               disabled={!pageInfo.hasNextPage || loading}
-              className="px-2.5 sm:px-3 py-2 rounded-lg bg-[#151f2e] border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition text-xs font-bold flex items-center gap-1 cursor-pointer"
+              className="px-2.5 sm:px-3 py-2 min-h-[38px] rounded-lg bg-[#151f2e] border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition text-xs font-bold flex items-center gap-1 cursor-pointer"
               title="Next Page"
               aria-label="Next Page"
             >
               <span className="hidden sm:inline">Next</span>
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight aria-hidden="true" className="w-4 h-4" />
             </button>
 
             {/* Last Page */}
             <button
+              type="button"
               onClick={() => goToPage(pageInfo.lastPage)}
               disabled={currentPage >= pageInfo.lastPage || loading}
-              className="px-2.5 sm:px-3 py-2 rounded-lg bg-[#151f2e] border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition text-xs font-bold flex items-center gap-1 cursor-pointer"
+              className="hidden sm:flex px-2.5 sm:px-3 py-2 rounded-lg bg-[#151f2e] border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition text-xs font-bold items-center gap-1 cursor-pointer"
               title="Last Page"
               aria-label="Last Page"
             >
               <span className="hidden md:inline">Last</span>
-              <ChevronsRight className="w-4 h-4" />
+              <ChevronsRight aria-hidden="true" className="w-4 h-4" />
             </button>
           </div>
 
@@ -1443,11 +1536,11 @@ export const DiscoverPage: React.FC = () => {
                 value={jumpPageInput}
                 onChange={(e) => setJumpPageInput(e.target.value)}
                 placeholder={`${currentPage}`}
-                className="w-16 px-2.5 py-1 rounded-lg bg-[#151f2e] border border-white/10 text-[#edf1f5] text-xs font-mono text-center focus:border-[#3db4f2] outline-none"
+                className="w-16 px-2.5 py-1.5 rounded-lg bg-[#151f2e] border border-white/10 text-[#edf1f5] text-base sm:text-xs font-mono text-center focus:border-[#3db4f2] outline-none"
               />
               <button
                 type="submit"
-                className="px-3 py-1 rounded-lg bg-[#3db4f2]/20 hover:bg-[#3db4f2] text-[#3db4f2] hover:text-white font-bold transition border border-[#3db4f2]/30 cursor-pointer text-xs"
+                className="px-3.5 py-1.5 min-h-[36px] rounded-lg bg-[#3db4f2]/20 hover:bg-[#3db4f2] text-[#3db4f2] hover:text-[#0b1622] font-bold transition border border-[#3db4f2]/30 cursor-pointer text-xs"
               >
                 Go
               </button>
@@ -1465,19 +1558,21 @@ export const DiscoverPage: React.FC = () => {
               onClick={() => setShowGenreStatsModal(false)}
               aria-hidden="true"
             />
-            <div className="relative w-full max-w-2xl bg-[#0e1726] border border-white/15 rounded-2xl p-5 shadow-2xl z-10 space-y-4 max-h-[90vh] overflow-y-auto my-auto pointer-events-auto">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div className="flex items-center gap-2">
-                  <BarChart2 className="w-5 h-5 text-[#3db4f2]" />
-                  <h3 className="text-base font-bold text-white">
+            <div className="relative w-full max-w-2xl bg-[#0e1726] border border-white/15 rounded-2xl p-4 sm:p-5 shadow-2xl z-10 space-y-4 max-h-[90dvh] overflow-y-auto my-auto pointer-events-auto">
+              <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <BarChart2 aria-hidden="true" className="w-5 h-5 text-[#3db4f2] flex-shrink-0" />
+                  <h3 className="text-sm sm:text-base font-bold text-white">
                     AniList Database: Anime Genre Counts
                   </h3>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setShowGenreStatsModal(false)}
-                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10"
+                  aria-label="Close genre statistics"
+                  className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 flex-shrink-0"
                 >
-                  <X className="w-4 h-4" />
+                  <X aria-hidden="true" className="w-4 h-4" />
                 </button>
               </div>
 

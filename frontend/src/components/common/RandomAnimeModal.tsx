@@ -48,61 +48,60 @@ export const RandomAnimeModal: React.FC<RandomAnimeModalProps> = ({ isOpen, onCl
         />
 
         {/* Modal Window */}
-        <div className="relative w-full max-w-lg p-5 sm:p-8 rounded-2xl bg-[#151f2e] border border-white/15 shadow-2xl z-10 space-y-4 sm:space-y-5 max-h-[90dvh] overflow-y-auto my-auto pointer-events-auto">
+        <div className="relative w-full max-w-lg p-5 sm:p-7 rounded-3xl liquid-glass-strong z-10 space-y-4 sm:space-y-5 max-h-[90dvh] overflow-y-auto my-auto pointer-events-auto">
           {/* Close button */}
           <button
+            type="button"
             onClick={onClose}
-            className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+            className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
             aria-label="Close randomizer modal"
           >
-            <X className="w-5 h-5" />
+            <X aria-hidden="true" className="w-5 h-5" />
           </button>
 
           {/* Modal Header */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#3db4f2]/20 border border-[#3db4f2]/40 flex items-center justify-center text-[#3db4f2]">
-              <Dices className="w-5 h-5" />
+          <div className="flex items-center gap-2.5 pr-8">
+            <div className="w-10 h-10 rounded-xl bg-[#3db4f2]/15 border border-[#3db4f2]/30 flex items-center justify-center text-[#3db4f2] flex-shrink-0">
+              <Dices aria-hidden="true" className="w-5 h-5" />
             </div>
-            <div>
-              <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-                <span>AniList Fate Randomizer</span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#3db4f2]/15 border border-[#3db4f2]/30 text-[#3db4f2]">
-                  Roll
-                </span>
+            <div className="min-w-0">
+              <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                Random Anime Picker
               </h2>
               <p className="text-xs text-slate-400">
-                Can't decide what to watch? Let fate choose your next anime!
+                Pulls a random high-rated title directly from AniList.
               </p>
             </div>
           </div>
 
           {/* Body content */}
           {!rolledAnime ? (
-            <div className="py-8 text-center space-y-4">
-              <div className="w-20 h-20 mx-auto rounded-2xl bg-[#0b1622] border border-white/10 flex items-center justify-center text-[#3db4f2] shadow-inner">
-                <Sparkles className="w-10 h-10 animate-pulse text-[#3db4f2]" />
+            <div className="py-7 text-center space-y-4">
+              <div className="w-16 h-16 mx-auto rounded-2xl liquid-glass flex items-center justify-center text-[#3db4f2]">
+                <Sparkles aria-hidden="true" className="w-7 h-7 text-[#3db4f2]" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white">Ready to discover something extraordinary?</h3>
+                <h3 className="text-base font-bold text-white">Not sure what to watch next?</h3>
                 <p className="text-xs text-slate-400 max-w-xs mx-auto mt-1">
-                  We'll summon a high-rated anime from the AniList community rankings.
+                  Roll a random recommendation from the live AniList community rankings.
                 </p>
               </div>
 
               <button
+                type="button"
                 onClick={handleRoll}
                 disabled={loading}
-                className="anilist-btn-primary px-6 py-2.5 text-sm inline-flex items-center gap-2 shadow-lg disabled:opacity-50 cursor-pointer"
+                className="anilist-btn-primary px-6 py-2.5 min-h-[42px] text-sm inline-flex items-center gap-2 disabled:opacity-50 cursor-pointer"
               >
-                <Dices className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                <span>{loading ? 'Consulting the stars...' : 'Roll Fate Anime'}</span>
+                <Dices aria-hidden="true" className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <span>{loading ? 'Picking a title...' : 'Roll Random Anime'}</span>
               </button>
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="flex gap-4 p-3.5 rounded-xl bg-[#0b1622] border border-white/10">
+              <div className="flex gap-3 sm:gap-4 p-3 sm:p-3.5 rounded-xl bg-[#0b1622] border border-white/10">
                 {/* Poster */}
-                <div className="w-24 aspect-[185/265] rounded-lg overflow-hidden flex-shrink-0 bg-[#0b1622] relative shadow-md">
+                <div className="w-20 sm:w-24 aspect-[185/265] rounded-lg overflow-hidden flex-shrink-0 bg-[#0b1622] relative shadow-md">
                   <img
                     src={rolledAnime.coverImage.large || rolledAnime.coverImage.medium}
                     alt={title}
@@ -110,7 +109,7 @@ export const RandomAnimeModal: React.FC<RandomAnimeModalProps> = ({ isOpen, onCl
                     className="w-full h-full object-cover"
                   />
                   {rolledAnime.averageScore && (
-                    <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded text-[10px] font-bold score-pill-green">
+                    <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded text-[10px] font-bold score-pill-high">
                       {rolledAnime.averageScore}%
                     </div>
                   )}
@@ -147,50 +146,53 @@ export const RandomAnimeModal: React.FC<RandomAnimeModalProps> = ({ isOpen, onCl
               </div>
 
               {/* Actions */}
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-white/10">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 pt-3 border-t border-white/10">
                 <button
+                  type="button"
                   onClick={handleRoll}
                   disabled={loading}
-                  className="anilist-btn-secondary px-3.5 py-2 text-xs flex items-center gap-1.5 cursor-pointer"
+                  className="anilist-btn-secondary px-3.5 py-2.5 sm:py-2 text-xs flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  <Dices className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                  <Dices aria-hidden="true" className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
                   <span>{loading ? 'Rolling...' : 'Roll Again'}</span>
                 </button>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {rolledAnime.trailer?.id && (
                     <button
+                      type="button"
                       onClick={() => setTrailerOpen(true)}
-                      className="px-3 py-2 rounded-lg bg-[#151f2e] hover:bg-[#1f2c3f] text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer border border-white/10"
+                      className="flex-1 sm:flex-none px-3 py-2.5 sm:py-2 rounded-lg bg-[#151f2e] hover:bg-[#1f2c3f] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer border border-white/10"
                     >
-                      <Play className="w-3.5 h-3.5 fill-white" />
+                      <Play aria-hidden="true" className="w-3.5 h-3.5 fill-white" />
                       <span>Trailer</span>
                     </button>
                   )}
 
                   <button
+                    type="button"
                     onClick={() => {
                       if (!inWatchlist) {
                         addToWatchlist(rolledAnime, 'plan_to_watch');
                       }
                     }}
-                    className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
+                    className={`flex-1 sm:flex-none px-3 py-2.5 sm:py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer ${
                       inWatchlist
                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                         : 'bg-[#151f2e] hover:bg-[#1f2c3f] text-white border border-white/10'
                     }`}
                   >
-                    {inWatchlist ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                    {inWatchlist ? <Check aria-hidden="true" className="w-3.5 h-3.5" /> : <Plus aria-hidden="true" className="w-3.5 h-3.5" />}
                     <span>{inWatchlist ? 'In List' : 'Save'}</span>
                   </button>
 
                   <Link
                     to={`/anime/${rolledAnime.id}`}
                     onClick={onClose}
-                    className="anilist-btn-primary px-4 py-2 text-xs flex items-center gap-1.5 cursor-pointer"
+                    className="w-full sm:w-auto anilist-btn-primary px-4 py-2.5 sm:py-2 text-xs flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <span>View Details</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight aria-hidden="true" className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>

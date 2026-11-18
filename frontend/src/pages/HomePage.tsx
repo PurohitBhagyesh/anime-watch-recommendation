@@ -149,7 +149,7 @@ export const HomePage: React.FC = () => {
   ];
 
   return (
-    <div className="w-full pb-20 animate-fadeIn">
+    <div className="w-full pb-12 sm:pb-20 animate-fadeIn">
       {/* Primary Semantic H1 for Search Engine Crawlers */}
       <h1 className="sr-only">AnimeSenpai — Anime Discovery, Personal Watchlist Tracker & Recommendations</h1>
 
@@ -160,19 +160,19 @@ export const HomePage: React.FC = () => {
       />
 
       {/* Main Body Sections */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16 pt-8">
-        {/* Quick Jump Category Bar */}
-        <div className="pt-2 pb-2">
-          <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 no-scrollbar px-1">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-9 sm:space-y-16 pt-5 sm:pt-8">
+        {/* Quick Jump Category Slider */}
+        <div className="pt-1 pb-1">
+          <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto pb-2 no-scrollbar touch-scroll-smooth px-0.5">
             {quickCategories.map((cat) => {
               const Icon = cat.icon;
               return (
                 <Link
                   key={cat.label}
                   to={cat.link}
-                  className="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap bg-[#151f2e] hover:bg-[#1c2a3f] border border-white/10 hover:border-[#3db4f2]/50 hover:text-[#3db4f2] text-[#edf1f5] transition-all shadow-sm flex-shrink-0"
+                  className="liquid-glass-pill flex items-center gap-2 px-3.5 sm:px-4 py-2 min-h-[38px] rounded-full text-xs font-bold whitespace-nowrap hover:text-[#7dd3fc] text-[#edf1f5] flex-shrink-0 snap-start active:scale-95"
                 >
-                  <Icon className={`w-3.5 h-3.5 ${cat.color}`} />
+                  <Icon aria-hidden="true" className={`w-3.5 h-3.5 ${cat.color}`} />
                   <span>{cat.label}</span>
                 </Link>
               );

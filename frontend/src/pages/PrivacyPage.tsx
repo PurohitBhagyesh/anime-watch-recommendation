@@ -1,82 +1,146 @@
-import React from 'react';
-import { Shield, Lock, Eye, Database } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Shield, Lock, Eye, Database, Trash2, Mail } from 'lucide-react';
 import { useSEO, SITE_URL } from '../utils/seo';
 
 export const PrivacyPage: React.FC = () => {
+  const breadcrumbs = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+      { '@type': 'ListItem', position: 2, name: 'Privacy Policy', item: `${SITE_URL}/privacy` },
+    ],
+  };
+
   useSEO({
     title: 'Privacy Policy • AnimeSenpai',
-    description: 'Read AnimeSenpai\'s privacy policy regarding user data ownership, cookies, and local storage usage.',
+    description: 'Read AnimeSenpai\'s privacy policy covering zero data selling, local storage, optional account sync, and instant permanent account deletion.',
     canonicalUrl: `${SITE_URL}/privacy`,
+    jsonLd: breadcrumbs,
   });
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 animate-fadeIn text-slate-300">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-8 animate-fadeIn text-slate-300">
       <div className="space-y-3 pb-6 border-b border-white/10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3db4f2]/10 border border-[#3db4f2]/30 text-[#3db4f2] text-xs font-bold">
-          <Shield className="w-3.5 h-3.5" />
-          <span>Privacy & Transparency</span>
+        <div className="liquid-glass-pill inline-flex items-center gap-2 px-3 py-1 rounded-full text-[#7dd3fc] text-xs font-bold">
+          <Shield aria-hidden="true" className="w-3.5 h-3.5" />
+          <span>Privacy & Data Rights</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
           Privacy Policy
         </h1>
         <p className="text-xs sm:text-sm text-slate-400">
-          Last updated: September 2026
+          Last updated: November 2026
         </p>
       </div>
 
-      <div className="space-y-8 text-xs sm:text-sm leading-relaxed">
-        <section className="space-y-3">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Lock className="w-4 h-4 text-[#3db4f2]" />
-            1. Overview & Data Ownership
+      <div className="space-y-7 text-xs sm:text-sm leading-relaxed">
+        <section className="anilist-card-static p-5 sm:p-6 space-y-2.5">
+          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <Lock aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
+            1. Zero Data Selling & Minimal Collection
           </h2>
           <p>
-            This application is built with privacy-first principles. We do not require invasive tracking or data selling. Track your watching progress, view trailers, and manage your personal anime list seamlessly.
+            AnimeSenpai is built with a strict privacy-first architecture. We do not sell, rent, share, or monetize user data, and we do not run third-party ad networks or behavioral tracking scripts.
+          </p>
+          <p className="text-slate-400">
+            You can browse the full anime catalog, search 20,000+ titles, and watch official trailers without creating an account.
           </p>
         </section>
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Database className="w-4 h-4 text-[#3db4f2]" />
-            2. Local Storage and Database Sync
+        <section className="anilist-card-static p-5 sm:p-6 space-y-2.5">
+          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <Database aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
+            2. Local Storage & Optional Account Data
           </h2>
           <p>
-            Your watchlist data (including your watch status, custom episode progress, scores, and notes) is stored securely in your browser's storage and synchronized with your authenticated account database.
+            Your watchlist entries, episode progress, ratings, and browsing preferences are stored locally in your browser via <code>localStorage</code>. If you optionally create an account using email or Google Sign-In, only your chosen display name, email address, avatar, bio, and favorite genre are stored via Firebase to maintain your profile.
           </p>
-          <ul className="list-disc list-inside space-y-1 text-slate-400 pl-2">
-            <li>You can export your watchlist as a JSON file at any time for complete backups.</li>
-            <li>You can import an existing JSON watchlist to restore your anime collection instantly.</li>
+          <ul className="list-disc list-inside space-y-1 text-slate-400 pl-1">
+            <li>Export your complete watchlist as a portable JSON file at any time.</li>
+            <li>Import an existing JSON backup or clear local browser data anytime.</li>
           </ul>
         </section>
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Eye className="w-4 h-4 text-[#3db4f2]" />
-            3. Third-Party Services & API Queries
+        <section className="anilist-card-static p-5 sm:p-6 space-y-3 border-rose-500/20">
+          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <Trash2 aria-hidden="true" className="w-4 h-4 text-rose-400" />
+            3. Right to Permanent Account & Data Deletion
           </h2>
           <p>
-            To provide live anime metadata, schedules, external resources, and official trailers, the application connects to the following endpoints:
+            We do not hold onto your personal information if you decide to leave. You can permanently delete your account at any time directly from{' '}
+            <Link to="/settings" className="text-[#3db4f2] hover:underline font-semibold">
+              Account Settings → Delete Account
+            </Link>
+            .
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            <div className="p-4 rounded-xl anilist-card-static">
-              <h3 className="font-bold text-white text-xs uppercase tracking-wider mb-1 font-mono text-[#3db4f2]">AniList GraphQL API</h3>
-              <p className="text-xs text-slate-400">Used to fetch titles, descriptions, seasonal ranks, character cast, voice actors, and verified external resource links.</p>
+          <p className="text-slate-400">
+            Deleting your account permanently removes your Firebase Authentication account, deletes your Firestore profile record, and erases local watchlist and preference data stored in your browser.
+          </p>
+        </section>
+
+        <section className="anilist-card-static p-5 sm:p-6 space-y-3">
+          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <Eye aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
+            4. Third-Party APIs & Embeds
+          </h2>
+          <p>
+            To deliver live anime catalog data and official trailers, AnimeSenpai communicates directly with:
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div className="p-4 rounded-xl bg-white/[0.04] border border-white/10">
+              <h3 className="font-bold text-[#7dd3fc] text-xs uppercase tracking-wider mb-1 font-mono">
+                AniList GraphQL API
+              </h3>
+              <p className="text-xs text-slate-400">
+                Provides live anime titles, scores, rankings, airing countdowns, voice cast, relations, and external links.
+              </p>
             </div>
-            <div className="p-4 rounded-xl anilist-card-static">
-              <h3 className="font-bold text-white text-xs uppercase tracking-wider mb-1 font-mono text-[#3db4f2]">YouTube Privacy-Enhanced Player</h3>
-              <p className="text-xs text-slate-400">Used with privacy-enhanced mode (<code className="text-[11px] font-mono text-[#3db4f2]">youtube-nocookie.com</code>) to display official trailers only when triggered by user click.</p>
+            <div className="p-4 rounded-xl bg-white/[0.04] border border-white/10">
+              <h3 className="font-bold text-[#7dd3fc] text-xs uppercase tracking-wider mb-1 font-mono">
+                YouTube Privacy-Enhanced Mode
+              </h3>
+              <p className="text-xs text-slate-400">
+                Official trailers load from <code>youtube-nocookie.com</code> only when you click Watch Trailer.
+              </p>
             </div>
           </div>
         </section>
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-bold text-white">4. Cookies & Tracking</h2>
+        <section className="anilist-card-static p-5 sm:p-6 space-y-2">
+          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <Mail aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
+            5. Contact for Privacy Requests
+          </h2>
           <p>
-            We do not use tracking beacons or third-party behavioral advertising scripts.
+            For any privacy inquiry or manual data deletion assistance, email{' '}
+            <a href="mailto:contact@animesenpai.online" className="text-[#3db4f2] hover:underline font-semibold">
+              contact@animesenpai.online
+            </a>
+            .
           </p>
         </section>
+      </div>
+
+      <div className="pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <Link to="/" className="anilist-btn-secondary px-4 py-2 text-xs font-bold">
+          ← Return Home
+        </Link>
+        <div className="flex flex-wrap items-center gap-3 text-slate-400">
+          <Link to="/terms" className="hover:text-white transition">Terms of Service</Link>
+          <span>·</span>
+          <Link to="/license" className="hover:text-white transition">Licenses</Link>
+          <span>·</span>
+          <Link to="/security" className="hover:text-white transition">Security</Link>
+          <span>·</span>
+          <Link to="/about" className="hover:text-white transition">About</Link>
+        </div>
       </div>
     </div>
   );
 };
-

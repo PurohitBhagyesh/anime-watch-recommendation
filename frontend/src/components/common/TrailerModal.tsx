@@ -128,7 +128,7 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
                   We couldn't load the embedded video player for this title. You can search and watch it on YouTube directly.
                 </p>
               </div>
-              <div className="flex items-center justify-center gap-2.5 pt-2">
+              <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
                 <a
                   href={youtubeSearchUrl}
                   target="_blank"

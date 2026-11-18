@@ -9,6 +9,8 @@ import {
   Smile,
   Sparkles,
   MoveHorizontal,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import type { AnimeCardData } from '../../api/types';
 import { TrailerModal } from '../common/TrailerModal';
@@ -226,9 +228,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     }, 3000);
   };
 
-  // Mouse / Pointer Drag Handlers (for trackpad & desktop drag support)
+  // Mouse / Pointer Drag Handlers (desktop mouse/pen only; touch is handled by touch events)
   const handlePointerDown = (e: React.PointerEvent) => {
-    if (e.button !== 0 || spotlights.length <= 1) return;
+    if (e.pointerType === 'touch' || e.button !== 0 || spotlights.length <= 1) return;
     const target = e.target as HTMLElement;
     // Don't hijack clicks on buttons, links, or inputs
     if (target.closest('button') || target.closest('a')) return;
@@ -241,7 +243,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isPointerDownRef.current || !touchStartRef.current || spotlights.length <= 1) return;
+    if (e.pointerType === 'touch' || !isPointerDownRef.current || !touchStartRef.current || spotlights.length <= 1) return;
     const diffX = e.clientX - touchStartRef.current.x;
     const diffY = e.clientY - touchStartRef.current.y;
 
@@ -252,8 +254,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     }
   };
 
-  const handlePointerUp = () => {
-    if (!isPointerDownRef.current) return;
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (e.pointerType === 'touch' || !isPointerDownRef.current) return;
     isPointerDownRef.current = false;
     handleTouchEnd();
   };
@@ -297,7 +299,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
           if (!isDragging) setIsPaused(false);
         }}
         style={{ touchAction: 'pan-y' }}
-        className="relative w-full overflow-hidden min-h-[380px] sm:min-h-[480px] md:min-h-[560px] lg:min-h-[620px] flex items-end border-b border-white/[0.06] bg-[#0b1622] group select-none cursor-grab active:cursor-grabbing"
+        className="relative w-full overflow-hidden min-h-[410px] sm:min-h-[480px] md:min-h-[560px] lg:min-h-[620px] flex items-end border-b border-white/[0.06] bg-[#0b1622] group select-none cursor-grab active:cursor-grabbing"
       >
         {/* Background Image with Kinetic Depth Parallax */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -314,21 +316,21 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                 : undefined,
               transition: isDragging ? 'none' : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease',
             }}
-            className="w-full h-full object-cover object-center filter brightness-[0.45] contrast-[1.08] animate-fadeIn will-change-transform"
+            className="w-full h-full object-cover object-center filter brightness-[0.42] sm:brightness-[0.45] contrast-[1.08] animate-fadeIn will-change-transform"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0b1622] via-[#0b1622]/70 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0b1622] via-[#0b1622]/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0b1622] via-[#0b1622]/80 sm:via-[#0b1622]/70 to-[#0b1622]/20 sm:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0b1622] via-[#0b1622]/75 sm:via-[#0b1622]/80 to-transparent" />
         </div>
 
         {/* Hero Interactive Content Box */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 md:py-16 pointer-events-none">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-6 sm:py-12 md:py-16 pointer-events-none">
           <div
             key={currentAnime.id}
             style={{
               transform: isDragging ? `translate3d(${dragOffset}px, 0, 0)` : undefined,
               transition: isDragging ? 'none' : 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
-            className={`max-w-3xl space-y-4 pointer-events-auto will-change-transform ${
+            className={`max-w-3xl space-y-3 sm:space-y-4 pointer-events-auto will-change-transform ${
               isDragging
                 ? ''
                 : slideDirection === 'next'
@@ -337,22 +339,22 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
             }`}
           >
             {/* Top Badges */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#3db4f2]/20 border border-[#3db4f2]/40 text-[#3db4f2] text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-sm">
-                <Sparkles className="w-3.5 h-3.5" />
-                Featured #{currentIndex + 1}
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <span className="liquid-glass-pill flex items-center gap-1.5 px-3 py-1 rounded-full text-[#7dd3fc] text-[11px] sm:text-xs font-bold uppercase tracking-wider">
+                <Sparkles aria-hidden="true" className="w-3.5 h-3.5" />
+                Spotlight #{currentIndex + 1}
               </span>
 
               {currentAnime.averageScore && (
-                <span className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#7bd555]/15 border border-[#7bd555]/30 text-[#7bd555] text-xs font-bold backdrop-blur-xl shadow-sm">
-                  <Smile className="w-3 h-3" />
-                  <span>{currentAnime.averageScore}% Score</span>
+                <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#7bd555]/15 border border-[#7bd555]/30 text-[#8be066] text-[11px] sm:text-xs font-bold backdrop-blur-xl shadow-sm">
+                  <Smile aria-hidden="true" className="w-3 h-3" />
+                  <span>{currentAnime.averageScore}%</span>
                 </span>
               )}
 
               {currentAnime.format && (
-                <span className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#151f2e]/85 border border-white/10 text-[#edf1f5] text-xs font-medium backdrop-blur-xl shadow-sm">
-                  <Tv className="w-3.5 h-3.5 text-[#3db4f2]" />
+                <span className="liquid-glass-pill flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[#edf1f5] text-[11px] sm:text-xs font-medium">
+                  <Tv aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
                   {currentAnime.format.replace('_', ' ')} ·{' '}
                   {currentAnime.episodes ? `${currentAnime.episodes} eps` : 'Airing'}
                 </span>
@@ -360,25 +362,28 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
 
               {/* Mobile Swipe Hint Badge */}
               {spotlights.length > 1 && (
-                <span className="sm:hidden flex items-center gap-1 px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-400 text-[10px] font-mono tracking-tight">
-                  <MoveHorizontal className="w-3 h-3 text-[#3db4f2]" />
+                <span className="sm:hidden flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/10 text-slate-300 text-[10px] font-medium">
+                  <MoveHorizontal aria-hidden="true" className="w-3 h-3 text-[#3db4f2]" />
                   <span>Swipe</span>
                 </span>
               )}
             </div>
 
-            {/* Title */}
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-[#edf1f5] tracking-tight leading-tight drop-shadow-md">
+            {/* Title (clamped on mobile so ultra-long light-novel titles stay crisp) */}
+            <h2
+              title={title}
+              className="text-xl min-[400px]:text-2xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-[1.15] line-clamp-3 sm:line-clamp-2 drop-shadow-md break-words"
+            >
               {title}
             </h2>
 
             {/* Genres */}
             {currentAnime.genres && currentAnime.genres.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
-                {currentAnime.genres.slice(0, 5).map((genre) => (
+                {currentAnime.genres.slice(0, 4).map((genre) => (
                   <span
                     key={genre}
-                    className="text-xs px-2.5 py-0.5 rounded bg-[#151f2e]/80 border border-white/10 text-[#8ba0b2] font-medium"
+                    className="text-[11px] sm:text-xs px-2.5 py-0.5 rounded-full bg-white/[0.07] border border-white/10 text-slate-200 font-medium backdrop-blur-md"
                   >
                     {genre}
                   </span>
@@ -387,22 +392,23 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
             )}
 
             {/* Synopsis */}
-            <p className="text-xs sm:text-sm text-[#8ba0b2] line-clamp-3 sm:line-clamp-4 leading-relaxed max-w-2xl">
+            <p className="text-xs sm:text-sm text-slate-300/90 line-clamp-3 sm:line-clamp-4 leading-relaxed max-w-2xl">
               {cleanDescription}
             </p>
 
             {/* Action CTAs */}
-            <div className="flex flex-wrap items-center gap-2.5 pt-2">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 pt-2">
               {currentAnime.trailer?.id && (
                 <button
+                  type="button"
                   onClick={(e) => {
                     if (hasMovedRef.current) return;
                     e.stopPropagation();
                     setTrailerOpen(true);
                   }}
-                  className="anilist-btn-primary flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold cursor-pointer"
+                  className="col-span-2 sm:col-span-1 anilist-btn-primary flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] text-xs sm:text-sm font-bold cursor-pointer"
                 >
-                  <Play className="w-4 h-4 fill-current" />
+                  <Play aria-hidden="true" className="w-4 h-4 fill-current" />
                   <span>Watch Trailer</span>
                 </button>
               )}
@@ -412,13 +418,14 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                 onClick={(e) => {
                   if (hasMovedRef.current) e.preventDefault();
                 }}
-                className="anilist-btn-secondary flex items-center gap-2 px-4 py-2 sm:py-2.5 text-xs sm:text-sm border border-white/10"
+                className="anilist-btn-secondary flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] text-xs sm:text-sm"
               >
-                <Info className="w-4 h-4 text-[#3db4f2]" />
+                <Info aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
                 <span>View Details</span>
               </Link>
 
               <button
+                type="button"
                 onClick={(e) => {
                   if (hasMovedRef.current) return;
                   e.stopPropagation();
@@ -428,49 +435,89 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                     addToWatchlist(currentAnime, 'plan_to_watch');
                   }
                 }}
-                className={`flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded font-bold text-xs sm:text-sm border transition backdrop-blur-md cursor-pointer ${
+                className={`flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl font-bold text-xs sm:text-sm border transition backdrop-blur-xl cursor-pointer ${
                   inWatchlist
-                    ? 'bg-[#7bd555]/20 border-[#7bd555]/50 text-[#7bd555]'
-                    : 'bg-[#151f2e] border-white/10 text-[#edf1f5] hover:bg-white/10'
+                    ? 'bg-[#7bd555]/20 border-[#7bd555]/45 text-[#8be066]'
+                    : 'anilist-btn-secondary text-[#edf1f5]'
                 }`}
               >
                 {inWatchlist ? (
                   <>
-                    <Check className="w-4 h-4 text-[#7bd555]" />
+                    <Check aria-hidden="true" className="w-4 h-4 text-[#8be066]" />
                     <span>In Watchlist</span>
                   </>
                 ) : (
                   <>
-                    <Plus className="w-4 h-4 text-[#8ba0b2]" />
+                    <Plus aria-hidden="true" className="w-4 h-4 text-[#9fadbd]" />
                     <span>Add to List</span>
                   </>
                 )}
               </button>
             </div>
 
-            {/* Slide Indicators & Swipe Hint */}
+            {/* Smooth Liquid Glass Slide Indicators & Desktop Arrows */}
             {spotlights.length > 1 && (
-              <div className="flex items-center gap-3 pt-3">
-                <div className="flex items-center gap-1.5">
-                  {spotlights.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        goToSlide(idx);
-                      }}
-                      className="h-7 px-1 flex items-center justify-center group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3db4f2] cursor-pointer"
-                      aria-label={`Go to slide ${idx + 1}`}
-                    >
-                      <div
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          idx === currentIndex
-                            ? 'w-8 bg-[#3db4f2] shadow-sm shadow-[#3db4f2]/50'
-                            : 'w-2 bg-white/25 group-hover:bg-white/50'
-                        }`}
-                      />
-                    </button>
-                  ))}
+              <div className="flex items-center justify-between gap-3 pt-3">
+                <div className="liquid-glass-pill inline-flex items-center gap-1 px-2 py-1 rounded-full">
+                  {spotlights.map((_, idx) => {
+                    const isCurrent = idx === currentIndex;
+                    return (
+                      <button
+                        type="button"
+                        key={idx}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          goToSlide(idx);
+                        }}
+                        className="min-w-[24px] h-7 px-1 flex items-center justify-center group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3db4f2] rounded-full cursor-pointer"
+                        aria-label={`Go to slide ${idx + 1}`}
+                        aria-current={isCurrent ? 'true' : undefined}
+                      >
+                        <div
+                          className={`relative h-1.5 rounded-full overflow-hidden transition-all duration-300 ${
+                            isCurrent
+                              ? 'w-9 bg-white/25'
+                              : 'w-2 bg-white/30 group-hover:bg-white/60'
+                          }`}
+                        >
+                          {isCurrent && (
+                            <span
+                              key={`${currentIndex}-${isPaused ? 'paused' : 'play'}`}
+                              className={`absolute inset-0 rounded-full bg-[#3db4f2] ${
+                                isPaused ? 'w-full' : 'animate-hero-progress'
+                              }`}
+                            />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop Liquid Glass Slider Controls */}
+                <div className="hidden sm:flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToPrev();
+                    }}
+                    aria-label="Previous featured anime"
+                    className="liquid-glass-pill w-9 h-9 rounded-full flex items-center justify-center text-slate-200 hover:text-white cursor-pointer active:scale-95"
+                  >
+                    <ChevronLeft aria-hidden="true" className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToNext();
+                    }}
+                    aria-label="Next featured anime"
+                    className="liquid-glass-pill w-9 h-9 rounded-full flex items-center justify-center text-slate-200 hover:text-white cursor-pointer active:scale-95"
+                  >
+                    <ChevronRight aria-hidden="true" className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             )}

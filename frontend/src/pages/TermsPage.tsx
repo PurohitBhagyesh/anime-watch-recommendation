@@ -1,68 +1,124 @@
-import React from 'react';
-import { FileText, CheckCircle, AlertCircle } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { FileText, CheckCircle, AlertCircle, Scale, Heart } from 'lucide-react';
 import { useSEO, SITE_URL } from '../utils/seo';
 
 export const TermsPage: React.FC = () => {
+  const breadcrumbs = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+      { '@type': 'ListItem', position: 2, name: 'Terms of Service', item: `${SITE_URL}/terms` },
+    ],
+  };
+
   useSEO({
     title: 'Terms of Service • AnimeSenpai',
-    description: 'Read the terms and conditions for using AnimeSenpai\'s anime discovery and personal watchlist platform.',
+    description: 'Read the Terms of Service, copyright compliance, voluntary donation terms, and MIT license disclaimers for AnimeSenpai.',
     canonicalUrl: `${SITE_URL}/terms`,
+    jsonLd: breadcrumbs,
   });
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 animate-fadeIn text-slate-300">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-8 animate-fadeIn text-slate-300">
       <div className="space-y-3 pb-6 border-b border-white/10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3db4f2]/10 border border-[#3db4f2]/30 text-[#3db4f2] text-xs font-bold">
-          <FileText className="w-3.5 h-3.5" />
-          <span>Terms & Conditions</span>
+        <div className="liquid-glass-pill inline-flex items-center gap-2 px-3 py-1 rounded-full text-[#7dd3fc] text-xs font-bold">
+          <FileText aria-hidden="true" className="w-3.5 h-3.5" />
+          <span>Terms & Legal Notice</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
           Terms of Service
         </h1>
         <p className="text-xs sm:text-sm text-slate-400">
-          Last updated: September 2026
+          Last updated: November 2026
         </p>
       </div>
 
-      <div className="space-y-8 text-xs sm:text-sm leading-relaxed">
-        <section className="space-y-3">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-emerald-400" />
-            1. Acceptance of Terms
+      <div className="space-y-6 text-xs sm:text-sm leading-relaxed">
+        <section className="anilist-card-static p-5 sm:p-6 space-y-2.5">
+          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <CheckCircle aria-hidden="true" className="w-4 h-4 text-emerald-400" />
+            1. Acceptance & Independent Status
           </h2>
           <p>
-            By accessing and using this application, you agree to comply with and be bound by these Terms of Service. If you do not agree to these terms, please discontinue use of the site.
+            By accessing or using AnimeSenpai (<code>animesenpai.online</code>), you agree to these Terms of Service. AnimeSenpai is an independent, non-commercial open-source anime discovery catalog and personal watchlist tracker. It is not affiliated with anime news blogs, streaming mirrors, or third-party commercial networks.
           </p>
         </section>
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-400" />
-            2. Intellectual Property & Fair Use
+        <section className="anilist-card-static p-5 sm:p-6 space-y-2.5">
+          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <AlertCircle aria-hidden="true" className="w-4 h-4 text-amber-400" />
+            2. Intellectual Property, Copyright & No Video Hosting
           </h2>
           <p>
-            All anime titles, artwork, character images, studio names, and video materials displayed remain the property of their respective copyright holders, authors, and production studios.
+            AnimeSenpai does not host, upload, or stream copyrighted anime episodes or video files. All metadata is retrieved in real time from the public AniList GraphQL API, and promotional trailers are played exclusively through official YouTube embeds.
           </p>
-          <p>
-            This application is a non-commercial index and personal tracker created for educational, research, and entertainment purposes utilizing public APIs.
-          </p>
-        </section>
-
-        <section className="space-y-3">
-          <h2 className="text-lg font-bold text-white">3. Third-Party Links & External Resources</h2>
-          <p>
-            We may index official external links (such as official production websites, promotional trailers, and external database entries). We do not host, store, or stream copyrighted video files on our own servers. Clicking external links will redirect you to third-party services governed by their respective terms.
+          <p className="text-slate-400">
+            All anime titles, cover artwork, character portraits, studio names, and trademarks remain the property of their respective copyright holders. For DMCA or takedown notices, contact{' '}
+            <a href="mailto:contact@animesenpai.online" className="text-[#3db4f2] hover:underline font-semibold">
+              contact@animesenpai.online
+            </a>
+            .
           </p>
         </section>
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-bold text-white">4. User Watchlist Responsibility</h2>
+        <section className="anilist-card-static p-5 sm:p-6 space-y-2.5">
+          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <Scale aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
+            3. User Accounts, Data Ownership & Deletion
+          </h2>
           <p>
-            You can maintain backups of your local watchlist data via the Export Backup feature at any time.
+            You retain full ownership of your personal watchlist and may export it as JSON at any time. You may permanently delete your account and erase all associated personal data directly from{' '}
+            <Link to="/settings" className="text-[#3db4f2] hover:underline font-semibold">
+              Settings
+            </Link>
+            .
           </p>
         </section>
+
+        <section className="anilist-card-static p-5 sm:p-6 space-y-2.5">
+          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <Heart aria-hidden="true" className="w-4 h-4 text-rose-400" />
+            4. Voluntary UPI Support
+          </h2>
+          <p>
+            AnimeSenpai is completely free to use with no paywalled tiers. Any contributions sent to the maintainer's UPI ID (<code>Purohit2009@fam</code>) are strictly voluntary, non-refundable tips to help cover domain and infrastructure expenses, and do not constitute a purchase of goods or premium services.
+          </p>
+        </section>
+
+        <section className="anilist-card-static p-5 sm:p-6 space-y-2.5">
+          <h2 className="text-base sm:text-lg font-bold text-white">
+            5. Open Source License & Disclaimer of Warranties
+          </h2>
+          <p>
+            The AnimeSenpai application source code is provided "as is", without warranty of any kind, under the{' '}
+            <Link to="/license" className="text-[#3db4f2] hover:underline font-semibold">
+              MIT License
+            </Link>
+            . External links redirect to third-party services governed by their own terms and privacy policies.
+          </p>
+        </section>
+      </div>
+
+      <div className="pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <Link to="/" className="anilist-btn-secondary px-4 py-2 text-xs font-bold">
+          ← Return Home
+        </Link>
+        <div className="flex flex-wrap items-center gap-3 text-slate-400">
+          <Link to="/privacy" className="hover:text-white transition">Privacy Policy</Link>
+          <span>·</span>
+          <Link to="/license" className="hover:text-white transition">Licenses</Link>
+          <span>·</span>
+          <Link to="/security" className="hover:text-white transition">Security</Link>
+          <span>·</span>
+          <Link to="/about" className="hover:text-white transition">About</Link>
+        </div>
       </div>
     </div>
   );
 };
-

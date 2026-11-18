@@ -139,7 +139,7 @@ export const WatchlistPage: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 space-y-6 animate-fadeIn flex flex-col items-center justify-center min-h-[60vh] text-center">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 space-y-6 animate-fadeIn flex flex-col items-center justify-center min-h-[60dvh] text-center">
         <div className="w-20 h-20 bg-[#151f2e] rounded-2xl flex items-center justify-center mb-4 shadow-lg border border-white/5">
           <Bookmark className="w-10 h-10 text-[#3db4f2]" />
         </div>
@@ -183,28 +183,32 @@ export const WatchlistPage: React.FC = () => {
         {/* View Mode Toggle & Export/Import actions */}
         <div className="flex flex-wrap items-center gap-2">
           {/* View Mode Toggle */}
-          <div className="flex items-center p-1 rounded bg-[#151f2e] border border-white/10 mr-1">
+          <div className="flex items-center p-1 rounded-lg bg-[#151f2e] border border-white/10 mr-1">
             <button
+              type="button"
               onClick={() => setViewMode('table')}
-              className={`p-1.5 rounded text-xs font-bold transition flex items-center gap-1 ${
+              aria-label="List view"
+              className={`p-2 rounded text-xs font-bold transition flex items-center gap-1 ${
                 viewMode === 'table'
-                  ? 'bg-[#3db4f2] text-white shadow-sm'
+                  ? 'bg-[#3db4f2] text-[#0b1622] shadow-sm'
                   : 'text-[#8ba0b2] hover:text-white'
               }`}
-              title="Table View"
+              title="List View"
             >
-              <List className="w-4 h-4" />
+              <List aria-hidden="true" className="w-4 h-4" />
             </button>
             <button
+              type="button"
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded text-xs font-bold transition flex items-center gap-1 ${
+              aria-label="Grid view"
+              className={`p-2 rounded text-xs font-bold transition flex items-center gap-1 ${
                 viewMode === 'grid'
-                  ? 'bg-[#3db4f2] text-white shadow-sm'
+                  ? 'bg-[#3db4f2] text-[#0b1622] shadow-sm'
                   : 'text-[#8ba0b2] hover:text-white'
               }`}
               title="Grid View"
             >
-              <LayoutGrid className="w-4 h-4" />
+              <LayoutGrid aria-hidden="true" className="w-4 h-4" />
             </button>
           </div>
 
@@ -216,26 +220,29 @@ export const WatchlistPage: React.FC = () => {
             className="hidden"
           />
           <button
+            type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="anilist-btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold border border-white/10"
+            className="anilist-btn-secondary flex items-center gap-1.5 px-3 py-2 min-h-[38px] text-xs font-bold border border-white/10"
             title="Import JSON backup"
           >
-            <Upload className="w-3.5 h-3.5 text-[#3db4f2]" />
+            <Upload aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
             <span>Import</span>
           </button>
 
           <button
+            type="button"
             onClick={exportWatchlist}
             disabled={watchlist.length === 0}
-            className="anilist-btn-secondary flex items-center gap-1.5 px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold border border-white/10"
+            className="anilist-btn-secondary flex items-center gap-1.5 px-3 py-2 min-h-[38px] disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold border border-white/10"
             title="Export JSON backup"
           >
-            <Download className="w-3.5 h-3.5 text-[#8ba0b2]" />
+            <Download aria-hidden="true" className="w-3.5 h-3.5 text-[#8ba0b2]" />
             <span>Export</span>
           </button>
 
           {watchlist.length > 0 && (
             <button
+              type="button"
               onClick={() => {
                 if (
                   window.confirm(
@@ -245,10 +252,11 @@ export const WatchlistPage: React.FC = () => {
                   clearWatchlist();
                 }
               }}
-              className="p-1.5 rounded bg-[#151f2e] hover:bg-[#e85d75]/20 text-[#8ba0b2] hover:text-[#e85d75] border border-white/10 transition"
+              aria-label="Clear entire watchlist"
+              className="p-2 min-w-[38px] min-h-[38px] rounded-lg bg-[#151f2e] hover:bg-[#e85d75]/20 text-[#8ba0b2] hover:text-[#e85d75] border border-white/10 transition flex items-center justify-center"
               title="Clear all"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 aria-hidden="true" className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -457,68 +465,79 @@ export const WatchlistPage: React.FC = () => {
                       </button>
                     </div>
 
-                    {/* Mobile Controls Row */}
-                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/5 items-center">
-                      {/* Status */}
-                      <select
-                        value={item.status}
-                        onChange={(e) =>
-                          updateStatus(anime.id, e.target.value as WatchlistStatus)
-                        }
-                        className="anilist-input text-[11px] px-2 py-1 font-semibold capitalize w-full"
-                      >
-                        <option value="watching">Watching</option>
-                        <option value="plan_to_watch">Planning</option>
-                        <option value="completed">Completed</option>
-                        <option value="rewatching">Rewatching</option>
-                        <option value="paused">Paused</option>
-                        <option value="dropped">Dropped</option>
-                      </select>
+                    {/* Mobile Controls (2-row layout so controls never crowd on narrow phones) */}
+                    <div className="space-y-2 pt-2.5 border-t border-white/5">
+                      <div className="grid grid-cols-2 gap-2">
+                        {/* Status */}
+                        <select
+                          value={item.status}
+                          aria-label={`Watch status for ${title}`}
+                          onChange={(e) =>
+                            updateStatus(anime.id, e.target.value as WatchlistStatus)
+                          }
+                          className="anilist-input text-xs px-2.5 py-2 min-h-[38px] font-semibold capitalize w-full"
+                        >
+                          <option value="watching">Watching</option>
+                          <option value="plan_to_watch">Planning</option>
+                          <option value="completed">Completed</option>
+                          <option value="rewatching">Rewatching</option>
+                          <option value="paused">Paused</option>
+                          <option value="dropped">Dropped</option>
+                        </select>
 
-                      {/* Episode Counter */}
-                      <div className="flex items-center justify-center gap-1 bg-[#0b1622] py-0.5 px-1 rounded-lg border border-white/5">
-                        <button
-                          onClick={() =>
-                            updateProgress(
-                              anime.id,
-                              Math.max(0, (item.currentEpisode || 0) - 1)
-                            )
-                          }
-                          className="p-1 text-[#edf1f5] hover:text-[#3db4f2]"
-                          title="Minus episode"
+                        {/* Rating */}
+                        <select
+                          value={item.userRating || 0}
+                          aria-label={`Rating for ${title}`}
+                          onChange={(e) => updateRating(anime.id, Number(e.target.value))}
+                          className="anilist-input text-xs px-2.5 py-2 min-h-[38px] font-bold text-[#e4a834] w-full"
                         >
-                          <Minus className="w-3 h-3" />
-                        </button>
-                        <span className="font-mono font-bold text-[#3db4f2] text-[11px] min-w-[2.2rem] text-center">
-                          {item.currentEpisode || 0}/{anime.episodes || '??'}
-                        </span>
-                        <button
-                          onClick={() =>
-                            updateProgress(
-                              anime.id,
-                              Math.min(maxEpisodes, (item.currentEpisode || 0) + 1)
-                            )
-                          }
-                          className="p-1 text-[#edf1f5] hover:text-[#3db4f2]"
-                          title="Plus episode"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
+                          <option value="0">★ Unrated</option>
+                          {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
+                            <option key={r} value={r}>
+                              ★ {r}/10
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
-                      {/* Rating */}
-                      <select
-                        value={item.userRating || 0}
-                        onChange={(e) => updateRating(anime.id, Number(e.target.value))}
-                        className="anilist-input text-[11px] px-1.5 py-1 font-bold text-[#e4a834] w-full text-center"
-                      >
-                        <option value="0">★ Unrated</option>
-                        {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
-                          <option key={r} value={r}>
-                            ★ {r}/10
-                          </option>
-                        ))}
-                      </select>
+                      {/* Episode Counter Row */}
+                      <div className="flex items-center justify-between bg-[#0b1622] px-2.5 py-1.5 rounded-lg border border-white/5">
+                        <span className="text-[11px] font-semibold text-[#8ba0b2]">Episodes</span>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateProgress(
+                                anime.id,
+                                Math.max(0, (item.currentEpisode || 0) - 1)
+                              )
+                            }
+                            aria-label={`Decrease episode for ${title}`}
+                            className="w-8 h-8 flex items-center justify-center rounded-md bg-[#151f2e] text-[#edf1f5] hover:text-[#3db4f2] border border-white/10 active:scale-95"
+                            title="Minus episode"
+                          >
+                            <Minus aria-hidden="true" className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="font-mono font-bold text-[#3db4f2] text-xs min-w-[3.5rem] text-center">
+                            {item.currentEpisode || 0} / {anime.episodes || '??'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateProgress(
+                                anime.id,
+                                Math.min(maxEpisodes, (item.currentEpisode || 0) + 1)
+                              )
+                            }
+                            aria-label={`Increase episode for ${title}`}
+                            className="w-8 h-8 flex items-center justify-center rounded-md bg-[#151f2e] text-[#edf1f5] hover:text-[#3db4f2] border border-white/10 active:scale-95"
+                            title="Plus episode"
+                          >
+                            <Plus aria-hidden="true" className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
 

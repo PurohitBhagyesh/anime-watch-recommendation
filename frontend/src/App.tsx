@@ -16,13 +16,15 @@ const AuthPage = React.lazy(() => import('./pages/AuthPage').then(m => ({ defaul
 const AccountPage = React.lazy(() => import('./pages/AccountPage').then(m => ({ default: m.AccountPage })));
 const PrivacyPage = React.lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
 const TermsPage = React.lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
+const LicensePage = React.lazy(() => import('./pages/LicensePage').then(m => ({ default: m.LicensePage })));
+const SecurityPage = React.lazy(() => import('./pages/SecurityPage').then(m => ({ default: m.SecurityPage })));
 const AboutPage = React.lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 const LoadingFallback = () => (
-  <div className="flex-1 flex items-center justify-center min-h-screen">
+  <div className="flex-1 flex items-center justify-center min-h-dvh">
     <div className="w-10 h-10 rounded-full border-4 border-[#151f2e] border-t-[#3db4f2] animate-spin" />
   </div>
 );
@@ -38,9 +40,9 @@ export const App: React.FC = () => {
     <AuthProvider>
       <WatchlistProvider>
         <BrowserRouter>
-          <div className="flex flex-col min-h-screen bg-[#0b1622] text-[#bcbedc] selection:bg-[#3db4f2] selection:text-white pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
+          <div className="flex flex-col min-h-dvh bg-[#070d16] text-[#c3cfe0] selection:bg-[#3db4f2] selection:text-white pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-0">
             <Navbar />
-            <main className="flex-1 flex flex-col min-h-screen">
+            <main className="flex-1 flex flex-col min-w-0">
               <ErrorBoundary>
                 <Suspense fallback={<LoadingFallback />}>
                   <Routes>
@@ -55,6 +57,8 @@ export const App: React.FC = () => {
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/privacy" element={<PrivacyPage />} />
                   <Route path="/terms" element={<TermsPage />} />
+                  <Route path="/license" element={<LicensePage />} />
+                  <Route path="/security" element={<SecurityPage />} />
                   <Route path="/about" element={<AboutPage />} />
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>

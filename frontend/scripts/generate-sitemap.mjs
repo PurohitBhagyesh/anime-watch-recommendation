@@ -42,6 +42,8 @@ const staticRoutes = [
   { loc: `${SITE_URL}/discover?format=MOVIE`, changefreq: 'weekly', priority: '0.7' },
   { loc: `${SITE_URL}/privacy`, changefreq: 'monthly', priority: '0.4' },
   { loc: `${SITE_URL}/terms`, changefreq: 'monthly', priority: '0.4' },
+  { loc: `${SITE_URL}/license`, changefreq: 'monthly', priority: '0.4' },
+  { loc: `${SITE_URL}/security`, changefreq: 'monthly', priority: '0.4' },
 ];
 
 const genreList = [
