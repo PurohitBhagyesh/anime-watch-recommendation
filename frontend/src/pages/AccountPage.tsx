@@ -65,12 +65,6 @@ const TEXT_SIZE_STEPS: { id: TextSize; label: string; pct: string }[] = [
   { id: 'lg', label: 'Large', pct: '112%' },
 ];
 
-const AppleIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-  </svg>
-);
-
 const GoogleIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
   <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -136,7 +130,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
   useSEO({
     title: 'Settings & Account • AnimeSenpai',
     description:
-      'Customize AnimeSenpai display, text size, profile photo, Apple/Google sign-in, security, backups, or delete your account.',
+      'Customize AnimeSenpai display, text size, profile photo, Google sign-in, security, backups, or delete your account.',
     canonicalUrl: `${SITE_URL}/settings`,
     robots: 'noindex, nofollow',
   });
@@ -395,7 +389,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
   };
 
   const getOAuthReauthToken = () => {
-    if (linkedProviders.includes('apple.com')) return '__apple_reauth__';
     if (linkedProviders.includes('google.com')) return '__google_reauth__';
     return '';
   };
@@ -426,8 +419,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
     }
   };
 
-  const handleProviderToggle = async (providerKind: 'google' | 'apple') => {
-    const providerId = providerKind === 'apple' ? 'apple.com' : 'google.com';
+  const handleGoogleProviderToggle = async () => {
+    const providerId = 'google.com';
     const isLinked = linkedProviders.includes(providerId);
     setProviderBusy(providerId);
     setSecurityNotice(null);
@@ -435,14 +428,14 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
     try {
       const res = isLinked
         ? await unlinkAuthProvider(providerId)
-        : await linkAuthProvider(providerKind);
+        : await linkAuthProvider('google');
 
       setSecurityNotice({
         ok: res.success,
         text: res.success
           ? isLinked
-            ? `${providerKind === 'apple' ? 'Apple' : 'Google'} disconnected from your account.`
-            : `${providerKind === 'apple' ? 'Apple' : 'Google'} linked to your account.`
+            ? 'Google disconnected from your account.'
+            : 'Google linked to your account.'
           : res.error || 'Could not update sign-in provider.',
       });
     } finally {
@@ -572,9 +565,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
     setDeleteError(null);
 
     const passwordArg = needsReauth
-      ? authProvider === 'apple'
-        ? '__apple_reauth__'
-        : authProvider === 'google'
+      ? authProvider === 'google'
         ? '__google_reauth__'
         : reauthPassword
       : undefined;
@@ -616,7 +607,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
 
   const hasPasswordProvider = linkedProviders.includes('password');
   const hasGoogleProvider = linkedProviders.includes('google.com');
-  const hasAppleProvider = linkedProviders.includes('apple.com');
 
   const navItems: { id: SettingsSection; label: string; icon: React.ElementType }[] = [
     { id: 'preferences', label: 'Display', icon: Sliders },
@@ -983,7 +973,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   <div className="space-y-1">
                     <h2 className="text-base font-bold text-[#f5f5f7]">Sign in to edit your profile</h2>
                     <p className="text-xs text-[#9a9aa6] max-w-sm mx-auto">
-                      Sign in with Apple, Google, or email to upload a photo, customize your bio, and sync your watchlist.
+                      Sign in with Google or email to upload a photo, customize your bio, and sync your watchlist.
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
@@ -1180,7 +1170,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   <div className="space-y-1">
                     <h2 className="text-base font-bold text-[#f5f5f7]">Sign in to manage account security</h2>
                     <p className="text-xs text-[#9a9aa6] max-w-sm mx-auto">
-                      Manage Apple or Google sign-in, email verification, and password controls for your account.
+                      Manage Google sign-in, email verification, and password controls for your account.
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
@@ -1226,7 +1216,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                             Sign-In & Security
                           </h2>
                           <p className="text-xs text-[#9a9aa6]">
-                            Manage Apple & Google sign-in, email verification, and password.
+                            Manage Google sign-in, email verification, and password.
                           </p>
                         </div>
                       </div>
@@ -1266,7 +1256,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                     </div>
                   </div>
 
-                  {/* CONNECTED SIGN-IN PROVIDERS (Apple, Google, Email) */}
+                  {/* CONNECTED SIGN-IN PROVIDERS (Google, Email) */}
                   <div className="anilist-card-static overflow-hidden divide-y divide-[#23232b]">
                     <div className="p-4 sm:p-5 flex items-center gap-2.5">
                       <Link2 aria-hidden="true" className="w-4 h-4 text-[#f5f5f7]" />
@@ -1275,40 +1265,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                           Connected Sign-In Methods
                         </h2>
                         <p className="text-xs text-[#9a9aa6]">
-                          Link Apple or Google for faster one-tap sign-in.
+                          Link Google for faster one-tap sign-in.
                         </p>
                       </div>
-                    </div>
-
-                    {/* Apple */}
-                    <div className="p-4 sm:px-5 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="w-9 h-9 rounded-xl bg-[#16161b] border border-[#23232b] flex items-center justify-center text-[#f5f5f7] flex-shrink-0">
-                          <AppleIcon className="w-4 h-4" />
-                        </span>
-                        <div className="min-w-0">
-                          <span className="text-sm font-semibold text-[#f5f5f7] block">Apple</span>
-                          <span className="text-xs text-[#9a9aa6]">
-                            {hasAppleProvider ? 'Connected to your Apple Account' : 'Sign in with Face ID or Touch ID'}
-                          </span>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        disabled={providerBusy !== null || (hasAppleProvider && linkedProviders.length <= 1)}
-                        onClick={() => handleProviderToggle('apple')}
-                        className={`px-3.5 py-1.5 text-xs flex-shrink-0 cursor-pointer disabled:opacity-45 ${
-                          hasAppleProvider ? 'anilist-btn-secondary' : 'anilist-btn-primary'
-                        }`}
-                      >
-                        {providerBusy === 'apple.com'
-                          ? 'Working…'
-                          : hasAppleProvider
-                          ? linkedProviders.length <= 1
-                            ? 'Primary'
-                            : 'Disconnect'
-                          : 'Connect'}
-                      </button>
                     </div>
 
                     {/* Google */}
@@ -1327,7 +1286,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                       <button
                         type="button"
                         disabled={providerBusy !== null || (hasGoogleProvider && linkedProviders.length <= 1)}
-                        onClick={() => handleProviderToggle('google')}
+                        onClick={handleGoogleProviderToggle}
                         className={`px-3.5 py-1.5 text-xs flex-shrink-0 cursor-pointer disabled:opacity-45 ${
                           hasGoogleProvider ? 'anilist-btn-secondary' : 'anilist-btn-primary'
                         }`}
@@ -1479,7 +1438,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                             <p className="text-xs text-[#9a9aa6] mt-0.5">
                               {hasPasswordProvider
                                 ? 'Update your password anytime or send a recovery email.'
-                                : 'Your login is currently managed by Apple or Google. You can also set a backup password via email.'}
+                                : 'Your login is currently managed by Google. You can also set a backup password via email.'}
                             </p>
                           </div>
                         </div>
@@ -2001,8 +1960,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
               <span>
                 {isDeleting
                   ? 'Deleting…'
-                  : needsReauth && authProvider === 'apple'
-                  ? 'Verify with Apple & Delete'
                   : needsReauth && authProvider === 'google'
                   ? 'Verify with Google & Delete'
                   : 'Delete Account Forever'}

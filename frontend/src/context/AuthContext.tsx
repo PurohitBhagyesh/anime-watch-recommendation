@@ -6,7 +6,6 @@ import {
   onAuthStateChanged,
   signInWithPopup,
   GoogleAuthProvider,
-  OAuthProvider,
   deleteUser,
   EmailAuthProvider,
   reauthenticateWithCredential,
@@ -140,7 +139,7 @@ const DEFAULT_DEMO_USER: UserProfile = {
   favoriteGenre: 'Action / Sci-Fi',
 };
 
-export type PrimaryAuthProvider = 'google' | 'apple' | 'password' | 'demo';
+export type PrimaryAuthProvider = 'google' | 'password' | 'demo';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -151,13 +150,12 @@ interface AuthContextType {
   login: (emailOrUsername: string, password: string, rememberMe?: boolean) => Promise<AuthActionResult>;
   signup: (data: { username: string; email: string; password: string; avatar?: string }) => Promise<AuthActionResult>;
   loginWithGoogle: (rememberMe?: boolean) => Promise<AuthActionResult>;
-  loginWithApple: (rememberMe?: boolean) => Promise<AuthActionResult>;
   sendPasswordReset: (email: string) => Promise<AuthActionResult>;
   resendVerificationEmail: () => Promise<AuthActionResult>;
   refreshAuthUser: () => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<AuthActionResult>;
   changeEmail: (newEmail: string, reauthPassword?: string) => Promise<AuthActionResult>;
-  linkAuthProvider: (provider: 'google' | 'apple') => Promise<AuthActionResult>;
+  linkAuthProvider: (provider: 'google') => Promise<AuthActionResult>;
   unlinkAuthProvider: (providerId: string) => Promise<AuthActionResult>;
   logout: () => Promise<void>;
   quickDemoLogin: () => void;
@@ -172,16 +170,8 @@ function getPrimaryProviderFromUser(firebaseUser: FirebaseUser | null): PrimaryA
   if (!firebaseUser) return 'demo';
   const providers = firebaseUser.providerData.map((p) => p.providerId);
   if (providers.includes('password')) return 'password';
-  if (providers.includes('apple.com')) return 'apple';
   if (providers.includes('google.com')) return 'google';
   return 'password';
-}
-
-function createAppleProvider(): OAuthProvider {
-  const provider = new OAuthProvider('apple.com');
-  provider.addScope('email');
-  provider.addScope('name');
-  return provider;
 }
 
 function createGoogleProvider(): GoogleAuthProvider {
@@ -314,23 +304,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    if (reauthPassword === '__apple_reauth__') {
-      await reauthenticateWithPopup(current, createAppleProvider());
-      return;
-    }
-
     if (reauthPassword && current.email && providers.includes('password')) {
       const credential = EmailAuthProvider.credential(current.email, reauthPassword);
       await reauthenticateWithCredential(current, credential);
       return;
     }
 
-    if (!reauthPassword && !providers.includes('password')) {
-      if (providers.includes('apple.com')) {
-        await reauthenticateWithPopup(current, createAppleProvider());
-      } else if (providers.includes('google.com')) {
-        await reauthenticateWithPopup(current, createGoogleProvider());
-      }
+    if (!reauthPassword && !providers.includes('password') && providers.includes('google.com')) {
+      await reauthenticateWithPopup(current, createGoogleProvider());
     }
   };
 
@@ -501,52 +482,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginWithOAuth = async (
-    providerKind: 'google' | 'apple',
-    rememberMe = true
-  ): Promise<AuthActionResult> => {
+  const loginWithGoogle = async (rememberMe = true): Promise<AuthActionResult> => {
     try {
       await applyPersistence(rememberMe);
-      const provider =
-        providerKind === 'apple' ? createAppleProvider() : createGoogleProvider();
-      const result = await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, createGoogleProvider());
       const firebaseUser = result.user;
 
       syncFirebaseSecurityMeta(firebaseUser);
-      const profile = await buildAndSyncUserProfile(
-        firebaseUser,
-        providerKind === 'apple' ? 'AppleUser' : 'AnimeFan'
-      );
+      const profile = await buildAndSyncUserProfile(firebaseUser, 'AnimeFan');
       setUser(profile);
       return { success: true };
     } catch (error: unknown) {
       const err = error as { code?: string };
-      const providerLabel = providerKind === 'apple' ? 'Apple' : 'Google';
-      let errorMessage = `Failed to sign in with ${providerLabel}. Please try again.`;
+      let errorMessage = 'Failed to sign in with Google. Please try again.';
 
       if (err?.code === 'auth/popup-closed-by-user') {
-        errorMessage = `${providerLabel} sign-in window was closed before completing.`;
+        errorMessage = 'Google sign-in window was closed before completing.';
       } else if (err?.code === 'auth/cancelled-popup-request') {
         errorMessage = 'Sign-in popup was cancelled.';
       } else if (err?.code === 'auth/popup-blocked') {
         errorMessage = 'Popup was blocked by your browser. Please allow popups for AnimeSenpai.';
       } else if (err?.code === 'auth/account-exists-with-different-credential') {
         errorMessage =
-          'An account already exists with this email using a different sign-in method. Sign in with your original method, then link this provider in Settings → Security.';
+          'An account already exists with this email using a different sign-in method. Sign in with your original method, then link Google in Settings → Security.';
       } else if (err?.code === 'auth/operation-not-allowed') {
-        errorMessage =
-          providerKind === 'apple'
-            ? 'Sign in with Apple needs to be enabled in Firebase Console (Authentication → Sign-in method → Apple).'
-            : 'Google Sign-In is not enabled in Firebase Console.';
+        errorMessage = 'Google Sign-In is not enabled in Firebase Console.';
       } else if (err?.code === 'auth/unauthorized-domain') {
         errorMessage = 'This domain is not yet authorized in Firebase Authentication settings.';
       }
       return { success: false, error: errorMessage };
     }
   };
-
-  const loginWithGoogle = (rememberMe = true) => loginWithOAuth('google', rememberMe);
-  const loginWithApple = (rememberMe = true) => loginWithOAuth('apple', rememberMe);
 
   const sendPasswordReset = async (email: string): Promise<AuthActionResult> => {
     const cleanEmail = email.trim().toLowerCase();
@@ -683,39 +649,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const linkAuthProvider = async (providerKind: 'google' | 'apple'): Promise<AuthActionResult> => {
+  const linkAuthProvider = async (_providerKind: 'google'): Promise<AuthActionResult> => {
     const current = auth.currentUser;
     if (!current) return { success: false, error: 'Please sign in first.' };
 
     try {
-      const provider =
-        providerKind === 'apple' ? createAppleProvider() : createGoogleProvider();
-      await linkWithPopup(current, provider);
+      await linkWithPopup(current, createGoogleProvider());
       await current.reload();
       syncFirebaseSecurityMeta(auth.currentUser);
       return { success: true };
     } catch (error: unknown) {
       const code = (error as { code?: string })?.code;
-      const label = providerKind === 'apple' ? 'Apple' : 'Google';
       if (code === 'auth/credential-already-in-use') {
-        return { success: false, error: `That ${label} account is already linked to another AnimeSenpai user.` };
+        return { success: false, error: 'That Google account is already linked to another AnimeSenpai user.' };
       }
       if (code === 'auth/provider-already-linked') {
         return { success: true };
       }
       if (code === 'auth/popup-closed-by-user') {
-        return { success: false, error: `${label} sign-in window was closed.` };
+        return { success: false, error: 'Google sign-in window was closed.' };
       }
       if (code === 'auth/operation-not-allowed') {
         return {
           success: false,
-          error:
-            providerKind === 'apple'
-              ? 'Sign in with Apple must be enabled in Firebase Console first.'
-              : 'Google Sign-In must be enabled in Firebase Console first.',
+          error: 'Google Sign-In must be enabled in Firebase Console first.',
         };
       }
-      return { success: false, error: `Could not link ${label} account right now.` };
+      return { success: false, error: 'Could not link Google account right now.' };
     }
   };
 
@@ -863,7 +823,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         signup,
         loginWithGoogle,
-        loginWithApple,
         sendPasswordReset,
         resendVerificationEmail,
         refreshAuthUser,
