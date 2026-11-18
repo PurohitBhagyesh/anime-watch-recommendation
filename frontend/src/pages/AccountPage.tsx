@@ -34,15 +34,12 @@ import {
   EyeOff,
   CheckCircle2,
   Link2,
-  Smartphone,
 } from 'lucide-react';
 import {
   useAuth,
   validateUsername,
   validateEmail,
   validateNewPassword,
-  validatePhoneNumber,
-  normalizePhoneE164,
   getPasswordStrength,
 } from '../context/AuthContext';
 import { useWatchlist } from '../context/WatchlistContext';
@@ -114,7 +111,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
   const {
     user,
     emailVerified,
-    phoneNumber,
     linkedProviders,
     authProvider,
     updateProfile,
@@ -127,9 +123,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
     sendPasswordReset,
     linkAuthProvider,
     unlinkAuthProvider,
-    sendPhoneLinkCode,
-    verifyPhoneLinkCode,
-    cancelPhoneFlow,
   } = useAuth();
   const { watchlist, exportWatchlist, importWatchlist, clearWatchlist } = useWatchlist();
   const { preferences, updatePreference, resetPreferences } = usePreferences();
@@ -178,15 +171,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
   const [securityNotice, setSecurityNotice] = useState<{ ok: boolean; text: string } | null>(null);
   const [verifyBusy, setVerifyBusy] = useState(false);
   const [providerBusy, setProviderBusy] = useState<string | null>(null);
-
-  // Phone linking state
-  const [showPhoneLinkForm, setShowPhoneLinkForm] = useState(false);
-  const [linkPhoneCountry, setLinkPhoneCountry] = useState('+91');
-  const [linkPhoneNumber, setLinkPhoneNumber] = useState('');
-  const [linkPhoneStep, setLinkPhoneStep] = useState<'enter' | 'verify'>('enter');
-  const [linkPhoneOtp, setLinkPhoneOtp] = useState('');
-  const [linkPhoneE164, setLinkPhoneE164] = useState('');
-  const [phoneLinkBusy, setPhoneLinkBusy] = useState(false);
 
   // Email change state
   const [showEmailForm, setShowEmailForm] = useState(false);
@@ -458,68 +442,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
     }
   };
 
-  const handleUnlinkPhone = async () => {
-    setProviderBusy('phone');
-    setSecurityNotice(null);
-    try {
-      const res = await unlinkAuthProvider('phone');
-      setSecurityNotice({
-        ok: res.success,
-        text: res.success
-          ? 'Phone number disconnected from your account.'
-          : res.error || 'Could not disconnect phone number.',
-      });
-    } finally {
-      setProviderBusy(null);
-    }
-  };
-
-  const handleSendPhoneLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSecurityNotice(null);
-    const e164 = normalizePhoneE164(linkPhoneCountry, linkPhoneNumber);
-    const pErr = validatePhoneNumber(e164);
-    if (pErr) {
-      setSecurityNotice({ ok: false, text: pErr });
-      return;
-    }
-
-    setPhoneLinkBusy(true);
-    try {
-      const res = await sendPhoneLinkCode(e164, 'phone-link-recaptcha');
-      if (res.success) {
-        setLinkPhoneE164(e164);
-        setLinkPhoneStep('verify');
-        setLinkPhoneOtp('');
-        setSecurityNotice({ ok: true, text: `6-digit SMS code sent to ${e164}.` });
-      } else {
-        setSecurityNotice({ ok: false, text: res.error || 'Could not send SMS code.' });
-      }
-    } finally {
-      setPhoneLinkBusy(false);
-    }
-  };
-
-  const handleVerifyPhoneLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSecurityNotice(null);
-    setPhoneLinkBusy(true);
-    try {
-      const res = await verifyPhoneLinkCode(linkPhoneOtp);
-      if (res.success) {
-        setShowPhoneLinkForm(false);
-        setLinkPhoneStep('enter');
-        setLinkPhoneNumber('');
-        setLinkPhoneOtp('');
-        setSecurityNotice({ ok: true, text: 'Phone number linked to your account.' });
-      } else {
-        setSecurityNotice({ ok: false, text: res.error || 'Invalid 6-digit SMS code.' });
-      }
-    } finally {
-      setPhoneLinkBusy(false);
-    }
-  };
-
   const handleEmailChangeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSecurityNotice(null);
@@ -684,7 +606,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
 
   const hasPasswordProvider = linkedProviders.includes('password');
   const hasGoogleProvider = linkedProviders.includes('google.com');
-  const hasPhoneProvider = linkedProviders.includes('phone');
 
   const navItems: { id: SettingsSection; label: string; icon: React.ElementType }[] = [
     { id: 'preferences', label: 'Display', icon: Sliders },
@@ -1051,7 +972,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   <div className="space-y-1">
                     <h2 className="text-base font-bold text-[#f5f5f7]">Sign in to edit your profile</h2>
                     <p className="text-xs text-[#9a9aa6] max-w-sm mx-auto">
-                      Sign in with Google, Phone SMS, or email to upload a photo, customize your profile, and sync your watchlist.
+                      Sign in with Google or email to upload a photo, customize your profile, and sync your watchlist.
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
@@ -1083,7 +1004,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                       <div className="text-center sm:text-left min-w-0 flex-1 space-y-1">
                         <h2 className="text-lg font-bold text-[#f5f5f7] truncate">{user.username}</h2>
                         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs text-[#9a9aa6]">
-                          <span className="truncate">{user.email || phoneNumber || 'Signed in'}</span>
+                          <span className="truncate">{user.email || 'Signed in'}</span>
                           {user.email ? (
                             emailVerified ? (
                               <span className="inline-flex items-center gap-1 text-[#4ade80] text-[11px] font-medium">
@@ -1099,11 +1020,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                                 Verify email →
                               </button>
                             )
-                          ) : phoneNumber ? (
-                            <span className="inline-flex items-center gap-1 text-[#4ade80] text-[11px] font-medium">
-                              <CheckCircle2 aria-hidden="true" className="w-3 h-3" />
-                              SMS Verified
-                            </span>
                           ) : null}
                         </div>
                         <div className="pt-1.5 flex flex-wrap items-center justify-center sm:justify-start gap-2">
@@ -1326,9 +1242,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                     </div>
                   </div>
 
-                  {/* CONNECTED SIGN-IN PROVIDERS (Google, Phone, Email) */}
+                  {/* CONNECTED SIGN-IN PROVIDERS (Google & Email) */}
                   <div className="anilist-card-static overflow-hidden divide-y divide-[#23232b]">
-                    <div id="phone-link-recaptcha" />
                     <div className="p-4 sm:p-5 flex items-center gap-2.5">
                       <Link2 aria-hidden="true" className="w-4 h-4 text-[#f5f5f7]" />
                       <div>
@@ -1336,7 +1251,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                           Connected Sign-In Methods
                         </h2>
                         <p className="text-xs text-[#9a9aa6]">
-                          Link Google or your phone number for faster sign-in.
+                          Link your Google account for faster one-tap sign-in.
                         </p>
                       </div>
                     </div>
@@ -1370,143 +1285,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                             : 'Disconnect'
                           : 'Connect'}
                       </button>
-                    </div>
-
-                    {/* Phone Number (SMS Auth) */}
-                    <div className="p-4 sm:px-5 space-y-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <span className="w-9 h-9 rounded-xl bg-[#16161b] border border-[#23232b] flex items-center justify-center text-[#f5f5f7] flex-shrink-0">
-                            <Smartphone aria-hidden="true" className="w-4 h-4" />
-                          </span>
-                          <div className="min-w-0">
-                            <span className="text-sm font-semibold text-[#f5f5f7] block">Phone Number</span>
-                            <span className="text-xs text-[#9a9aa6] truncate block">
-                              {hasPhoneProvider && phoneNumber
-                                ? phoneNumber
-                                : 'Sign in with a 6-digit SMS verification code'}
-                            </span>
-                          </div>
-                        </div>
-
-                        {hasPhoneProvider ? (
-                          <button
-                            type="button"
-                            disabled={providerBusy !== null || linkedProviders.length <= 1}
-                            onClick={handleUnlinkPhone}
-                            className="anilist-btn-secondary px-3.5 py-1.5 text-xs flex-shrink-0 cursor-pointer disabled:opacity-45"
-                          >
-                            {providerBusy === 'phone'
-                              ? 'Working…'
-                              : linkedProviders.length <= 1
-                              ? 'Primary'
-                              : 'Disconnect'}
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              cancelPhoneFlow();
-                              setLinkPhoneStep('enter');
-                              setLinkPhoneOtp('');
-                              setShowPhoneLinkForm((v) => !v);
-                            }}
-                            className={`px-3.5 py-1.5 text-xs flex-shrink-0 cursor-pointer ${
-                              showPhoneLinkForm ? 'anilist-btn-secondary' : 'anilist-btn-primary'
-                            }`}
-                          >
-                            {showPhoneLinkForm ? 'Cancel' : 'Connect'}
-                          </button>
-                        )}
-                      </div>
-
-                      {showPhoneLinkForm && !hasPhoneProvider && (
-                        linkPhoneStep === 'enter' ? (
-                          <form
-                            onSubmit={handleSendPhoneLink}
-                            className="p-4 rounded-xl bg-[#16161b] border border-[#23232b] space-y-3 animate-fadeIn"
-                          >
-                            <label htmlFor="link-phone-input" className="text-xs font-semibold text-[#d2d2dc] block">
-                              Enter Phone Number
-                            </label>
-                            <div className="flex gap-2">
-                              <select
-                                aria-label="Country code"
-                                value={linkPhoneCountry}
-                                onChange={(e) => setLinkPhoneCountry(e.target.value)}
-                                className="anilist-input px-2.5 py-2 text-base sm:text-xs font-medium text-[#f5f5f7] w-24 flex-shrink-0"
-                              >
-                                <option value="+91">IN +91</option>
-                                <option value="+1">US +1</option>
-                                <option value="+44">UK +44</option>
-                                <option value="+81">JP +81</option>
-                                <option value="+61">AU +61</option>
-                                <option value="+49">DE +49</option>
-                                <option value="+65">SG +65</option>
-                                <option value="+971">AE +971</option>
-                                <option value="">+</option>
-                              </select>
-                              <input
-                                id="link-phone-input"
-                                type="tel"
-                                autoComplete="tel-national"
-                                required
-                                value={linkPhoneNumber}
-                                onChange={(e) => setLinkPhoneNumber(e.target.value)}
-                                placeholder={linkPhoneCountry ? '98765 43210' : '+919876543210'}
-                                className="anilist-input flex-1 min-w-0 px-3 py-2 text-base sm:text-sm"
-                              />
-                            </div>
-                            <button
-                              type="submit"
-                              disabled={phoneLinkBusy}
-                              className="anilist-btn-primary px-4 py-2 text-xs cursor-pointer disabled:opacity-50"
-                            >
-                              {phoneLinkBusy ? 'Sending SMS…' : 'Send Verification Code'}
-                            </button>
-                          </form>
-                        ) : (
-                          <form
-                            onSubmit={handleVerifyPhoneLink}
-                            className="p-4 rounded-xl bg-[#16161b] border border-[#23232b] space-y-3 animate-fadeIn"
-                          >
-                            <p className="text-xs text-[#9a9aa6]">
-                              Enter the 6-digit SMS code sent to <strong className="text-[#f5f5f7]">{linkPhoneE164}</strong>:
-                            </p>
-                            <input
-                              type="text"
-                              inputMode="numeric"
-                              autoComplete="one-time-code"
-                              required
-                              maxLength={6}
-                              value={linkPhoneOtp}
-                              onChange={(e) => setLinkPhoneOtp(e.target.value.replace(/[^\d]/g, '').slice(0, 6))}
-                              placeholder="000000"
-                              className="anilist-input w-full px-3.5 py-2.5 text-center text-base font-mono tracking-[0.3em]"
-                            />
-                            <div className="flex flex-wrap gap-2">
-                              <button
-                                type="submit"
-                                disabled={phoneLinkBusy || linkPhoneOtp.length !== 6}
-                                className="anilist-btn-primary px-4 py-2 text-xs cursor-pointer disabled:opacity-50"
-                              >
-                                {phoneLinkBusy ? 'Verifying…' : 'Verify & Link Phone'}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  cancelPhoneFlow();
-                                  setLinkPhoneStep('enter');
-                                  setLinkPhoneOtp('');
-                                }}
-                                className="anilist-btn-secondary px-3.5 py-2 text-xs cursor-pointer"
-                              >
-                                Change Number
-                              </button>
-                            </div>
-                          </form>
-                        )
-                      )}
                     </div>
 
                     {/* Email & Password Status */}

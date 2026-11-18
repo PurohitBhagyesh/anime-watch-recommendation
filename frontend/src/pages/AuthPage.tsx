@@ -13,15 +13,12 @@ import {
   Eye,
   EyeOff,
   KeyRound,
-  Smartphone,
 } from 'lucide-react';
 import {
   useAuth,
   validateUsername,
   validateEmail,
   validateNewPassword,
-  validatePhoneNumber,
-  normalizePhoneE164,
   getPasswordStrength,
 } from '../context/AuthContext';
 import { AppLogo } from '../components/common/AppLogo';
@@ -30,21 +27,6 @@ import { useSEO, SITE_URL } from '../utils/seo';
 interface AuthPageProps {
   initialMode?: 'login' | 'signup';
 }
-
-const COUNTRY_CODES = [
-  { code: '+91', label: 'IN (+91)' },
-  { code: '+1', label: 'US / CA (+1)' },
-  { code: '+44', label: 'UK (+44)' },
-  { code: '+81', label: 'JP (+81)' },
-  { code: '+61', label: 'AU (+61)' },
-  { code: '+49', label: 'DE (+49)' },
-  { code: '+33', label: 'FR (+33)' },
-  { code: '+65', label: 'SG (+65)' },
-  { code: '+971', label: 'AE (+971)' },
-  { code: '', label: 'Custom (+)' },
-];
-
-const PHONE_RECAPTCHA_ID = 'phone-signin-recaptcha';
 
 const GoogleMark: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
   <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
@@ -62,25 +44,20 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
     login,
     signup,
     loginWithGoogle,
-    sendPhoneSignInCode,
-    verifyPhoneSignInCode,
-    cancelPhoneFlow,
     sendPasswordReset,
   } = useAuth();
 
-  const [mode, setMode] = useState<'login' | 'signup' | 'phone' | 'reset'>(initialMode);
+  const [mode, setMode] = useState<'login' | 'signup' | 'reset'>(initialMode);
 
   useSEO({
     title:
       mode === 'signup'
         ? 'Create Account • AnimeSenpai'
-        : mode === 'phone'
-        ? 'Phone Sign In • AnimeSenpai'
         : mode === 'reset'
         ? 'Reset Password • AnimeSenpai'
         : 'Sign In • AnimeSenpai',
     description:
-      'Sign in with Google, Phone SMS, or email to sync your AnimeSenpai watchlist across devices.',
+      'Sign in with Google or email to sync your AnimeSenpai watchlist across devices.',
     canonicalUrl: mode === 'signup' ? `${SITE_URL}/signup` : `${SITE_URL}/login`,
   });
 
@@ -92,14 +69,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
-  // Phone SMS auth state
-  const [countryCode, setCountryCode] = useState('+91');
-  const [phoneInput, setPhoneInput] = useState('');
-  const [sentPhoneE164, setSentPhoneE164] = useState('');
-  const [phoneStep, setPhoneStep] = useState<'enter' | 'verify'>('enter');
-  const [otpCode, setOtpCode] = useState('');
-  const [resendCooldown, setResendCooldown] = useState(0);
 
   // Reset password state
   const [resetEmail, setResetEmail] = useState('');
@@ -124,16 +93,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
       navigate('/');
     }
   }, [user, navigate, successMsg]);
-
-  useEffect(() => {
-    if (resendCooldown <= 0) return;
-    const t = setTimeout(() => setResendCooldown((c) => Math.max(0, c - 1)), 1000);
-    return () => clearTimeout(t);
-  }, [resendCooldown]);
-
-  useEffect(() => {
-    return () => cancelPhoneFlow();
-  }, [cancelPhoneFlow]);
 
   const strength = getPasswordStrength(signupPassword);
   const strengthBarColors = [
@@ -236,54 +195,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
     }
   };
 
-  const handleSendPhoneCode = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    setError(null);
-    setSuccessMsg(null);
-
-    const e164 = normalizePhoneE164(countryCode, phoneInput);
-    const pErr = validatePhoneNumber(e164);
-    if (pErr) {
-      setError(pErr);
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const res = await sendPhoneSignInCode(e164, PHONE_RECAPTCHA_ID, rememberMe);
-      if (res.success) {
-        setSentPhoneE164(e164);
-        setPhoneStep('verify');
-        setOtpCode('');
-        setResendCooldown(30);
-        setSuccessMsg(`6-digit verification code sent to ${e164}.`);
-      } else {
-        setError(res.error || 'Could not send verification SMS.');
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleVerifyPhoneCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccessMsg(null);
-    setIsSubmitting(true);
-
-    try {
-      const res = await verifyPhoneSignInCode(otpCode);
-      if (res.success) {
-        setSuccessMsg('Phone verified! Welcome to AnimeSenpai.');
-        setTimeout(() => navigate('/'), 650);
-      } else {
-        setError(res.error || 'Invalid 6-digit code. Please try again.');
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -320,11 +231,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
             <AppLogo size="lg" subtitle="" />
           </Link>
           <p className="text-xs sm:text-sm text-[#9a9aa6]">
-            {mode === 'phone'
-              ? phoneStep === 'verify'
-                ? `Enter the 6-digit SMS code sent to ${sentPhoneE164}`
-                : 'Sign in quickly using a one-time SMS code'
-              : mode === 'reset'
+            {mode === 'reset'
               ? 'Reset your password via email'
               : mode === 'login'
               ? 'Sign in to access your anime watchlist and progress'
@@ -333,166 +240,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
         </div>
 
         <div className="anilist-card-static p-6 sm:p-7 rounded-3xl relative">
-          {/* Dedicated invisible reCAPTCHA mount node for Firebase Phone Auth */}
-          <div id={PHONE_RECAPTCHA_ID} />
-
-          {mode === 'phone' ? (
-            <div className="space-y-4 animate-fadeIn">
-              <div className="flex items-center gap-3 pb-3 border-b border-[#23232b]">
-                <div className="w-10 h-10 rounded-xl bg-[#16161b] border border-[#23232b] flex items-center justify-center text-[#f5f5f7] flex-shrink-0">
-                  <Smartphone aria-hidden="true" className="w-5 h-5" />
-                </div>
-                <div className="min-w-0">
-                  <h1 className="text-base font-bold text-[#f5f5f7]">Sign In with Phone</h1>
-                  <p className="text-xs text-[#9a9aa6]">
-                    {phoneStep === 'verify' ? 'Verify your 6-digit SMS code' : 'SMS verification powered by Firebase'}
-                  </p>
-                </div>
-              </div>
-
-              {error && (
-                <div className="p-3 rounded-xl bg-rose-500/12 border border-rose-500/30 text-rose-300 text-xs font-medium flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              {successMsg && (
-                <div className="p-3 rounded-xl bg-emerald-500/12 border border-emerald-500/30 text-emerald-300 text-xs font-medium flex items-center gap-2">
-                  <Check aria-hidden="true" className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>{successMsg}</span>
-                </div>
-              )}
-
-              {phoneStep === 'enter' ? (
-                <form onSubmit={handleSendPhoneCode} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <label htmlFor="phone-number-input" className="text-xs font-medium text-[#d2d2dc] block">
-                      Phone Number
-                    </label>
-                    <div className="flex gap-2">
-                      <select
-                        aria-label="Country calling code"
-                        value={countryCode}
-                        onChange={(e) => setCountryCode(e.target.value)}
-                        className="anilist-input px-2.5 py-2.5 text-base sm:text-xs font-medium text-[#f5f5f7] w-28 flex-shrink-0"
-                      >
-                        {COUNTRY_CODES.map((c) => (
-                          <option key={c.label} value={c.code}>
-                            {c.label}
-                          </option>
-                        ))}
-                      </select>
-
-                      <input
-                        id="phone-number-input"
-                        type="tel"
-                        autoComplete="tel-national"
-                        required
-                        value={phoneInput}
-                        onChange={(e) => setPhoneInput(e.target.value)}
-                        placeholder={countryCode ? '98765 43210' : '+919876543210'}
-                        className="anilist-input flex-1 min-w-0 px-3.5 py-2.5 text-base sm:text-sm text-white placeholder:text-[#666672]"
-                      />
-                    </div>
-                  </div>
-
-                  <label className="flex items-center gap-2 cursor-pointer text-xs text-[#9a9aa6] hover:text-white">
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="rounded border-[#3a3a44] bg-[#151519] accent-[#5360e6]"
-                    />
-                    <span>Keep me signed in</span>
-                  </label>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-3 anilist-btn-primary text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  >
-                    <span>{isSubmitting ? 'Sending SMS Code…' : 'Send Verification Code'}</span>
-                    <ArrowRight aria-hidden="true" className="w-4 h-4" />
-                  </button>
-
-                  <p className="text-[11px] text-[#666672] leading-relaxed text-center">
-                    Protected by reCAPTCHA. Standard SMS rates may apply.
-                  </p>
-                </form>
-              ) : (
-                <form onSubmit={handleVerifyPhoneCode} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <label htmlFor="phone-otp-input" className="text-xs font-medium text-[#d2d2dc] block">
-                      6-Digit Verification Code
-                    </label>
-                    <input
-                      id="phone-otp-input"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      required
-                      autoFocus
-                      maxLength={6}
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/[^\d]/g, '').slice(0, 6))}
-                      placeholder="000000"
-                      className="anilist-input w-full px-4 py-3 text-center text-xl font-mono tracking-[0.35em] text-[#f5f5f7] placeholder:text-[#666672]"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || otpCode.length !== 6}
-                    className="w-full py-3 anilist-btn-primary text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  >
-                    <span>{isSubmitting ? 'Verifying…' : 'Verify & Sign In'}</span>
-                    <ArrowRight aria-hidden="true" className="w-4 h-4" />
-                  </button>
-
-                  <div className="flex items-center justify-between gap-2 text-xs pt-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        cancelPhoneFlow();
-                        setPhoneStep('enter');
-                        setOtpCode('');
-                        setError(null);
-                        setSuccessMsg(null);
-                      }}
-                      className="text-[#9a9aa6] hover:text-[#f5f5f7] transition cursor-pointer"
-                    >
-                      Change number
-                    </button>
-                    <button
-                      type="button"
-                      disabled={isSubmitting || resendCooldown > 0}
-                      onClick={() => handleSendPhoneCode()}
-                      className="text-[#f5f5f7] hover:underline disabled:opacity-45 disabled:no-underline cursor-pointer"
-                    >
-                      {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code'}
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              <button
-                type="button"
-                onClick={() => {
-                  cancelPhoneFlow();
-                  setPhoneStep('enter');
-                  setOtpCode('');
-                  setMode('login');
-                  setError(null);
-                  setSuccessMsg(null);
-                }}
-                className="w-full py-2.5 anilist-btn-secondary text-xs flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <ArrowLeft aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
-                <span>Back to All Sign-In Options</span>
-              </button>
-            </div>
-          ) : mode === 'reset' ? (
+          {mode === 'reset' ? (
             <form onSubmit={handleResetSubmit} className="space-y-4 animate-fadeIn">
               <div className="flex items-center gap-3 pb-3 border-b border-[#23232b]">
                 <div className="w-10 h-10 rounded-xl bg-[#16161b] border border-[#23232b] flex items-center justify-center text-[#f5f5f7] flex-shrink-0">
@@ -612,33 +360,16 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                 </div>
               )}
 
-              {/* Fast Sign-In Providers: Google + Phone SMS */}
-              <div className="space-y-2.5">
-                <button
-                  type="button"
-                  disabled={anyBusy}
-                  onClick={handleGoogleSignIn}
-                  className="w-full py-3 px-4 rounded-full bg-white hover:bg-[#ececf2] text-black text-xs sm:text-sm font-bold transition flex items-center justify-center gap-3 active:scale-[0.99] disabled:opacity-60 cursor-pointer"
-                >
-                  <GoogleMark className="w-4 h-4 flex-shrink-0" />
-                  <span>{oauthBusy ? 'Connecting with Google…' : 'Continue with Google'}</span>
-                </button>
-
-                <button
-                  type="button"
-                  disabled={anyBusy}
-                  onClick={() => {
-                    setMode('phone');
-                    setPhoneStep('enter');
-                    setError(null);
-                    setSuccessMsg(null);
-                  }}
-                  className="w-full py-3 px-4 rounded-full bg-[#16161b] hover:bg-[#1e1e26] border border-[#383844] text-[#f5f5f7] text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2.5 active:scale-[0.99] disabled:opacity-60 cursor-pointer"
-                >
-                  <Smartphone aria-hidden="true" className="w-4 h-4 text-[#9a9aa6] flex-shrink-0" />
-                  <span>Continue with Phone</span>
-                </button>
-              </div>
+              {/* Fast Sign-In Provider: Google */}
+              <button
+                type="button"
+                disabled={anyBusy}
+                onClick={handleGoogleSignIn}
+                className="w-full py-3 px-4 rounded-full bg-white hover:bg-[#ececf2] text-black text-xs sm:text-sm font-bold transition flex items-center justify-center gap-3 active:scale-[0.99] disabled:opacity-60 cursor-pointer"
+              >
+                <GoogleMark className="w-4 h-4 flex-shrink-0" />
+                <span>{oauthBusy ? 'Connecting with Google…' : 'Continue with Google'}</span>
+              </button>
 
               <div className="relative my-5 text-center">
                 <div className="absolute inset-0 flex items-center">
@@ -892,7 +623,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
 
         <div className="flex items-center justify-center gap-2 text-[11px] text-[#666672]">
           <ShieldCheck aria-hidden="true" className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Protected by Firebase Authentication, Phone SMS & Google OAuth</span>
+          <span>Protected by Firebase Authentication & Google OAuth</span>
         </div>
       </div>
     </div>
