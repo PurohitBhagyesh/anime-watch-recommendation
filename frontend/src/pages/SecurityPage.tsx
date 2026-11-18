@@ -48,28 +48,15 @@ export const SecurityPage: React.FC = () => {
         <p className="text-xs sm:text-sm leading-relaxed">
           Please report security vulnerabilities privately so we can patch them before public disclosure:
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+        <div className="pt-1">
           <a
-            href="mailto:security@animesenpai.online"
+            href="mailto:Purohitunofficialbhagyesh@gmail.com?subject=AnimeSenpai%20Security%20Report"
             className="p-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-[#23232b] transition flex items-start justify-between gap-2"
           >
             <div className="space-y-1">
-              <span className="text-xs font-bold text-white block">Direct Security Email</span>
+              <span className="text-xs font-bold text-white block">Direct Security &amp; Support Email</span>
               <span className="text-[11px] text-[#c8c8d2] font-mono block">
-                security@animesenpai.online
-              </span>
-            </div>
-            <Mail aria-hidden="true" className="w-3.5 h-3.5 text-white flex-shrink-0 mt-0.5" />
-          </a>
-
-          <a
-            href="mailto:contact@animesenpai.online"
-            className="p-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-[#23232b] transition flex items-start justify-between gap-2"
-          >
-            <div className="space-y-1">
-              <span className="text-xs font-bold text-white block">General Support</span>
-              <span className="text-[11px] text-[#c8c8d2] font-mono block">
-                contact@animesenpai.online
+                Purohitunofficialbhagyesh@gmail.com
               </span>
             </div>
             <Mail aria-hidden="true" className="w-3.5 h-3.5 text-white flex-shrink-0 mt-0.5" />

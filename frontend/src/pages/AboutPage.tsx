@@ -27,14 +27,28 @@ export const AboutPage: React.FC = () => {
       'Official platform information, mission, transparency, and copyright disclosure for AnimeSenpai (animesenpai.online).',
     mainEntity: {
       '@type': 'Organization',
+      '@id': `${SITE_URL}/#organization`,
       name: 'AnimeSenpai',
       alternateName: ['AnimeSenpai Online', 'Anime Senpai Tracker'],
       url: `${SITE_URL}/`,
-      logo: `${SITE_URL}/logo-512.png`,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/logo-512.png?v=3`,
+        width: 512,
+        height: 512,
+      },
       founder: {
         '@type': 'Person',
         name: 'Bhagyesh Purohit',
       },
+      contactPoint: [
+        {
+          '@type': 'ContactPoint',
+          contactType: 'customer support',
+          email: 'Purohitunofficialbhagyesh@gmail.com',
+          url: `${SITE_URL}/about`,
+        },
+      ],
       knowsAbout: [
         'Anime tracking',
         'AniList GraphQL API',
@@ -187,7 +201,7 @@ export const AboutPage: React.FC = () => {
             <div className="flex items-start gap-3">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
               <div>
-                <strong className="text-white">DMCA & Copyright Takedowns:</strong> If you are a copyright owner or representative and wish to request removal of any specific metadata, links, or embed references, please contact us at <a href="mailto:contact@animesenpai.online" className="text-white underline font-bold">contact@animesenpai.online</a> for immediate action within 24 hours.
+                <strong className="text-white">DMCA & Copyright Takedowns:</strong> If you are a copyright owner or representative and wish to request removal of any specific metadata, links, or embed references, please contact us at <a href="mailto:Purohitunofficialbhagyesh@gmail.com" className="text-white underline font-bold">Purohitunofficialbhagyesh@gmail.com</a> for immediate action within 24 hours.
               </div>
             </div>
           </div>
@@ -251,10 +265,10 @@ export const AboutPage: React.FC = () => {
             <div className="flex items-center gap-2 text-xs">
               <span className="text-slate-400">Email:</span>
               <a
-                href="mailto:contact@animesenpai.online"
+                href="mailto:Purohitunofficialbhagyesh@gmail.com"
                 className="text-white hover:underline font-bold"
               >
-                contact@animesenpai.online
+                Purohitunofficialbhagyesh@gmail.com
               </a>
             </div>
             <div className="flex items-center gap-2 text-xs">
