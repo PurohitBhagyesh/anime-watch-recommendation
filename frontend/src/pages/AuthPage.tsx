@@ -13,7 +13,6 @@ import {
   Eye,
   EyeOff,
   KeyRound,
-  Smartphone,
 } from 'lucide-react';
 import {
   useAuth,
@@ -48,14 +47,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
   const navigate = useNavigate();
   const {
     user,
-    mfaPending,
-    mfaHintLabel,
     login,
     signup,
     loginWithGoogle,
     loginWithApple,
-    resolveMfaSignIn,
-    cancelMfaSignIn,
     sendPasswordReset,
   } = useAuth();
 
@@ -69,26 +64,20 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
         ? 'Reset Password • AnimeSenpai'
         : 'Sign In • AnimeSenpai',
     description:
-      'Sign in with Apple, Google, or email to sync your AnimeSenpai watchlist and protect your account with Two-Factor Authentication.',
+      'Sign in with Apple, Google, or email to sync your AnimeSenpai watchlist across devices.',
     canonicalUrl: `${SITE_URL}/login`,
     robots: 'noindex, nofollow',
   });
 
-  // Login state
   const [emailOrUsername, setEmailOrUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  // Signup state
   const [signupUsername, setSignupUsername] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Reset password state
   const [resetEmail, setResetEmail] = useState('');
-
-  // 2FA verification code state
-  const [mfaCode, setMfaCode] = useState('');
 
   const [rememberMe, setRememberMe] = useState(true);
   const [agreeTerms, setAgreeTerms] = useState(true);
@@ -106,10 +95,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
   }, [initialMode]);
 
   useEffect(() => {
-    if (user && !successMsg && !mfaPending) {
+    if (user && !successMsg) {
       navigate('/');
     }
-  }, [user, navigate, successMsg, mfaPending]);
+  }, [user, navigate, successMsg]);
 
   const strength = getPasswordStrength(signupPassword);
   const strengthBarColors = [
@@ -131,8 +120,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
       if (res.success) {
         setSuccessMsg('Welcome back to AnimeSenpai!');
         setTimeout(() => navigate('/'), 700);
-      } else if (res.mfaRequired) {
-        setMfaCode('');
       } else {
         setError(res.error || 'Login failed. Please check your credentials.');
       }
@@ -211,8 +198,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
             : 'Signed in with Google!'
         );
         setTimeout(() => navigate('/'), 600);
-      } else if (res.mfaRequired) {
-        setMfaCode('');
       } else if (res.error) {
         setError(res.error);
       }
@@ -220,24 +205,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
       setError('Sign-in could not be completed. Please try again.');
     } finally {
       setOauthBusy(null);
-    }
-  };
-
-  const handleMfaSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-
-    try {
-      const res = await resolveMfaSignIn(mfaCode);
-      if (res.success) {
-        setSuccessMsg('Two-factor authentication verified. Welcome back!');
-        setTimeout(() => navigate('/'), 650);
-      } else {
-        setError(res.error || 'Invalid 6-digit code. Please try again.');
-      }
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -277,9 +244,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
             <AppLogo size="lg" subtitle="" />
           </Link>
           <p className="text-xs sm:text-sm text-[#9a9aa6]">
-            {mfaPending
-              ? 'Enter the 6-digit code from your authenticator app'
-              : mode === 'reset'
+            {mode === 'reset'
               ? 'Reset your password via email'
               : mode === 'login'
               ? 'Sign in to access your anime watchlist and progress'
@@ -288,79 +253,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
         </div>
 
         <div className="anilist-card-static p-6 sm:p-7 rounded-3xl relative">
-          {/* 2FA VERIFICATION VIEW */}
-          {mfaPending ? (
-            <form onSubmit={handleMfaSubmit} className="space-y-4 animate-fadeIn">
-              <div className="flex items-center gap-3 pb-3 border-b border-[#23232b]">
-                <div className="w-10 h-10 rounded-xl bg-[#16161b] border border-[#23232b] flex items-center justify-center text-[#f5f5f7] flex-shrink-0">
-                  <Smartphone aria-hidden="true" className="w-5 h-5" />
-                </div>
-                <div className="min-w-0">
-                  <h1 className="text-base font-bold text-[#f5f5f7]">Two-Factor Verification</h1>
-                  <p className="text-xs text-[#9a9aa6] truncate">
-                    Method: {mfaHintLabel}
-                  </p>
-                </div>
-              </div>
-
-              {error && (
-                <div className="p-3 rounded-xl bg-rose-500/12 border border-rose-500/30 text-rose-300 text-xs font-medium flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              {successMsg && (
-                <div className="p-3 rounded-xl bg-emerald-500/12 border border-emerald-500/30 text-emerald-300 text-xs font-medium flex items-center gap-2">
-                  <Check aria-hidden="true" className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>{successMsg}</span>
-                </div>
-              )}
-
-              <div className="space-y-1.5">
-                <label htmlFor="mfa-code" className="text-xs font-medium text-[#d2d2dc] block">
-                  6-Digit Authenticator Code
-                </label>
-                <input
-                  id="mfa-code"
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  pattern="[0-9\s]{6,7}"
-                  maxLength={7}
-                  required
-                  autoFocus
-                  value={mfaCode}
-                  onChange={(e) => setMfaCode(e.target.value.replace(/[^\d]/g, '').slice(0, 6))}
-                  placeholder="000000"
-                  className="anilist-input w-full px-4 py-3 text-center text-xl font-mono tracking-[0.35em] text-[#f5f5f7] placeholder:text-[#666672]"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting || mfaCode.length !== 6}
-                className="w-full py-3 anilist-btn-primary text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-              >
-                <span>{isSubmitting ? 'Verifying…' : 'Verify & Sign In'}</span>
-                <ArrowRight aria-hidden="true" className="w-4 h-4" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  cancelMfaSignIn();
-                  setMfaCode('');
-                  setError(null);
-                }}
-                className="w-full py-2.5 anilist-btn-secondary text-xs flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <ArrowLeft aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
-                <span>Back to Sign In</span>
-              </button>
-            </form>
-          ) : mode === 'reset' ? (
-            /* FORGOT PASSWORD VIEW */
+          {mode === 'reset' ? (
             <form onSubmit={handleResetSubmit} className="space-y-4 animate-fadeIn">
               <div className="flex items-center gap-3 pb-3 border-b border-[#23232b]">
                 <div className="w-10 h-10 rounded-xl bg-[#16161b] border border-[#23232b] flex items-center justify-center text-[#f5f5f7] flex-shrink-0">
@@ -430,9 +323,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
               </button>
             </form>
           ) : (
-            /* LOGIN / SIGNUP VIEW */
             <>
-              {/* 3-Color Segmented Mode Switcher */}
               <div className="grid grid-cols-2 p-1 rounded-full bg-[#16161b] border border-[#23232b] mb-6">
                 <button
                   type="button"
@@ -482,7 +373,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                 </div>
               )}
 
-              {/* Federated OAuth Providers: Apple + Google */}
               <div className="space-y-2.5">
                 <button
                   type="button"
@@ -669,7 +559,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                       </button>
                     </div>
 
-                    {/* Live Password Strength Meter */}
                     {signupPassword.length > 0 && (
                       <div className="pt-1 space-y-1.5">
                         <div className="flex items-center gap-1.5">
@@ -758,7 +647,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
 
         <div className="flex items-center justify-center gap-2 text-[11px] text-[#666672]">
           <ShieldCheck aria-hidden="true" className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Protected by Firebase Authentication, Apple & Google OAuth & TOTP 2FA</span>
+          <span>Protected by Firebase Authentication, Apple & Google OAuth</span>
         </div>
       </div>
     </div>

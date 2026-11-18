@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -21,13 +21,7 @@ import {
   setPersistence,
   browserLocalPersistence,
   browserSessionPersistence,
-  multiFactor,
-  TotpMultiFactorGenerator,
-  getMultiFactorResolver,
   type User as FirebaseUser,
-  type MultiFactorResolver,
-  type MultiFactorError,
-  type TotpSecret,
 } from 'firebase/auth';
 import {
   doc,
@@ -59,24 +53,10 @@ export interface UserProfile {
   favoriteGenre?: string;
 }
 
-export interface EnrolledMfaFactor {
-  uid: string;
-  displayName: string;
-  enrollmentTime: string;
-  factorId: string;
-}
-
 export interface AuthActionResult {
   success: boolean;
   error?: string;
-  mfaRequired?: boolean;
   requiresRecentLogin?: boolean;
-  requiresEmailVerification?: boolean;
-}
-
-export interface TotpSetupResult extends AuthActionResult {
-  secretKey?: string;
-  qrCodeUrl?: string;
 }
 
 export interface PasswordStrength {
@@ -168,15 +148,10 @@ interface AuthContextType {
   emailVerified: boolean;
   linkedProviders: string[];
   authProvider: PrimaryAuthProvider;
-  enrolledMfaFactors: EnrolledMfaFactor[];
-  mfaPending: boolean;
-  mfaHintLabel: string;
   login: (emailOrUsername: string, password: string, rememberMe?: boolean) => Promise<AuthActionResult>;
   signup: (data: { username: string; email: string; password: string; avatar?: string }) => Promise<AuthActionResult>;
   loginWithGoogle: (rememberMe?: boolean) => Promise<AuthActionResult>;
   loginWithApple: (rememberMe?: boolean) => Promise<AuthActionResult>;
-  resolveMfaSignIn: (code: string) => Promise<AuthActionResult>;
-  cancelMfaSignIn: () => void;
   sendPasswordReset: (email: string) => Promise<AuthActionResult>;
   resendVerificationEmail: () => Promise<AuthActionResult>;
   refreshAuthUser: () => Promise<void>;
@@ -184,10 +159,6 @@ interface AuthContextType {
   changeEmail: (newEmail: string, reauthPassword?: string) => Promise<AuthActionResult>;
   linkAuthProvider: (provider: 'google' | 'apple') => Promise<AuthActionResult>;
   unlinkAuthProvider: (providerId: string) => Promise<AuthActionResult>;
-  startTotpEnrollment: (reauthPassword?: string) => Promise<TotpSetupResult>;
-  completeTotpEnrollment: (code: string, displayName?: string) => Promise<AuthActionResult>;
-  cancelTotpEnrollment: () => void;
-  unenrollMfaFactor: (factorUid: string, reauthPassword?: string) => Promise<AuthActionResult>;
   logout: () => Promise<void>;
   quickDemoLogin: () => void;
   updateProfile: (updates: Partial<UserProfile>) => Promise<AuthActionResult>;
@@ -196,20 +167,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-function extractMfaFactors(firebaseUser: FirebaseUser | null): EnrolledMfaFactor[] {
-  if (!firebaseUser) return [];
-  try {
-    return multiFactor(firebaseUser).enrolledFactors.map((factor) => ({
-      uid: factor.uid,
-      displayName: factor.displayName || 'Authenticator App',
-      enrollmentTime: factor.enrollmentTime || '',
-      factorId: factor.factorId,
-    }));
-  } catch {
-    return [];
-  }
-}
 
 function getPrimaryProviderFromUser(firebaseUser: FirebaseUser | null): PrimaryAuthProvider {
   if (!firebaseUser) return 'demo';
@@ -283,7 +240,6 @@ async function buildAndSyncUserProfile(
       email: firebaseUser.email || data.email || '',
     };
 
-    // Backfill usernameLower or synced email silently when needed
     const patch: Partial<UserProfile> = {};
     if (merged.username && data.usernameLower !== merged.username.toLowerCase()) {
       patch.usernameLower = merged.username.toLowerCase();
@@ -306,27 +262,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserProfile | null>(null);
   const [emailVerified, setEmailVerified] = useState(false);
   const [linkedProviders, setLinkedProviders] = useState<string[]>([]);
-  const [enrolledMfaFactors, setEnrolledMfaFactors] = useState<EnrolledMfaFactor[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Pending sign-in MFA resolver (when user has 2FA enabled)
-  const [mfaResolver, setMfaResolver] = useState<MultiFactorResolver | null>(null);
-  // Pending TOTP secret during 2FA enrollment in Settings
-  const pendingTotpSecretRef = useRef<TotpSecret | null>(null);
 
   const syncFirebaseSecurityMeta = useCallback((firebaseUser: FirebaseUser | null) => {
     if (!firebaseUser) {
       setEmailVerified(false);
       setLinkedProviders([]);
-      setEnrolledMfaFactors([]);
       return;
     }
     setEmailVerified(Boolean(firebaseUser.emailVerified));
     setLinkedProviders(firebaseUser.providerData.map((p) => p.providerId));
-    setEnrolledMfaFactors(extractMfaFactors(firebaseUser));
   }, []);
 
-  // Always observe Firebase Auth state immediately (supports IndexedDB persistence on all routes)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
@@ -352,7 +299,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         rememberMe ? browserLocalPersistence : browserSessionPersistence
       );
     } catch {
-      // Fallback safely if browser blocks persistence switching (e.g. strict private mode)
+      // Fallback safely if browser blocks persistence switching
     }
   };
 
@@ -387,26 +334,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const handleMfaChallengeError = (error: unknown): AuthActionResult | null => {
-    const authErr = error as { code?: string };
-    if (authErr?.code === 'auth/multi-factor-auth-required') {
-      try {
-        const resolver = getMultiFactorResolver(auth, error as MultiFactorError);
-        setMfaResolver(resolver);
-        return {
-          success: false,
-          mfaRequired: true,
-        };
-      } catch {
-        return {
-          success: false,
-          error: 'Two-factor verification is required, but the challenge could not be initialized.',
-        };
-      }
-    }
-    return null;
-  };
-
   const login = async (
     emailOrUsername: string,
     password: string,
@@ -422,7 +349,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     let resolvedEmail = identifier.toLowerCase();
 
-    // Resolve username -> email via Firestore if user entered a username instead of an email
     if (!identifier.includes('@')) {
       const usernameErr = validateUsername(identifier);
       if (usernameErr) {
@@ -469,9 +395,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(profile);
       return { success: true };
     } catch (error: unknown) {
-      const mfaRes = handleMfaChallengeError(error);
-      if (mfaRes) return mfaRes;
-
       const code = (error as { code?: string })?.code;
       let errorMessage = 'Unable to sign in right now. Please try again.';
       if (
@@ -509,7 +432,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const passwordError = validateNewPassword(data.password);
     if (passwordError) return { success: false, error: passwordError };
 
-    // Optional uniqueness pre-check (non-blocking if Firestore disallows unauthenticated queries)
     try {
       const q = query(
         collection(db, 'users'),
@@ -521,7 +443,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: 'That username is already taken. Please choose another.' };
       }
     } catch {
-      // Firestore rules may restrict unauthenticated reads; proceed with Auth creation
+      // Firestore rules block unauthenticated list queries; proceed safely
     }
 
     try {
@@ -534,7 +456,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Non-fatal
       }
 
-      // Send email verification automatically for account security & 2FA readiness
       try {
         await sendEmailVerification(userCredential.user);
       } catch {
@@ -599,10 +520,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(profile);
       return { success: true };
     } catch (error: unknown) {
-      const mfaRes = handleMfaChallengeError(error);
-      if (mfaRes) return mfaRes;
-
-      const err = error as { code?: string; message?: string };
+      const err = error as { code?: string };
       const providerLabel = providerKind === 'apple' ? 'Apple' : 'Google';
       let errorMessage = `Failed to sign in with ${providerLabel}. Please try again.`;
 
@@ -630,47 +548,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithGoogle = (rememberMe = true) => loginWithOAuth('google', rememberMe);
   const loginWithApple = (rememberMe = true) => loginWithOAuth('apple', rememberMe);
 
-  const resolveMfaSignIn = async (code: string): Promise<AuthActionResult> => {
-    if (!mfaResolver) {
-      return { success: false, error: 'Your verification session expired. Please sign in again.' };
-    }
-    const cleanCode = code.replace(/\s+/g, '');
-    if (!/^\d{6}$/.test(cleanCode)) {
-      return { success: false, error: 'Enter the 6-digit code from your authenticator app.' };
-    }
-
-    const totpHint =
-      mfaResolver.hints.find((h) => h.factorId === TotpMultiFactorGenerator.FACTOR_ID) ||
-      mfaResolver.hints[0];
-
-    if (!totpHint) {
-      return { success: false, error: 'No compatible 2FA factor found on this account.' };
-    }
-
-    try {
-      const assertion = TotpMultiFactorGenerator.assertionForSignIn(totpHint.uid, cleanCode);
-      const cred = await mfaResolver.resolveSignIn(assertion);
-      setMfaResolver(null);
-      syncFirebaseSecurityMeta(cred.user);
-      const profile = await buildAndSyncUserProfile(cred.user);
-      setUser(profile);
-      return { success: true };
-    } catch (error: unknown) {
-      const errCode = (error as { code?: string })?.code;
-      if (errCode === 'auth/invalid-verification-code') {
-        return { success: false, error: 'Incorrect 6-digit code. Check your authenticator app and try again.' };
-      }
-      if (errCode === 'auth/code-expired') {
-        return { success: false, error: 'That code expired. Enter the newest 6-digit code.' };
-      }
-      return { success: false, error: 'Verification failed. Please check your 6-digit code and try again.' };
-    }
-  };
-
-  const cancelMfaSignIn = () => {
-    setMfaResolver(null);
-  };
-
   const sendPasswordReset = async (email: string): Promise<AuthActionResult> => {
     const cleanEmail = email.trim().toLowerCase();
     const emailError = validateEmail(cleanEmail);
@@ -687,7 +564,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (code === 'auth/invalid-email') {
         return { success: false, error: 'Please enter a valid email address.' };
       }
-      // Return success even on auth/user-not-found to prevent account enumeration
       if (code === 'auth/user-not-found') {
         return { success: true };
       }
@@ -863,170 +739,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const startTotpEnrollment = async (reauthPassword?: string): Promise<TotpSetupResult> => {
-    const current = auth.currentUser;
-    if (!current) return { success: false, error: 'Please sign in first.' };
-
-    await current.reload().catch(() => {});
-    syncFirebaseSecurityMeta(auth.currentUser);
-
-    if (!current.emailVerified) {
-      return {
-        success: false,
-        requiresEmailVerification: true,
-        error: 'Please verify your email address before enabling Two-Factor Authentication.',
-      };
-    }
-
-    try {
-      if (reauthPassword) {
-        await reauthenticateCurrentUser(reauthPassword);
-      }
-
-      const session = await multiFactor(current).getSession();
-      const secret = await TotpMultiFactorGenerator.generateSecret(session);
-      pendingTotpSecretRef.current = secret;
-
-      const accountLabel = current.email || user?.username || 'AnimeSenpai';
-      const qrCodeUrl = secret.generateQrCodeUrl(accountLabel, 'AnimeSenpai');
-
-      return {
-        success: true,
-        secretKey: secret.secretKey,
-        qrCodeUrl,
-      };
-    } catch (error: unknown) {
-      const code = (error as { code?: string })?.code;
-      if (code === 'auth/requires-recent-login') {
-        return {
-          success: false,
-          requiresRecentLogin: true,
-          error: 'Verify your login one more time to start 2FA setup.',
-        };
-      }
-      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
-        return {
-          success: false,
-          requiresRecentLogin: true,
-          error: 'Incorrect password. Please try again.',
-        };
-      }
-      if (code === 'auth/unverified-email') {
-        return {
-          success: false,
-          requiresEmailVerification: true,
-          error: 'Verify your email address first to enable 2FA.',
-        };
-      }
-      if (code === 'auth/operation-not-allowed' || code === 'auth/unsupported-first-factor') {
-        return {
-          success: false,
-          error:
-            'TOTP 2FA requires Identity Platform Multi-Factor Authentication to be enabled in Firebase Console (Authentication → Settings → Multi-factor authentication → TOTP).',
-        };
-      }
-      if (code === 'auth/popup-closed-by-user') {
-        return { success: false, requiresRecentLogin: true, error: 'Verification popup was closed.' };
-      }
-      return {
-        success: false,
-        error: 'Unable to start 2FA setup right now. Please try again.',
-      };
-    }
-  };
-
-  const completeTotpEnrollment = async (
-    code: string,
-    displayName = 'Authenticator App'
-  ): Promise<AuthActionResult> => {
-    const current = auth.currentUser;
-    const secret = pendingTotpSecretRef.current;
-    if (!current || !secret) {
-      return { success: false, error: '2FA setup session expired. Start setup again.' };
-    }
-
-    const cleanCode = code.replace(/\s+/g, '');
-    if (!/^\d{6}$/.test(cleanCode)) {
-      return { success: false, error: 'Enter the 6-digit code shown in your authenticator app.' };
-    }
-
-    try {
-      const assertion = TotpMultiFactorGenerator.assertionForEnrollment(secret, cleanCode);
-      await multiFactor(current).enroll(assertion, displayName.trim() || 'Authenticator App');
-      pendingTotpSecretRef.current = null;
-      await current.reload();
-      syncFirebaseSecurityMeta(auth.currentUser);
-      return { success: true };
-    } catch (error: unknown) {
-      const errCode = (error as { code?: string })?.code;
-      if (errCode === 'auth/invalid-verification-code') {
-        return { success: false, error: 'Invalid 6-digit code. Wait for the next code and try again.' };
-      }
-      if (errCode === 'auth/requires-recent-login') {
-        return {
-          success: false,
-          requiresRecentLogin: true,
-          error: 'Your login session timed out. Please verify your login and retry.',
-        };
-      }
-      return { success: false, error: 'Could not verify the 6-digit code. Please try again.' };
-    }
-  };
-
-  const cancelTotpEnrollment = () => {
-    pendingTotpSecretRef.current = null;
-  };
-
-  const unenrollMfaFactor = async (
-    factorUid: string,
-    reauthPassword?: string
-  ): Promise<AuthActionResult> => {
-    const current = auth.currentUser;
-    if (!current) return { success: false, error: 'Please sign in first.' };
-
-    try {
-      if (reauthPassword) {
-        await reauthenticateCurrentUser(reauthPassword);
-      }
-
-      const mfUser = multiFactor(current);
-      const factor = mfUser.enrolledFactors.find((f) => f.uid === factorUid);
-      if (!factor) {
-        syncFirebaseSecurityMeta(current);
-        return { success: true };
-      }
-
-      await mfUser.unenroll(factor);
-      await current.reload();
-      syncFirebaseSecurityMeta(auth.currentUser);
-      return { success: true };
-    } catch (error: unknown) {
-      const code = (error as { code?: string })?.code;
-      if (code === 'auth/requires-recent-login') {
-        return {
-          success: false,
-          requiresRecentLogin: true,
-          error: 'Verify your login to disable Two-Factor Authentication.',
-        };
-      }
-      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
-        return { success: false, requiresRecentLogin: true, error: 'Incorrect password.' };
-      }
-      if (code === 'auth/popup-closed-by-user') {
-        return { success: false, requiresRecentLogin: true, error: 'Verification popup was closed.' };
-      }
-      return { success: false, error: 'Unable to disable 2FA right now. Please try again.' };
-    }
-  };
-
   const quickDemoLogin = () => {
     setUser(DEFAULT_DEMO_USER);
   };
 
   const handleLogout = async () => {
     try {
-      pendingTotpSecretRef.current = null;
-      setMfaResolver(null);
       await signOut(auth);
       setUser(null);
       syncFirebaseSecurityMeta(null);
@@ -1063,7 +781,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: true };
     } catch (error) {
       console.error('Error updating profile:', error);
-      // Still apply locally so offline/demo sessions stay responsive
       setUser((prev) => (prev ? { ...prev, ...safeUpdates } : null));
       return { success: true };
     }
@@ -1081,7 +798,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteAccount = async (password?: string): Promise<AuthActionResult> => {
     const current = auth.currentUser;
 
-    // Demo or local-only session cleanup
     if (!current) {
       clearLocalUserData();
       setUser(null);
@@ -1093,20 +809,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await reauthenticateCurrentUser(password);
       }
 
-      // 1. Delete user profile document in Firestore
       try {
         await deleteDoc(doc(db, 'users', current.uid));
       } catch (firestoreErr) {
         console.warn('Firestore profile cleanup warning:', firestoreErr);
       }
 
-      // 2. Permanently delete Firebase Authentication account
       await deleteUser(current);
 
-      // 3. Erase all locally stored watchlist, preferences, and session data
       clearLocalUserData();
-      pendingTotpSecretRef.current = null;
-      setMfaResolver(null);
       setUser(null);
       syncFirebaseSecurityMeta(null);
 
@@ -1141,9 +852,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const mfaHintLabel =
-    mfaResolver?.hints?.[0]?.displayName || 'Authenticator App';
-
   return (
     <AuthContext.Provider
       value={{
@@ -1152,15 +860,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         emailVerified,
         linkedProviders,
         authProvider: getPrimaryProviderFromUser(auth.currentUser),
-        enrolledMfaFactors,
-        mfaPending: !!mfaResolver,
-        mfaHintLabel,
         login,
         signup,
         loginWithGoogle,
         loginWithApple,
-        resolveMfaSignIn,
-        cancelMfaSignIn,
         sendPasswordReset,
         resendVerificationEmail,
         refreshAuthUser,
@@ -1168,10 +871,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         changeEmail,
         linkAuthProvider,
         unlinkAuthProvider,
-        startTotpEnrollment,
-        completeTotpEnrollment,
-        cancelTotpEnrollment,
-        unenrollMfaFactor,
         logout: handleLogout,
         quickDemoLogin,
         updateProfile,
