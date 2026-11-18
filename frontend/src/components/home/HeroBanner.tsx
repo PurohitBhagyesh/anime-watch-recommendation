@@ -8,7 +8,6 @@ import {
   Tv,
   Smile,
   Sparkles,
-  MoveHorizontal,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
@@ -299,7 +298,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
           if (!isDragging) setIsPaused(false);
         }}
         style={{ touchAction: 'pan-y' }}
-        className="relative w-full overflow-hidden min-h-[410px] sm:min-h-[480px] md:min-h-[560px] lg:min-h-[620px] flex items-end border-b border-white/[0.06] bg-[#0b1622] group select-none cursor-grab active:cursor-grabbing"
+        className="relative w-full overflow-hidden min-h-[430px] sm:min-h-[500px] md:min-h-[560px] lg:min-h-[620px] flex items-end border-b border-white/[0.06] bg-[#070d16] group select-none cursor-grab active:cursor-grabbing"
       >
         {/* Background Image with Kinetic Depth Parallax */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -316,10 +315,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                 : undefined,
               transition: isDragging ? 'none' : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease',
             }}
-            className="w-full h-full object-cover object-center filter brightness-[0.42] sm:brightness-[0.45] contrast-[1.08] animate-fadeIn will-change-transform"
+            className="w-full h-full object-cover object-center filter brightness-[0.44] sm:brightness-[0.46] contrast-[1.08] animate-fadeIn will-change-transform"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0b1622] via-[#0b1622]/80 sm:via-[#0b1622]/70 to-[#0b1622]/20 sm:to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0b1622] via-[#0b1622]/75 sm:via-[#0b1622]/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#070d16] via-[#070d16]/75 sm:via-[#070d16]/65 to-[#070d16]/15 sm:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#070d16] via-[#070d16]/70 sm:via-[#070d16]/75 to-transparent" />
         </div>
 
         {/* Hero Interactive Content Box */}
@@ -359,14 +358,6 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                   {currentAnime.episodes ? `${currentAnime.episodes} eps` : 'Airing'}
                 </span>
               )}
-
-              {/* Mobile Swipe Hint Badge */}
-              {spotlights.length > 1 && (
-                <span className="sm:hidden flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/10 text-slate-300 text-[10px] font-medium">
-                  <MoveHorizontal aria-hidden="true" className="w-3 h-3 text-[#3db4f2]" />
-                  <span>Swipe</span>
-                </span>
-              )}
             </div>
 
             {/* Title (clamped on mobile so ultra-long light-novel titles stay crisp) */}
@@ -377,13 +368,15 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
               {title}
             </h2>
 
-            {/* Genres */}
+            {/* Genres (max 3 on mobile, 4 on sm+) */}
             {currentAnime.genres && currentAnime.genres.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
-                {currentAnime.genres.slice(0, 4).map((genre) => (
+                {currentAnime.genres.slice(0, 4).map((genre, idx) => (
                   <span
                     key={genre}
-                    className="text-[11px] sm:text-xs px-2.5 py-0.5 rounded-full bg-white/[0.07] border border-white/10 text-slate-200 font-medium backdrop-blur-md"
+                    className={`text-[11px] sm:text-xs px-2.5 py-0.5 rounded-full bg-white/[0.07] border border-white/10 text-slate-200 font-medium backdrop-blur-md ${
+                      idx >= 3 ? 'hidden sm:inline-flex' : ''
+                    }`}
                   >
                     {genre}
                   </span>

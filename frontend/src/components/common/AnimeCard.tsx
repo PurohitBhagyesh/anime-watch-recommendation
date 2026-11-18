@@ -156,10 +156,10 @@ export const AnimeCard: React.FC<AnimeCardProps> = ({ anime, priority = false })
       }`}
     >
       {/* Poster Image Container */}
-      <div ref={posterRef} className="relative aspect-[185/265] w-full bg-[#11161d] rounded-t-[6px]">
+      <div ref={posterRef} className="relative aspect-[185/265] w-full bg-[#0b131f] rounded-t-[13px]">
         <Link
           to={`/anime/${anime.id}`}
-          className="block w-full h-full overflow-hidden rounded-t-[6px]"
+          className="block w-full h-full overflow-hidden rounded-t-[13px]"
           aria-label={`View details for ${title}`}
         >
           {isVisible ? (

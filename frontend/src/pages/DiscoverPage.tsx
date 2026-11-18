@@ -1250,14 +1250,14 @@ export const DiscoverPage: React.FC = () => {
 
       {/* Results Display */}
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-4 lg:gap-5">
           {Array.from({ length: 18 }).map((_, i) => (
             <CardSkeleton key={i} />
           ))}
         </div>
       ) : results.length > 0 ? (
         viewMode === 'grid' ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5 sm:gap-4 lg:gap-5">
             {results.map((anime) => (
               <AnimeCard key={anime.id} anime={anime} />
             ))}

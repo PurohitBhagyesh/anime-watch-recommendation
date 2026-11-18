@@ -250,70 +250,110 @@ export const AnimeDetailsPage: React.FC = () => {
       </div>
 
       {/* Main Content Layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 min-[480px]:-mt-24 sm:-mt-32 lg:-mt-40 relative z-10 space-y-6">
-        {/* Row 1: Poster + Title & Primary Actions (immediately visible on mobile!) */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6 lg:gap-8 md:items-end">
-          {/* Poster Card */}
-          <div className="md:col-span-4 lg:col-span-3">
-            <div className="relative rounded-xl overflow-hidden border border-white/10 bg-[#11161d] aspect-[185/265] max-w-[180px] sm:max-w-[220px] md:max-w-none mx-auto shadow-2xl">
-              <img
-                src={anime.coverImage.extraLarge || anime.coverImage.large}
-                alt={`${title} anime poster`}
-                width={240}
-                height={344}
-                loading="eager"
-                fetchPriority="high"
-                className="w-full h-full object-cover"
-              />
-              {/* Score Overlay */}
-              {anime.averageScore && (
-                <div
-                  className={`absolute top-2.5 right-2.5 px-2 py-0.5 rounded font-bold text-xs backdrop-blur-md shadow-lg flex items-center gap-1 ${getScoreBadgeClass(
-                    anime.averageScore
-                  )}`}
-                >
-                  <Smile aria-hidden="true" className="w-3.5 h-3.5" />
-                  <span>{anime.averageScore}%</span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 min-[480px]:-mt-24 sm:-mt-32 lg:-mt-40 relative z-10 space-y-6">
+        {/* Row 1: Poster + Title & Primary Actions (compact side-by-side on mobile, 12-col grid on md+) */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 md:items-end">
+          {/* Mobile Side-by-Side Header Wrapper (becomes transparent via md:contents on tablet/desktop) */}
+          <div className="flex items-end gap-3.5 sm:gap-5 md:contents">
+            {/* Poster Card */}
+            <div className="w-28 min-[400px]:w-32 sm:w-40 md:w-auto flex-shrink-0 md:col-span-4 lg:col-span-3">
+              <div className="relative rounded-2xl overflow-hidden border border-white/15 bg-[#0b131f] aspect-[185/265] shadow-2xl">
+                <img
+                  src={anime.coverImage.extraLarge || anime.coverImage.large}
+                  alt={`${title} anime poster`}
+                  width={240}
+                  height={344}
+                  loading="eager"
+                  fetchPriority="high"
+                  className="w-full h-full object-cover"
+                />
+                {/* Score Overlay */}
+                {anime.averageScore && (
+                  <div
+                    className={`absolute top-2 right-2 px-1.5 sm:px-2 py-0.5 rounded-full font-bold text-[10px] sm:text-xs backdrop-blur-md shadow-lg flex items-center gap-1 ${getScoreBadgeClass(
+                      anime.averageScore
+                    )}`}
+                  >
+                    <Smile aria-hidden="true" className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    <span>{anime.averageScore}%</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Mobile-only compact title beside poster */}
+            <div className="flex-1 min-w-0 space-y-1.5 pb-0.5 md:hidden">
+              {anime.rankings && anime.rankings.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {anime.rankings.slice(0, 1).map((rank) => (
+                    <span
+                      key={rank.id}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#3db4f2]/15 border border-[#3db4f2]/30 text-[#7dd3fc] text-[10px] font-bold backdrop-blur-md"
+                    >
+                      <Award aria-hidden="true" className="w-3 h-3 text-[#3db4f2]" />
+                      #{rank.rank} {rank.context}
+                    </span>
+                  ))}
                 </div>
               )}
+
+              <p className="text-lg min-[400px]:text-xl font-extrabold text-white tracking-tight leading-snug line-clamp-3 break-words">
+                {title}
+              </p>
+
+              {anime.title.native && (
+                <p className="text-[11px] text-[#8ba0b2] font-medium truncate">
+                  {anime.title.native}
+                </p>
+              )}
+
+              <p className="text-[11px] text-slate-300 font-medium">
+                {anime.format?.replace('_', ' ') || 'Anime'} · {anime.episodes ? `${anime.episodes} eps` : 'Airing'}
+                {anime.seasonYear ? ` · ${anime.seasonYear}` : ''}
+              </p>
             </div>
           </div>
 
-          {/* Title, Rankings, Genres & Action Buttons */}
-          <div className="md:col-span-8 lg:col-span-9 space-y-3 text-center md:text-left">
-            {/* Rankings Badges */}
-            {anime.rankings && anime.rankings.length > 0 && (
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-                {anime.rankings.slice(0, 2).map((rank) => (
-                  <span
-                    key={rank.id}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#3db4f2]/15 border border-[#3db4f2]/30 text-[#3db4f2] text-xs font-bold backdrop-blur-md"
-                  >
-                    <Award aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
-                    #{rank.rank} {rank.context}
-                  </span>
-                ))}
-              </div>
-            )}
+          {/* Desktop Title + Shared Genres & Action Buttons */}
+          <div className="md:col-span-8 lg:col-span-9 space-y-3 text-left">
+            {/* Desktop Rankings & Semantic H1 */}
+            <div className="hidden md:block space-y-2.5">
+              {anime.rankings && anime.rankings.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  {anime.rankings.slice(0, 2).map((rank) => (
+                    <span
+                      key={rank.id}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#3db4f2]/15 border border-[#3db4f2]/30 text-[#7dd3fc] text-xs font-bold backdrop-blur-md"
+                    >
+                      <Award aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
+                      #{rank.rank} {rank.context}
+                    </span>
+                  ))}
+                </div>
+              )}
 
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#edf1f5] tracking-tight leading-tight">
-              {title}
-            </h1>
+              <h1 className="text-3xl lg:text-4xl font-extrabold text-[#edf1f5] tracking-tight leading-tight">
+                {title}
+              </h1>
 
-            {anime.title.native && (
-              <p className="text-xs sm:text-sm text-[#8ba0b2] font-medium font-sans">
-                {anime.title.native}
-              </p>
-            )}
+              {anime.title.native && (
+                <p className="text-sm text-[#8ba0b2] font-medium font-sans">
+                  {anime.title.native}
+                </p>
+              )}
+            </div>
+
+            {/* Screen-reader accessible H1 on mobile without duplicating visible title */}
+            <h1 className="sr-only md:hidden">{title}</h1>
 
             {/* Genres */}
             {anime.genres && anime.genres.length > 0 && (
-              <div className="flex flex-wrap justify-center md:justify-start gap-1.5 pt-1">
+              <div className="flex flex-wrap gap-1.5 pt-0.5">
                 {anime.genres.map((genre) => (
                   <Link
                     key={genre}
                     to={`/discover?genre=${encodeURIComponent(genre)}`}
-                    className="text-xs px-2.5 py-1 rounded bg-[#151f2e] hover:bg-[#1f2c3f] border border-white/10 text-[#edf1f5] font-semibold transition"
+                    className="text-[11px] sm:text-xs px-2.5 py-1 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-[#edf1f5] font-semibold transition"
                   >
                     {genre}
                   </Link>
@@ -322,7 +362,7 @@ export const AnimeDetailsPage: React.FC = () => {
             )}
 
             {/* Action Buttons Bar */}
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 pt-2">
+            <div className="flex flex-wrap items-center gap-2 pt-1.5">
               {anime.trailer?.id && (
                 <button
                   type="button"
@@ -337,17 +377,17 @@ export const AnimeDetailsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleShare}
-                className="anilist-btn-secondary flex items-center justify-center gap-2 px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm font-semibold border border-white/10 cursor-pointer"
+                className="anilist-btn-secondary flex items-center justify-center gap-2 px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm font-semibold cursor-pointer"
               >
                 <Share2 aria-hidden="true" className="w-4 h-4 text-[#8ba0b2]" />
-                <span>{copiedShare ? 'Link Copied!' : 'Share'}</span>
+                <span>{copiedShare ? 'Copied!' : 'Share'}</span>
               </button>
 
               <a
                 href={`https://anilist.co/anime/${anime.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="anilist-btn-secondary flex items-center justify-center gap-2 px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm font-semibold border border-white/10"
+                className="anilist-btn-secondary flex items-center justify-center gap-2 px-3.5 py-2.5 min-h-[42px] text-xs sm:text-sm font-semibold"
               >
                 <ExtLinkIcon aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
                 <span>AniList</span>

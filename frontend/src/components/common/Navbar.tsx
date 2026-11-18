@@ -13,6 +13,8 @@ import {
   Menu,
   User,
   Settings,
+  Coffee,
+  Share2,
 } from 'lucide-react';
 import { useWatchlist } from '../../context/WatchlistContext';
 import { useAuth } from '../../context/AuthContext';
@@ -323,11 +325,13 @@ export const Navbar: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
+                  window.CoffeeUPI?.close();
+                  window.ShareLink?.close();
                   setMobileSearchOpen((prev) => !prev);
                 }}
-                className={`md:hidden min-w-[40px] min-h-[40px] p-2 rounded-lg transition flex items-center justify-center flex-shrink-0 ${
+                className={`md:hidden min-w-[38px] min-h-[38px] p-2 rounded-xl transition flex items-center justify-center flex-shrink-0 ${
                   mobileSearchOpen
-                    ? 'bg-[#3db4f2] text-[#0b1622]'
+                    ? 'bg-[#3db4f2] text-[#06101c]'
                     : 'anilist-btn-secondary text-slate-300 hover:text-[#3db4f2]'
                 }`}
                 aria-label={mobileSearchOpen ? 'Close search' : 'Open search'}
@@ -336,35 +340,69 @@ export const Navbar: React.FC = () => {
                 {mobileSearchOpen ? <X aria-hidden="true" className="w-4 h-4" /> : <Search aria-hidden="true" className="w-4 h-4" />}
               </button>
 
-              {/* Randomizer "Roll" Button */}
+              {/* Mobile Quick Trigger: Web Elements Buy Me a Coffee (UPI) */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMobileMenuOpen(false);
+                  setMobileSearchOpen(false);
+                  window.ShareLink?.close();
+                  window.CoffeeUPI?.toggle();
+                }}
+                className="md:hidden min-w-[38px] min-h-[38px] p-2 rounded-xl anilist-btn-secondary text-amber-400 hover:text-amber-300 transition flex items-center justify-center flex-shrink-0"
+                title="Buy me a coffee (UPI)"
+                aria-label="Buy me a coffee via UPI"
+              >
+                <Coffee aria-hidden="true" className="w-4 h-4" />
+              </button>
+
+              {/* Mobile Quick Trigger: Web Elements Share Link */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMobileMenuOpen(false);
+                  setMobileSearchOpen(false);
+                  window.CoffeeUPI?.close();
+                  window.ShareLink?.toggle();
+                }}
+                className="md:hidden min-w-[38px] min-h-[38px] p-2 rounded-xl anilist-btn-secondary text-[#7dd3fc] hover:text-white transition flex items-center justify-center flex-shrink-0"
+                title="Share page"
+                aria-label="Share this page"
+              >
+                <Share2 aria-hidden="true" className="w-4 h-4" />
+              </button>
+
+              {/* Randomizer "Roll" Button (Desktop top bar; also available in Mobile Menu drawer) */}
               <button
                 type="button"
                 onClick={() => setRandomModalOpen(true)}
-                className="min-w-[40px] min-h-[40px] p-2 sm:p-2.5 rounded-lg anilist-btn-secondary text-slate-300 hover:text-[#3db4f2] transition flex items-center justify-center flex-shrink-0 group"
+                className="hidden md:flex min-w-[40px] min-h-[40px] p-2.5 rounded-xl anilist-btn-secondary text-slate-300 hover:text-[#3db4f2] transition items-center justify-center flex-shrink-0 group"
                 title="Roll a Random Anime"
                 aria-label="Roll a Random Anime"
               >
                 <Dices aria-hidden="true" className="w-4 h-4 group-hover:rotate-45 transition-transform duration-300" />
               </button>
 
-              {/* Login & Sign Up or User Dropdown */}
+              {/* Desktop Login & Sign Up or User Dropdown */}
               {!isAuthenticated || !user ? (
-                <div className="hidden min-[380px]:flex items-center gap-1.5 sm:gap-2 flex-shrink-0 pl-1.5 sm:pl-2 border-l border-white/10">
+                <div className="hidden md:flex items-center gap-2 flex-shrink-0 pl-2 border-l border-white/10">
                   <Link
                     to="/login"
-                    className="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-white/[0.08] transition whitespace-nowrap hidden sm:inline-flex items-center min-h-[36px]"
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-white/[0.08] transition whitespace-nowrap inline-flex items-center min-h-[36px]"
                   >
                     Login
                   </Link>
                   <Link
                     to="/signup"
-                    className="px-2.5 sm:px-3.5 py-1.5 rounded-lg anilist-btn-primary text-xs font-bold whitespace-nowrap shadow-sm shadow-[#3db4f2]/25 inline-flex items-center min-h-[36px]"
+                    className="px-3.5 py-1.5 rounded-xl anilist-btn-primary text-xs font-bold whitespace-nowrap shadow-sm shadow-[#3db4f2]/25 inline-flex items-center min-h-[36px]"
                   >
                     Sign Up
                   </Link>
                 </div>
               ) : (
-                <div ref={userMenuRef} className="relative pl-1.5 sm:pl-2 border-l border-white/10 flex-shrink-0">
+                <div ref={userMenuRef} className="hidden md:block relative pl-2 border-l border-white/10 flex-shrink-0">
                   <button
                     type="button"
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -472,9 +510,11 @@ export const Navbar: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setMobileSearchOpen(false);
+                  window.CoffeeUPI?.close();
+                  window.ShareLink?.close();
                   setMobileMenuOpen(!mobileMenuOpen);
                 }}
-                className="min-w-[40px] min-h-[40px] p-2 rounded-lg md:hidden text-slate-300 hover:text-white hover:bg-white/[0.08] transition flex items-center justify-center flex-shrink-0"
+                className="min-w-[38px] min-h-[38px] p-2 rounded-xl md:hidden anilist-btn-secondary text-slate-200 hover:text-white transition flex items-center justify-center flex-shrink-0"
                 aria-label="Toggle navigation menu"
                 aria-expanded={mobileMenuOpen}
               >
@@ -529,7 +569,7 @@ export const Navbar: React.FC = () => {
         {mobileMenuOpen && (
           <nav
             aria-label="Mobile menu"
-            className="md:hidden border-t border-white/[0.08] bg-[#0b1622]/98 px-3 py-3 space-y-2.5 animate-fadeIn shadow-2xl"
+            className="md:hidden border-t border-white/[0.08] liquid-glass-strong px-3 py-3.5 space-y-3 animate-fadeIn"
           >
             <div className="grid grid-cols-3 gap-2">
               {navLinks.map((link) => {
@@ -541,10 +581,10 @@ export const Navbar: React.FC = () => {
                     to={link.path}
                     aria-current={active ? 'page' : undefined}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex flex-col items-center justify-center min-h-[56px] py-2 px-2 rounded-xl text-xs font-bold transition-all relative ${
+                    className={`flex flex-col items-center justify-center min-h-[56px] py-2 px-2 rounded-2xl text-xs font-bold transition-all relative ${
                       active
-                        ? 'bg-[#3db4f2] text-[#0b1622] shadow-sm font-extrabold'
-                        : 'bg-[#151f2e] text-slate-300 border border-white/5 hover:text-white'
+                        ? 'bg-[#3db4f2] text-[#06101c] shadow-sm font-extrabold'
+                        : 'bg-white/[0.05] text-slate-200 border border-white/10 hover:text-white'
                     }`}
                   >
                     <Icon aria-hidden="true" className="w-4 h-4 mb-1" />
@@ -554,19 +594,60 @@ export const Navbar: React.FC = () => {
               })}
             </div>
 
+            {/* Quick Tools Row (Randomizer + Web Elements triggers) */}
+            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/10">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setRandomModalOpen(true);
+                }}
+                className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-xl bg-white/[0.05] border border-white/10 text-[11px] font-semibold text-slate-200 active:scale-95"
+              >
+                <Dices aria-hidden="true" className="w-4 h-4 text-[#3db4f2]" />
+                <span>Random</span>
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMobileMenuOpen(false);
+                  window.ShareLink?.close();
+                  window.CoffeeUPI?.open();
+                }}
+                className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-xl bg-white/[0.05] border border-white/10 text-[11px] font-semibold text-slate-200 active:scale-95"
+              >
+                <Coffee aria-hidden="true" className="w-4 h-4 text-amber-400" />
+                <span>Coffee UPI</span>
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMobileMenuOpen(false);
+                  window.CoffeeUPI?.close();
+                  window.ShareLink?.open();
+                }}
+                className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-xl bg-white/[0.05] border border-white/10 text-[11px] font-semibold text-slate-200 active:scale-95"
+              >
+                <Share2 aria-hidden="true" className="w-4 h-4 text-[#7dd3fc]" />
+                <span>Share</span>
+              </button>
+            </div>
+
             {!isAuthenticated ? (
               <div className="flex items-center gap-2 pt-2 border-t border-white/10">
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex-1 text-center py-2.5 rounded-xl bg-[#151f2e] text-xs font-bold text-slate-200 border border-white/10"
+                  className="flex-1 text-center py-2.5 min-h-[42px] rounded-xl anilist-btn-secondary text-xs font-bold flex items-center justify-center"
                 >
                   Login
                 </Link>
                 <Link
                   to="/signup"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex-1 text-center py-2.5 rounded-xl anilist-btn-primary text-xs font-bold"
+                  className="flex-1 text-center py-2.5 min-h-[42px] rounded-xl anilist-btn-primary text-xs font-bold flex items-center justify-center"
                 >
                   Sign Up
                 </Link>
@@ -576,7 +657,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   to="/account"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#151f2e] text-xs font-bold text-slate-200 border border-white/10"
+                  className="flex items-center justify-center gap-1.5 py-2.5 min-h-[42px] rounded-xl anilist-btn-secondary text-xs font-bold"
                 >
                   <User aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
                   <span>Account</span>
@@ -584,7 +665,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   to="/settings"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#151f2e] text-xs font-bold text-slate-200 border border-white/10"
+                  className="flex items-center justify-center gap-1.5 py-2.5 min-h-[42px] rounded-xl anilist-btn-secondary text-xs font-bold"
                 >
                   <Settings aria-hidden="true" className="w-3.5 h-3.5 text-[#3db4f2]" />
                   <span>Settings</span>

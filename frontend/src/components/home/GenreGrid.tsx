@@ -53,19 +53,19 @@ export const GenreGrid: React.FC = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 xl:grid-cols-10 gap-2.5 sm:gap-3">
+      <div className="flex overflow-x-auto no-scrollbar touch-scroll-smooth gap-2 pb-1 sm:grid sm:grid-cols-3 md:grid-cols-5 xl:grid-cols-10 sm:gap-3 sm:overflow-visible sm:pb-0">
         {FEATURED_GENRES.map((item) => {
           const Icon = item.icon;
           return (
             <Link
               key={item.name}
               to={`/discover?genre=${encodeURIComponent(item.name)}`}
-              className="anilist-card p-3 flex items-center gap-2.5 group hover:border-[#3db4f2]/40"
+              className="anilist-card px-3.5 py-2.5 sm:p-3 flex items-center gap-2 sm:gap-2.5 group hover:border-[#3db4f2]/40 flex-shrink-0 snap-start min-h-[42px]"
             >
-              <div className="p-1.5 rounded bg-[#0b1622] text-[#3db4f2] group-hover:bg-[#3db4f2] group-hover:text-white transition">
-                <Icon className="w-3.5 h-3.5" />
+              <div className="p-1.5 rounded-lg bg-[#070d16]/80 text-[#3db4f2] group-hover:bg-[#3db4f2] group-hover:text-[#06101c] transition flex-shrink-0">
+                <Icon aria-hidden="true" className="w-3.5 h-3.5" />
               </div>
-              <span className="font-semibold text-xs text-[#edf1f5] group-hover:text-[#3db4f2] transition truncate">
+              <span className="font-semibold text-xs text-[#edf1f5] group-hover:text-[#7dd3fc] transition whitespace-nowrap sm:truncate">
                 {item.name}
               </span>
             </Link>

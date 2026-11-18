@@ -594,25 +594,28 @@ dialog.liquid-dialog[open] {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 24px 56px -12px rgba(0, 0, 0, 0.78) !important;
 }
 
-/* On mobile (< 768px), lift web-elements pills above the floating BottomTabBar */
-@media (max-width: 767px) {
-  .cupi-widget {
-    left: max(12px, env(safe-area-inset-left, 0px)) !important;
-    bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px)) !important;
-    z-index: 45 !important;
-  }
+/* Hide inline edit buttons in production so visitors cannot alter payee UPI or share config */
+.cupi-edit-btn,
+.wshare-edit-btn {
+  display: none !important;
+}
 
+/* Prevent iOS Safari input auto-zoom inside Coffee UPI amount field */
+.cupi-amount-input {
+  font-size: 16px !important;
+}
+
+/* On mobile (< 768px), hide floating corner trigger pills so they never cover cards or BottomTabBar;
+   users open both web-elements cards cleanly from the mobile Navbar / Menu as centered glass sheets */
+@media (max-width: 767px) {
+  .cupi-widget,
   .wshare-widget {
-    right: max(12px, env(safe-area-inset-right, 0px)) !important;
-    bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px)) !important;
-    z-index: 45 !important;
+    z-index: 60 !important;
   }
 
   .cupi-pill,
   .wshare-pill {
-    padding: 7px 12px !important;
-    font-size: 12px !important;
-    gap: 6px !important;
+    display: none !important;
   }
 
   .cupi-card,
@@ -620,12 +623,13 @@ dialog.liquid-dialog[open] {
     position: fixed !important;
     left: 12px !important;
     right: 12px !important;
-    bottom: calc(8.75rem + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)) !important;
     width: auto !important;
     max-width: 360px !important;
     margin: 0 auto !important;
-    max-height: 70dvh !important;
+    max-height: 74dvh !important;
     overflow-y: auto !important;
+    overscroll-behavior: contain;
   }
 }
 

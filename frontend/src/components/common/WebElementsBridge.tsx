@@ -9,6 +9,7 @@ declare global {
       init: (config: Record<string, unknown>) => unknown;
       open: () => void;
       close: () => void;
+      toggle: () => void;
     };
     ShareLink?: {
       instance: unknown;
@@ -17,6 +18,9 @@ declare global {
       setUrl: (url: string) => void;
       setTitle: (title: string) => void;
       setText: (text: string) => void;
+      open: () => void;
+      close: () => void;
+      toggle: () => void;
     };
   }
 }
