@@ -1,7 +1,7 @@
 # ⚡ AnimeSenpai — Full-Stack Anime Discovery & Watchlist Platform
 
 <p align="center">
-  <img src="frontend/public/animesenpai-banner.svg" alt="AnimeSenpai Logo Banner" width="480" />
+  <img src="frontend/public/og-banner.jpg" alt="AnimeSenpai Ultra-HD Pantheon Banner" width="820" />
 </p>
 
 <p align="center">
@@ -37,7 +37,7 @@
 
 * 🏛️ **[Architecture Guide (architecture.md)](architecture.md)** — Edge topology, AniList GraphQL pipelines, Pub/Sub event bus, and caching strategy.
 * 🎨 **[Design System (design.md)](design.md)** — Monochrome Obsidian/Platinum tokens, Luminous Indigo button accent, responsive container queries, and accessibility specs.
-* 🛡️ **[Security Policy (SECURITY.md)](SECURITY.md)** — Responsible vulnerability disclosure, Firestore rules, CSP, and SQLi protection.
+* 🛡️ **[Security Policy (SECURITY.md)](SECURITY.md)** — Responsible vulnerability disclosure, Firestore rules, CSP, CAPTCHA, rate limiting, and SQLi protection.
 * 🤝 **[Contributing (CONTRIBUTING.md)](CONTRIBUTING.md)** & **[Code of Conduct (CODE_OF_CONDUCT.md)](CODE_OF_CONDUCT.md)** — Guidelines for pull requests and community standards.
 * ⚖️ **[License (LICENSE)](LICENSE)** — Open-source MIT License.
 
@@ -54,12 +54,14 @@
 ## ✨ Features at a Glance
 
 * **🎨 3-Color Luxury UI (Obsidian · Platinum · Luminous Indigo):** Pure `#000000` / `#0c0c0f` surfaces and `#f5f5f7` / `#9a9aa6` typography across the interface, reserving `#5360e6` Luminous Indigo strictly for primary CTA buttons and active controls.
+* **🎬 Art-Directed, Distraction-Free Hero Banner:** Responsive `<picture>` hero artwork (portrait cover framing on mobile `< 640px`, widescreen cinema banner on desktop `>= 640px`) with clean edge-to-edge visuals — navigated seamlessly via touch swipe, macOS trackpad gestures, keyboard `←`/`→`, and the monochrome indicator pill (no intrusive `<` `>` arrow overlays).
+* **⚡ Physics-Driven Motion & Efficiency:** Powered by CSS `linear()` spring easing (`--ease-spring-physics`), compositor-only CSS scroll-driven section reveals (`animation-timeline: view()`), `React.memo` card & carousel rows, native `loading="lazy"` + `fetchPriority="low"`, `content-visibility: auto`, and an 80-entry 5-minute GraphQL LRU cache with in-flight request deduplication.
+* **⏳ Pixel-Matched Cross-Device Skeletons:** 1:1 layout-matched shimmer skeletons (`HeroSkeleton`, `CarouselRowSkeleton`, `CardSkeleton`, `TableRowSkeleton`, `DetailsSkeleton`) tuned independently for mobile and desktop viewports, paired with accessible native `<progress>` circular loaders.
+* **✨ Portal Hover Previews & Hover-to-Open Widgets:** Viewport-clamped `createPortal` desktop hover preview cards that never clip inside horizontal carousels, plus desktop hover-to-open **Buy Me a Coffee** (UPI QR code with automatic PNG fallback) and minimal **Share** sheets with hover-intent grace timers and invisible hover bridges.
 * **📡 Publisher–Subscriber (Pub/Sub) Event Architecture:** Typed client event broker (`frontend/src/utils/pubsub.ts`) backed by `BroadcastChannel` for decoupled real-time cross-tab synchronization of watchlists, preferences, auth state, and instant Undo toasts.
 * **🔐 Firebase Authentication & Account Security:** Sign in or link accounts with **Email & Password** or **Google OAuth** — plus Email Verification, Forgot Password, Change Email (`verifyBeforeUpdateEmail`), Change Password, and self-service Permanent Account Deletion.
 * **📸 Apple-Style Settings & Profile Photo Picker:** Live **Small / Default / Large** text size controls, English/Romaji/Japanese title switcher, catalog density toggle, live camera capture (`getUserMedia`) & Photo Library uploader, and organized **Display · Profile · Security · Data · About** workspace.
-* **⏳ Smooth Skeleton & Native Circle Loading:** Layout-matched shimmer skeletons paired with accessible native `<progress>` circular loaders and GPU-composited Apple-spring transitions.
-* **🔍 Live AniList GraphQL Catalog & Watchlist Tracker:** Real-time autocomplete search, seasonal schedules, studios, voice cast, franchise relations, episode progress bars with auto-complete, personal 1–10 score distribution chart, clickable genre filters, and portable JSON backup export/import.
-* **🎬 Privacy-First Trailer & Share Experience:** Sandboxed `youtube-nocookie.com` official trailers, Random Anime Picker, and a minimal Share sheet (Copy Link + native device share sheet, zero social tracker buttons).
+* **🔍 Live AniList GraphQL Catalog & Watchlist Tracker:** Real-time autocomplete search, seasonal schedules, studios, voice cast, franchise relations, episode progress bars with auto-complete, personal 1–10 score distribution chart, clickable genre filters, sandboxed `youtube-nocookie.com` trailers, Random Anime Picker, and portable JSON backup export/import.
 
 ---
 
@@ -67,18 +69,26 @@
 
 | Device Category | Target Viewports | Responsive Behavior |
 | :--- | :--- | :--- |
-| **📱 Mobile Phones** | `320px – 480px` | • Single sticky glass top bar + smooth sliding navigation drawer (with collapsible **Genres** menu)<br>• Touch-friendly horizontal snap carousels & responsive watchlist cards<br>• Floating corner `Buy me a Coffee` (UPI) and minimal `Share` pills |
-| **📟 Tablets & Foldables** | `640px – 1024px` | • Adaptive 3–4 column grids and split Anime Details sidebar<br>• Scroll-safe segmented pill navigation across Settings & Watchlist |
-| **💻 Laptops & Desktops** | `1024px – 2560px+` | • Expansive 5–6 column catalog grids and native CSS scroll progress line<br>• Keyboard shortcuts (`/` or `⌘K` search focus, `←`/`→` hero slide, `ESC` dismiss)<br>• Instant hover preview cards and live autocomplete search |
+| **📱 Mobile Phones** | `320px – 480px` | • Art-directed portrait `<picture>` hero banner with balanced 2-column CTAs and touch-swipe navigation<br>• Single sticky glass top bar + smooth sliding navigation drawer (with collapsible **Genres** menu)<br>• Pixel-matched mobile skeletons, touch-friendly horizontal snap carousels & floating corner `Buy me a Coffee` (UPI) / `Share` pills |
+| **📟 Tablets & Foldables** | `640px – 1024px` | • Widescreen hero banner with adaptive 3–4 column grids and split Anime Details sidebar<br>• Scroll-safe segmented pill navigation across Settings & Watchlist |
+| **💻 Laptops & Desktops** | `1024px – 2560px+` | • Expansive 5–6 column catalog grids, compositor scroll-driven section reveals & native CSS scroll progress line<br>• Keyboard shortcuts (`/` or `⌘K` search focus, `←`/`→` hero slide, `ESC` dismiss) + trackpad two-finger horizontal hero swipe<br>• Portal-rendered viewport-clamped hover preview cards, hover-to-open corner pills & live autocomplete search |
+
+---
+
+## 🚀 SEO, Social Preview & Agentic Discovery
+
+* **Search & Canonical Edge Setup:** Validated `robots.txt` (`Allow: /`), **84-URL canonical `sitemap.xml`**, IndexNow ownership verification, permanent `301` apex-to-`www` canonical redirect (`animesenpai.online` → `https://www.animesenpai.online`), and media-scoped `<link rel="preload" as="image">` for fast Mobile & Desktop LCP.
+* **Brand Assets & Structured Data:** Cache-busted raster favicons (`48x48` through `512x512`), `site.webmanifest`, JSON-LD schemas (`WebSite`, `Organization`, `AboutPage`, sitelinks), and an Ultra-HD `2400×1260` monochrome Obsidian/Platinum/Indigo 19-hero anime pantheon Open Graph & Twitter Card banner (`og-banner.jpg`).
+* **Agentic Browsing (4/4):** Standards-compliant `.well-known/ai-catalog.json`, `.well-known/ard.json`, and `.well-known/security.txt` manifests aligned to canonical production URLs.
 
 ---
 
 ## 🔒 Defense-in-Depth Security Architecture
 
-* **Zero SQL Injection Surface:** All backend database operations use **100% parameterized Prisma ORM queries** (zero `$queryRaw` / `$executeRaw` anywhere in the codebase), reinforced by a global **API Input Security Guard** (`backend/src/middleware/securityMiddleware.ts`) that strips prototype-pollution keys (`__proto__`, `constructor`, `prototype`), normalizes HTTP Parameter Pollution, and rejects null bytes and SQLi probes at the boundary.
+* **Zero SQL Injection Surface:** All backend database operations use **100% parameterized Prisma ORM queries** (zero `$queryRaw` / `$executeRaw` anywhere in the codebase), reinforced by a global **API Input Security Guard** (`backend/src/middleware/securityMiddleware.ts`) that strips prototype-pollution keys (`__proto__`, `constructor`, `prototype`), normalizes HTTP Parameter Pollution, and rejects null bytes and SQLi probes at the boundary. Frontend GraphQL requests enforce strict enum allowlists and query sanitization, backed by a bounded 500-entry backend AniList TTL cache.
 * **Human Verification CAPTCHA & Dual-Layer Rate Limiting:** Sign In, Create Account, and Password Reset require solving an interactive canvas/math CAPTCHA (`AuthCaptcha`) with honeypot + timing + single-use rotation guards, paired with a persistent client-side progressive lockout limiter (`rateLimiter.ts`) and tiered backend Express rate limiters (`rateLimitMiddleware.ts`: `10 req / 15 min` on `/api/auth/login`, `5 req / 15 min` on `/api/auth/register`, `25 req / 15 min` on `/api/auth`, `150 req / min` on `/api`, emitting `X-RateLimit-*` and `Retry-After` headers).
 * **IDOR & Password Protection:** Every private Watchlist, Review mutation, and Personalized Recommendation route enforces `requireAuth` and scopes strictly to `req.user.id` (never trusting client-supplied `userId`), with `1mb` payload caps and `bcrypt` (cost `12`) password hashing.
-* **Strict Edge HTTP Headers (`vercel.json`):** Enforces a tight **Content-Security-Policy (CSP)**, `X-Frame-Options: DENY`, `Strict-Transport-Security` (HSTS preload), `X-Content-Type-Options: nosniff`, `Cross-Origin-Opener-Policy`, `Referrer-Policy`, and `Permissions-Policy` (`camera=(self)` only). Production source maps are disabled (`sourcemap: false`).
+* **Strict Edge HTTP Headers (`vercel.json`):** Enforces a tight **Content-Security-Policy (CSP)** (explicitly scoped `img-src` including AniList media & `https://api.qrserver.com` for UPI QR codes), `X-Frame-Options: DENY`, `Strict-Transport-Security` (HSTS preload), `X-Content-Type-Options: nosniff`, `Cross-Origin-Opener-Policy`, `Referrer-Policy`, and `Permissions-Policy` (`camera=(self)` only). Production source maps are disabled (`sourcemap: false`).
 * **Hardened Firestore Security Rules (`firestore.rules`):** Strict owner-only access (`request.auth.uid == userId`), `allow list: if false` (blocks PII/email scraping), `hasOnly` strict schema enforcement, immutable `id`/`joinedDate`, validated usernames (3–24 chars with safe spaces), O(1) raster-only avatar checks, and default-deny on all other collections.
 * **Zero Hardcoded Secrets:** Firebase client credentials and backend JWT secrets load strictly from environment variables (`.env` files are gitignored), and the browser Firebase API key is locked via Google Cloud HTTP referrer & API restrictions.
 
@@ -153,6 +163,7 @@ npx firebase-tools deploy --only firestore:rules
 
 ---
 
-## 📄 License
+## 📬 Contact & License
 
-This project is open-source under the [MIT License](LICENSE).
+* **Support & Security Contact:** `Purohitunofficialbhagyesh@gmail.com`
+* **License:** Open-source under the [MIT License](LICENSE).
