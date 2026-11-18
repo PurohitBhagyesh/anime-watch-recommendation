@@ -1,5 +1,4 @@
-Contact: mailto:security@animesenpai.online
-Contact: mailto:contact@animesenpai.online
+Contact: mailto:Purohitunofficialbhagyesh@gmail.com
 Expires: 2027-12-31T23:59:59.000Z
 Preferred-Languages: en
 Canonical: https://www.animesenpai.online/.well-known/security.txt

@@ -3,8 +3,8 @@
   "host": {
     "displayName": "AnimeSenpai",
     "identifier": "did:web:animesenpai.online",
-    "documentationUrl": "https://animesenpai.online/llms.txt",
-    "logoUrl": "https://animesenpai.online/logo-512.png"
+    "documentationUrl": "https://www.animesenpai.online/llms.txt",
+    "logoUrl": "https://www.animesenpai.online/logo-512.png"
   },
   "entries": [
     {
@@ -12,7 +12,7 @@
       "displayName": "Search Anime",
       "type": "application/json",
       "description": "Search 20,000+ anime titles, genres, and seasonal releases on AnimeSenpai.",
-      "url": "https://animesenpai.online/llms.txt",
+      "url": "https://www.animesenpai.online/llms.txt",
       "tags": [
         "anime",
         "search",
@@ -37,7 +37,7 @@
       "displayName": "Browse Anime Catalog",
       "type": "text/markdown",
       "description": "Browse trending, seasonal, and top 100 rated anime collections with community ratings and episode tracking.",
-      "url": "https://animesenpai.online/llms.txt",
+      "url": "https://www.animesenpai.online/llms.txt",
       "tags": [
         "anime",
         "catalog",
@@ -62,7 +62,7 @@
       "displayName": "View Anime Details",
       "type": "text/markdown",
       "description": "Retrieve comprehensive details, synopsis, trailer, studios, and scores for a specific anime.",
-      "url": "https://animesenpai.online/llms.txt",
+      "url": "https://www.animesenpai.online/llms.txt",
       "tags": [
         "anime",
         "details",

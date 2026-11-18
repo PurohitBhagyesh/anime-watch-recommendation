@@ -10,13 +10,22 @@ const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 const SQL_INJECTION_PATTERNS: RegExp[] = [
   /\0/, // Null byte injection
   /(\bunion\b[\s/*]+(\ball\b[\s/*]+)?\bselect\b)/i,
-  /(;\s*(drop|alter|truncate|delete|insert|update|create|exec|execute)\b)/i,
-  /(['"`]\s*(or|and)\s+['"`]?\d+['"`]?\s*=\s*['"`]?\d+)/i,
+  /(;\s*(drop|alter|truncate|delete|insert|update|create|exec|execute|declare|cast)\b)/i,
+  /(['"`]\s*(or|and)\s+['"`]?[a-z0-9]+['"`]?\s*=\s*['"`]?[a-z0-9]+)/i,
   /(\bor\b\s+1\s*=\s*1\b|\band\b\s+1\s*=\s*1\b)/i,
   /(\/\*[\s\S]*?\*\/|--\s*$)/m,
-  /\b(information_schema|sqlite_master|pg_catalog|xp_cmdshell|load_file|into\s+outfile)\b/i,
-  /\b(sleep\s*\(|benchmark\s*\(|waitfor\s+delay)\b/i,
+  /\b(information_schema|sqlite_master|pg_catalog|xp_cmdshell|load_file|into\s+outfile|dbms_pipe)\b/i,
+  /\b(sleep\s*\(|pg_sleep\s*\(|benchmark\s*\(|waitfor\s+delay|char\s*\(\s*\d+)/i,
+  /@@(version|hostname|datadir)/i,
 ];
+
+function safeDecode(input: string): string {
+  try {
+    return decodeURIComponent(input);
+  } catch {
+    return input;
+  }
+}
 
 const SKIP_INSPECTION_KEYS = new Set(['password', 'currentPassword', 'newPassword', 'avatar']);
 
@@ -82,8 +91,10 @@ export const securityInputGuard = (
     }
   }
 
-  // 3. Reject null bytes & overt SQL injection payloads before hitting controllers
+  // 3. Reject null bytes & overt SQL injection payloads in URL path, params, query, and body
+  const decodedPath = safeDecode(req.path || '');
   if (
+    containsMaliciousPayload(decodedPath) ||
     containsMaliciousPayload(req.params) ||
     containsMaliciousPayload(req.query) ||
     containsMaliciousPayload(req.body)

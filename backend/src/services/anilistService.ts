@@ -19,7 +19,13 @@ function getFromCache<T>(key: string): T | null {
   return entry.data;
 }
 
+const MAX_CACHE_ENTRIES = 500;
+
 function setInCache<T>(key: string, data: T, ttlSeconds: number = 300): void {
+  if (memoryCache.size >= MAX_CACHE_ENTRIES) {
+    const oldestKey = memoryCache.keys().next().value;
+    if (oldestKey !== undefined) memoryCache.delete(oldestKey);
+  }
   memoryCache.set(key, {
     data,
     expiresAt: Date.now() + ttlSeconds * 1000,

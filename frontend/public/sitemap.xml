@@ -13,10 +13,16 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.animesenpai.online/about</loc>
+    <loc>https://www.animesenpai.online/discover?sort=TRENDING_DESC</loc>
     <lastmod>2026-11-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.animesenpai.online/discover?seasonal=true</loc>
+    <lastmod>2026-11-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.animesenpai.online/discover?sort=POPULARITY_DESC</loc>
@@ -26,6 +32,12 @@
   </url>
   <url>
     <loc>https://www.animesenpai.online/discover?sort=SCORE_DESC</loc>
+    <lastmod>2026-11-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.animesenpai.online/discover?status=NOT_YET_RELEASED</loc>
     <lastmod>2026-11-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -41,6 +53,12 @@
     <lastmod>2026-11-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.animesenpai.online/about</loc>
+    <lastmod>2026-11-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.animesenpai.online/privacy</loc>

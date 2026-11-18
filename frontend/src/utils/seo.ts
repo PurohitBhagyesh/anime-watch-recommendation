@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 export const SITE_URL = 'https://www.animesenpai.online';
 export const SITE_NAME = 'AnimeSenpai';
-export const DEFAULT_OG_IMAGE = 'https://www.animesenpai.online/logo-512.png';
+export const DEFAULT_OG_IMAGE = 'https://www.animesenpai.online/og-banner.png';
 export const DEFAULT_ROBOTS = 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1';
 
 export interface SEOProps {
@@ -75,6 +75,7 @@ export function useSEO({
     if (canonicalUrl) {
       setLink('canonical', canonicalUrl);
       setMeta('og:url', canonicalUrl, true);
+      setMeta('twitter:url', canonicalUrl);
     }
 
     setMeta('og:type', ogType, true);
@@ -85,7 +86,9 @@ export function useSEO({
 
     const imageToUse = ogImage || DEFAULT_OG_IMAGE;
     setMeta('og:image', imageToUse, true);
+    setMeta('og:image:alt', title || SITE_NAME, true);
     setMeta('twitter:image', twitterImage || imageToUse);
+    setMeta('twitter:image:alt', title || SITE_NAME);
 
     // 3. Inject Dynamic Page-Level Structured Data (JSON-LD)
     let scriptEl = document.getElementById('dynamic-page-jsonld') as HTMLScriptElement | null;

@@ -2,6 +2,31 @@ import type { AnimeCardData, AnimeDetailsData, AnimePageResponse, AnimeSeason } 
 
 const ANILIST_GRAPHQL_ENDPOINT = 'https://graphql.anilist.co';
 
+const ALLOWED_FORMATS = new Set(['TV', 'TV_SHORT', 'MOVIE', 'SPECIAL', 'OVA', 'ONA', 'MUSIC']);
+const ALLOWED_STATUSES = new Set(['FINISHED', 'RELEASING', 'NOT_YET_RELEASED', 'CANCELLED', 'HIATUS']);
+const ALLOWED_SEASONS = new Set(['WINTER', 'SPRING', 'SUMMER', 'FALL']);
+const ALLOWED_SORTS = new Set([
+  'TRENDING_DESC',
+  'POPULARITY_DESC',
+  'SCORE_DESC',
+  'FAVOURITES_DESC',
+  'START_DATE_DESC',
+  'TITLE_ROMAJI',
+  'SEARCH_MATCH',
+]);
+
+function sanitizeSearchText(input?: string): string | undefined {
+  if (typeof input !== 'string') return undefined;
+  // Strip null bytes and ASCII control characters; cap length
+  const cleaned = input.replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, 120);
+  return cleaned || undefined;
+}
+
+function clampInt(value: number | undefined, fallback: number, min: number, max: number): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return fallback;
+  return Math.min(Math.max(Math.trunc(value), min), max);
+}
+
 // Helper to get current anime season
 export function getCurrentSeason(): { season: AnimeSeason; year: number } {
   const now = new Date();
@@ -166,7 +191,8 @@ export async function fetchHomeData(): Promise<HomeSectionsData> {
 }
 
 export async function searchAnimeAutocomplete(queryText: string): Promise<AnimeCardData[]> {
-  if (!queryText || queryText.trim().length === 0) return [];
+  const cleanQuery = sanitizeSearchText(queryText);
+  if (!cleanQuery) return [];
 
   const query = `
     query ($search: String) {
@@ -179,7 +205,7 @@ export async function searchAnimeAutocomplete(queryText: string): Promise<AnimeC
   `;
 
   try {
-    const data = await fetchGraphQL<{ Page: { media: AnimeCardData[] } }>(query, { search: queryText.trim() });
+    const data = await fetchGraphQL<{ Page: { media: AnimeCardData[] } }>(query, { search: cleanQuery });
     return data.Page?.media || [];
   } catch (e) {
     console.error('Autocomplete error', e);
@@ -273,24 +299,35 @@ export async function searchAnime(params: SearchFilterParams = {}): Promise<Anim
     }
   `;
 
+  const safeSort = (Array.isArray(sort) ? sort : ['TRENDING_DESC']).filter((s) => ALLOWED_SORTS.has(s));
   const variables: Record<string, any> = {
-    page,
-    perPage,
-    sort,
+    page: clampInt(page, 1, 1, 500),
+    perPage: clampInt(perPage, 20, 1, 50),
+    sort: safeSort.length > 0 ? safeSort : ['TRENDING_DESC'],
   };
 
-  if (search && search.trim() !== '') variables.search = search.trim();
-  if (genres && genres.length > 0) variables.genre_in = genres;
-  if (format) variables.format = format;
-  if (status) variables.status = status;
-  if (season) variables.season = season;
-  if (seasonYear) variables.seasonYear = seasonYear;
+  const cleanSearch = sanitizeSearchText(search);
+  if (cleanSearch) variables.search = cleanSearch;
+  if (genres && genres.length > 0) {
+    const safeGenres = genres
+      .slice(0, 10)
+      .map((g) => g.replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, 40))
+      .filter(Boolean);
+    if (safeGenres.length > 0) variables.genre_in = safeGenres;
+  }
+  if (format && ALLOWED_FORMATS.has(format)) variables.format = format;
+  if (status && ALLOWED_STATUSES.has(status)) variables.status = status;
+  if (season && ALLOWED_SEASONS.has(season)) variables.season = season;
+  if (seasonYear) variables.seasonYear = clampInt(seasonYear, new Date().getFullYear(), 1917, 2100);
 
   const data = await fetchGraphQL<{ Page: AnimePageResponse }>(query, variables);
   return data.Page;
 }
 
 export async function fetchAnimeDetails(id: number): Promise<AnimeDetailsData> {
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    throw new Error('Invalid anime ID');
+  }
   const query = `
     query ($id: Int) {
       Media(id: $id, type: ANIME) {

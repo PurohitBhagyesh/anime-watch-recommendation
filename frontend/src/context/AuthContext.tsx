@@ -295,7 +295,11 @@ async function buildAndSyncUserProfile(
 }
 
 function mapPhoneAuthError(error: unknown, isLinking = false): string {
-  const code = (error as { code?: string })?.code;
+  const errObj = error as { code?: string; message?: string };
+  const code = errObj?.code;
+  const rawMessage = errObj?.message || '';
+  console.error('[PhoneAuth]', code || 'unknown', rawMessage);
+
   if (code === 'auth/invalid-phone-number') {
     return 'Invalid phone number. Include your country code (e.g. +919876543210).';
   }
@@ -312,10 +316,28 @@ function mapPhoneAuthError(error: unknown, isLinking = false): string {
     return 'Phone SMS requires Blaze billing in Firebase Console, or add a test phone number in Authentication → Sign-in method → Phone.';
   }
   if (code === 'auth/operation-not-allowed') {
-    return 'Phone sign-in is not enabled in Firebase Console (Authentication → Sign-in method → Phone).';
+    return 'Phone sign-in or your country SMS region is not enabled in Firebase Console (Authentication → Sign-in method → Phone / Settings → SMS Region Policy).';
   }
-  if (code === 'auth/captcha-check-failed') {
-    return 'reCAPTCHA verification failed. Please reload and try again.';
+  if (code === 'auth/captcha-check-failed' || code === 'auth/missing-client-identifier') {
+    return 'reCAPTCHA verification was blocked or expired. Disable ad/script blockers for this site and try again.';
+  }
+  if (code === 'auth/invalid-app-credential') {
+    return 'reCAPTCHA app verification failed. Ensure www.animesenpai.online is in Firebase Authorized Domains and Identity Toolkit API is enabled on the Firebase API key.';
+  }
+  if (code === 'auth/app-not-authorized') {
+    return 'This domain or API key is not authorized for Firebase Phone Auth. Check Authorized Domains and API key restrictions in Google Cloud Console.';
+  }
+  if (code === 'auth/internal-error') {
+    return 'Firebase Phone Auth returned an internal error. Verify Phone Sign-In is enabled, SMS Region Policy allows your country, and Billing (or a Test Phone Number) is configured in Firebase Console.';
+  }
+  if (code === 'auth/network-request-failed') {
+    return 'Network error reaching Firebase Auth. Check your connection or disable strict tracking/ad blockers.';
+  }
+  if (code === 'auth/requires-recent-login') {
+    return 'For security, please sign out and sign back in before linking a phone number.';
+  }
+  if (code === 'auth/user-disabled') {
+    return 'This account has been disabled. Contact support for help.';
   }
   if (code === 'auth/invalid-verification-code') {
     return 'Incorrect 6-digit verification code. Check your SMS and try again.';
@@ -332,9 +354,13 @@ function mapPhoneAuthError(error: unknown, isLinking = false): string {
   if (code === 'auth/unauthorized-domain') {
     return 'This domain is not yet authorized in Firebase Authentication settings.';
   }
+  if (code === 'auth/argument-error' || rawMessage.toLowerCase().includes('recaptcha')) {
+    return 'Verification widget reset failed. Reload the page and try sending the SMS code again.';
+  }
+  const suffix = code ? ` (${code})` : '';
   return isLinking
-    ? 'Could not link phone number right now. Please try again.'
-    : 'Could not complete phone verification right now. Please try again.';
+    ? `Could not link phone number right now${suffix}. Please try again.`
+    : `Could not complete phone verification right now${suffix}. Please try again.`;
 }
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -365,20 +391,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [clearRecaptcha]);
 
   const initInvisibleRecaptcha = useCallback(
-    (containerId: string): RecaptchaVerifier => {
+    async (containerId: string): Promise<RecaptchaVerifier> => {
       clearRecaptcha();
-      const container = document.getElementById(containerId);
-      if (container) {
-        container.innerHTML = '';
+      let container = document.getElementById(containerId);
+      if (!container) {
+        container = document.createElement('div');
+        container.id = containerId;
+        container.style.display = 'none';
+        document.body.appendChild(container);
       }
+      // Mount into a brand-new child element each attempt so grecaptcha never throws
+      // "reCAPTCHA has already been rendered in this element" on retries.
+      const freshMount = document.createElement('div');
+      container.replaceChildren(freshMount);
+
       auth.useDeviceLanguage();
-      const verifier = new RecaptchaVerifier(auth, containerId, {
+      const verifier = new RecaptchaVerifier(auth, freshMount, {
         size: 'invisible',
         'expired-callback': () => {
           clearRecaptcha();
         },
       });
       recaptchaRef.current = verifier;
+      await verifier.render();
       return verifier;
     },
     [clearRecaptcha]
@@ -660,7 +695,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       await applyPersistence(rememberMe);
-      const verifier = initInvisibleRecaptcha(recaptchaContainerId);
+      const verifier = await initInvisibleRecaptcha(recaptchaContainerId);
       const confirmation = await signInWithPhoneNumber(auth, cleanPhone, verifier);
       phoneConfirmationRef.current = confirmation;
       return { success: true };
@@ -709,7 +744,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (phoneErr) return { success: false, error: phoneErr };
 
     try {
-      const verifier = initInvisibleRecaptcha(recaptchaContainerId);
+      const verifier = await initInvisibleRecaptcha(recaptchaContainerId);
       const confirmation = await linkWithPhoneNumber(current, cleanPhone, verifier);
       phoneConfirmationRef.current = confirmation;
       return { success: true };
