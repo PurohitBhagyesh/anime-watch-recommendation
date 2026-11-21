@@ -555,8 +555,14 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                     </div>
                   </div>
 
+                  <AuthCaptcha
+                    onVerifyChange={setCaptchaVerified}
+                    resetTrigger={captchaResetKey}
+                    disabled={anyBusy || isRateLimited}
+                  />
+
                   <div className="flex items-center justify-between pt-1">
-                    <label className="flex items-center gap-2 cursor-pointer text-xs text-[#9a9aa6] hover:text-white">
+                    <label className="flex items-center gap-2 cursor-pointer text-xs text-[#9a9aa6] hover:text-white select-none">
                       <input
                         type="checkbox"
                         checked={rememberMe}
@@ -566,12 +572,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                       <span>Keep me signed in</span>
                     </label>
                   </div>
-
-                  <AuthCaptcha
-                    onVerifyChange={setCaptchaVerified}
-                    resetTrigger={captchaResetKey}
-                    disabled={anyBusy || isRateLimited}
-                  />
 
                   <button
                     type="submit"
@@ -712,6 +712,12 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                     </div>
                   </div>
 
+                  <AuthCaptcha
+                    onVerifyChange={setCaptchaVerified}
+                    resetTrigger={captchaResetKey}
+                    disabled={anyBusy || isRateLimited}
+                  />
+
                   <div className="flex items-start gap-2 pt-1">
                     <input
                       type="checkbox"
@@ -720,7 +726,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                       onChange={(e) => setAgreeTerms(e.target.checked)}
                       className="rounded border-[#3a3a44] bg-[#151519] accent-[#5360e6] mt-0.5"
                     />
-                    <label htmlFor="agree" className="text-[11px] text-[#9a9aa6] leading-tight">
+                    <label htmlFor="agree" className="text-[11px] text-[#9a9aa6] leading-tight select-none">
                       I agree to the{' '}
                       <Link to="/terms" className="text-white hover:underline">
                         Terms of Service
@@ -731,12 +737,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                       </Link>
                     </label>
                   </div>
-
-                  <AuthCaptcha
-                    onVerifyChange={setCaptchaVerified}
-                    resetTrigger={captchaResetKey}
-                    disabled={anyBusy || isRateLimited}
-                  />
 
                   <button
                     type="submit"
