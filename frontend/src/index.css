@@ -1135,19 +1135,21 @@ input[type="checkbox"].senpai-switch:focus-visible {
 /* OpenLid Exact Mobile Positioning for Floating Corner Pills & Centered Popup Card */
 @media (max-width: 767px) {
   .cupi-widget {
-    bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
-    left: 12px !important;
+    bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
+    left: 10px !important;
+    z-index: 40 !important;
   }
 
   .wshare-widget {
-    bottom: max(12px, env(safe-area-inset-bottom, 12px)) !important;
-    right: 12px !important;
+    bottom: max(10px, env(safe-area-inset-bottom, 10px)) !important;
+    right: 10px !important;
+    z-index: 40 !important;
   }
 
   .cupi-pill,
   .wshare-pill {
-    padding: 8px 13px !important;
-    font-size: 0.78rem !important;
+    padding: 6.5px 11px !important;
+    font-size: 0.74rem !important;
   }
 
   .cupi-card,

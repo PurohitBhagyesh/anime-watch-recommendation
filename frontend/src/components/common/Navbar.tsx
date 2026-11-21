@@ -447,6 +447,15 @@ export const Navbar: React.FC = () => {
                   setMobileMenuOpen(false);
                   window.CoffeeUPI?.close();
                   window.ShareLink?.close();
+                  if (location.pathname === '/discover') {
+                    // On Discover page, focus in-page search directly to prevent duplicate stacked search bars
+                    const inPageSearch = document.querySelector<HTMLInputElement>('input[type="search"]');
+                    if (inPageSearch) {
+                      inPageSearch.focus();
+                      inPageSearch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      return;
+                    }
+                  }
                   setMobileSearchOpen((prev) => !prev);
                 }}
                 className={`md:hidden w-9 h-9 rounded-full border transition flex items-center justify-center flex-shrink-0 cursor-pointer ${

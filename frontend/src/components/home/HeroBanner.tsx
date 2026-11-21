@@ -6,8 +6,6 @@ import {
   Info,
   Check,
   Plus,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react';
 import type { AnimeCardData } from '../../api/types';
 import { TrailerModal } from '../common/TrailerModal';
@@ -43,7 +41,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
   const isWheelLockedRef = useRef<boolean>(false);
   const wheelResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const isPaused = userPaused || isHoverPaused || trailerOpen;
+  const isPaused = trailerOpen || userPaused || isHoverPaused;
   const currentAnime = spotlights[currentIndex] || anime;
 
   const goToNext = useCallback(
@@ -73,12 +71,12 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     setCurrentIndex(idx);
   };
 
-  // Auto-advance every 6.5s when active
+  // Continuous auto-advance every 5.5s (runs automatically without pausing on mobile)
   useEffect(() => {
     if (spotlights.length <= 1 || isPaused) return;
     const interval = setInterval(() => {
       goToNext(false);
-    }, 6500);
+    }, 5500);
     return () => clearInterval(interval);
   }, [spotlights.length, isPaused, goToNext]);
 
@@ -163,11 +161,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [goToNext, goToPrev]);
 
-  // Touch Swipe Gesture Handlers
+  // Touch Swipe Gesture Handlers for Mobile (snappy response, auto-moves with finger, zero pause)
   const handleTouchStart = (e: React.TouchEvent) => {
     if (spotlights.length <= 1) return;
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-    setIsHoverPaused(true);
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
     dragOffsetRef.current = 0;
@@ -180,8 +177,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     const diffX = touch.clientX - touchStartRef.current.x;
     const diffY = touch.clientY - touchStartRef.current.y;
 
-    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 10) {
-      const nextDrag = diffX * 0.55;
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 8) {
+      const nextDrag = diffX * 0.65;
       hasMovedRef.current = true;
       dragOffsetRef.current = nextDrag;
       setIsDragging(true);
@@ -195,9 +192,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     const elapsed = Date.now() - touchStartRef.current.time;
     const velocity = Math.abs(drag) / (elapsed || 1);
 
-    if (drag < -38 || (drag < -20 && velocity > 0.25)) {
+    // Highly responsive threshold for mobile swipe
+    if (drag < -25 || (drag < -15 && velocity > 0.2)) {
       goToNext(true);
-    } else if (drag > 38 || (drag > 20 && velocity > 0.25)) {
+    } else if (drag > 25 || (drag > 15 && velocity > 0.2)) {
       goToPrev(true);
     }
 
@@ -210,7 +208,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     resumeTimerRef.current = setTimeout(() => {
       setIsHoverPaused(false);
       hasMovedRef.current = false;
-    }, 2800);
+    }, 1200);
   };
 
   // Mouse / Pointer Drag Handlers
@@ -292,12 +290,12 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
           if (!isDragging) setIsHoverPaused(false);
         }}
         style={{ touchAction: 'pan-y' }}
-        className="hero-adaptive relative w-full overflow-hidden overscroll-x-contain min-h-[470px] min-[400px]:min-h-[510px] sm:min-h-[430px] md:min-h-[465px] lg:min-h-[500px] flex items-end border-b border-[#23232b] bg-[#000000] select-none cursor-grab active:cursor-grabbing"
+        className="hero-adaptive relative w-full overflow-hidden overscroll-x-contain min-h-[470px] min-[400px]:min-h-[510px] sm:min-h-[520px] md:min-h-[560px] lg:min-h-[620px] flex items-end border-b border-[#23232b] bg-[#000000] select-none cursor-grab active:cursor-grabbing"
       >
         {/* Responsive Art-Directed Background: Portrait Key Art on Mobile, Wide Banner on Desktop */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <picture key={currentAnime.id} className="block w-full h-full">
-            <source media="(min-width: 640px)" srcSet={desktopBanner} width={1920} height={490} />
+            <source media="(min-width: 640px)" srcSet={desktopBanner} width={1920} height={600} />
             <img
               src={mobileArtwork}
               alt={`${title} anime featured banner`}
@@ -314,7 +312,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                   ? 'none'
                   : 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)',
               }}
-              className={`w-full h-full object-cover object-[center_18%] sm:object-center filter brightness-[0.76] sm:brightness-[0.46] contrast-[1.05] ${
+              className={`w-full h-full object-cover object-[center_18%] sm:object-[72%_20%] lg:sm:object-[76%_22%] filter brightness-[0.80] sm:brightness-[0.90] contrast-[1.05] sm:contrast-[1.08] ${
                 hasInteracted || currentIndex > 0 ? 'animate-hero-bg will-change-transform' : ''
               }`}
             />
@@ -322,43 +320,11 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
           {/* Mobile vertical cinema vignette (keeps top artwork vibrant, bottom text crisp) */}
           <div className="absolute inset-0 sm:hidden bg-gradient-to-b from-[#000000]/35 via-[#000000]/15 via-35% to-[#000000]" />
           <div className="absolute inset-x-0 bottom-0 h-[66%] sm:hidden bg-gradient-to-t from-[#000000] via-[#000000]/88 to-transparent" />
-          {/* Desktop cinematic dual-axis vignette */}
-          <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/65 to-[#000000]/20" />
-          <div className="hidden sm:block absolute inset-0 bg-gradient-to-r from-[#000000] via-[#000000]/75 to-transparent" />
+          {/* Desktop cinematic directional vignette: keeps text legible on the left while character shines bright & clear on the right */}
+          <div className="hidden sm:block absolute inset-0 bg-gradient-to-r from-[#000000] via-[#000000]/85 via-35% to-transparent to-75%" />
+          <div className="hidden sm:block absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#000000] via-[#000000]/45 to-transparent" />
+          <div className="hidden sm:block absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#000000]/65 via-transparent to-transparent" />
         </div>
-
-        {/* Mobile Left / Right Swipe Arrows (Both Sides, clear of title & CTAs) */}
-        {spotlights.length > 1 && (
-          <div className="sm:hidden absolute inset-x-0 top-[96px] min-[400px]:top-[112px] -translate-y-1/2 z-20 pointer-events-none flex items-center justify-between px-2.5 min-[400px]:px-3.5">
-            <button
-              type="button"
-              onClick={(e) => {
-                if (hasMovedRef.current) return;
-                e.stopPropagation();
-                goToPrev(true);
-              }}
-              aria-label="Previous featured anime slide"
-              style={{ touchAction: 'manipulation' }}
-              className="pointer-events-auto w-11 h-11 rounded-full bg-[#0b0b0d]/75 hover:bg-[#151519] active:bg-[#151519] border border-white/20 backdrop-blur-md flex items-center justify-center text-white/95 active:text-white transition-all cursor-pointer active:scale-95 shadow-[0_2px_12px_rgba(0,0,0,0.65)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-            >
-              <ChevronLeft aria-hidden="true" className="w-5 h-5 -ml-0.5" />
-            </button>
-
-            <button
-              type="button"
-              onClick={(e) => {
-                if (hasMovedRef.current) return;
-                e.stopPropagation();
-                goToNext(true);
-              }}
-              aria-label="Next featured anime slide"
-              style={{ touchAction: 'manipulation' }}
-              className="pointer-events-auto w-11 h-11 rounded-full bg-[#0b0b0d]/75 hover:bg-[#151519] active:bg-[#151519] border border-white/20 backdrop-blur-md flex items-center justify-center text-white/95 active:text-white transition-all cursor-pointer active:scale-95 shadow-[0_2px_12px_rgba(0,0,0,0.65)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-            >
-              <ChevronRight aria-hidden="true" className="w-5 h-5 -mr-0.5" />
-            </button>
-          </div>
-        )}
 
         {/* Hero Foreground Slide Content */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-40 min-[400px]:pt-48 pb-5 sm:py-10 md:py-12 pointer-events-none">
@@ -371,7 +337,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
               transform: isDragging ? `translate3d(${dragOffset}px, 0, 0)` : undefined,
               transition: isDragging ? 'none' : 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
-            className={`max-w-3xl space-y-3 sm:space-y-4 pointer-events-auto ${
+            className={`max-w-xl lg:max-w-2xl space-y-3 sm:space-y-4 pointer-events-auto ${
               isDragging || (!hasInteracted && currentIndex === 0)
                 ? ''
                 : slideDirection === 'next'
@@ -382,7 +348,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
             {/* Editorial Title */}
             <h2
               title={title}
-              className="text-[1.6rem] min-[400px]:text-[1.85rem] sm:text-4xl md:text-[3.1rem] font-extrabold text-white tracking-[-0.035em] leading-[1.1] line-clamp-2 break-words drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)]"
+              className="text-[1.6rem] min-[400px]:text-[1.85rem] sm:text-3xl md:text-4xl lg:text-[2.85rem] font-extrabold text-white tracking-[-0.035em] leading-[1.12] line-clamp-2 break-words drop-shadow-[0_2px_14px_rgba(0,0,0,0.85)]"
             >
               {title}
             </h2>

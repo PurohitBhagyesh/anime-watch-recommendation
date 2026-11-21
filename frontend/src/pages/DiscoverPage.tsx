@@ -280,7 +280,7 @@ export const DiscoverPage: React.FC = () => {
     selectedStatus,
   ].filter(Boolean).length;
 
-  const hasActiveFilters = Boolean(searchQuery || activeFilterCount > 0);
+  const hasActiveFilters = activeFilterCount > 0;
 
   const statusLabels: { id: WatchlistStatus; label: string }[] = [
     { id: 'watching', label: 'Watching' },
@@ -298,7 +298,6 @@ export const DiscoverPage: React.FC = () => {
     return 'score-pill-low';
   };
 
-  const { season: curSeason, year: curYear } = getCurrentSeason();
   const presets = [
     {
       id: 'trending' as const,
@@ -313,7 +312,7 @@ export const DiscoverPage: React.FC = () => {
     },
     {
       id: 'seasonal' as const,
-      label: `${curSeason} ${curYear}`,
+      label: 'This Season',
       active: Boolean(selectedSeason && selectedYear),
     },
     {
@@ -366,7 +365,7 @@ export const DiscoverPage: React.FC = () => {
     : 'Discover';
 
   return (
-    <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-5 sm:py-7 space-y-4 animate-fadeIn">
+    <div className="max-w-7xl mx-auto w-full px-3.5 sm:px-6 lg:px-8 pt-4 pb-32 sm:py-7 space-y-4 animate-fadeIn min-w-0">
       {/* Header Row */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="space-y-1">
@@ -606,7 +605,7 @@ export const DiscoverPage: React.FC = () => {
 
         {/* Active Filters Reset */}
         {hasActiveFilters && (
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
             {selectedGenre && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#16161b] border border-[#23232b] text-xs text-[#f5f5f7]">
                 {selectedGenre}
