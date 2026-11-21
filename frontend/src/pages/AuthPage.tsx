@@ -8,7 +8,6 @@ import {
   User,
   ArrowRight,
   ArrowLeft,
-  ShieldCheck,
   Check,
   Eye,
   EyeOff,
@@ -496,26 +495,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                 </div>
               )}
 
-              {/* Fast Sign-In Provider: Google */}
-              <button
-                type="button"
-                disabled={anyBusy || isRateLimited}
-                onClick={handleGoogleSignIn}
-                className="w-full py-3 px-4 rounded-full bg-white hover:bg-[#ececf2] text-black text-xs sm:text-sm font-bold transition flex items-center justify-center gap-3 active:scale-[0.99] disabled:opacity-60 cursor-pointer"
-              >
-                <GoogleMark className="w-4 h-4 flex-shrink-0" />
-                <span>{oauthBusy ? 'Connecting with Google…' : 'Continue with Google'}</span>
-              </button>
-
-              <div className="relative my-5 text-center">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-[#232329]" />
-                </div>
-                <span className="relative px-3 bg-[#0c0c0f] text-[11px] text-[#666672] font-mono uppercase tracking-wider">
-                  or continue with email
-                </span>
-              </div>
-
               {mode === 'login' ? (
                 <form onSubmit={handleLoginSubmit} className="space-y-4">
                   <div className="space-y-1.5">
@@ -775,13 +754,28 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                   </button>
                 </form>
               )}
+
+              <div className="relative my-5 text-center">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-[#23232b]" />
+                </div>
+                <span className="relative px-3 bg-[#0c0c0f] text-[11px] text-[#666672] font-mono uppercase tracking-wider">
+                  or continue with
+                </span>
+              </div>
+
+              {/* Alternative Sign-In: Google */}
+              <button
+                type="button"
+                disabled={anyBusy || isRateLimited}
+                onClick={handleGoogleSignIn}
+                className="w-full py-3 px-4 rounded-full bg-white hover:bg-[#ececf2] text-black text-xs sm:text-sm font-bold transition flex items-center justify-center gap-3 active:scale-[0.99] disabled:opacity-60 cursor-pointer"
+              >
+                <GoogleMark className="w-4 h-4 flex-shrink-0" />
+                <span>{oauthBusy ? 'Connecting with Google…' : 'Sign in with Google'}</span>
+              </button>
             </>
           )}
-        </div>
-
-        <div className="flex items-center justify-center gap-2 text-[11px] text-[#666672]">
-          <ShieldCheck aria-hidden="true" className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Protected by CAPTCHA, Rate Limiting &amp; Firebase Auth</span>
         </div>
       </div>
     </div>

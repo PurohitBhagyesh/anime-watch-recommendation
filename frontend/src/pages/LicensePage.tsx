@@ -14,8 +14,8 @@ export const LicensePage: React.FC = () => {
   };
 
   useSEO({
-    title: 'Licenses & Open Source Attribution • AnimeSenpai',
-    description: 'MIT License, AniList GraphQL API attribution, third-party open-source software notices, and copyright disclosures for AnimeSenpai.',
+    title: 'License & Open Source Attribution • AnimeSenpai',
+    description: 'Open-source software license, AniList GraphQL API attribution, third-party software notices, and copyright disclosures for AnimeSenpai.',
     canonicalUrl: `${SITE_URL}/license`,
     jsonLd: breadcrumbs,
   });
@@ -42,21 +42,21 @@ export const LicensePage: React.FC = () => {
           <span>Open Source & Attribution</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-          Licenses & Legal Attributions
+          License & Legal Attributions
         </h1>
         <p className="text-xs sm:text-sm text-slate-400">
           Software license, anime database attribution, and third-party copyright notices.
         </p>
       </div>
 
-      {/* MIT License */}
+      {/* AnimeSenpai License */}
       <section className="space-y-3">
         <h2 className="text-lg font-bold text-white flex items-center gap-2">
           <FileCode2 aria-hidden="true" className="w-4 h-4 text-white" />
-          1. AnimeSenpai Software License (MIT)
+          1. AnimeSenpai Software License
         </h2>
         <div className="anilist-card-static p-5 sm:p-6 space-y-3 text-xs leading-relaxed font-mono text-slate-300">
-          <p className="font-bold text-white">MIT License — Copyright (c) 2026 AnimeSenpai Contributors</p>
+          <p className="font-bold text-white">License — Copyright (c) 2026 AnimeSenpai Contributors</p>
           <p>
             Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
           </p>

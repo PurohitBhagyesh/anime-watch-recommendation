@@ -114,10 +114,23 @@ export const WebElementsBridge: React.FC = () => {
       sharePill?.addEventListener('click', () => window.CoffeeUPI?.close());
     };
 
-    setupWidgets();
+    let idleId: number | null = null;
+    let timerId: ReturnType<typeof setTimeout> | null = null;
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleId = (window as any).requestIdleCallback(setupWidgets, { timeout: 3500 });
+    } else {
+      timerId = setTimeout(setupWidgets, 2500);
+    }
 
     return () => {
       cancelled = true;
+      if (idleId !== null && typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
+        (window as any).cancelIdleCallback(idleId);
+      }
+      if (timerId !== null) {
+        clearTimeout(timerId);
+      }
     };
   }, []);
 

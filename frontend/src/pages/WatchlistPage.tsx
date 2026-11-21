@@ -22,9 +22,9 @@ import {
   X,
   Tag,
   ChevronDown,
+  Check,
 } from 'lucide-react';
 import { useWatchlist } from '../context/WatchlistContext';
-import { useAuth } from '../context/AuthContext';
 import { usePreferences } from '../context/PreferencesContext';
 import type { WatchlistItem, WatchlistStatus } from '../api/types';
 import { eventBus } from '../utils/pubsub';
@@ -98,7 +98,6 @@ export const WatchlistPage: React.FC = () => {
     canonicalUrl: `${SITE_URL}/watchlist`,
   });
 
-  const { user } = useAuth();
   const { getPreferredTitle } = usePreferences();
 
   const {
@@ -235,7 +234,11 @@ export const WatchlistPage: React.FC = () => {
   const meanScore =
     ratedItems.length > 0
       ? (
-          (ratedItems.reduce((sum, i) => sum + (i.userRating || 0), 0) /
+          (ratedItems.reduce((sum, i) => {
+            const val = i.userRating || 0;
+            const normalized = val > 10 ? val / 10 : val;
+            return sum + normalized;
+          }, 0) /
             ratedItems.length) *
           10
         ).toFixed(0)
@@ -343,7 +346,7 @@ export const WatchlistPage: React.FC = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  if (!user && watchlist.length === 0) {
+  if (watchlist.length === 0) {
     return (
       <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-24 space-y-6 animate-fadeIn flex flex-col items-center justify-center min-h-[60dvh] text-center min-w-0">
         <input
@@ -372,15 +375,9 @@ export const WatchlistPage: React.FC = () => {
             <Compass className="w-4 h-4" />
             <span>Browse Catalog</span>
           </Link>
-          <Link
-            to="/login"
-            className="px-6 py-2.5 text-xs sm:text-sm font-semibold rounded-full bg-[#16161b] hover:bg-[#202028] text-[#d2d2dc] hover:text-[#f5f5f7] border border-[#23232b] inline-flex items-center justify-center min-h-[44px] transition"
-          >
-            <span>Sign In</span>
-          </Link>
         </div>
         <p className="text-[11px] text-[#9a9aa6] max-w-sm mx-auto">
-          Your watchlist is saved securely on this browser even without an account. Sign in anytime to sync across all your devices.
+          Your watchlist is saved securely on this browser even without an account.
         </p>
       </div>
     );
@@ -388,24 +385,6 @@ export const WatchlistPage: React.FC = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 pt-3 pb-24 sm:py-8 sm:pb-24 space-y-3.5 sm:space-y-5 animate-fadeIn min-w-0 overflow-x-hidden">
-      {/* Guest Device Banner if not logged in */}
-      {!user && watchlist.length > 0 && (
-        <div className="p-3 sm:p-3.5 rounded-2xl bg-[#0c0c0f] border border-[#23232b] flex items-center justify-between gap-3 text-xs text-[#9a9aa6]">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
-            <span className="truncate">
-              Device Watchlist (saved on this browser). Sign in to sync across all devices.
-            </span>
-          </div>
-          <Link
-            to="/login"
-            className="anilist-btn-primary px-3 py-1.5 text-xs font-semibold whitespace-nowrap flex-shrink-0 min-h-[32px] inline-flex items-center"
-          >
-            Sign In
-          </Link>
-        </div>
-      )}
-
       {/* Header & Mobile-Optimized Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-[#23232b] w-full min-w-0">
         <div className="min-w-0">
@@ -676,20 +655,29 @@ export const WatchlistPage: React.FC = () => {
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+              <div
+                role="group"
+                aria-label="Top List Genres filter options"
+                className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1"
+              >
                 <button
                   type="button"
+                  role="radio"
+                  aria-checked={!selectedGenre}
                   onClick={() => setSelectedGenre('')}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer min-h-[34px] ${
+                  className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer min-h-[38px] select-none ${
                     !selectedGenre
-                      ? 'btn-accent-active'
-                      : 'bg-[#16161b] hover:bg-[#1d1d24] border border-[#23232b] text-[#d2d2dc] hover:text-[#f5f5f7]'
+                      ? 'bg-[#5360e6] text-white shadow-sm shadow-[#5360e6]/40 border border-[#5360e6]'
+                      : 'bg-[#16161b] hover:bg-[#1f1f27] border border-[#23232b] text-[#d2d2dc] hover:text-[#f5f5f7]'
                   }`}
                 >
+                  {!selectedGenre && (
+                    <Check aria-hidden="true" className="w-3.5 h-3.5 text-white stroke-[2.5] flex-shrink-0 animate-fadeIn" />
+                  )}
                   <span>All</span>
                   <span
-                    className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full tabular-nums ${
-                      !selectedGenre ? 'bg-black/25 text-white' : 'bg-[#0c0c0f] text-[#9a9aa6]'
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded-lg tabular-nums ${
+                      !selectedGenre ? 'bg-black/30 text-white font-bold' : 'bg-[#0c0c0f] text-[#9a9aa6]'
                     }`}
                   >
                     {watchlist.length}
@@ -701,17 +689,22 @@ export const WatchlistPage: React.FC = () => {
                     <button
                       key={genre}
                       type="button"
+                      role="radio"
+                      aria-checked={isActive}
                       onClick={() => setSelectedGenre((prev) => (prev === genre ? '' : genre))}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer min-h-[34px] ${
+                      className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer min-h-[38px] select-none ${
                         isActive
-                          ? 'btn-accent-active shadow-md'
-                          : 'bg-[#16161b] hover:bg-[#1d1d24] border border-[#23232b] text-[#d2d2dc] hover:text-[#f5f5f7]'
+                          ? 'bg-[#5360e6] text-white shadow-sm shadow-[#5360e6]/40 border border-[#5360e6]'
+                          : 'bg-[#16161b] hover:bg-[#1f1f27] border border-[#23232b] text-[#d2d2dc] hover:text-[#f5f5f7]'
                       }`}
                     >
+                      {isActive && (
+                        <Check aria-hidden="true" className="w-3.5 h-3.5 text-white stroke-[2.5] flex-shrink-0 animate-fadeIn" />
+                      )}
                       <span>{genre}</span>
                       <span
-                        className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full tabular-nums ${
-                          isActive ? 'bg-black/25 text-white font-bold' : 'bg-[#0c0c0f] text-[#9a9aa6]'
+                        className={`text-[10px] font-mono px-2 py-0.5 rounded-lg tabular-nums ${
+                          isActive ? 'bg-black/30 text-white font-bold' : 'bg-[#0c0c0f] text-[#9a9aa6]'
                         }`}
                       >
                         {count}

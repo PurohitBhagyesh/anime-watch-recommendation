@@ -98,7 +98,7 @@ export const TermsPage: React.FC = () => {
           <p>
             The AnimeSenpai application source code is provided "as is", without warranty of any kind, under the{' '}
             <Link to="/license" className="text-white hover:underline font-semibold">
-              MIT License
+              License
             </Link>
             . External links redirect to third-party services governed by their own terms and privacy policies.
           </p>

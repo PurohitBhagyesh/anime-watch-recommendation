@@ -649,8 +649,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
     },
     {
       to: '/license',
-      title: 'Licenses',
-      subtitle: 'MIT open-source license and AniList attribution',
+      title: 'License',
+      subtitle: 'Software license and AniList attribution',
       icon: Scale,
     },
     {

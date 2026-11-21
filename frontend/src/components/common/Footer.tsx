@@ -90,7 +90,7 @@ export const Footer: React.FC = () => {
                   className="px-3.5 py-2 min-h-[36px] rounded-full anilist-btn-secondary text-xs inline-flex items-center gap-1.5"
                 >
                   <Scale aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
-                  <span>MIT License</span>
+                  <span>License</span>
                 </Link>
                 <button
                   type="button"
@@ -206,7 +206,7 @@ export const Footer: React.FC = () => {
           {/* Bottom Bar (clears floating corner pills cleanly on both mobile & desktop) */}
           <div className="pt-5 border-t border-[#23232b] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#9a9aa6] text-center sm:text-left">
             <p>
-              © {new Date().getFullYear()} AnimeSenpai (animesenpai.online) · MIT License · Data via AniList GraphQL.
+              © {new Date().getFullYear()} AnimeSenpai (animesenpai.online) · License · Data via AniList GraphQL.
             </p>
 
             <button
