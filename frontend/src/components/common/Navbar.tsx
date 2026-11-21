@@ -11,6 +11,7 @@ import {
   Menu,
   User,
   Settings,
+  Info,
 } from 'lucide-react';
 import { useWatchlist } from '../../context/WatchlistContext';
 import { useAuth } from '../../context/AuthContext';
@@ -154,8 +155,10 @@ export const Navbar: React.FC = () => {
     if (!showAutocomplete) return null;
     return (
       <div
-        className={`absolute top-full left-0 right-0 mt-2 p-1.5 rounded-2xl bg-[#0b0b0d]/98 backdrop-blur-2xl shadow-2xl border border-[#232329] z-50 overflow-y-auto space-y-0.5 animate-fadeIn ${
-          isMobile ? 'max-h-[58dvh]' : 'max-h-96'
+        className={`${
+          isMobile
+            ? 'relative w-full mt-2.5 p-1.5 rounded-2xl bg-[#111116] shadow-2xl border border-[#2a2a34] z-50 overflow-y-auto max-h-[62dvh] space-y-0.5 animate-fadeIn'
+            : 'absolute top-full left-0 right-0 mt-2 p-1.5 rounded-2xl bg-[#0b0b0d]/98 backdrop-blur-2xl shadow-2xl border border-[#232329] z-50 overflow-y-auto max-h-96 space-y-0.5 animate-fadeIn'
         }`}
       >
         {isSearching ? (
@@ -280,7 +283,7 @@ export const Navbar: React.FC = () => {
                     onFocus={() => {
                       if (autocompleteResults.length > 0) setShowAutocomplete(true);
                     }}
-                    className="w-full text-[13px] pl-8 pr-9 py-1.5 bg-[#0b0b0d] hover:bg-[#121216] focus:bg-[#151519] border border-[#232329] focus:border-[#3a3a44] rounded-full text-white placeholder-[#9a9aa6] outline-none transition-all"
+                    className="w-full text-[13px] pl-8 pr-9 py-1.5 bg-[#0b0b0d] hover:bg-[#121216] focus:bg-[#151519] border border-[#232329] focus:border-[#3a3a44] rounded-full text-white placeholder-[#9a9aa6] outline-none transition-all [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none"
                   />
                   <Search
                     aria-hidden="true"
@@ -519,7 +522,7 @@ export const Navbar: React.FC = () => {
                       if (autocompleteResults.length > 0) setShowAutocomplete(true);
                     }}
                     tabIndex={mobileSearchOpen ? 0 : -1}
-                    className="w-full text-base pl-10 pr-10 py-2.5 bg-[#151519] border border-[#232329] focus:border-[#3a3a44] rounded-full text-white placeholder-[#9a9aa6] outline-none transition"
+                    className="w-full text-base pl-10 pr-10 py-2.5 bg-[#151519] border border-[#232329] focus:border-[#3a3a44] rounded-full text-white placeholder-[#9a9aa6] outline-none transition [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none"
                   />
                   <Search aria-hidden="true" className="w-4 h-4 text-[#9a9aa6] absolute left-3.5 pointer-events-none" />
                   {searchQuery && (
@@ -629,7 +632,9 @@ export const Navbar: React.FC = () => {
                 tabIndex={mobileMenuOpen ? 0 : -1}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center justify-between py-3 text-[15px] font-medium border-b border-[#23232b] transition ${
-                  isActive('/settings') ? 'text-white' : 'text-[#9a9aa6] hover:text-white'
+                  isActive('/settings') && !location.search.includes('about')
+                    ? 'text-white'
+                    : 'text-[#9a9aa6] hover:text-white'
                 }`}
               >
                 <span>Settings</span>
@@ -637,13 +642,20 @@ export const Navbar: React.FC = () => {
               </Link>
 
               <Link
-                to="/about"
+                to="/settings?section=about"
                 tabIndex={mobileMenuOpen ? 0 : -1}
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between py-3 text-[15px] font-medium text-[#9a9aa6] hover:text-white transition"
+                className={`flex items-center justify-between py-3 text-[15px] font-medium border-b border-[#23232b] transition ${
+                  location.search.includes('about') ? 'text-white' : 'text-[#9a9aa6] hover:text-white'
+                }`}
               >
-                <span>About & Legal</span>
-                <span className="text-xs text-[#9a9aa6]">MIT</span>
+                <div className="flex items-center gap-2">
+                  <span>About & Legal</span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#151519] border border-[#232329] text-[#9a9aa6]">
+                    Settings
+                  </span>
+                </div>
+                <Info aria-hidden="true" className="w-4 h-4 text-[#9a9aa6]" />
               </Link>
 
               {/* Auth Actions */}

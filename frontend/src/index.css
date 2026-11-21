@@ -200,6 +200,7 @@
   grid-template-rows: 1fr;
   opacity: 1;
   visibility: visible;
+  max-height: 85dvh;
 }
 
 .mobile-drawer-inner {
@@ -210,6 +211,9 @@
 
 .mobile-drawer-shell[data-open="true"] .mobile-drawer-inner {
   transform: translateY(0);
+  overflow-y: auto;
+  max-height: 85dvh;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Monochrome Obsidian Cards */

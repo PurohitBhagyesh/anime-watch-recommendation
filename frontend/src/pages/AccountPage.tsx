@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   User,
   Sliders,
@@ -137,14 +137,27 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
         : `${SITE_URL}/settings`,
   });
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedSection = searchParams.get('section') as SettingsSection | null;
+  const validSections: SettingsSection[] = ['preferences', 'profile', 'security', 'data', 'about'];
+
   const initialSection: SettingsSection =
-    defaultTab === 'account' || location.pathname.includes('account')
+    requestedSection && validSections.includes(requestedSection)
+      ? requestedSection
+      : defaultTab === 'account' || location.pathname.includes('account')
       ? user
         ? 'profile'
         : 'preferences'
       : 'preferences';
 
   const [activeSection, setActiveSection] = useState<SettingsSection>(initialSection);
+
+  useEffect(() => {
+    const s = searchParams.get('section') as SettingsSection | null;
+    if (s && validSections.includes(s) && s !== activeSection) {
+      setActiveSection(s);
+    }
+  }, [searchParams, activeSection]);
 
   // Profile form state
   const [username, setUsername] = useState(user?.username || '');
@@ -612,7 +625,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'security', label: 'Security', icon: ShieldCheck },
     { id: 'data', label: 'Data', icon: Database },
-    { id: 'about', label: 'About', icon: Info },
+    { id: 'about', label: 'About & Legal', icon: Info },
   ];
 
   const legalLinks = [
@@ -704,6 +717,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   onClick={() => {
                     setActiveSection(item.id);
                     setSecurityNotice(null);
+                    setSearchParams({ section: item.id }, { replace: true });
                   }}
                   aria-current={isActive ? 'page' : undefined}
                   className={`settings-nav-btn flex items-center gap-1.5 sm:gap-2.5 px-3 sm:px-3.5 py-2 min-h-[38px] text-xs font-semibold transition cursor-pointer ${
