@@ -6,6 +6,7 @@ import { PreferencesProvider } from './context/PreferencesContext';
 import { ScrollProgressLine } from './components/common/ScrollProgressLine';
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
+import { BackToTop } from './components/common/BackToTop';
 import { WebElementsBridge } from './components/common/WebElementsBridge';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { PageLoader } from './components/common/Skeleton';
@@ -44,10 +45,14 @@ export const App: React.FC = () => {
                 className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
               >
                 <picture>
+                  <source media="(max-width: 640px)" srcSet="/img/anime-sky-ocean-bg-mobile.webp" type="image/webp" />
+                  <source media="(max-width: 640px)" srcSet="/img/anime-sky-ocean-bg-mobile.jpg" type="image/jpeg" />
                   <source srcSet="/img/anime-sky-ocean-bg.webp" type="image/webp" />
                   <img
                     src="/img/anime-sky-ocean-bg.jpg"
                     alt=""
+                    width={1376}
+                    height={768}
                     className="w-full h-full object-cover object-center opacity-[0.22] sm:opacity-[0.30] filter contrast-115 saturate-125 brightness-95"
                     loading="lazy"
                     decoding="async"
@@ -85,6 +90,7 @@ export const App: React.FC = () => {
                   </ErrorBoundary>
                 </main>
                 <Footer />
+                <BackToTop />
                 <WebElementsBridge />
               </div>
             </div>

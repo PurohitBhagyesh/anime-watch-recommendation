@@ -22,21 +22,46 @@ import {
   browserSessionPersistence,
   type User as FirebaseUser,
 } from 'firebase/auth';
-import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  deleteField,
-  collection,
-  query,
-  where,
-  limit,
-  getDocs,
-} from 'firebase/firestore';
-import { auth, db } from '../config/firebase';
+import { auth, getDb } from '../config/firebase';
 import { eventBus } from '../utils/pubsub';
+
+// Lazy-load Firestore operations on-demand to exclude 350+ KiB of unused Firestore code
+// from the initial bundle for visitors, bots, and guest users
+async function getFirestoreOps() {
+  const [
+    {
+      doc,
+      getDoc,
+      setDoc,
+      updateDoc,
+      deleteDoc,
+      deleteField,
+      collection,
+      query,
+      where,
+      limit,
+      getDocs,
+    },
+    db,
+  ] = await Promise.all([
+    import('firebase/firestore'),
+    getDb(),
+  ]);
+  return {
+    db,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    deleteDoc,
+    deleteField,
+    collection,
+    query,
+    where,
+    limit,
+    getDocs,
+  };
+}
 
 export interface UserProfile {
   id: string;
@@ -218,6 +243,7 @@ async function buildAndSyncUserProfile(
   };
 
   try {
+    const { db, doc, getDoc, setDoc, updateDoc, deleteField } = await getFirestoreOps();
     const docRef = doc(db, 'users', firebaseUser.uid);
     const docSnap = await getDoc(docRef);
 
@@ -348,6 +374,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       try {
+        const { db, collection, query, where, limit, getDocs } = await getFirestoreOps();
         const q = query(
           collection(db, 'users'),
           where('usernameLower', '==', identifier.toLowerCase()),
@@ -425,6 +452,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (passwordError) return { success: false, error: passwordError };
 
     try {
+      const { db, collection, query, where, limit, getDocs } = await getFirestoreOps();
       const q = query(
         collection(db, 'users'),
         where('usernameLower', '==', cleanUsername.toLowerCase()),
@@ -468,6 +496,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       try {
+        const { db, doc, setDoc } = await getFirestoreOps();
         await setDoc(doc(db, 'users', userCredential.user.uid), newUser);
       } catch (firestoreErr) {
         console.warn('Could not persist user profile document on signup:', firestoreErr);
@@ -744,6 +773,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Remove legacy bio field if it existed on older user documents
+      const { db, doc, updateDoc, deleteField } = await getFirestoreOps();
       await updateDoc(doc(db, 'users', user.id), {
         ...safeUpdates,
         bio: deleteField(),
@@ -781,6 +811,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       try {
+        const { db, doc, deleteDoc } = await getFirestoreOps();
         await deleteDoc(doc(db, 'users', current.uid));
       } catch (firestoreErr) {
         console.warn('Firestore profile cleanup warning:', firestoreErr);

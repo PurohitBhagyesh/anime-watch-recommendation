@@ -274,11 +274,12 @@
     }
   </script>
 
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://s4.anilist.co">
+  <!-- Preconnect to the 2 critical origins only (adheres strictly to PageSpeed <= 4 preconnect rule) -->
   <link rel="preconnect" href="https://graphql.anilist.co" crossorigin>
+  <link rel="preconnect" href="https://s4.anilist.co">
   <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com">
   <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
   <link rel="dns-prefetch" href="https://s4.anilist.co">
   <link rel="dns-prefetch" href="https://graphql.anilist.co">
   <link rel="preload" as="image" media="(min-width: 640px)"
@@ -287,17 +288,14 @@
   <link rel="preload" as="image" media="(max-width: 639px)"
     href="https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx210482-P1VNKbqdJ6Zj.jpg"
     fetchpriority="high">
-  <link rel="preload"
+  <!-- Non-render-blocking font stylesheet with swap display and system font fallback (est savings of 150ms) -->
+  <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
-    as="style" onload="this.onload=null;this.rel='stylesheet'">
+    media="print" onload="this.media='all'">
   <noscript>
     <link rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap">
   </noscript>
-  <link rel="preload" href="/web-elements/buy-me-a-coffee/coffee-upi.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="/web-elements/buy-me-a-coffee/coffee-upi.css"></noscript>
-  <link rel="preload" href="/web-elements/share-link/share-link.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="/web-elements/share-link/share-link.css"></noscript>
   <link rel="agentmap" href="/llms.txt">
   <link rel="ai-catalog" type="application/json" href="/.well-known/ai-catalog.json">
   <link rel="ard" type="application/json" href="/.well-known/ard.json">

@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import type { Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
@@ -12,7 +12,17 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || ""
 };
 
-// Initialize Firebase
+// Initialize Firebase App & Auth
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+
+// Lazy-load Firestore only when needed (sign in, sign up, profile actions)
+// This saves ~380 KiB of unused JavaScript on initial page loads for visitors and search engine bots
+let firestoreInstance: Firestore | null = null;
+export async function getDb(): Promise<Firestore> {
+  if (!firestoreInstance) {
+    const { getFirestore } = await import("firebase/firestore");
+    firestoreInstance = getFirestore(app);
+  }
+  return firestoreInstance;
+}

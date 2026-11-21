@@ -11,11 +11,19 @@ export const ScrollProgressLine: React.FC = () => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced) return;
 
+    let ticking = false;
     const updateProgress = () => {
-      if (!barRef.current) return;
-      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = scrollable > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollable)) : 0;
-      barRef.current.style.transform = `scaleX(${progress})`;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (barRef.current) {
+            const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = scrollable > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollable)) : 0;
+            barRef.current.style.transform = `scaleX(${progress})`;
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     updateProgress();

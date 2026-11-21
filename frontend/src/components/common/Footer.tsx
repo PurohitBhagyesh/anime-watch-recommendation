@@ -54,7 +54,7 @@ export const Footer: React.FC = () => {
   return (
     <>
       <footer className="mt-2 sm:mt-4 border-t border-[#23232b] bg-[#000000] text-[#9a9aa6] text-sm relative overflow-x-clip">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-7 sm:pt-8 pb-20 sm:pb-20 space-y-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-7 sm:pt-8 pb-28 sm:pb-24 space-y-6">
           {/* Main Footer Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-8">
             {/* Brand & Live Database Attribution */}

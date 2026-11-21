@@ -25,6 +25,22 @@ declare global {
   }
 }
 
+function loadExternalStyle(href: string): Promise<void> {
+  return new Promise((resolve) => {
+    const existing = document.querySelector(`link[href="${href}"]`) as HTMLLinkElement | null;
+    if (existing) {
+      resolve();
+      return;
+    }
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    link.addEventListener('load', () => resolve(), { once: true });
+    link.addEventListener('error', () => resolve(), { once: true });
+    document.head.appendChild(link);
+  });
+}
+
 function loadExternalScript(src: string): Promise<void> {
   return new Promise((resolve) => {
     const existing = document.querySelector(`script[src="${src}"]`) as HTMLScriptElement | null;
@@ -61,6 +77,8 @@ export const WebElementsBridge: React.FC = () => {
 
     const setupWidgets = async () => {
       await Promise.all([
+        loadExternalStyle('/web-elements/buy-me-a-coffee/coffee-upi.css?v=2'),
+        loadExternalStyle('/web-elements/share-link/share-link.css?v=2'),
         loadExternalScript('/web-elements/buy-me-a-coffee/coffee-upi.js?v=2'),
         loadExternalScript('/web-elements/share-link/share-link.js?v=2'),
       ]);

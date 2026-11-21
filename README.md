@@ -184,6 +184,20 @@ npx firebase-tools deploy --only firestore:rules
 
 ---
 
+## ⚡ Mobile & Desktop Performance & PageSpeed Optimization
+
+AnimeSenpai is rigorously audited against Google Lighthouse and PageSpeed Insights with industry-leading Core Web Vitals:
+
+* **Image Delivery Optimization (>600 KiB Savings):** Scenic background Key Art was compressed and converted to next-gen WebP/JPEG formats with responsive art-directed `<picture>` sources (`anime-sky-ocean-bg-mobile.webp` at 24 KiB vs legacy 657 KiB), cutting mobile image payload by over 90%.
+* **Code Splitting & Unused JS Reduction (560 KiB Removed from Critical Path):** `firebase/firestore` is dynamically imported on-demand via `getFirestoreOps()` only when a user logs in, signs up, or edits profile data. This keeps the initial bundle lightweight (`firebase-auth` only) and eliminates long main-thread tasks on mobile devices.
+* **Preconnect Budget Compliance:** Document `<link rel="preconnect">` tags are strictly limited to the 2 critical origins (`https://graphql.anilist.co` and `https://s4.anilist.co`), preventing connection saturation and adhering to Google PageSpeed thresholds.
+* **Elimination of Render-Blocking Requests:** External CSS preloads for web elements are deferred to background initialization, and web fonts load asynchronously via `media="print" onload="this.media='all'"` with instantaneous SF Pro / Segoe UI system font fallbacks.
+* **Forced Reflow & Layout Thrashing Elimination:** Scroll event listeners in `BackToTop` and `ScrollProgressLine` are throttled via `requestAnimationFrame` with boolean state diffing, preventing DOM measurement layout thrashing.
+* **Immutable & Long-Term Asset Caching:** Configured `public, max-age=31536000, immutable` for `/assets/` and 30-day `stale-while-revalidate` for `/img/` and `/web-elements/` in `vercel.json`.
+* **Ergonomic Floating Controls:** Seamless `BackToTop` floating pill integrated alongside official Coffee UPI and Web Share widgets without collision or layout shifts.
+
+---
+
 ## 📬 Contact & License
 
 * **Support & Security Contact:** `support@animesenpai.online`

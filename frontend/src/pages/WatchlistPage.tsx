@@ -372,22 +372,14 @@ export const WatchlistPage: React.FC = () => {
             <Compass className="w-4 h-4" />
             <span>Browse Catalog</span>
           </Link>
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="anilist-btn-secondary px-6 py-2.5 text-xs sm:text-sm inline-flex items-center gap-2 min-h-[44px] cursor-pointer"
-          >
-            <Upload className="w-4 h-4" />
-            <span>Import JSON</span>
-          </button>
           <Link
             to="/login"
             className="px-6 py-2.5 text-xs sm:text-sm font-semibold rounded-full bg-[#16161b] hover:bg-[#202028] text-[#d2d2dc] hover:text-[#f5f5f7] border border-[#23232b] inline-flex items-center justify-center min-h-[44px] transition"
           >
-            Sign In
+            <span>Sign In</span>
           </Link>
         </div>
-        <p className="text-[11px] text-[#666672] max-w-sm mx-auto">
+        <p className="text-[11px] text-[#9a9aa6] max-w-sm mx-auto">
           Your watchlist is saved securely on this browser even without an account. Sign in anytime to sync across all your devices.
         </p>
       </div>
