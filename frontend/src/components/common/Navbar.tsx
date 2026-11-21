@@ -165,7 +165,7 @@ export const Navbar: React.FC = () => {
           </div>
         ) : autocompleteResults.length > 0 ? (
           <>
-            <div className="px-2.5 py-1.5 text-[10px] uppercase font-semibold text-[#666672] tracking-wider font-mono flex items-center justify-between border-b border-[#232329]">
+            <div className="px-2.5 py-1.5 text-[10px] uppercase font-semibold text-[#9a9aa6] tracking-wider font-mono flex items-center justify-between border-b border-[#232329]">
               <span>Top Matches</span>
               <span className="text-[#9a9aa6]">AniList Live</span>
             </div>
@@ -199,7 +199,7 @@ export const Navbar: React.FC = () => {
                       {item.genres && item.genres.length > 0 && (
                         <>
                           <span>·</span>
-                          <span className="text-[#666672] truncate max-w-[90px]">{item.genres[0]}</span>
+                          <span className="text-[#9a9aa6] truncate max-w-[90px]">{item.genres[0]}</span>
                         </>
                       )}
                     </p>
@@ -280,11 +280,11 @@ export const Navbar: React.FC = () => {
                     onFocus={() => {
                       if (autocompleteResults.length > 0) setShowAutocomplete(true);
                     }}
-                    className="w-full text-[13px] pl-8 pr-9 py-1.5 bg-[#0b0b0d] hover:bg-[#121216] focus:bg-[#151519] border border-[#232329] focus:border-[#3a3a44] rounded-full text-white placeholder-[#666672] outline-none transition-all"
+                    className="w-full text-[13px] pl-8 pr-9 py-1.5 bg-[#0b0b0d] hover:bg-[#121216] focus:bg-[#151519] border border-[#232329] focus:border-[#3a3a44] rounded-full text-white placeholder-[#9a9aa6] outline-none transition-all"
                   />
                   <Search
                     aria-hidden="true"
-                    className="w-3.5 h-3.5 text-[#666672] group-focus-within:text-white absolute left-3 pointer-events-none transition-colors"
+                    className="w-3.5 h-3.5 text-[#9a9aa6] group-focus-within:text-white absolute left-3 pointer-events-none transition-colors"
                   />
                   {searchQuery ? (
                     <button
@@ -299,7 +299,7 @@ export const Navbar: React.FC = () => {
                       <X aria-hidden="true" className="w-3.5 h-3.5" />
                     </button>
                   ) : (
-                    <kbd className="absolute right-2.5 text-[10px] font-mono px-1.5 py-0.2 bg-[#151519] border border-[#232329] rounded text-[#666672] pointer-events-none">
+                    <kbd className="absolute right-2.5 text-[10px] font-mono px-1.5 py-0.2 bg-[#151519] border border-[#232329] rounded text-[#9a9aa6] pointer-events-none">
                       /
                     </kbd>
                   )}
@@ -510,9 +510,9 @@ export const Navbar: React.FC = () => {
                       if (autocompleteResults.length > 0) setShowAutocomplete(true);
                     }}
                     tabIndex={mobileSearchOpen ? 0 : -1}
-                    className="w-full text-base pl-10 pr-10 py-2.5 bg-[#151519] border border-[#232329] focus:border-[#3a3a44] rounded-full text-white placeholder-[#666672] outline-none transition"
+                    className="w-full text-base pl-10 pr-10 py-2.5 bg-[#151519] border border-[#232329] focus:border-[#3a3a44] rounded-full text-white placeholder-[#9a9aa6] outline-none transition"
                   />
-                  <Search aria-hidden="true" className="w-4 h-4 text-[#666672] absolute left-3.5 pointer-events-none" />
+                  <Search aria-hidden="true" className="w-4 h-4 text-[#9a9aa6] absolute left-3.5 pointer-events-none" />
                   {searchQuery && (
                     <button
                       type="button"
@@ -577,7 +577,7 @@ export const Navbar: React.FC = () => {
                   <span>Genres</span>
                   <ChevronDown
                     aria-hidden="true"
-                    className={`w-4 h-4 text-[#666672] transition-transform duration-200 ${
+                    className={`w-4 h-4 text-[#9a9aa6] transition-transform duration-200 ${
                       mobileGenresOpen ? 'rotate-180 text-white' : ''
                     }`}
                   />
@@ -612,7 +612,7 @@ export const Navbar: React.FC = () => {
                 className="flex items-center justify-between py-3 text-[15px] font-medium text-[#9a9aa6] hover:text-white border-b border-[#23232b] transition text-left cursor-pointer"
               >
                 <span>Random Anime Picker</span>
-                <Dices aria-hidden="true" className="w-4 h-4 text-[#666672]" />
+                <Dices aria-hidden="true" className="w-4 h-4 text-[#9a9aa6]" />
               </button>
 
               <Link
@@ -624,7 +624,7 @@ export const Navbar: React.FC = () => {
                 }`}
               >
                 <span>Settings</span>
-                <Settings aria-hidden="true" className="w-4 h-4 text-[#666672]" />
+                <Settings aria-hidden="true" className="w-4 h-4 text-[#9a9aa6]" />
               </Link>
 
               <Link
@@ -634,7 +634,7 @@ export const Navbar: React.FC = () => {
                 className="flex items-center justify-between py-3 text-[15px] font-medium text-[#9a9aa6] hover:text-white transition"
               >
                 <span>About & Legal</span>
-                <span className="text-xs text-[#666672]">MIT</span>
+                <span className="text-xs text-[#9a9aa6]">MIT</span>
               </Link>
 
               {/* Auth Actions */}

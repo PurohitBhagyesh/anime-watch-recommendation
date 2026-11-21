@@ -269,7 +269,7 @@ const AnimeCardComponent: React.FC<AnimeCardProps> = ({ anime, priority = false 
                   }}
                 />
                 <div className="absolute bottom-10 right-0 z-50 w-40 p-1.5 rounded-2xl bg-[#0b0b0d] border border-[#232329] shadow-2xl space-y-0.5 animate-fadeIn">
-                  <div className="text-[10px] uppercase font-mono font-semibold text-[#666672] px-2.5 py-1 tracking-wider border-b border-[#232329]">
+                  <div className="text-[10px] uppercase font-mono font-semibold text-[#9a9aa6] px-2.5 py-1 tracking-wider border-b border-[#232329]">
                     Set Status
                   </div>
                   {statusLabels.map((st) => (

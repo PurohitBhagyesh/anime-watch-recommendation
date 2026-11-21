@@ -94,7 +94,7 @@ export const TrailerModal: React.FC<TrailerModalProps> = ({
               >
                 <Video aria-hidden="true" className="w-3.5 h-3.5 text-rose-400" />
                 <span>YouTube</span>
-                <ExternalLink aria-hidden="true" className="w-3 h-3 text-[#666672]" />
+                <ExternalLink aria-hidden="true" className="w-3 h-3 text-[#9a9aa6]" />
               </a>
             )}
             <button

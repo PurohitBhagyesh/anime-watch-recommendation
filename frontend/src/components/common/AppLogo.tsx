@@ -132,7 +132,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
             )}
           </div>
           {subtitle && (
-            <span className="text-[10px] text-[#666672] font-medium tracking-wider font-mono mt-0.5">
+            <span className="text-[10px] text-[#9a9aa6] font-medium tracking-wider font-mono mt-0.5">
               {subtitle}
             </span>
           )}

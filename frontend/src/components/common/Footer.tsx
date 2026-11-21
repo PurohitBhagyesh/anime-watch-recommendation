@@ -79,7 +79,7 @@ export const Footer: React.FC = () => {
                   className="text-white hover:underline font-semibold inline-flex items-center gap-1 transition"
                 >
                   AniList GraphQL
-                  <ExternalLink aria-hidden="true" className="w-3 h-3 text-[#666672]" />
+                  <ExternalLink aria-hidden="true" className="w-3 h-3 text-[#9a9aa6]" />
                 </a>
               </div>
 
@@ -170,7 +170,7 @@ export const Footer: React.FC = () => {
                   </li>
                 </ul>
 
-                <h4 className="text-[11px] font-semibold uppercase tracking-widest text-[#666672] mb-2.5 font-mono">
+                <h4 className="text-[11px] font-semibold uppercase tracking-widest text-[#9a9aa6] mb-2.5 font-mono">
                   Formats
                 </h4>
                 <div className="space-y-1.5 text-[13px]">
@@ -204,7 +204,7 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Bottom Bar (clears floating corner pills cleanly on both mobile & desktop) */}
-          <div className="pt-5 border-t border-[#23232b] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#666672] text-center sm:text-left">
+          <div className="pt-5 border-t border-[#23232b] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#9a9aa6] text-center sm:text-left">
             <p>
               © {new Date().getFullYear()} AnimeSenpai (animesenpai.online) · MIT License · Data via AniList GraphQL.
             </p>

@@ -13,7 +13,6 @@ import type { HomeSectionsData } from '../api/anilist';
 import { HeroBanner } from '../components/home/HeroBanner';
 import { CarouselRow } from '../components/home/CarouselRow';
 import { GenreGrid } from '../components/home/GenreGrid';
-import { AdBanner } from '../components/common/AdBanner';
 import { HeroSkeleton, CarouselRowSkeleton } from '../components/common/Skeleton';
 import initialHomeData from '../data/initialHomeData.json';
 import { useSEO, SITE_URL } from '../utils/seo';
@@ -138,11 +137,6 @@ export const HomePage: React.FC = () => {
         animeList={data?.spotlights?.length ? data.spotlights : (initialHomeData as any).spotlights}
         anime={data?.spotlight || (initialHomeData as any).spotlight}
       />
-
-      {/* Google AdSense Responsive Display Unit */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4">
-        <AdBanner slot="2083388106" />
-      </div>
 
       {/* Main Editorial Catalog Sections */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 divide-y divide-[#1a1a22]">

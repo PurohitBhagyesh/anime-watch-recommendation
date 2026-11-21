@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>An independent, ad-free anime discovery catalog and personal watchlist tracker powered by the live AniList GraphQL API.</strong>
+  <strong>An independent, modern anime discovery catalog and personal watchlist tracker powered by the live AniList GraphQL API.</strong>
 </p>
 
 <p align="center">
@@ -75,9 +75,16 @@
 
 ---
 
-## 🚀 SEO, Social Preview & Agentic Discovery
+## 🚀 SEO, Social Preview & Google AdSense Readiness
 
-* **Search & Canonical Edge Setup:** Validated `robots.txt` (`Allow: /`), **75-URL streamlined canonical `sitemap.xml`**, IndexNow verification, permanent `301` apex-to-`www` canonical redirect (`animesenpai.online` → `https://www.animesenpai.online`), Google AdSense verification & `ads.txt`, and media-scoped `<link rel="preload" as="image">` for fast Mobile & Desktop LCP.
+* **Search & Canonical Edge Setup:** Validated `robots.txt` (`Allow: /`), **75-URL streamlined canonical `sitemap.xml`**, IndexNow verification, permanent `301` apex-to-`www` canonical redirect (`animesenpai.online` → `https://www.animesenpai.online`), and media-scoped `<link rel="preload" as="image">` for fast Mobile & Desktop LCP.
+* **Google AdSense & Monetization Setup:**
+  * **Auto-Ads & Publisher Account:** Integrated via `<meta name="google-adsense-account" content="ca-pub-7916799992208650" />` and official asynchronous script tag for automated, non-intrusive ad placement without manual code clutter.
+  * **Authorized Digital Sellers (`ads.txt`):** Published at root `/ads.txt` (`google.com, pub-7916799992208650, DIRECT, f08c47fec0942fa0`).
+  * **Compliant Privacy & Cookie Policy:** Dedicated Section 5 in `/privacy` explicitly disclosing Google advertising cookies and providing direct opt-out links (`adssettings.google.com` and `aboutads.info`).
+* **Lighthouse Performance & Accessibility Benchmarks:**
+  * **🖥️ Desktop:** **100** Performance · **100** Accessibility · **96** Best Practices · **100** SEO
+  * **📱 Mobile:** **96** Performance · **100** Accessibility · **100** SEO
 * **Brand Assets & Structured Data:** Cache-busted raster favicons (`48x48` through `512x512`), `site.webmanifest`, JSON-LD schemas (`WebSite`, `Organization`, `AboutPage`, sitelinks), and an Ultra-HD `2400×1260` monochrome Obsidian/Platinum/Indigo 19-hero anime pantheon Open Graph & Twitter Card banner (`og-banner.jpg`).
 * **Agentic Browsing (4/4):** Standards-compliant `.well-known/ai-catalog.json`, `.well-known/ard.json`, and `.well-known/security.txt` manifests aligned to canonical production URLs.
 
