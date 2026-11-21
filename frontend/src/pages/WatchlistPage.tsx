@@ -91,11 +91,34 @@ const STATUS_THEMES: Record<
 };
 
 export const WatchlistPage: React.FC = () => {
+  const watchlistBreadcrumbs = useMemo(
+    () => ({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: `${SITE_URL}/`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Watchlist',
+          item: `${SITE_URL}/watchlist`,
+        },
+      ],
+    }),
+    []
+  );
+
   useSEO({
     title: 'My Watchlist • Anime Tracker | AnimeSenpai',
     description:
       'Track your anime episode progress, organize watching status, and manage your personal anime list on AnimeSenpai.',
     canonicalUrl: `${SITE_URL}/watchlist`,
+    jsonLd: watchlistBreadcrumbs,
   });
 
   const { getPreferredTitle } = usePreferences();

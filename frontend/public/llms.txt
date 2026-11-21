@@ -1,5 +1,5 @@
 # AnimeSenpai
-> AnimeSenpai is an independent, ad-free anime catalog, tracking, and discovery engine powered by the live AniList GraphQL network and official YouTube trailer embeds.
+> AnimeSenpai is an independent, modern anime discovery catalog, tracking, and recommendations engine powered by the live AniList GraphQL network and official YouTube trailer embeds.
 
 ## Overview & Official Identity
 AnimeSenpai (https://www.animesenpai.online/) provides a fast, modern interface for discovering 20,000+ anime titles. Users can explore trending anime, search titles across genres, view broadcast countdowns, watch official trailers, and manage personalized watchlists.

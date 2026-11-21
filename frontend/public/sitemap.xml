@@ -31,6 +31,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.animesenpai.online/watchlist</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.animesenpai.online/about</loc>
     <lastmod>2026-11-21</lastmod>
     <changefreq>weekly</changefreq>

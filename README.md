@@ -95,16 +95,22 @@
 
 ## 🚀 SEO, Social Preview & Google AdSense Readiness
 
-* **Search & Canonical Edge Setup:** Validated `robots.txt` (`Allow: /`), **75-URL streamlined canonical `sitemap.xml`**, IndexNow verification, permanent `301` apex-to-`www` canonical redirect (`animesenpai.online` → `https://www.animesenpai.online`), and media-scoped `<link rel="preload" as="image">` for fast Mobile & Desktop LCP.
+* **Search & Canonical Edge Setup:** Validated `robots.txt` (`Allow: /` for all bots, Googlebot, Googlebot-Image, Google-Favicon), **76-URL canonical `sitemap.xml`** with daily/weekly change frequencies covering core pages, seasonal discovery, top genres, and individual anime titles, IndexNow verification, permanent `301` apex-to-`www` canonical redirect (`animesenpai.online` → `https://www.animesenpai.online`), and media-scoped `<link rel="preload" as="image">` for fast Mobile & Desktop LCP.
+* **Google Search E-E-A-T & Structured Data (JSON-LD):**
+  * **Brand & Authority:** Full `Organization` schema featuring founder credit, founding date, publishing principles, and disambiguating identity (distinguishing AnimeSenpai from anime blogs or pirate streaming sites).
+  * **Sitelinks & Navigation:** `WebSite` with `potentialAction` Sitelinks Searchbox integration and `SiteNavigationElement` marking top entry points (Trending Anime, Top 100, Seasonal Airing, Watchlist Tracker, About).
+  * **Rich Media & Content Snippets:** Dynamic `TVSeries` / `Movie` schemas with `AggregateRating` and official YouTube `VideoObject` metadata, paired with contextual `BreadcrumbList` paths across all routes.
+  * **AI Overviews & FAQ Snippets:** `FAQPage` schema structured to answer common search engine questions directly in Google AI Overviews and Rich Results.
 * **Google AdSense & Monetization Setup:**
-  * **Auto-Ads & Publisher Account:** Integrated via `<meta name="google-adsense-account" content="ca-pub-7916799992208650" />` and official asynchronous script tag for automated, non-intrusive ad placement without manual code clutter.
-  * **Authorized Digital Sellers (`ads.txt`):** Published at root `/ads.txt` (`google.com, pub-7916799992208650, DIRECT, f08c47fec0942fa0`).
+  * **Auto-Ads & Publisher Account:** Integrated via `<meta name="google-adsense-account" content="ca-pub-7916799992208650" />` and official asynchronous script tag (`ca-pub-7916799992208650`) for automated, non-intrusive ad placement.
+  * **Authorized Digital Sellers (`ads.txt`):** Published at root `/ads.txt` (`google.com, pub-7916799992208650, DIRECT, f08c47fec0942fa0`) with daily edge revalidation.
   * **Compliant Privacy & Cookie Policy:** Dedicated Section 5 in `/privacy` explicitly disclosing Google advertising cookies and providing direct opt-out links (`adssettings.google.com` and `aboutads.info`).
-* **Lighthouse Performance & Accessibility Benchmarks:**
+* **Lighthouse & PageSpeed Performance Benchmarks:**
   * **🖥️ Desktop:** **100** Performance · **100** Accessibility · **96** Best Practices · **100** SEO
-  * **📱 Mobile:** **96** Performance · **100** Accessibility · **100** SEO
-* **Brand Assets & Structured Data:** Cache-busted raster favicons (`48x48` through `512x512`), `site.webmanifest`, JSON-LD schemas (`WebSite`, `Organization`, `AboutPage`, sitelinks), and an Ultra-HD `2400×1260` monochrome Obsidian/Platinum/Indigo 19-hero anime pantheon Open Graph & Twitter Card banner (`og-banner.jpg`).
-* **Agentic Browsing (4/4):** Standards-compliant `.well-known/ai-catalog.json`, `.well-known/ard.json`, and `.well-known/security.txt` manifests aligned to canonical production URLs.
+  * **📱 Mobile:** **96+** Performance · **100** Accessibility · **100** SEO
+  * **PageSpeed Insights Optimizations:** Code-split `firebase/firestore` (saving 560 KiB initial JS), compressed responsive `<picture>` backdrops, strictly <= 4 preconnect links, 1-year immutable edge caching, and RAF-debounced scroll listeners preventing forced reflow.
+* **Brand Assets & Social Cards:** Cache-busted raster favicons (`48x48` through `512x512`), `site.webmanifest`, and an Ultra-HD `2400×1260` monochrome Obsidian/Platinum/Indigo 19-hero anime pantheon Open Graph & Twitter Card banner (`og-banner.jpg`).
+* **Agentic Browsing (4/4):** Standards-compliant `llms.txt`, `.well-known/ai-catalog.json`, `.well-known/ard.json`, and `.well-known/security.txt` manifests aligned to canonical production URLs.
 
 ---
 
