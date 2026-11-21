@@ -1389,7 +1389,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                               required
                               value={newEmail}
                               onChange={(e) => setNewEmail(e.target.value)}
-                              placeholder="new-email@domain.com"
+                              placeholder="Enter new email address"
                               className="anilist-input w-full px-3.5 py-2.5 text-base sm:text-sm"
                             />
                             <p className="text-[11px] text-[#666672]">

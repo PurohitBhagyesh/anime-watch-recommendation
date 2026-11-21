@@ -408,7 +408,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                     required
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
-                    placeholder="you@domain.com"
+                    placeholder="Enter email address"
                     className="anilist-input w-full pl-10 pr-4 py-2.5 text-base sm:text-sm text-white placeholder:text-[#666672]"
                   />
                   <Mail aria-hidden="true" className="w-4 h-4 text-[#666672] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -509,7 +509,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                         required
                         value={emailOrUsername}
                         onChange={(e) => setEmailOrUsername(e.target.value)}
-                        placeholder="you@domain.com or username"
+                        placeholder="Email or username"
                         className="anilist-input w-full pl-10 pr-4 py-2.5 text-base sm:text-sm text-white placeholder:text-[#666672]"
                       />
                       <User aria-hidden="true" className="w-4 h-4 text-[#666672] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -604,7 +604,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                         maxLength={24}
                         value={signupUsername}
                         onChange={(e) => setSignupUsername(e.target.value)}
-                        placeholder="e.g. Bhagyesh Purohit"
+                        placeholder="Username"
                         className="anilist-input w-full pl-10 pr-4 py-2.5 text-base sm:text-sm text-white placeholder:text-[#666672]"
                       />
                       <User aria-hidden="true" className="w-4 h-4 text-[#666672] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -626,7 +626,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode = 'login' }) => 
                         required
                         value={signupEmail}
                         onChange={(e) => setSignupEmail(e.target.value)}
-                        placeholder="you@domain.com"
+                        placeholder="Enter email address"
                         className="anilist-input w-full pl-10 pr-4 py-2.5 text-base sm:text-sm text-white placeholder:text-[#666672]"
                       />
                       <Mail aria-hidden="true" className="w-4 h-4 text-[#666672] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
