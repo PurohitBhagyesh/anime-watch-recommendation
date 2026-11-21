@@ -38,22 +38,22 @@ export const App: React.FC = () => {
         <WatchlistProvider>
           <BrowserRouter>
             <div className="adaptive-shell relative flex flex-col min-h-dvh bg-[#000000] text-[#9a9aa6] selection:bg-[#5360e6] selection:text-white">
-              {/* Ethereal Anime Scenic Sky & Ocean Reflecting Background (Desktop Only, Scenery Only — Zero Characters) */}
+              {/* Ethereal Anime Scenic Sky & Ocean Reflecting Background (Universal Mobile & Desktop, Scenery Only — Zero Characters) */}
               <div
                 aria-hidden="true"
-                className="hidden lg:block fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
+                className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
               >
                 <picture>
                   <source srcSet="/img/anime-sky-ocean-bg.webp" type="image/webp" />
                   <img
                     src="/img/anime-sky-ocean-bg.jpg"
                     alt=""
-                    className="w-full h-full object-cover object-center opacity-[0.30] filter contrast-115 saturate-125 brightness-95"
+                    className="w-full h-full object-cover object-center opacity-[0.22] sm:opacity-[0.30] filter contrast-115 saturate-125 brightness-95"
                     loading="lazy"
                     decoding="async"
                   />
                 </picture>
-                {/* Cinematic darkening & vignettes to guarantee 100% WCAG contrast and readability */}
+                {/* Cinematic darkening & vignettes to guarantee 100% WCAG contrast and readability across mobile and desktop */}
                 <div className="absolute inset-0 bg-gradient-to-b from-[#000000]/80 via-[#000000]/65 to-[#000000]/90" />
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_25%,_#000000_82%)]" />
               </div>
