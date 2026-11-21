@@ -35,6 +35,12 @@ export interface AnimeSenpaiEventMap {
   };
   'watchlist:imported': {
     count: number;
+    added?: number;
+    updated?: number;
+  };
+  'watchlist:exported': {
+    count: number;
+    filename: string;
   };
   'watchlist:cleared': {
     previousCount: number;

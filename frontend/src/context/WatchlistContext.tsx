@@ -278,37 +278,171 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [persistAndBroadcast]);
 
   const exportWatchlist = useCallback(() => {
-    const dataStr =
-      'data:text/json;charset=utf-8,' +
-      encodeURIComponent(JSON.stringify(watchlistRef.current, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute('href', dataStr);
-    downloadAnchor.setAttribute(
-      'download',
-      `animesenpai-watchlist-${new Date().toISOString().slice(0, 10)}.json`
-    );
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
+    const items = watchlistRef.current;
+    if (items.length === 0) return;
+
+    try {
+      const filename = `animesenpai-watchlist-${new Date().toISOString().slice(0, 10)}.json`;
+      const blob = new Blob([JSON.stringify(items, null, 2)], {
+        type: 'application/json;charset=utf-8',
+      });
+      const url = URL.createObjectURL(blob);
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.href = url;
+      downloadAnchor.download = filename;
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      setTimeout(() => {
+        downloadAnchor.remove();
+        URL.revokeObjectURL(url);
+      }, 200);
+
+      eventBus.publish('watchlist:exported', { count: items.length, filename });
+    } catch (e) {
+      console.error('Failed to export watchlist:', e);
+    }
   }, []);
 
-  // Publisher: import backup JSON with item validation
+  // Helper to normalize imported anime status across variations (AniList/MAL/AnimeSenpai)
+  const normalizeStatus = (raw: unknown): WatchlistStatus => {
+    if (typeof raw !== 'string') return 'watching';
+    const s = raw.toLowerCase().trim();
+    if (s === 'current' || s === 'watching') return 'watching';
+    if (s === 'planning' || s === 'plan_to_watch' || s === 'plantowatch') return 'plan_to_watch';
+    if (s === 'completed') return 'completed';
+    if (s === 'repeating' || s === 'rewatching') return 'rewatching';
+    if (s === 'paused') return 'paused';
+    if (s === 'dropped') return 'dropped';
+    if (s === 'favorite' || s === 'favourites') return 'favorite';
+    return 'watching';
+  };
+
+  // Publisher: import backup JSON with item validation & smart merging
   const importWatchlist = useCallback(
     (jsonData: string): boolean => {
       try {
         const parsed = JSON.parse(jsonData);
-        if (!Array.isArray(parsed)) return false;
+        let rawList: unknown[] = [];
 
-        const validItems = parsed.filter(
-          (entry): entry is WatchlistItem =>
-            Boolean(entry && typeof entry === 'object' && entry.anime && typeof entry.anime.id === 'number')
-        );
+        if (Array.isArray(parsed)) {
+          rawList = parsed;
+        } else if (parsed && typeof parsed === 'object') {
+          const obj = parsed as Record<string, unknown>;
+          if (Array.isArray(obj.watchlist)) rawList = obj.watchlist;
+          else if (Array.isArray(obj.items)) rawList = obj.items;
+          else if (Array.isArray(obj.data)) rawList = obj.data;
+          else if (Array.isArray(obj.list)) rawList = obj.list;
+          else if (Array.isArray(obj.entries)) rawList = obj.entries;
+        }
 
-        setWatchlist(validItems);
-        persistAndBroadcast(validItems);
-        eventBus.publish('watchlist:imported', { count: validItems.length });
+        if (!rawList.length) return false;
+
+        const validImported: WatchlistItem[] = [];
+
+        for (const entry of rawList) {
+          if (!entry || typeof entry !== 'object') continue;
+          const e = entry as Record<string, any>;
+
+          const animeData = e.anime || e.media || (typeof e.id === 'number' ? e : null);
+          if (!animeData || typeof animeData.id !== 'number') continue;
+
+          const cover = animeData.coverImage || {};
+          const mediumCover =
+            typeof cover === 'string'
+              ? cover
+              : cover.medium || cover.large || cover.extraLarge || '';
+          const largeCover =
+            typeof cover === 'string'
+              ? cover
+              : cover.large || cover.extraLarge || cover.medium || '';
+
+          const title = animeData.title || {};
+          const romajiTitle =
+            typeof title === 'string'
+              ? title
+              : title.romaji || title.userPreferred || title.english || 'Anime';
+          const englishTitle =
+            typeof title === 'string'
+              ? title
+              : title.english || title.userPreferred || title.romaji || 'Anime';
+
+          const normalizedItem: WatchlistItem = {
+            anime: {
+              ...animeData,
+              id: animeData.id,
+              title: {
+                romaji: romajiTitle,
+                english: englishTitle,
+                native: typeof title === 'object' ? title.native : undefined,
+                userPreferred: typeof title === 'object' ? title.userPreferred : romajiTitle,
+              },
+              coverImage: {
+                medium: mediumCover,
+                large: largeCover,
+                extraLarge: typeof cover === 'object' ? cover.extraLarge : largeCover,
+                color: typeof cover === 'object' ? cover.color : undefined,
+              },
+              format: animeData.format || 'TV',
+              episodes: typeof animeData.episodes === 'number' ? animeData.episodes : null,
+              genres: Array.isArray(animeData.genres) ? animeData.genres : [],
+            },
+            status: normalizeStatus(e.status),
+            currentEpisode:
+              typeof e.currentEpisode === 'number'
+                ? e.currentEpisode
+                : typeof e.progress === 'number'
+                ? e.progress
+                : 0,
+            userRating:
+              typeof e.userRating === 'number'
+                ? e.userRating
+                : typeof e.score === 'number'
+                ? e.score
+                : undefined,
+            addedAt: e.addedAt || new Date().toISOString(),
+            updatedAt: e.updatedAt || new Date().toISOString(),
+          };
+
+          validImported.push(normalizedItem);
+        }
+
+        if (validImported.length === 0) return false;
+
+        // Merge with existing items: preserves existing items and updates or appends imported ones
+        const prevItems = watchlistRef.current;
+        const map = new Map<number, WatchlistItem>();
+        prevItems.forEach((item) => map.set(item.anime.id, item));
+
+        let addedCount = 0;
+        let updatedCount = 0;
+
+        validImported.forEach((importedItem) => {
+          if (map.has(importedItem.anime.id)) {
+            const existing = map.get(importedItem.anime.id)!;
+            map.set(importedItem.anime.id, {
+              ...existing,
+              ...importedItem,
+              anime: { ...existing.anime, ...importedItem.anime },
+              updatedAt: new Date().toISOString(),
+            });
+            updatedCount += 1;
+          } else {
+            map.set(importedItem.anime.id, importedItem);
+            addedCount += 1;
+          }
+        });
+
+        const merged = Array.from(map.values());
+        setWatchlist(merged);
+        persistAndBroadcast(merged);
+        eventBus.publish('watchlist:imported', {
+          count: validImported.length,
+          added: addedCount,
+          updated: updatedCount,
+        });
         return true;
-      } catch {
+      } catch (err) {
+        console.error('Watchlist import error:', err);
         return false;
       }
     },

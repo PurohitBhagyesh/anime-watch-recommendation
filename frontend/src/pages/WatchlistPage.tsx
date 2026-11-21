@@ -171,7 +171,15 @@ export const WatchlistPage: React.FC = () => {
       }),
       eventBus.subscribe('watchlist:imported', (ev) => {
         showToast({
-          text: `Imported ${ev.count} ${ev.count === 1 ? 'title' : 'titles'} from backup.`,
+          text: `Imported ${ev.count} ${ev.count === 1 ? 'title' : 'titles'}${
+            ev.added !== undefined ? ` (${ev.added} added, ${ev.updated} updated)` : ''
+          }.`,
+          tone: 'success',
+        });
+      }),
+      eventBus.subscribe('watchlist:exported', (ev) => {
+        showToast({
+          text: `Exported ${ev.count} ${ev.count === 1 ? 'title' : 'titles'} (${ev.filename}).`,
           tone: 'success',
         });
       }),
@@ -271,12 +279,28 @@ export const WatchlistPage: React.FC = () => {
   const filteredItems = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     const list = watchlist.filter((item) => {
-      if (filterStatus !== 'all' && item.status !== filterStatus) return false;
+      // When user is typing a search query, search across ALL statuses so the anime is immediately found!
+      if (!q && filterStatus !== 'all' && item.status !== filterStatus) return false;
       if (selectedGenre && !item.anime.genres?.includes(selectedGenre)) return false;
       if (q) {
-        const title = getPreferredTitle(item.anime.title, '').toLowerCase();
+        const preferred = getPreferredTitle(item.anime.title, '').toLowerCase();
+        const english = (item.anime.title.english || '').toLowerCase();
         const romaji = (item.anime.title.romaji || '').toLowerCase();
-        if (!title.includes(q) && !romaji.includes(q)) return false;
+        const userPref = (item.anime.title.userPreferred || '').toLowerCase();
+        const native = (item.anime.title.native || '').toLowerCase();
+        const genres = (item.anime.genres || []).join(' ').toLowerCase();
+        const synonyms = ((item.anime as any).synonyms || []).join(' ').toLowerCase();
+
+        const matches =
+          preferred.includes(q) ||
+          english.includes(q) ||
+          romaji.includes(q) ||
+          userPref.includes(q) ||
+          native.includes(q) ||
+          genres.includes(q) ||
+          synonyms.includes(q);
+
+        if (!matches) return false;
       }
       return true;
     });
@@ -767,7 +791,7 @@ export const WatchlistPage: React.FC = () => {
                 id="watchlist-sort"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="anilist-input px-3 py-2 text-xs font-semibold text-[#f5f5f7] min-h-[40px] sm:min-h-[36px] cursor-pointer"
+                className="anilist-input px-3 py-2 text-xs font-semibold text-[#f5f5f7] min-h-[40px] sm:min-h-[36px] cursor-pointer transition-all duration-200 hover:border-[#383844] focus:border-[#5360e6]"
               >
                 <option value="updated">Recently Updated</option>
                 <option value="title">Title (A–Z)</option>
@@ -777,12 +801,29 @@ export const WatchlistPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Real-time search feedback badge */}
+        {searchQuery.trim() && (
+          <div className="flex items-center justify-between text-xs text-[#9a9aa6] px-1 py-0.5 animate-fadeIn">
+            <span>
+              Found <strong className="text-[#f5f5f7]">{filteredItems.length}</strong>{' '}
+              {filteredItems.length === 1 ? 'title' : 'titles'} matching &ldquo;{searchQuery.trim()}&rdquo; across your library
+            </span>
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="text-[#5360e6] hover:underline cursor-pointer font-medium"
+            >
+              Clear search
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Watchlist Items */}
       {filteredItems.length > 0 ? (
         viewMode === 'table' ? (
-          <div className="space-y-3 sm:space-y-2 w-full min-w-0">
+          <div className="space-y-3 sm:space-y-2 w-full min-w-0 transition-opacity duration-300 animate-fadeIn">
             {/* Desktop Table Header */}
             <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-1.5 text-[10px] font-mono uppercase tracking-widest text-[#9a9aa6]">
               <span className="col-span-5">Anime</span>

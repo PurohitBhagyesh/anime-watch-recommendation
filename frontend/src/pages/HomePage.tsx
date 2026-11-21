@@ -11,6 +11,7 @@ import {
 import { fetchHomeData, getCurrentSeason } from '../api/anilist';
 import type { HomeSectionsData } from '../api/anilist';
 import { HeroBanner } from '../components/home/HeroBanner';
+import { HomeNoticeBanner } from '../components/home/HomeNoticeBanner';
 import { CarouselRow } from '../components/home/CarouselRow';
 import { GenreGrid } from '../components/home/GenreGrid';
 import { HeroSkeleton, CarouselRowSkeleton } from '../components/common/Skeleton';
@@ -137,6 +138,9 @@ export const HomePage: React.FC = () => {
         animeList={data?.spotlights?.length ? data.spotlights : (initialHomeData as any).spotlights}
         anime={data?.spotlight || (initialHomeData as any).spotlight}
       />
+
+      {/* Interactive Expandable Notice with Upside-Down Rotating Chevron */}
+      <HomeNoticeBanner />
 
       {/* Main Editorial Catalog Sections */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 divide-y divide-[#1a1a22]">
