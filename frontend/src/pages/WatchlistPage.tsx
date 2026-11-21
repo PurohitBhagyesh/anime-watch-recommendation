@@ -266,7 +266,7 @@ export const WatchlistPage: React.FC = () => {
   const genreBreakdown = useMemo(() => {
     const counts: Record<string, number> = {};
     watchlist.forEach((item) => {
-      item.anime.genres?.forEach((g) => {
+      item.anime?.genres?.forEach((g) => {
         counts[g] = (counts[g] || 0) + 1;
       });
     });
@@ -279,17 +279,18 @@ export const WatchlistPage: React.FC = () => {
   const filteredItems = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     const list = watchlist.filter((item) => {
+      if (!item || !item.anime) return false;
       // When user is typing a search query, search across ALL statuses so the anime is immediately found!
       if (!q && filterStatus !== 'all' && item.status !== filterStatus) return false;
       if (selectedGenre && !item.anime.genres?.includes(selectedGenre)) return false;
       if (q) {
         const preferred = getPreferredTitle(item.anime.title, '').toLowerCase();
-        const english = (item.anime.title.english || '').toLowerCase();
-        const romaji = (item.anime.title.romaji || '').toLowerCase();
-        const userPref = (item.anime.title.userPreferred || '').toLowerCase();
-        const native = (item.anime.title.native || '').toLowerCase();
+        const english = (item.anime.title?.english || '').toLowerCase();
+        const romaji = (item.anime.title?.romaji || '').toLowerCase();
+        const userPref = (item.anime.title?.userPreferred || '').toLowerCase();
+        const native = (item.anime.title?.native || '').toLowerCase();
         const genres = (item.anime.genres || []).join(' ').toLowerCase();
-        const synonyms = ((item.anime as any).synonyms || []).join(' ').toLowerCase();
+        const synonyms = ((item.anime as any)?.synonyms || []).join(' ').toLowerCase();
 
         const matches =
           preferred.includes(q) ||
@@ -307,16 +308,16 @@ export const WatchlistPage: React.FC = () => {
 
     return [...list].sort((a, b) => {
       if (sortBy === 'title') {
-        return getPreferredTitle(a.anime.title, '').localeCompare(
-          getPreferredTitle(b.anime.title, '')
+        return getPreferredTitle(a.anime?.title, '').localeCompare(
+          getPreferredTitle(b.anime?.title, '')
         );
       }
       if (sortBy === 'score') {
         return (b.userRating || 0) - (a.userRating || 0);
       }
       if (sortBy === 'progress') {
-        const pctA = a.anime.episodes ? (a.currentEpisode || 0) / a.anime.episodes : 0;
-        const pctB = b.anime.episodes ? (b.currentEpisode || 0) / b.anime.episodes : 0;
+        const pctA = a.anime?.episodes ? (a.currentEpisode || 0) / a.anime.episodes : 0;
+        const pctB = b.anime?.episodes ? (b.currentEpisode || 0) / b.anime.episodes : 0;
         return pctB - pctA;
       }
       return new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime();
@@ -344,29 +345,50 @@ export const WatchlistPage: React.FC = () => {
   if (!user && watchlist.length === 0) {
     return (
       <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-24 space-y-6 animate-fadeIn flex flex-col items-center justify-center min-h-[60dvh] text-center min-w-0">
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileUpload}
+          accept=".json"
+          className="hidden"
+        />
         <div className="w-16 h-16 bg-[#0c0c0f] rounded-2xl flex items-center justify-center border border-[#23232b] shadow-lg shadow-black/40">
           <Bookmark aria-hidden="true" className="w-7 h-7 text-[#f5f5f7]" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#f5f5f7] tracking-tight">
-          Track Your Anime
-        </h1>
-        <p className="text-[#9a9aa6] max-w-md mx-auto text-xs sm:text-sm leading-relaxed">
-          Sign in to build your personal anime watchlist, track episode progress, rate series, and sync live across your phone, tablet, and PC.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full sm:w-auto">
+        <div className="space-y-2 max-w-md mx-auto">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#f5f5f7] tracking-tight">
+            Track Your Anime
+          </h1>
+          <p className="text-[#9a9aa6] text-xs sm:text-sm leading-relaxed">
+            Build your personal anime watchlist, track episode progress, rate series, and sync live across your phone, tablet, and PC.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2 w-full sm:w-auto">
+          <Link
+            to="/discover"
+            className="anilist-btn-primary px-6 py-2.5 text-xs sm:text-sm inline-flex items-center gap-2 min-h-[44px]"
+          >
+            <Compass className="w-4 h-4" />
+            <span>Browse Catalog</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="anilist-btn-secondary px-6 py-2.5 text-xs sm:text-sm inline-flex items-center gap-2 min-h-[44px] cursor-pointer"
+          >
+            <Upload className="w-4 h-4" />
+            <span>Import JSON</span>
+          </button>
           <Link
             to="/login"
-            className="anilist-btn-primary px-7 py-3 sm:py-2.5 text-xs sm:text-sm inline-flex items-center justify-center min-h-[44px]"
+            className="px-6 py-2.5 text-xs sm:text-sm font-semibold rounded-full bg-[#16161b] hover:bg-[#202028] text-[#d2d2dc] hover:text-[#f5f5f7] border border-[#23232b] inline-flex items-center justify-center min-h-[44px] transition"
           >
             Sign In
           </Link>
-          <Link
-            to="/signup"
-            className="anilist-btn-secondary px-7 py-3 sm:py-2.5 text-xs sm:text-sm inline-flex items-center justify-center min-h-[44px]"
-          >
-            Create Account
-          </Link>
         </div>
+        <p className="text-[11px] text-[#666672] max-w-sm mx-auto">
+          Your watchlist is saved securely on this browser even without an account. Sign in anytime to sync across all your devices.
+        </p>
       </div>
     );
   }
@@ -825,18 +847,18 @@ export const WatchlistPage: React.FC = () => {
         viewMode === 'table' ? (
           <div className="space-y-3 sm:space-y-2 w-full min-w-0 transition-opacity duration-300 animate-fadeIn">
             {/* Desktop Table Header */}
-            <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-1.5 text-[10px] font-mono uppercase tracking-widest text-[#9a9aa6]">
-              <span className="col-span-5">Anime</span>
+            <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-2 text-[10px] font-mono uppercase tracking-widest text-[#9a9aa6]">
+              <span className="col-span-5">Anime Title & Progress</span>
               <span className="col-span-2 text-center">Score</span>
-              <span className="col-span-2 text-center">Progress</span>
-              <span className="col-span-3 text-right">Status</span>
+              <span className="col-span-2 text-center">Episodes</span>
+              <span className="col-span-3 text-right pr-9">Status</span>
             </div>
 
             {filteredItems.map((item) => {
               const anime = item.anime;
-              const title = getPreferredTitle(anime.title, 'Anime');
+              const title = getPreferredTitle(anime?.title, 'Anime');
               const currentEp = item.currentEpisode || 0;
-              const totalEps = anime.episodes || null;
+              const totalEps = anime?.episodes || null;
               const maxEpisodes = totalEps || 9999;
               const progressPct = totalEps
                 ? Math.min(100, Math.round((currentEp / totalEps) * 100))
@@ -848,29 +870,33 @@ export const WatchlistPage: React.FC = () => {
 
               return (
                 <div
-                  key={anime.id}
-                  className="rounded-2xl anilist-table-row transition-all duration-200 w-full min-w-0"
+                  key={anime?.id || title}
+                  className="rounded-2xl anilist-table-row hover:bg-[#121217] transition-all duration-200 w-full min-w-0"
                 >
                   {/* Mobile Layout (< 768px): Rich Native App Card */}
                   <div className="md:hidden p-3 sm:p-3.5 space-y-2.5 w-full min-w-0">
                     {/* Top Row: Poster, Title, Meta, Delete */}
                     <div className="flex items-start gap-2.5 sm:gap-3 w-full min-w-0">
                       <Link
-                        to={`/anime/${anime.id}`}
+                        to={`/anime/${anime?.id}`}
                         className="w-16 min-[380px]:w-18 aspect-[185/265] rounded-xl overflow-hidden flex-shrink-0 bg-[#16161b] border border-[#23232b] shadow-md relative block active:scale-95 transition-transform"
                       >
                         <img
-                          src={anime.coverImage.medium || anime.coverImage.large}
+                          src={anime?.coverImage?.medium || anime?.coverImage?.large || '/animesenpai-banner.svg'}
                           alt={title}
                           className="w-full h-full object-cover"
                           loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/animesenpai-banner.svg';
+                          }}
                         />
                       </Link>
 
                       <div className="min-w-0 flex-1 space-y-1">
                         <div className="flex items-start justify-between gap-1.5">
                           <Link
-                            to={`/anime/${anime.id}`}
+                            to={`/anime/${anime?.id}`}
                             className="font-bold text-xs min-[380px]:text-sm text-[#f5f5f7] hover:text-[#5360e6] line-clamp-2 leading-snug transition-colors"
                             title={title}
                           >
@@ -1010,36 +1036,42 @@ export const WatchlistPage: React.FC = () => {
                   <div className="hidden md:grid md:grid-cols-12 gap-3 items-center p-3.5">
                     <div className="flex items-center gap-3.5 col-span-5 min-w-0">
                       <Link
-                        to={`/anime/${anime.id}`}
-                        className="w-11 aspect-[3/4] rounded-xl overflow-hidden flex-shrink-0 bg-[#16161b] border border-[#23232b]"
+                        to={`/anime/${anime?.id}`}
+                        className="w-14 sm:w-16 aspect-[185/265] rounded-xl overflow-hidden flex-shrink-0 bg-[#16161b] border border-[#23232b] shadow-md group/thumb relative block"
                       >
                         <img
-                          src={anime.coverImage.medium || anime.coverImage.large}
+                          src={anime?.coverImage?.medium || anime?.coverImage?.large || '/animesenpai-banner.svg'}
                           alt={title}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover/thumb:scale-105"
                           loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/animesenpai-banner.svg';
+                          }}
                         />
                       </Link>
 
                       <div className="min-w-0 flex-1 space-y-1.5">
                         <Link
-                          to={`/anime/${anime.id}`}
-                          className="font-semibold text-sm text-[#f5f5f7] hover:underline truncate block"
+                          to={`/anime/${anime?.id}`}
+                          className="font-semibold text-sm text-[#f5f5f7] hover:text-[#5360e6] truncate block transition-colors"
                           title={title}
                         >
                           {title}
                         </Link>
                         <div className="flex items-center gap-2 text-[11px] text-[#9a9aa6]">
-                          <span>{anime.format?.replace('_', ' ') || 'Anime'}</span>
+                          <span>{anime?.format?.replace('_', ' ') || 'Anime'}</span>
                           <span>·</span>
-                          <span>{anime.seasonYear || 'TBA'}</span>
+                          <span>{anime?.seasonYear || 'TBA'}</span>
                           <span>·</span>
                           <span>{totalEps ? `${totalEps} eps` : 'Airing'}</span>
                         </div>
-                        <div className="w-full max-w-[220px] h-1 rounded-full bg-[#1e1e26] overflow-hidden">
+                        <div className="w-full max-w-[260px] h-1.5 rounded-full bg-[#1e1e26] overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all duration-300 ${
-                              isCompleted ? 'bg-emerald-400' : 'bg-[#5360e6]'
+                              isCompleted
+                                ? 'bg-emerald-400'
+                                : 'bg-gradient-to-r from-[#5360e6] to-[#717ff5]'
                             }`}
                             style={{ width: `${progressPct}%` }}
                           />
@@ -1051,8 +1083,8 @@ export const WatchlistPage: React.FC = () => {
                       <select
                         value={item.userRating || 0}
                         aria-label={`Rating for ${title}`}
-                        onChange={(e) => updateRating(anime.id, Number(e.target.value))}
-                        className="anilist-input text-xs px-2.5 py-1.5 font-medium text-[#f5f5f7] cursor-pointer"
+                        onChange={(e) => anime?.id && updateRating(anime.id, Number(e.target.value))}
+                        className="anilist-input text-xs px-2.5 py-1.5 font-medium text-[#f5f5f7] cursor-pointer hover:border-[#383844] focus:border-[#5360e6]"
                       >
                         <option value="0">Unrated</option>
                         {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
@@ -1066,25 +1098,28 @@ export const WatchlistPage: React.FC = () => {
                     <div className="flex items-center justify-center gap-1.5 col-span-2">
                       <button
                         type="button"
+                        disabled={currentEp <= 0}
                         onClick={() =>
-                          updateProgress(anime.id, Math.max(0, currentEp - 1))
+                          anime?.id && updateProgress(anime.id, Math.max(0, currentEp - 1))
                         }
                         aria-label={`Decrease episode for ${title}`}
-                        className="w-7 h-7 rounded-full bg-[#16161b] hover:bg-[#1d1d24] text-[#f5f5f7] border border-[#23232b] flex items-center justify-center active:scale-95 transition cursor-pointer"
+                        className="w-7 h-7 rounded-full bg-[#16161b] hover:bg-[#1d1d24] disabled:opacity-30 disabled:cursor-not-allowed text-[#f5f5f7] border border-[#23232b] flex items-center justify-center active:scale-95 transition cursor-pointer"
                         title="Previous episode"
                       >
                         <Minus aria-hidden="true" className="w-3 h-3" />
                       </button>
-                      <span className="font-mono font-semibold text-[#f5f5f7] min-w-[3.5rem] text-center text-xs tabular-nums">
+                      <span className="font-mono font-semibold text-[#f5f5f7] min-w-[3.8rem] text-center text-xs tabular-nums">
                         {currentEp} / {totalEps ?? '—'}
                       </span>
                       <button
                         type="button"
+                        disabled={totalEps !== null && currentEp >= totalEps}
                         onClick={() =>
+                          anime?.id &&
                           updateProgress(anime.id, Math.min(maxEpisodes, currentEp + 1))
                         }
                         aria-label={`Increase episode for ${title}`}
-                        className="w-7 h-7 rounded-full bg-[#16161b] hover:bg-[#1d1d24] text-[#f5f5f7] border border-[#23232b] flex items-center justify-center active:scale-95 transition cursor-pointer"
+                        className="w-7 h-7 rounded-full bg-[#16161b] hover:bg-[#1d1d24] disabled:opacity-30 disabled:cursor-not-allowed text-[#f5f5f7] border border-[#23232b] flex items-center justify-center active:scale-95 transition cursor-pointer"
                         title="Next episode"
                       >
                         <Plus aria-hidden="true" className="w-3 h-3" />
@@ -1096,9 +1131,9 @@ export const WatchlistPage: React.FC = () => {
                         value={item.status}
                         aria-label={`Watch status for ${title}`}
                         onChange={(e) =>
-                          updateStatus(anime.id, e.target.value as WatchlistStatus)
+                          anime?.id && updateStatus(anime.id, e.target.value as WatchlistStatus)
                         }
-                        className="anilist-input text-xs px-2.5 py-1.5 font-medium text-[#f5f5f7] cursor-pointer"
+                        className="anilist-input text-xs px-2.5 py-1.5 font-medium text-[#f5f5f7] cursor-pointer hover:border-[#383844] focus:border-[#5360e6]"
                       >
                         <option value="watching">Watching</option>
                         <option value="plan_to_watch">Planning</option>
@@ -1110,7 +1145,7 @@ export const WatchlistPage: React.FC = () => {
 
                       <button
                         type="button"
-                        onClick={() => removeFromWatchlist(anime.id)}
+                        onClick={() => anime?.id && removeFromWatchlist(anime.id)}
                         className="w-8 h-8 rounded-full text-[#9a9aa6] hover:text-rose-300 hover:bg-rose-500/15 transition flex items-center justify-center cursor-pointer flex-shrink-0"
                         title="Remove"
                         aria-label={`Remove ${title}`}
@@ -1128,9 +1163,9 @@ export const WatchlistPage: React.FC = () => {
           <div className="grid grid-cols-2 min-[480px]:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4">
             {filteredItems.map((item) => {
               const anime = item.anime;
-              const title = getPreferredTitle(anime.title, 'Anime');
+              const title = getPreferredTitle(anime?.title, 'Anime');
               const currentEp = item.currentEpisode || 0;
-              const totalEps = anime.episodes || null;
+              const totalEps = anime?.episodes || null;
               const maxEpisodes = totalEps || 9999;
               const progressPct = totalEps
                 ? Math.min(100, Math.round((currentEp / totalEps) * 100))
@@ -1142,17 +1177,21 @@ export const WatchlistPage: React.FC = () => {
 
               return (
                 <div
-                  key={anime.id}
+                  key={anime?.id || title}
                   className="flex flex-col bg-[#0c0c0f] rounded-2xl overflow-hidden border border-[#23232b] hover:border-[#383844] transition-all group"
                 >
                   {/* Poster Image with Status + Score + Stepper Overlays */}
                   <div className="relative aspect-[185/265] w-full bg-[#16161b] overflow-hidden">
-                    <Link to={`/anime/${anime.id}`} className="block w-full h-full">
+                    <Link to={`/anime/${anime?.id}`} className="block w-full h-full">
                       <img
-                        src={anime.coverImage.large || anime.coverImage.medium}
+                        src={anime?.coverImage?.large || anime?.coverImage?.medium || '/animesenpai-banner.svg'}
                         alt={title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = '/animesenpai-banner.svg';
+                        }}
                       />
                     </Link>
 
@@ -1177,11 +1216,13 @@ export const WatchlistPage: React.FC = () => {
                       </span>
                       <button
                         type="button"
+                        disabled={totalEps !== null && currentEp >= totalEps}
                         onClick={() =>
+                          anime?.id &&
                           updateProgress(anime.id, Math.min(maxEpisodes, currentEp + 1))
                         }
                         aria-label={`Increase episode for ${title}`}
-                        className="w-7 h-7 rounded-lg bg-[#5360e6] hover:bg-[#6470f2] active:scale-90 text-white font-bold flex items-center justify-center shadow-lg transition cursor-pointer"
+                        className="w-7 h-7 rounded-lg bg-[#5360e6] hover:bg-[#6470f2] disabled:opacity-40 disabled:cursor-not-allowed active:scale-90 text-white font-bold flex items-center justify-center shadow-lg transition cursor-pointer"
                         title="Next episode"
                       >
                         <Plus aria-hidden="true" className="w-3.5 h-3.5 stroke-[3]" />
@@ -1193,22 +1234,24 @@ export const WatchlistPage: React.FC = () => {
                   <div className="p-2.5 sm:p-3 flex flex-col flex-1 justify-between gap-2">
                     <div>
                       <Link
-                        to={`/anime/${anime.id}`}
+                        to={`/anime/${anime?.id}`}
                         className="font-bold text-xs sm:text-sm text-[#f5f5f7] line-clamp-2 hover:text-[#5360e6] leading-snug transition-colors"
                         title={title}
                       >
                         {title}
                       </Link>
                       <p className="text-[10px] sm:text-[11px] text-[#9a9aa6] mt-0.5 truncate">
-                        {anime.format?.replace('_', ' ') || 'Anime'} · {anime.seasonYear || 'TBA'}
+                        {anime?.format?.replace('_', ' ') || 'Anime'} · {anime?.seasonYear || 'TBA'}
                       </p>
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="w-full h-1 rounded-full bg-[#1e1e26] overflow-hidden">
+                    <div className="w-full h-1.5 rounded-full bg-[#1e1e26] overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-300 ${
-                          isCompleted ? 'bg-emerald-400' : 'bg-[#5360e6]'
+                          isCompleted
+                            ? 'bg-emerald-400'
+                            : 'bg-gradient-to-r from-[#5360e6] to-[#717ff5]'
                         }`}
                         style={{ width: `${progressPct}%` }}
                       />
@@ -1220,7 +1263,7 @@ export const WatchlistPage: React.FC = () => {
                         value={item.status}
                         aria-label={`Status for ${title}`}
                         onChange={(e) =>
-                          updateStatus(anime.id, e.target.value as WatchlistStatus)
+                          anime?.id && updateStatus(anime.id, e.target.value as WatchlistStatus)
                         }
                         className="anilist-input text-[10px] sm:text-[11px] px-2 py-1 font-semibold text-[#f5f5f7] flex-1 min-w-0"
                       >
@@ -1233,7 +1276,7 @@ export const WatchlistPage: React.FC = () => {
                       </select>
                       <button
                         type="button"
-                        onClick={() => removeFromWatchlist(anime.id)}
+                        onClick={() => anime?.id && removeFromWatchlist(anime.id)}
                         className="w-7 h-7 rounded-lg text-[#9a9aa6] hover:text-rose-300 hover:bg-rose-500/15 transition flex items-center justify-center cursor-pointer flex-shrink-0"
                         title="Remove from list"
                         aria-label={`Remove ${title}`}

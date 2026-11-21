@@ -21,6 +21,20 @@ const WatchlistContext = createContext<WatchlistContextType | undefined>(undefin
 
 const LOCAL_STORAGE_KEY = 'animesenpai_watchlist_v1';
 
+// Helper to normalize anime status across variations (AniList/MAL/AnimeSenpai)
+function normalizeStatus(raw: unknown): WatchlistStatus {
+  if (typeof raw !== 'string') return 'watching';
+  const s = raw.toLowerCase().trim();
+  if (s === 'current' || s === 'watching') return 'watching';
+  if (s === 'planning' || s === 'plan_to_watch' || s === 'plantowatch') return 'plan_to_watch';
+  if (s === 'completed') return 'completed';
+  if (s === 'repeating' || s === 'rewatching') return 'rewatching';
+  if (s === 'paused') return 'paused';
+  if (s === 'dropped') return 'dropped';
+  if (s === 'favorite' || s === 'favourites') return 'favorite';
+  return 'watching';
+}
+
 function readStoredWatchlist(): WatchlistItem[] {
   try {
     const saved =
@@ -28,7 +42,53 @@ function readStoredWatchlist(): WatchlistItem[] {
       localStorage.getItem('anime_pulse_watchlist_v1');
     if (!saved) return [];
     const parsed = JSON.parse(saved);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+
+    const sanitized: WatchlistItem[] = [];
+    for (const raw of parsed) {
+      if (!raw || typeof raw !== 'object') continue;
+      const animeData = (raw as any).anime || (typeof (raw as any).id === 'number' ? raw : null);
+      if (!animeData) continue;
+      const id = typeof animeData.id === 'number' ? animeData.id : typeof (raw as any).id === 'number' ? (raw as any).id : 0;
+      if (!id) continue;
+
+      const titleObj = animeData.title || {};
+      const romaji = typeof titleObj === 'string' ? titleObj : titleObj.romaji || titleObj.userPreferred || titleObj.english || 'Anime';
+      const english = typeof titleObj === 'string' ? titleObj : titleObj.english || titleObj.userPreferred || titleObj.romaji || 'Anime';
+      const cover = animeData.coverImage || {};
+      const mediumCover = typeof cover === 'string' ? cover : cover.medium || cover.large || cover.extraLarge || '';
+      const largeCover = typeof cover === 'string' ? cover : cover.large || cover.extraLarge || cover.medium || '';
+
+      sanitized.push({
+        anime: {
+          ...animeData,
+          id,
+          title: {
+            romaji,
+            english,
+            native: typeof titleObj === 'object' ? titleObj.native : undefined,
+            userPreferred: typeof titleObj === 'object' ? titleObj.userPreferred : romaji,
+          },
+          coverImage: {
+            medium: mediumCover,
+            large: largeCover,
+            extraLarge: typeof cover === 'object' ? cover.extraLarge : largeCover,
+            color: typeof cover === 'object' ? cover.color : undefined,
+          },
+          format: animeData.format || 'TV',
+          episodes: typeof animeData.episodes === 'number' ? animeData.episodes : null,
+          genres: Array.isArray(animeData.genres) ? animeData.genres : [],
+        },
+        status: normalizeStatus((raw as any).status),
+        currentEpisode: typeof (raw as any).currentEpisode === 'number' ? (raw as any).currentEpisode : typeof (raw as any).progress === 'number' ? (raw as any).progress : 0,
+        userRating: typeof (raw as any).userRating === 'number' ? (raw as any).userRating : typeof (raw as any).score === 'number' ? (raw as any).score : 0,
+        notes: typeof (raw as any).notes === 'string' ? (raw as any).notes : undefined,
+        addedAt: typeof (raw as any).addedAt === 'string' ? (raw as any).addedAt : new Date().toISOString(),
+        updatedAt: typeof (raw as any).updatedAt === 'string' ? (raw as any).updatedAt : new Date().toISOString(),
+      });
+    }
+
+    return sanitized;
   } catch (e) {
     console.error('Failed to load watchlist from localStorage', e);
     return [];
@@ -302,20 +362,6 @@ export const WatchlistProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       console.error('Failed to export watchlist:', e);
     }
   }, []);
-
-  // Helper to normalize imported anime status across variations (AniList/MAL/AnimeSenpai)
-  const normalizeStatus = (raw: unknown): WatchlistStatus => {
-    if (typeof raw !== 'string') return 'watching';
-    const s = raw.toLowerCase().trim();
-    if (s === 'current' || s === 'watching') return 'watching';
-    if (s === 'planning' || s === 'plan_to_watch' || s === 'plantowatch') return 'plan_to_watch';
-    if (s === 'completed') return 'completed';
-    if (s === 'repeating' || s === 'rewatching') return 'rewatching';
-    if (s === 'paused') return 'paused';
-    if (s === 'dropped') return 'dropped';
-    if (s === 'favorite' || s === 'favourites') return 'favorite';
-    return 'watching';
-  };
 
   // Publisher: import backup JSON with item validation & smart merging
   const importWatchlist = useCallback(

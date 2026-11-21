@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   Play,
   Check,
@@ -17,6 +17,11 @@ import {
   Users,
   GitFork,
   Smile,
+  Search,
+  RotateCcw,
+  Compass,
+  Bookmark,
+  Film,
 } from 'lucide-react';
 import { fetchAnimeDetails } from '../api/anilist';
 import type { AnimeDetailsData, WatchlistStatus } from '../api/types';
@@ -32,13 +37,15 @@ import { useSEO, SITE_URL } from '../utils/seo';
 
 export const AnimeDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [anime, setAnime] = useState<AnimeDetailsData | null>(null);
+  const navigate = useNavigate();
+  const [apiAnime, setApiAnime] = useState<AnimeDetailsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showFullSynopsis, setShowFullSynopsis] = useState(false);
   const [trailerModalOpen, setTrailerModalOpen] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'characters' | 'relations' | 'recommendations'>('overview');
+  const [fallbackSearchQuery, setFallbackSearchQuery] = useState('');
 
   const {
     isInWatchlist,
@@ -55,20 +62,57 @@ export const AnimeDetailsPage: React.FC = () => {
   const inWatchlist = isInWatchlist(animeId);
   const watchlistItem = getItem(animeId);
 
+  // Construct effective anime details (recover from Watchlist if AniList has no info / error)
+  const effectiveAnime: AnimeDetailsData | null =
+    apiAnime ||
+    (watchlistItem?.anime
+      ? {
+          ...watchlistItem.anime,
+          id: animeId,
+          bannerImage:
+            watchlistItem.anime.bannerImage ||
+            watchlistItem.anime.coverImage?.extraLarge ||
+            watchlistItem.anime.coverImage?.large ||
+            '',
+          description:
+            watchlistItem.anime.description ||
+            'Saved in your personal watchlist. Full synopsis and live streaming links from AniList are currently unavailable.',
+          status: watchlistItem.anime.status || 'FINISHED',
+          studios: (watchlistItem.anime as any)?.studios || { nodes: [] },
+          characters: { edges: [] },
+          relations: { edges: [] },
+          recommendations: { nodes: [] },
+          rankings: [],
+          externalLinks: [],
+          synonyms: (watchlistItem.anime as any)?.synonyms || [],
+          source: (watchlistItem.anime as any)?.source || null,
+          hashtag: null,
+          startDate: { year: watchlistItem.anime.seasonYear || null, month: null, day: null },
+          endDate: { year: null, month: null, day: null },
+        }
+      : null);
+
   // Dynamic SEO metadata derived from real anime information
-  const animeTitle = anime?.title?.userPreferred || anime?.title?.english || anime?.title?.romaji;
+  const animeTitle =
+    effectiveAnime?.title?.userPreferred ||
+    effectiveAnime?.title?.english ||
+    effectiveAnime?.title?.romaji;
   const pageTitle = animeTitle
     ? `${animeTitle} • AnimeSenpai`
     : error
-    ? 'Anime Not Found • AnimeSenpai'
+    ? 'Anime Information Unavailable • AnimeSenpai'
     : 'Anime Details • AnimeSenpai';
 
-  const cleanSynopsis = anime?.description
-    ? anime.description.replace(/<[^>]*>?/gm, '').replace(/&quot;/g, '"').replace(/&#039;/g, "'").trim()
+  const cleanSynopsis = effectiveAnime?.description
+    ? effectiveAnime.description
+        .replace(/<[^>]*>?/gm, '')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'")
+        .trim()
     : '';
 
-  const studioName = anime?.studios?.nodes?.[0]?.name;
-  const genresStr = anime?.genres?.length ? anime.genres.join(', ') : 'Anime';
+  const studioName = effectiveAnime?.studios?.nodes?.[0]?.name;
+  const genresStr = effectiveAnime?.genres?.length ? effectiveAnime.genres.join(', ') : 'Anime';
 
   let pageDesc = 'Discover, track and explore thousands of anime titles with official trailers on AnimeSenpai.';
   if (animeTitle) {
@@ -78,120 +122,227 @@ export const AnimeDetailsPage: React.FC = () => {
       pageDesc += ` ${excerpt}`;
     }
     pageDesc += ` Genre: ${genresStr}. View release details, character cast, official links, and track watch progress.`;
-  } else if (error) {
+  } else if (error && !effectiveAnime) {
     pageDesc = 'Could not find details for this anime on AnimeSenpai.';
   }
 
   // Schema.org Movie or TVSeries structured data (strictly real data, no fake reviews or invented ratings)
-  const animeSchema = anime && animeTitle ? {
-    '@context': 'https://schema.org',
-    '@type': anime.format === 'MOVIE' ? 'Movie' : 'TVSeries',
-    name: animeTitle,
-    alternateName: [anime.title.english, anime.title.romaji, anime.title.native].filter(Boolean),
-    description: cleanSynopsis || undefined,
-    image: anime.coverImage.extraLarge || anime.coverImage.large,
-    genre: anime.genres || [],
-    numberOfEpisodes: anime.episodes || undefined,
-    productionCompany: studioName ? { '@type': 'Organization', name: studioName } : undefined,
-    datePublished: anime.seasonYear ? `${anime.seasonYear}` : undefined,
-    aggregateRating: anime.averageScore ? {
-      '@type': 'AggregateRating',
-      ratingValue: (anime.averageScore / 10).toFixed(1),
-      bestRating: '10',
-      worstRating: '1',
-      ratingCount: anime.popularity || undefined,
-    } : undefined,
-    trailer: anime.trailer?.site === 'youtube' && anime.trailer.id ? {
-      '@type': 'VideoObject',
-      name: `${animeTitle} Official Trailer`,
-      description: `Official trailer for ${animeTitle}`,
-      thumbnailUrl: anime.coverImage.large || anime.bannerImage,
-      uploadDate: anime.seasonYear ? `${anime.seasonYear}-01-01` : '2024-01-01',
-      embedUrl: `https://www.youtube.com/embed/${anime.trailer.id}`,
-    } : undefined,
-    url: `${SITE_URL}/anime/${anime.id}`,
-  } : null;
+  const animeSchema =
+    effectiveAnime && animeTitle
+      ? {
+          '@context': 'https://schema.org',
+          '@type': effectiveAnime.format === 'MOVIE' ? 'Movie' : 'TVSeries',
+          name: animeTitle,
+          alternateName: [
+            effectiveAnime.title?.english,
+            effectiveAnime.title?.romaji,
+            effectiveAnime.title?.native,
+          ].filter(Boolean),
+          description: cleanSynopsis || undefined,
+          image:
+            effectiveAnime.coverImage?.extraLarge ||
+            effectiveAnime.coverImage?.large ||
+            effectiveAnime.coverImage?.medium,
+          genre: effectiveAnime.genres || [],
+          numberOfEpisodes: effectiveAnime.episodes || undefined,
+          productionCompany: studioName ? { '@type': 'Organization', name: studioName } : undefined,
+          datePublished: effectiveAnime.seasonYear ? `${effectiveAnime.seasonYear}` : undefined,
+          aggregateRating: effectiveAnime.averageScore
+            ? {
+                '@type': 'AggregateRating',
+                ratingValue: (effectiveAnime.averageScore / 10).toFixed(1),
+                bestRating: '10',
+                worstRating: '1',
+                ratingCount: effectiveAnime.popularity || undefined,
+              }
+            : undefined,
+          trailer:
+            effectiveAnime.trailer?.site === 'youtube' && effectiveAnime.trailer.id
+              ? {
+                  '@type': 'VideoObject',
+                  name: `${animeTitle} Official Trailer`,
+                  description: `Official trailer for ${animeTitle}`,
+                  thumbnailUrl:
+                    effectiveAnime.coverImage?.large || effectiveAnime.bannerImage,
+                  uploadDate: effectiveAnime.seasonYear ? `${effectiveAnime.seasonYear}-01-01` : '2024-01-01',
+                  embedUrl: `https://www.youtube.com/embed/${effectiveAnime.trailer.id}`,
+                }
+              : undefined,
+          url: `${SITE_URL}/anime/${effectiveAnime.id}`,
+        }
+      : null;
 
-  const breadcrumbSchema = anime && animeTitle ? {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: `${SITE_URL}/`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Discover',
-        item: `${SITE_URL}/discover`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: animeTitle,
-        item: `${SITE_URL}/anime/${anime.id}`,
-      },
-    ],
-  } : null;
+  const breadcrumbSchema =
+    effectiveAnime && animeTitle
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: `${SITE_URL}/`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Discover',
+              item: `${SITE_URL}/discover`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: animeTitle,
+              item: `${SITE_URL}/anime/${effectiveAnime.id}`,
+            },
+          ],
+        }
+      : null;
 
   const jsonLd = animeSchema ? [animeSchema, breadcrumbSchema] : null;
 
   useSEO({
     title: pageTitle,
     description: pageDesc,
-    canonicalUrl: anime ? `${SITE_URL}/anime/${anime.id}` : undefined,
-    ogType: anime?.format === 'MOVIE' ? 'video.movie' : 'video.tv_show',
-    ogImage: anime?.coverImage?.extraLarge || anime?.coverImage?.large,
-    twitterImage: anime?.bannerImage || anime?.coverImage?.extraLarge,
-    robots: error ? 'noindex, nofollow' : undefined,
+    canonicalUrl: effectiveAnime ? `${SITE_URL}/anime/${effectiveAnime.id}` : undefined,
+    ogType: effectiveAnime?.format === 'MOVIE' ? 'video.movie' : 'video.tv_show',
+    ogImage: effectiveAnime?.coverImage?.extraLarge || effectiveAnime?.coverImage?.large,
+    twitterImage: effectiveAnime?.bannerImage || effectiveAnime?.coverImage?.extraLarge,
+    robots: error && !effectiveAnime ? 'noindex, nofollow' : undefined,
     jsonLd,
   });
 
-  useEffect(() => {
-    const loadDetails = async () => {
-      if (!animeId) return;
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await fetchAnimeDetails(animeId);
-        setAnime(data);
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message || 'Failed to load anime details');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadDetails = useCallback(async () => {
+    if (!animeId || isNaN(animeId) || animeId <= 0) {
+      setLoading(false);
+      setError('Invalid anime ID');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchAnimeDetails(animeId);
+      setApiAnime(data);
+    } catch (err: any) {
+      console.error(err);
+      setError(err?.message || 'Failed to load anime details');
+    } finally {
+      setLoading(false);
+    }
+  }, [animeId]);
 
+  useEffect(() => {
     loadDetails();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [animeId]);
+  }, [loadDetails]);
 
   if (loading) {
     return <DetailsSkeleton />;
   }
 
-  if (error || !anime) {
+  // Graceful Luxury Recovery State when Anime Info is Nothing
+  if ((error && !effectiveAnime) || !effectiveAnime) {
     return (
-      <div className="max-w-md mx-auto my-20 p-6 rounded-xl anilist-card-static text-center space-y-3">
-        <h2 className="text-base font-bold text-[#edf1f5]">Anime Not Found</h2>
-        <p className="text-xs text-[#8ba0b2]">{error || 'Could not find details for this anime.'}</p>
-        <Link
-          to="/discover"
-          className="anilist-btn-primary inline-flex items-center gap-2 px-4 py-2 text-xs font-bold"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Discover</span>
-        </Link>
+      <div className="max-w-2xl mx-auto px-4 py-16 sm:py-24 space-y-6 text-center animate-fadeIn min-w-0">
+        <div className="w-16 h-16 mx-auto rounded-3xl bg-[#0c0c0f] border border-[#23232b] flex items-center justify-center shadow-2xl relative">
+          <Film aria-hidden="true" className="w-8 h-8 text-[#9a9aa6]" />
+          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-500/80 border-2 border-[#000000]" />
+        </div>
+
+        <div className="space-y-2 max-w-md mx-auto">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#f5f5f7] tracking-[-0.03em]">
+            Anime Information Unavailable
+          </h1>
+          <p className="text-xs sm:text-sm text-[#9a9aa6] leading-relaxed">
+            We couldn&apos;t retrieve details for this title from AniList. The anime may have been unlisted, temporarily unavailable, or the link may be outdated.
+          </p>
+        </div>
+
+        {/* In-Page Search Box to immediately find another anime */}
+        <div className="max-w-md mx-auto pt-1">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const q = fallbackSearchQuery.trim();
+              if (q) navigate(`/discover?search=${encodeURIComponent(q)}`);
+            }}
+            className="relative flex items-center"
+          >
+            <input
+              type="search"
+              value={fallbackSearchQuery}
+              onChange={(e) => setFallbackSearchQuery(e.target.value)}
+              placeholder="Search anime catalog..."
+              className="w-full pl-10 pr-24 py-3 bg-[#111116] border border-[#23232b] focus:border-[#5360e6] rounded-full text-sm text-[#f5f5f7] placeholder-[#9a9aa6] outline-none transition shadow-inner [&::-webkit-search-cancel-button]:appearance-none"
+            />
+            <Search aria-hidden="true" className="w-4 h-4 text-[#9a9aa6] absolute left-3.5 pointer-events-none" />
+            <button
+              type="submit"
+              className="absolute right-1.5 px-4 py-1.5 rounded-full btn-accent-active text-xs font-bold transition cursor-pointer"
+            >
+              Search
+            </button>
+          </form>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <button
+            type="button"
+            onClick={loadDetails}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#16161b] hover:bg-[#202028] text-[#f5f5f7] border border-[#23232b] hover:border-[#383844] text-xs font-semibold transition cursor-pointer min-h-[40px]"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-[#9a9aa6]" />
+            <span>Try Again</span>
+          </button>
+          <Link
+            to="/discover"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full btn-accent-active text-xs font-bold transition min-h-[40px]"
+          >
+            <Compass className="w-3.5 h-3.5" />
+            <span>Browse Discover</span>
+          </Link>
+          <Link
+            to="/watchlist"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#16161b] hover:bg-[#202028] text-[#f5f5f7] border border-[#23232b] hover:border-[#383844] text-xs font-semibold transition min-h-[40px]"
+          >
+            <Bookmark className="w-3.5 h-3.5 text-[#9a9aa6]" />
+            <span>My Watchlist</span>
+          </Link>
+        </div>
+
+        {/* Popular Genres Quick Navigation */}
+        <div className="pt-4 border-t border-[#1e1e24] max-w-lg mx-auto space-y-2.5">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-[#71717e] block">
+            Or explore popular genres
+          </span>
+          <div className="flex flex-wrap items-center justify-center gap-1.5">
+            {['Action', 'Adventure', 'Comedy', 'Fantasy', 'Romance', 'Sci-Fi', 'Slice of Life'].map(
+              (genre) => (
+                <Link
+                  key={genre}
+                  to={`/discover?genre=${encodeURIComponent(genre)}`}
+                  className="px-3 py-1 rounded-full text-xs font-medium bg-[#111116] hover:bg-[#1a1a22] text-[#9a9aa6] hover:text-[#f5f5f7] border border-[#23232b] hover:border-[#383844] transition"
+                >
+                  {genre}
+                </Link>
+              )
+            )}
+          </div>
+        </div>
       </div>
     );
   }
 
+  // Active Anime Details (from AniList or recovered from personal Watchlist)
+  const anime = effectiveAnime;
   const title = getPreferredTitle(anime.title, 'Anime');
-  const banner = anime.bannerImage || anime.coverImage.extraLarge;
+  const banner =
+    anime.bannerImage ||
+    anime.coverImage?.extraLarge ||
+    anime.coverImage?.large ||
+    '/animesenpai-banner.svg';
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -232,6 +383,10 @@ export const AnimeDetailsPage: React.FC = () => {
           alt={`${title} anime banner`}
           className="w-full h-full object-cover object-center filter brightness-[0.42] contrast-[1.06]"
           fetchPriority="high"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = '/animesenpai-banner.svg';
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#000000]/65 to-transparent" />
 
@@ -247,6 +402,28 @@ export const AnimeDetailsPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Saved Watchlist Recovery Notice (if AniList network data is unavailable) */}
+      {!apiAnime && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-[#111116] border border-[#2a2a35] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-[#9a9aa6]">
+            <div className="flex items-center gap-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0 animate-pulse" />
+              <span>
+                Viewing saved records from your Watchlist. Full live streaming links and voice cast from AniList are currently unavailable.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={loadDetails}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#181820] hover:bg-[#22222c] border border-[#2e2e3a] text-[#f5f5f7] font-semibold cursor-pointer transition text-xs flex-shrink-0"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-[#9a9aa6]" />
+              <span>Retry AniList</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Main Content Layout */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 min-[480px]:-mt-24 sm:-mt-32 lg:-mt-40 relative z-10 space-y-6">
         {/* Row 1: Poster + Title & Primary Actions */}
@@ -256,13 +433,17 @@ export const AnimeDetailsPage: React.FC = () => {
             <div className="w-28 min-[400px]:w-32 sm:w-40 md:w-auto flex-shrink-0 md:col-span-4 lg:col-span-3">
               <div className="relative rounded-2xl overflow-hidden border border-[#232329] bg-[#0b0b0d] aspect-[185/265] shadow-2xl">
                 <img
-                  src={anime.coverImage.extraLarge || anime.coverImage.large}
+                  src={anime.coverImage?.extraLarge || anime.coverImage?.large || anime.coverImage?.medium || '/animesenpai-banner.svg'}
                   alt={`${title} anime poster`}
                   width={240}
                   height={344}
                   loading="eager"
                   fetchPriority="high"
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = '/animesenpai-banner.svg';
+                  }}
                 />
                 {anime.averageScore && (
                   <div
