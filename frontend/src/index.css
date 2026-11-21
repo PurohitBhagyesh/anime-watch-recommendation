@@ -554,10 +554,6 @@ progress.loading-spinner:indeterminate::-moz-progress-bar {
   display: none;
   background: none;
 }
-progress.loading-spinner:indeterminate::slider-fill {
-  display: none;
-  background: none;
-}
 
 progress.loading-spinner:indeterminate {
   --_from: calc(90deg + var(--arc-start, 0deg));
