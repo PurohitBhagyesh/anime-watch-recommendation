@@ -297,12 +297,12 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
         {/* Responsive Art-Directed Background: Portrait Key Art on Mobile, Wide Banner on Desktop */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <picture key={currentAnime.id} className="block w-full h-full">
-            <source media="(min-width: 640px)" srcSet={desktopBanner} />
+            <source media="(min-width: 640px)" srcSet={desktopBanner} width={1920} height={490} />
             <img
               src={mobileArtwork}
               alt={`${title} anime featured banner`}
-              width={1920}
-              height={490}
+              width={460}
+              height={650}
               loading="eager"
               decoding="async"
               fetchPriority="high"

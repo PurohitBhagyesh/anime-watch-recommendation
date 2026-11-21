@@ -1,182 +1,5 @@
-/**
- * Coffee UPI - Plug & Play Buy Me A Coffee (UPI) Floating Widget
- * Supports: FamApp, Google Pay, PhonePe, Paytm, Amazon Pay, WhatsApp, BHIM
- * Author: Web Elements (github.com/PurohitBhagyesh)
- * License: MIT
- */
-
-(function (global) {
-  'use strict';
-
-  const DEFAULT_CONFIG = {
-    upiId: 'developer@upi',
-    payeeName: 'Developer Name',
-    defaultAmount: 50,
-    presets: [20, 50, 100, 200],
-    title: 'Buy me a coffee',
-    subtitle: 'Every coffee fuels continuous development.',
-    position: 'bottom-left' // 'bottom-left' | 'bottom-right'
-  };
-
-  function escapeHtml(value) {
-    return String(value ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
-  class CoffeeUPIWidget {
-    constructor(userConfig = {}) {
-      this.config = Object.assign({}, DEFAULT_CONFIG, userConfig);
-      this.currentAmount = this.config.defaultAmount;
-      this.widgetEl = null;
-      this.init();
-    }
-
-    buildUPIUri(amount) {
-      const amt = Math.max(1, parseInt(amount, 10) || this.config.defaultAmount);
-      const query = `pa=${encodeURIComponent(this.config.upiId)}&pn=${encodeURIComponent(this.config.payeeName)}&am=${amt}&cu=INR`;
-      return {
-        generic: `upi://pay?${query}`,
-        query
-      };
-    }
-
-    setUpiId(newUpiId) {
-      if (typeof newUpiId !== 'string' || !newUpiId.trim()) return;
-      this.config.upiId = newUpiId.trim();
-      if (this.widgetEl) {
-        const codeEl = this.widgetEl.querySelector('.cupi-copy-id code');
-        if (codeEl) codeEl.textContent = this.config.upiId;
-        const upiInput = this.widgetEl.querySelector('.cupi-edit-upi-input');
-        if (upiInput) upiInput.value = this.config.upiId;
-      }
-      this.updateQR(this.currentAmount);
-    }
-
-    setPayeeName(newName) {
-      if (typeof newName !== 'string') return;
-      this.config.payeeName = newName.trim();
-      if (this.widgetEl) {
-        const nameInput = this.widgetEl.querySelector('.cupi-edit-name-input');
-        if (nameInput) nameInput.value = this.config.payeeName;
-      }
-      this.updateQR(this.currentAmount);
-    }
-
-    setAmount(newAmount) {
-      const amt = parseInt(newAmount, 10);
-      if (isNaN(amt) || amt <= 0) return;
-      this.currentAmount = amt;
-      if (this.widgetEl) {
-        const input = this.widgetEl.querySelector('.cupi-amount-input');
-        if (input) input.value = amt;
-        const chips = this.widgetEl.querySelectorAll('.cupi-preset-chip');
-        chips.forEach(chip => {
-          chip.classList.toggle('active', parseInt(chip.dataset.amt, 10) === amt);
-        });
-      }
-      this.updateQR(amt);
-    }
-
-    setTitle(newTitle) {
-      if (typeof newTitle !== 'string') return;
-      this.config.title = newTitle;
-      if (this.widgetEl) {
-        const pillText = this.widgetEl.querySelector('.cupi-pill-text');
-        if (pillText) pillText.textContent = newTitle;
-        const titleEl = this.widgetEl.querySelector('.cupi-title');
-        if (titleEl) titleEl.textContent = newTitle;
-        const pill = this.widgetEl.querySelector('.cupi-pill');
-        if (pill) pill.setAttribute('aria-label', newTitle);
-      }
-    }
-
-    setSubtitle(newSubtitle) {
-      if (typeof newSubtitle !== 'string') return;
-      this.config.subtitle = newSubtitle;
-      if (this.widgetEl) {
-        const note = this.widgetEl.querySelector('.cupi-footer-note');
-        if (note) note.textContent = newSubtitle;
-      }
-    }
-
-    updateConfig(newConfig = {}) {
-      if (newConfig.upiId !== undefined) this.setUpiId(newConfig.upiId);
-      if (newConfig.payeeName !== undefined) this.setPayeeName(newConfig.payeeName);
-      if (newConfig.amount !== undefined) this.setAmount(newConfig.amount);
-      if (newConfig.defaultAmount !== undefined && newConfig.amount === undefined) this.setAmount(newConfig.defaultAmount);
-      if (newConfig.title !== undefined) this.setTitle(newConfig.title);
-      if (newConfig.subtitle !== undefined) this.setSubtitle(newConfig.subtitle);
-      if (newConfig.position !== undefined && this.widgetEl) {
-        this.config.position = newConfig.position;
-        const isRight = newConfig.position === 'bottom-right';
-        this.widgetEl.style.left = isRight ? 'auto' : '24px';
-        this.widgetEl.style.right = isRight ? '24px' : 'auto';
-        const card = this.widgetEl.querySelector('.cupi-card');
-        if (card) {
-          card.style.left = isRight ? 'auto' : '0';
-          card.style.right = isRight ? '0' : 'auto';
-        }
-      }
-      this.updateQR(this.currentAmount);
-      return this;
-    }
-
-    open() {
-      if (!this.widgetEl) return;
-      const card = this.widgetEl.querySelector('.cupi-card');
-      const pill = this.widgetEl.querySelector('.cupi-pill');
-      if (card) {
-        card.classList.add('cupi-active');
-        if (pill) pill.setAttribute('aria-expanded', 'true');
-        this.updateQR(this.currentAmount);
-      }
-    }
-
-    close() {
-      if (!this.widgetEl) return;
-      const card = this.widgetEl.querySelector('.cupi-card');
-      const pill = this.widgetEl.querySelector('.cupi-pill');
-      if (card) {
-        card.classList.remove('cupi-active');
-        if (pill) pill.setAttribute('aria-expanded', 'false');
-      }
-    }
-
-    toggle() {
-      if (!this.widgetEl) return;
-      const card = this.widgetEl.querySelector('.cupi-card');
-      if (card && card.classList.contains('cupi-active')) {
-        this.close();
-      } else {
-        this.open();
-      }
-    }
-
-    render() {
-      const { upiId, payeeName, title, subtitle, presets, defaultAmount, position } = this.config;
-      const isRight = position === 'bottom-right';
-      const safeTitle = escapeHtml(title);
-      const safeUpiId = escapeHtml(upiId);
-      const safePayeeName = escapeHtml(payeeName);
-      const safeSubtitle = escapeHtml(subtitle);
-      const safeDefaultAmount = Math.max(1, parseInt(defaultAmount, 10) || 50);
-      const safePresets = Array.isArray(presets)
-        ? presets.map((p) => Math.max(1, parseInt(p, 10) || 50))
-        : [20, 50, 100, 200];
-
-      const widget = document.createElement('div');
-      widget.className = 'cupi-widget';
-      if (isRight) {
-        widget.style.left = 'auto';
-        widget.style.right = '24px';
-      }
-
-      widget.innerHTML = `
-        <button class="cupi-pill" type="button" aria-label="${safeTitle}" aria-expanded="false">
+(function(n){"use strict";const b={upiId:"developer@upi",payeeName:"Developer Name",defaultAmount:50,presets:[20,50,100,200],title:"Buy me a coffee",subtitle:"Every coffee fuels continuous development.",position:"bottom-left"};function U(c){return String(c??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}class k{constructor(t={}){this.config=Object.assign({},b,t),this.currentAmount=this.config.defaultAmount,this.widgetEl=null,this.init()}buildUPIUri(t){const e=Math.max(1,parseInt(t,10)||this.config.defaultAmount),a=`pa=${encodeURIComponent(this.config.upiId)}&pn=${encodeURIComponent(this.config.payeeName)}&am=${e}&cu=INR`;return{generic:`upi://pay?${a}`,query:a}}setUpiId(t){if(!(typeof t!="string"||!t.trim())){if(this.config.upiId=t.trim(),this.widgetEl){const e=this.widgetEl.querySelector(".cupi-copy-id code");e&&(e.textContent=this.config.upiId);const a=this.widgetEl.querySelector(".cupi-edit-upi-input");a&&(a.value=this.config.upiId)}this.updateQR(this.currentAmount)}}setPayeeName(t){if(typeof t=="string"){if(this.config.payeeName=t.trim(),this.widgetEl){const e=this.widgetEl.querySelector(".cupi-edit-name-input");e&&(e.value=this.config.payeeName)}this.updateQR(this.currentAmount)}}setAmount(t){const e=parseInt(t,10);if(!(isNaN(e)||e<=0)){if(this.currentAmount=e,this.widgetEl){const a=this.widgetEl.querySelector(".cupi-amount-input");a&&(a.value=e),this.widgetEl.querySelectorAll(".cupi-preset-chip").forEach(r=>{r.classList.toggle("active",parseInt(r.dataset.amt,10)===e)})}this.updateQR(e)}}setTitle(t){if(typeof t=="string"&&(this.config.title=t,this.widgetEl)){const e=this.widgetEl.querySelector(".cupi-pill-text");e&&(e.textContent=t);const a=this.widgetEl.querySelector(".cupi-title");a&&(a.textContent=t);const o=this.widgetEl.querySelector(".cupi-pill");o&&o.setAttribute("aria-label",t)}}setSubtitle(t){if(typeof t=="string"&&(this.config.subtitle=t,this.widgetEl)){const e=this.widgetEl.querySelector(".cupi-footer-note");e&&(e.textContent=t)}}updateConfig(t={}){if(t.upiId!==void 0&&this.setUpiId(t.upiId),t.payeeName!==void 0&&this.setPayeeName(t.payeeName),t.amount!==void 0&&this.setAmount(t.amount),t.defaultAmount!==void 0&&t.amount===void 0&&this.setAmount(t.defaultAmount),t.title!==void 0&&this.setTitle(t.title),t.subtitle!==void 0&&this.setSubtitle(t.subtitle),t.position!==void 0&&this.widgetEl){this.config.position=t.position;const e=t.position==="bottom-right";this.widgetEl.style.left=e?"auto":"24px",this.widgetEl.style.right=e?"24px":"auto";const a=this.widgetEl.querySelector(".cupi-card");a&&(a.style.left=e?"auto":"0",a.style.right=e?"0":"auto")}return this.updateQR(this.currentAmount),this}open(){if(!this.widgetEl)return;const t=this.widgetEl.querySelector(".cupi-card"),e=this.widgetEl.querySelector(".cupi-pill");t&&(t.classList.add("cupi-active"),e&&e.setAttribute("aria-expanded","true"),this.updateQR(this.currentAmount))}close(){if(!this.widgetEl)return;const t=this.widgetEl.querySelector(".cupi-card"),e=this.widgetEl.querySelector(".cupi-pill");t&&(t.classList.remove("cupi-active"),e&&e.setAttribute("aria-expanded","false"))}toggle(){if(!this.widgetEl)return;const t=this.widgetEl.querySelector(".cupi-card");t&&t.classList.contains("cupi-active")?this.close():this.open()}render(){const{upiId:t,payeeName:e,title:a,subtitle:o,presets:r,defaultAmount:h,position:A}=this.config,y=A==="bottom-right",g=U(a),C=U(t),S=U(e),l=U(o),P=Math.max(1,parseInt(h,10)||50),q=Array.isArray(r)?r.map(p=>Math.max(1,parseInt(p,10)||50)):[20,50,100,200],d=document.createElement("div");if(d.className="cupi-widget",y&&(d.style.left="auto",d.style.right="24px"),d.innerHTML=`
+        <button class="cupi-pill" type="button" aria-label="${g}" aria-expanded="false">
           <span class="cupi-pill-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
@@ -186,16 +9,16 @@
               <line x1="14" y1="1" x2="14" y2="4"/>
             </svg>
           </span>
-          <span class="cupi-pill-text">${safeTitle}</span>
+          <span class="cupi-pill-text">${g}</span>
         </button>
 
-        <div class="cupi-card" role="dialog" aria-modal="false" aria-label="${safeTitle}">
+        <div class="cupi-card" role="dialog" aria-modal="false" aria-label="${g}">
           <div class="cupi-header">
             <div class="cupi-title-group">
-              <h3 class="cupi-title">${safeTitle}</h3>
+              <h3 class="cupi-title">${g}</h3>
               <div class="cupi-id-row">
                 <button type="button" class="cupi-copy-id" title="Click to copy UPI ID">
-                  <code>${safeUpiId}</code>
+                  <code>${C}</code>
                   <span class="cupi-copy-label">Copy</span>
                 </button>
               </div>
@@ -206,18 +29,18 @@
           <div class="cupi-body">
             <div class="cupi-qr-wrapper">
               <div class="cupi-qr-pad">
-                <img class="cupi-qr-img" src="" alt="UPI QR Code for ${safePayeeName}" width="140" height="140" />
+                <img class="cupi-qr-img" src="" alt="UPI QR Code for ${S}" width="140" height="140" />
               </div>
               <span class="cupi-qr-caption">Scan with any UPI App</span>
             </div>
 
             <div class="cupi-input-wrap">
               <span class="cupi-currency">&#8377;</span>
-              <input type="number" class="cupi-amount-input" min="1" max="100000" value="${safeDefaultAmount}" placeholder="Enter amount" />
+              <input type="number" class="cupi-amount-input" min="1" max="100000" value="${P}" placeholder="Enter amount" />
             </div>
 
             <div class="cupi-presets">
-              ${safePresets.map(p => `<button type="button" class="cupi-preset-chip ${p === safeDefaultAmount ? 'active' : ''}" data-amt="${p}">&#8377;${p}</button>`).join('')}
+              ${q.map(p=>`<button type="button" class="cupi-preset-chip ${p===P?"active":""}" data-amt="${p}">&#8377;${p}</button>`).join("")}
             </div>
 
             <div class="cupi-apps-section">
@@ -251,7 +74,7 @@
             </div>
 
             <div class="cupi-alert" style="display: none;" role="alert">
-              <span class="cupi-alert-icon">⚠️</span>
+              <span class="cupi-alert-icon">\u26A0\uFE0F</span>
               <div class="cupi-alert-text">
                 <strong>No UPI app opened?</strong>
                 <p>Scan the QR code with your mobile camera or copy the UPI ID above.</p>
@@ -259,339 +82,7 @@
               <button type="button" class="cupi-alert-close">&times;</button>
             </div>
 
-            <p class="cupi-footer-note">${safeSubtitle}</p>
+            <p class="cupi-footer-note">${l}</p>
           </div>
         </div>
-      `;
-
-      if (isRight) {
-        const card = widget.querySelector('.cupi-card');
-        if (card) {
-          card.style.left = 'auto';
-          card.style.right = '0';
-        }
-      }
-
-      document.body.appendChild(widget);
-      this.widgetEl = widget;
-      this.bindEvents();
-      this.updateQR(this.currentAmount);
-    }
-
-    updateQR(amount) {
-      if (!this.widgetEl) return;
-      const qrImg = this.widgetEl.querySelector('.cupi-qr-img');
-      if (!qrImg) return;
-      const { generic } = this.buildUPIUri(amount);
-      const encoded = encodeURIComponent(generic);
-      qrImg.onerror = () => {
-        if (!qrImg.dataset.fallbackUsed) {
-          qrImg.dataset.fallbackUsed = '1';
-          qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&format=png&data=${encoded}`;
-        }
-      };
-      delete qrImg.dataset.fallbackUsed;
-      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&format=svg&data=${encoded}`;
-    }
-
-    bindEvents() {
-      const widget = this.widgetEl;
-      const pill = widget.querySelector('.cupi-pill');
-      const card = widget.querySelector('.cupi-card');
-      const closeBtn = widget.querySelector('.cupi-close-btn');
-      const copyBtn = widget.querySelector('.cupi-copy-id');
-      const amountInput = widget.querySelector('.cupi-amount-input');
-      const presetsWrap = widget.querySelector('.cupi-presets');
-      const alertBox = widget.querySelector('.cupi-alert');
-      const alertClose = widget.querySelector('.cupi-alert-close');
-      const appButtons = widget.querySelectorAll('.cupi-app-btn');
-
-      // Edit Drawer elements
-      const editBtn = widget.querySelector('.cupi-edit-btn');
-      const editDrawer = widget.querySelector('.cupi-edit-drawer');
-      const editNameInput = widget.querySelector('.cupi-edit-name-input');
-      const editUpiInput = widget.querySelector('.cupi-edit-upi-input');
-      const editSaveBtn = widget.querySelector('.cupi-edit-save-btn');
-      const editCancelBtn = widget.querySelector('.cupi-edit-cancel-btn');
-
-      let hoverOpenTimer = null;
-      let hoverCloseTimer = null;
-      let isPinned = false;
-      const supportsHover = () =>
-        typeof window !== 'undefined' &&
-        typeof window.matchMedia === 'function' &&
-        window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-      const clearHoverTimers = () => {
-        if (hoverOpenTimer) {
-          clearTimeout(hoverOpenTimer);
-          hoverOpenTimer = null;
-        }
-        if (hoverCloseTimer) {
-          clearTimeout(hoverCloseTimer);
-          hoverCloseTimer = null;
-        }
-      };
-
-      const toggleCard = (forceState, pinnedState) => {
-        const isActive = typeof forceState === 'boolean' ? forceState : !card.classList.contains('cupi-active');
-        card.classList.toggle('cupi-active', isActive);
-        pill.setAttribute('aria-expanded', String(isActive));
-        if (!isActive) {
-          isPinned = false;
-          if (editDrawer) editDrawer.style.display = 'none';
-        } else {
-          if (typeof pinnedState === 'boolean') isPinned = pinnedState;
-          this.updateQR(amountInput.value || this.config.defaultAmount);
-        }
-      };
-
-      widget.addEventListener('mouseenter', () => {
-        if (!supportsHover()) return;
-        clearHoverTimers();
-        if (!card.classList.contains('cupi-active')) {
-          hoverOpenTimer = setTimeout(() => {
-            toggleCard(true, false);
-          }, 120);
-        }
-      });
-
-      widget.addEventListener('mouseleave', () => {
-        if (!supportsHover()) return;
-        clearHoverTimers();
-        if (isPinned) return;
-        const activeEl = document.activeElement;
-        if (activeEl && card.contains(activeEl) && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
-          return;
-        }
-        hoverCloseTimer = setTimeout(() => {
-          toggleCard(false);
-        }, 240);
-      });
-
-      pill.addEventListener('click', (e) => {
-        e.stopPropagation();
-        clearHoverTimers();
-        if (card.classList.contains('cupi-active') && !isPinned) {
-          // Clicking while open via hover pins it open; clicking again closes
-          isPinned = true;
-          return;
-        }
-        const nextOpen = !card.classList.contains('cupi-active');
-        toggleCard(nextOpen, nextOpen);
-      });
-
-      closeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        clearHoverTimers();
-        toggleCard(false);
-      });
-
-      document.addEventListener('click', (e) => {
-        if (!widget.contains(e.target) && card.classList.contains('cupi-active')) {
-          clearHoverTimers();
-          toggleCard(false);
-        }
-      });
-
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && card.classList.contains('cupi-active')) {
-          clearHoverTimers();
-          toggleCard(false);
-        }
-      });
-
-      // Inline Edit UPI ID & Name Drawer
-      if (editBtn && editDrawer) {
-        editBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const isOpen = editDrawer.style.display !== 'none';
-          editDrawer.style.display = isOpen ? 'none' : 'flex';
-          if (!isOpen) {
-            editNameInput.value = this.config.payeeName;
-            editUpiInput.value = this.config.upiId;
-            editUpiInput.focus();
-          }
-        });
-
-        editSaveBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const newName = editNameInput.value.trim();
-          const newUpi = editUpiInput.value.trim();
-          if (newUpi) {
-            this.updateConfig({
-              payeeName: newName || this.config.payeeName,
-              upiId: newUpi
-            });
-            editDrawer.style.display = 'none';
-          }
-        });
-
-        editCancelBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          editDrawer.style.display = 'none';
-        });
-      }
-
-      // Amount Input & Presets
-      amountInput.addEventListener('input', () => {
-        const amt = parseInt(amountInput.value, 10);
-        this.updateQR(amt || this.config.defaultAmount);
-        presetsWrap.querySelectorAll('.cupi-preset-chip').forEach(chip => {
-          chip.classList.toggle('active', parseInt(chip.dataset.amt, 10) === amt);
-        });
-      });
-
-      presetsWrap.addEventListener('click', (e) => {
-        const chip = e.target.closest('.cupi-preset-chip');
-        if (!chip) return;
-        const amt = parseInt(chip.dataset.amt, 10);
-        amountInput.value = amt;
-        presetsWrap.querySelectorAll('.cupi-preset-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        this.updateQR(amt);
-      });
-
-      // Copy UPI ID
-      copyBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        try {
-          await navigator.clipboard.writeText(this.config.upiId);
-          const label = copyBtn.querySelector('.cupi-copy-label');
-          label.textContent = 'Copied!';
-          label.style.color = 'var(--cupi-accent)';
-          setTimeout(() => {
-            label.textContent = 'Copy';
-            label.style.color = '';
-          }, 2000);
-        } catch (err) {
-          console.warn('Failed to copy UPI ID:', err);
-        }
-      });
-
-      if (alertClose) {
-        alertClose.addEventListener('click', () => {
-          alertBox.style.display = 'none';
-        });
-      }
-
-      // App deep linking
-      appButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const scheme = btn.dataset.scheme;
-          const amt = parseInt(amountInput.value, 10) || this.config.defaultAmount;
-          const { query, generic } = this.buildUPIUri(amt);
-          let targetUri = generic;
-
-          if (scheme === 'famapp') {
-            targetUri = `in.fampay.app://upi/pay?${query}`;
-          } else if (scheme === 'amazonpay') {
-            targetUri = `amazonpay://upi/pay?${query}`;
-          } else if (scheme === 'phonepe') {
-            targetUri = `phonepe://upi/pay?${query}`;
-          } else if (scheme === 'gpay') {
-            targetUri = `tez://upi/pay?${query}`;
-          } else if (scheme === 'paytm') {
-            targetUri = `paytmmp://pay?${query}`;
-          } else if (scheme === 'whatsapp') {
-            targetUri = `whatsapp://pay?${query}`;
-          }
-
-          const isDesktop = !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-          if (isDesktop) {
-            alertBox.style.display = 'flex';
-            return;
-          }
-
-          let didAppOpen = false;
-          const onVisibilityChange = () => {
-            if (document.hidden) didAppOpen = true;
-          };
-          document.addEventListener('visibilitychange', onVisibilityChange, { once: true });
-
-          window.location.href = targetUri;
-
-          setTimeout(() => {
-            if (!didAppOpen && !document.hidden) {
-              if (scheme === 'famapp') {
-                window.location.href = `famapp://upi/pay?${query}`;
-                setTimeout(() => {
-                  if (!didAppOpen && !document.hidden) {
-                    alertBox.style.display = 'flex';
-                  }
-                }, 800);
-              } else {
-                alertBox.style.display = 'flex';
-              }
-            }
-          }, 1200);
-        });
-      });
-    }
-
-    init() {
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => this.render());
-      } else {
-        this.render();
-      }
-    }
-  }
-
-  // Global API
-  global.CoffeeUPI = {
-    instance: null,
-    init: function (config) {
-      global.CoffeeUPI.instance = new CoffeeUPIWidget(config);
-      return global.CoffeeUPI.instance;
-    },
-    getInstance: function () {
-      return global.CoffeeUPI.instance;
-    },
-    update: function (cfg) {
-      if (global.CoffeeUPI.instance) {
-        return global.CoffeeUPI.instance.updateConfig(cfg);
-      }
-      return null;
-    },
-    setUpiId: function (id) {
-      if (global.CoffeeUPI.instance) return global.CoffeeUPI.instance.setUpiId(id);
-    },
-    setPayeeName: function (name) {
-      if (global.CoffeeUPI.instance) return global.CoffeeUPI.instance.setPayeeName(name);
-    },
-    setAmount: function (amt) {
-      if (global.CoffeeUPI.instance) return global.CoffeeUPI.instance.setAmount(amt);
-    },
-    open: function () {
-      if (global.CoffeeUPI.instance) return global.CoffeeUPI.instance.open();
-    },
-    close: function () {
-      if (global.CoffeeUPI.instance) return global.CoffeeUPI.instance.close();
-    },
-    toggle: function () {
-      if (global.CoffeeUPI.instance) return global.CoffeeUPI.instance.toggle();
-    }
-  };
-
-  // Auto-init via data attributes on current script tag if present
-  const currentScript = document.currentScript;
-  if (currentScript) {
-    const upi = currentScript.getAttribute('data-upi');
-    if (upi) {
-      const name = currentScript.getAttribute('data-name');
-      const amt = currentScript.getAttribute('data-amount');
-      const pos = currentScript.getAttribute('data-position');
-      const title = currentScript.getAttribute('data-title');
-      const subtitle = currentScript.getAttribute('data-subtitle');
-      global.CoffeeUPI.init({
-        upiId: upi,
-        payeeName: name || DEFAULT_CONFIG.payeeName,
-        defaultAmount: amt ? parseInt(amt, 10) : DEFAULT_CONFIG.defaultAmount,
-        position: pos || DEFAULT_CONFIG.position,
-        title: title || DEFAULT_CONFIG.title,
-        subtitle: subtitle || DEFAULT_CONFIG.subtitle
-      });
-    }
-  }
-})(typeof window !== 'undefined' ? window : this);
+      `,y){const p=d.querySelector(".cupi-card");p&&(p.style.left="auto",p.style.right="0")}document.body.appendChild(d),this.widgetEl=d,this.bindEvents(),this.updateQR(this.currentAmount)}updateQR(t){if(!this.widgetEl)return;const e=this.widgetEl.querySelector(".cupi-qr-img");if(!e)return;const{generic:a}=this.buildUPIUri(t),o=encodeURIComponent(a);e.onerror=()=>{e.dataset.fallbackUsed||(e.dataset.fallbackUsed="1",e.src=`https://api.qrserver.com/v1/create-qr-code/?size=180x180&format=png&data=${o}`)},delete e.dataset.fallbackUsed,e.src=`https://api.qrserver.com/v1/create-qr-code/?size=180x180&format=svg&data=${o}`}bindEvents(){const t=this.widgetEl,e=t.querySelector(".cupi-pill"),a=t.querySelector(".cupi-card"),o=t.querySelector(".cupi-close-btn"),r=t.querySelector(".cupi-copy-id"),h=t.querySelector(".cupi-amount-input"),A=t.querySelector(".cupi-presets"),y=t.querySelector(".cupi-alert"),g=t.querySelector(".cupi-alert-close"),C=t.querySelectorAll(".cupi-app-btn"),S=t.querySelector(".cupi-edit-btn"),l=t.querySelector(".cupi-edit-drawer"),P=t.querySelector(".cupi-edit-name-input"),q=t.querySelector(".cupi-edit-upi-input"),d=t.querySelector(".cupi-edit-save-btn"),p=t.querySelector(".cupi-edit-cancel-btn");let x=null,L=null,w=!1;const $=()=>typeof window<"u"&&typeof window.matchMedia=="function"&&window.matchMedia("(hover: hover) and (pointer: fine)").matches,I=()=>{x&&(clearTimeout(x),x=null),L&&(clearTimeout(L),L=null)},E=(s,i)=>{const u=typeof s=="boolean"?s:!a.classList.contains("cupi-active");a.classList.toggle("cupi-active",u),e.setAttribute("aria-expanded",String(u)),u?(typeof i=="boolean"&&(w=i),this.updateQR(h.value||this.config.defaultAmount)):(w=!1,l&&(l.style.display="none"))};t.addEventListener("mouseenter",()=>{$()&&(I(),a.classList.contains("cupi-active")||(x=setTimeout(()=>{E(!0,!1)},120)))}),t.addEventListener("mouseleave",()=>{if(!$()||(I(),w))return;const s=document.activeElement;s&&a.contains(s)&&(s.tagName==="INPUT"||s.tagName==="TEXTAREA")||(L=setTimeout(()=>{E(!1)},240))}),e.addEventListener("click",s=>{if(s.stopPropagation(),I(),a.classList.contains("cupi-active")&&!w){w=!0;return}const i=!a.classList.contains("cupi-active");E(i,i)}),o.addEventListener("click",s=>{s.stopPropagation(),I(),E(!1)}),document.addEventListener("click",s=>{!t.contains(s.target)&&a.classList.contains("cupi-active")&&(I(),E(!1))}),document.addEventListener("keydown",s=>{s.key==="Escape"&&a.classList.contains("cupi-active")&&(I(),E(!1))}),S&&l&&(S.addEventListener("click",s=>{s.stopPropagation();const i=l.style.display!=="none";l.style.display=i?"none":"flex",i||(P.value=this.config.payeeName,q.value=this.config.upiId,q.focus())}),d.addEventListener("click",s=>{s.stopPropagation();const i=P.value.trim(),u=q.value.trim();u&&(this.updateConfig({payeeName:i||this.config.payeeName,upiId:u}),l.style.display="none")}),p.addEventListener("click",s=>{s.stopPropagation(),l.style.display="none"})),h.addEventListener("input",()=>{const s=parseInt(h.value,10);this.updateQR(s||this.config.defaultAmount),A.querySelectorAll(".cupi-preset-chip").forEach(i=>{i.classList.toggle("active",parseInt(i.dataset.amt,10)===s)})}),A.addEventListener("click",s=>{const i=s.target.closest(".cupi-preset-chip");if(!i)return;const u=parseInt(i.dataset.amt,10);h.value=u,A.querySelectorAll(".cupi-preset-chip").forEach(f=>f.classList.remove("active")),i.classList.add("active"),this.updateQR(u)}),r.addEventListener("click",async s=>{s.stopPropagation();try{await navigator.clipboard.writeText(this.config.upiId);const i=r.querySelector(".cupi-copy-label");i.textContent="Copied!",i.style.color="var(--cupi-accent)",setTimeout(()=>{i.textContent="Copy",i.style.color=""},2e3)}catch(i){console.warn("Failed to copy UPI ID:",i)}}),g&&g.addEventListener("click",()=>{y.style.display="none"}),C.forEach(s=>{s.addEventListener("click",()=>{const i=s.dataset.scheme,u=parseInt(h.value,10)||this.config.defaultAmount,{query:f,generic:R}=this.buildUPIUri(u);let v=R;if(i==="famapp"?v=`in.fampay.app://upi/pay?${f}`:i==="amazonpay"?v=`amazonpay://upi/pay?${f}`:i==="phonepe"?v=`phonepe://upi/pay?${f}`:i==="gpay"?v=`tez://upi/pay?${f}`:i==="paytm"?v=`paytmmp://pay?${f}`:i==="whatsapp"&&(v=`whatsapp://pay?${f}`),!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){y.style.display="flex";return}let N=!1;const T=()=>{document.hidden&&(N=!0)};document.addEventListener("visibilitychange",T,{once:!0}),window.location.href=v,setTimeout(()=>{!N&&!document.hidden&&(i==="famapp"?(window.location.href=`famapp://upi/pay?${f}`,setTimeout(()=>{!N&&!document.hidden&&(y.style.display="flex")},800)):y.style.display="flex")},1200)})})}init(){document.readyState==="loading"?document.addEventListener("DOMContentLoaded",()=>this.render()):this.render()}}n.CoffeeUPI={instance:null,init:function(c){return n.CoffeeUPI.instance=new k(c),n.CoffeeUPI.instance},getInstance:function(){return n.CoffeeUPI.instance},update:function(c){return n.CoffeeUPI.instance?n.CoffeeUPI.instance.updateConfig(c):null},setUpiId:function(c){if(n.CoffeeUPI.instance)return n.CoffeeUPI.instance.setUpiId(c)},setPayeeName:function(c){if(n.CoffeeUPI.instance)return n.CoffeeUPI.instance.setPayeeName(c)},setAmount:function(c){if(n.CoffeeUPI.instance)return n.CoffeeUPI.instance.setAmount(c)},open:function(){if(n.CoffeeUPI.instance)return n.CoffeeUPI.instance.open()},close:function(){if(n.CoffeeUPI.instance)return n.CoffeeUPI.instance.close()},toggle:function(){if(n.CoffeeUPI.instance)return n.CoffeeUPI.instance.toggle()}};const m=document.currentScript;if(m){const c=m.getAttribute("data-upi");if(c){const t=m.getAttribute("data-name"),e=m.getAttribute("data-amount"),a=m.getAttribute("data-position"),o=m.getAttribute("data-title"),r=m.getAttribute("data-subtitle");n.CoffeeUPI.init({upiId:c,payeeName:t||b.payeeName,defaultAmount:e?parseInt(e,10):b.defaultAmount,position:a||b.position,title:o||b.title,subtitle:r||b.subtitle})}}})(typeof window<"u"?window:void 0);

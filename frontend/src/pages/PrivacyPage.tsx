@@ -154,8 +154,8 @@ export const PrivacyPage: React.FC = () => {
           </h2>
           <p>
             For any privacy inquiry or manual data deletion assistance, email{' '}
-            <a href="mailto:Purohitunofficialbhagyesh@gmail.com" className="text-white hover:underline font-semibold">
-              Purohitunofficialbhagyesh@gmail.com
+            <a href="mailto:support@animesenpai.online" className="text-white hover:underline font-semibold">
+              support@animesenpai.online
             </a>
             .
           </p>

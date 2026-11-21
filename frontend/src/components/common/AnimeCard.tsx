@@ -324,7 +324,7 @@ const AnimeCardComponent: React.FC<AnimeCardProps> = ({ anime, priority = false 
             {title}
           </Link>
           {studioName ? (
-            <p className="text-[11px] text-[#666672] mt-0.5 truncate font-medium">
+            <p className="text-[11px] text-[#9a9aa6] mt-0.5 truncate font-medium">
               {studioName}
             </p>
           ) : (
@@ -337,12 +337,12 @@ const AnimeCardComponent: React.FC<AnimeCardProps> = ({ anime, priority = false 
         {/* Bottom meta row */}
         <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-[#9a9aa6] pt-1.5 border-t border-[#232329] tabular-nums">
           <div className="flex items-center gap-1 min-w-0 truncate">
-            <Calendar aria-hidden="true" className="w-3 h-3 text-[#666672] flex-shrink-0" />
+            <Calendar aria-hidden="true" className="w-3 h-3 text-[#9a9aa6] flex-shrink-0" />
             <span className="truncate">{anime.seasonYear || (anime.season ? `${anime.season}` : 'TBA')}</span>
           </div>
 
           <div className="flex items-center gap-1 flex-shrink-0">
-            <Tv aria-hidden="true" className="w-3 h-3 text-[#666672] flex-shrink-0" />
+            <Tv aria-hidden="true" className="w-3 h-3 text-[#9a9aa6] flex-shrink-0" />
             <span className="whitespace-nowrap">
               {anime.episodes
                 ? `${anime.episodes} eps`

@@ -50,13 +50,13 @@ export const SecurityPage: React.FC = () => {
         </p>
         <div className="pt-1">
           <a
-            href="mailto:Purohitunofficialbhagyesh@gmail.com?subject=AnimeSenpai%20Security%20Report"
+            href="mailto:security@animesenpai.online?subject=AnimeSenpai%20Security%20Report"
             className="p-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-[#23232b] transition flex items-start justify-between gap-2"
           >
             <div className="space-y-1">
               <span className="text-xs font-bold text-white block">Direct Security &amp; Support Email</span>
               <span className="text-[11px] text-[#c8c8d2] font-mono block">
-                Purohitunofficialbhagyesh@gmail.com
+                security@animesenpai.online
               </span>
             </div>
             <Mail aria-hidden="true" className="w-3.5 h-3.5 text-white flex-shrink-0 mt-0.5" />

@@ -251,7 +251,7 @@ export const Footer: React.FC = () => {
 
           <div className="space-y-3">
             <a
-              href="mailto:Purohitunofficialbhagyesh@gmail.com?subject=AnimeSenpai%20Issue%20Report"
+              href="mailto:support@animesenpai.online?subject=AnimeSenpai%20Issue%20Report"
               onClick={() => issueDialogRef.current?.close()}
               className="p-4 rounded-2xl bg-[#16161b] border border-[#23232b] hover:border-[#383844] transition space-y-1.5 block"
             >
@@ -260,7 +260,7 @@ export const Footer: React.FC = () => {
                 <span>Email Support</span>
               </div>
               <p className="text-xs text-[#d2d2dc] font-mono break-all">
-                Purohitunofficialbhagyesh@gmail.com
+                support@animesenpai.online
               </p>
               <p className="text-xs text-[#9a9aa6] leading-relaxed">
                 Send bug reports, broken metadata notices, or feature requests directly.

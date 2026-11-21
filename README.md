@@ -165,5 +165,5 @@ npx firebase-tools deploy --only firestore:rules
 
 ## 📬 Contact & License
 
-* **Support & Security Contact:** `Purohitunofficialbhagyesh@gmail.com`
+* **Support & Security Contact:** `support@animesenpai.online`
 * **License:** Open-source under the [MIT License](LICENSE).

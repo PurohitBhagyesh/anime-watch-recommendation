@@ -128,8 +128,8 @@ export const LicensePage: React.FC = () => {
         <div className="anilist-card-static p-5 sm:p-6 text-xs sm:text-sm leading-relaxed space-y-2">
           <p>
             If you are a rights holder and want any specific reference, metadata entry, or external link reviewed or removed, contact{' '}
-            <a href="mailto:Purohitunofficialbhagyesh@gmail.com" className="text-white hover:underline font-semibold">
-              Purohitunofficialbhagyesh@gmail.com
+            <a href="mailto:support@animesenpai.online" className="text-white hover:underline font-semibold">
+              support@animesenpai.online
             </a>
             . Valid notices are processed within 24 hours.
           </p>

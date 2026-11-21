@@ -60,8 +60,8 @@ export const TermsPage: React.FC = () => {
           </p>
           <p className="text-slate-400">
             All anime titles, cover artwork, character portraits, studio names, and trademarks remain the property of their respective copyright holders. For DMCA or takedown notices, contact{' '}
-            <a href="mailto:Purohitunofficialbhagyesh@gmail.com" className="text-white hover:underline font-semibold">
-              Purohitunofficialbhagyesh@gmail.com
+            <a href="mailto:support@animesenpai.online" className="text-white hover:underline font-semibold">
+              support@animesenpai.online
             </a>
             .
           </p>

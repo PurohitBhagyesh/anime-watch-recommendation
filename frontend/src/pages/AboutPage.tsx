@@ -45,7 +45,7 @@ export const AboutPage: React.FC = () => {
         {
           '@type': 'ContactPoint',
           contactType: 'customer support',
-          email: 'Purohitunofficialbhagyesh@gmail.com',
+          email: 'support@animesenpai.online',
           url: `${SITE_URL}/about`,
         },
       ],
@@ -201,7 +201,7 @@ export const AboutPage: React.FC = () => {
             <div className="flex items-start gap-3">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
               <div>
-                <strong className="text-white">DMCA & Copyright Takedowns:</strong> If you are a copyright owner or representative and wish to request removal of any specific metadata, links, or embed references, please contact us at <a href="mailto:Purohitunofficialbhagyesh@gmail.com" className="text-white underline font-bold">Purohitunofficialbhagyesh@gmail.com</a> for immediate action within 24 hours.
+                <strong className="text-white">DMCA & Copyright Takedowns:</strong> If you are a copyright owner or representative and wish to request removal of any specific metadata, links, or embed references, please contact us at <a href="mailto:support@animesenpai.online" className="text-white underline font-bold">support@animesenpai.online</a> for immediate action within 24 hours.
               </div>
             </div>
           </div>
@@ -265,10 +265,10 @@ export const AboutPage: React.FC = () => {
             <div className="flex items-center gap-2 text-xs">
               <span className="text-slate-400">Email:</span>
               <a
-                href="mailto:Purohitunofficialbhagyesh@gmail.com"
+                href="mailto:support@animesenpai.online"
                 className="text-white hover:underline font-bold"
               >
-                Purohitunofficialbhagyesh@gmail.com
+                support@animesenpai.online
               </a>
             </div>
             <div className="flex items-center gap-2 text-xs">
