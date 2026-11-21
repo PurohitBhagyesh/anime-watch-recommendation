@@ -127,7 +127,7 @@ export const AboutPage: React.FC = () => {
               We are <strong>NOT affiliated, associated, authorized, endorsed by, or in any way officially connected</strong> with third-party anime news blogs (such as <em>animesenpai.net</em>), commercial media apps, or pirated video aggregators.
             </p>
             <p className="text-xs text-slate-400 leading-relaxed">
-              AnimeSenpai was created strictly to give anime enthusiasts a fast, ad-free, and clean interface to explore seasonal schedules, track watchlist progress, and watch official trailers via verified public APIs.
+              AnimeSenpai was created strictly to give anime enthusiasts a fast, clean, and modern interface to explore seasonal schedules, track watchlist progress, and watch official trailers via verified public APIs.
             </p>
           </div>
         </div>
@@ -144,7 +144,7 @@ export const AboutPage: React.FC = () => {
             <div className="w-8 h-8 rounded-lg bg-[#151519] border border-[#3a3a44] flex items-center justify-center text-white">
               <Lock className="w-4 h-4" />
             </div>
-            <h3 className="font-bold text-white text-sm">100% Ad-Free & Safe</h3>
+            <h3 className="font-bold text-white text-sm">Clean, Secure & Safe</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
               No deceptive banners, no intrusive redirects, no malware, and no crypto miners. Your security and privacy are paramount.
             </p>

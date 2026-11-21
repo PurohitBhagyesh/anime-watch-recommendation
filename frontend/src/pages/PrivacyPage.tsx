@@ -43,10 +43,10 @@ export const PrivacyPage: React.FC = () => {
         <section className="anilist-card-static p-5 sm:p-6 space-y-2.5">
           <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
             <Lock aria-hidden="true" className="w-4 h-4 text-white" />
-            1. Zero Data Selling & Minimal Collection
+            1. Zero Data Selling & Privacy Protection
           </h2>
           <p>
-            AnimeSenpai is built with a strict privacy-first architecture. We do not sell, rent, share, or monetize user data, and we do not run third-party ad networks or behavioral tracking scripts.
+            AnimeSenpai is built with a strict privacy-first architecture. We do not sell, rent, or trade personal user data, and we collect only the minimal data necessary to provide discovery and watchlist features.
           </p>
           <p className="text-slate-400">
             You can browse the full anime catalog, search 20,000+ titles, and watch official trailers without creating an account.
@@ -112,10 +112,45 @@ export const PrivacyPage: React.FC = () => {
           </div>
         </section>
 
+        <section className="anilist-card-static p-5 sm:p-6 space-y-3">
+          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <Shield aria-hidden="true" className="w-4 h-4 text-white" />
+            5. Google Advertising & Cookie Policy
+          </h2>
+          <p>
+            AnimeSenpai partners with third-party vendors, including Google, to serve advertisements on the site:
+          </p>
+          <ul className="list-disc list-inside space-y-1.5 text-slate-400 pl-1">
+            <li>Google and third-party vendors use cookies to serve ads based on a user's prior visits to AnimeSenpai or other websites on the Internet.</li>
+            <li>Google's use of advertising cookies enables it and its partners to serve ads to users based on their visits to this site and other sites across the web.</li>
+            <li>
+              You can opt out of personalized advertising at any time by visiting{' '}
+              <a
+                href="https://adssettings.google.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white hover:underline font-semibold"
+              >
+                Google Ads Settings
+              </a>
+              {' '}or by visiting{' '}
+              <a
+                href="https://www.aboutads.info/choices/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white hover:underline font-semibold"
+              >
+                www.aboutads.info
+              </a>
+              .
+            </li>
+          </ul>
+        </section>
+
         <section className="anilist-card-static p-5 sm:p-6 space-y-2">
           <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
             <Mail aria-hidden="true" className="w-4 h-4 text-white" />
-            5. Contact for Privacy Requests
+            6. Contact for Privacy Requests
           </h2>
           <p>
             For any privacy inquiry or manual data deletion assistance, email{' '}

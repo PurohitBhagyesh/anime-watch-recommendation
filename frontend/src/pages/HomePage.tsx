@@ -21,7 +21,7 @@ export const HomePage: React.FC = () => {
   useSEO({
     title: 'AnimeSenpai • Anime Discovery, Tracker & Recommendations',
     description:
-      'Discover 20,000+ anime, track episodes, sync watchlists, and watch official trailers free & ad-free on AnimeSenpai — powered live by AniList.',
+      'Discover 20,000+ anime, track episodes, sync watchlists, and watch official trailers free on AnimeSenpai — powered live by AniList.',
     canonicalUrl: `${SITE_URL}/`,
   });
 

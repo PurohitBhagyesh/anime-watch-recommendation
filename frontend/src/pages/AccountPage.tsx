@@ -1658,7 +1658,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
               <div className="anilist-card-static p-5 space-y-3">
                 <AppLogo size="md" subtitle="" />
                 <p className="text-xs sm:text-sm text-[#9a9aa6] leading-relaxed">
-                  Independent, ad-free anime discovery catalog and personal watchlist tracker. Real-time community scores, seasonal airing schedules, voice cast, and official trailers powered by AniList GraphQL.
+                  Independent anime discovery catalog and personal watchlist tracker. Real-time community scores, seasonal airing schedules, voice cast, and official trailers powered by AniList GraphQL.
                 </p>
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <a
