@@ -266,13 +266,14 @@ export const WatchlistPage: React.FC = () => {
   const genreBreakdown = useMemo(() => {
     const counts: Record<string, number> = {};
     watchlist.forEach((item) => {
-      item.anime?.genres?.forEach((g) => {
-        counts[g] = (counts[g] || 0) + 1;
+      const genres = item.anime?.genres || (item as any)?.genres || [];
+      genres.forEach((g: string) => {
+        if (g) counts[g] = (counts[g] || 0) + 1;
       });
     });
     return Object.entries(counts)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 6);
+      .slice(0, 12);
   }, [watchlist]);
 
   // Filtered + sorted items
@@ -609,9 +610,9 @@ export const WatchlistPage: React.FC = () => {
 
       {/* Analytics (Score Distribution & Top Genres) */}
       {(ratedItems.length > 0 || genreBreakdown.length > 0) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
           {ratedItems.length > 0 && (
-            <div className="p-3.5 sm:p-5 rounded-2xl anilist-card-static space-y-2.5">
+            <div className="p-3.5 sm:p-5 rounded-2xl anilist-card-static space-y-2.5 h-full flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-[#f5f5f7] flex items-center gap-2">
                   <BarChart3 aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
@@ -659,24 +660,49 @@ export const WatchlistPage: React.FC = () => {
           )}
 
           {genreBreakdown.length > 0 && (
-            <div className="p-3.5 sm:p-5 rounded-2xl anilist-card-static space-y-2.5">
+            <div className="p-3.5 sm:p-5 rounded-2xl anilist-card-static space-y-2.5 h-full flex flex-col justify-between">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-[#f5f5f7] flex items-center gap-2">
-                  <Tag aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
-                  Top List Genres
-                </span>
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-[#f5f5f7] flex items-center gap-2 flex-shrink-0">
+                    <Tag aria-hidden="true" className="w-3.5 h-3.5 text-[#5360e6]" />
+                    Top List Genres
+                  </span>
+                  {selectedGenre && (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#5360e6]/20 text-[#717ff5] border border-[#5360e6]/30 animate-fadeIn truncate">
+                      Filtered: {selectedGenre}
+                    </span>
+                  )}
+                </div>
                 {selectedGenre && (
                   <button
                     type="button"
                     onClick={() => setSelectedGenre('')}
-                    className="text-[11px] text-[#9a9aa6] hover:text-[#f5f5f7] cursor-pointer"
+                    className="text-[11px] text-[#9a9aa6] hover:text-[#f5f5f7] underline underline-offset-2 transition cursor-pointer flex-shrink-0"
                   >
-                    Clear filter
+                    Reset filter
                   </button>
                 )}
               </div>
 
               <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedGenre('')}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer min-h-[34px] ${
+                    !selectedGenre
+                      ? 'btn-accent-active'
+                      : 'bg-[#16161b] hover:bg-[#1d1d24] border border-[#23232b] text-[#d2d2dc] hover:text-[#f5f5f7]'
+                  }`}
+                >
+                  <span>All</span>
+                  <span
+                    className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full tabular-nums ${
+                      !selectedGenre ? 'bg-black/25 text-white' : 'bg-[#0c0c0f] text-[#9a9aa6]'
+                    }`}
+                  >
+                    {watchlist.length}
+                  </span>
+                </button>
                 {genreBreakdown.map(([genre, count]) => {
                   const isActive = selectedGenre === genre;
                   return (
@@ -684,16 +710,16 @@ export const WatchlistPage: React.FC = () => {
                       key={genre}
                       type="button"
                       onClick={() => setSelectedGenre((prev) => (prev === genre ? '' : genre))}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition cursor-pointer min-h-[34px] ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer min-h-[34px] ${
                         isActive
-                          ? 'btn-accent-active'
+                          ? 'btn-accent-active shadow-md'
                           : 'bg-[#16161b] hover:bg-[#1d1d24] border border-[#23232b] text-[#d2d2dc] hover:text-[#f5f5f7]'
                       }`}
                     >
                       <span>{genre}</span>
                       <span
                         className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full tabular-nums ${
-                          isActive ? 'bg-black/25 text-white' : 'bg-[#0c0c0f] text-[#9a9aa6]'
+                          isActive ? 'bg-black/25 text-white font-bold' : 'bg-[#0c0c0f] text-[#9a9aa6]'
                         }`}
                       >
                         {count}
@@ -824,20 +850,51 @@ export const WatchlistPage: React.FC = () => {
           </div>
         )}
 
-        {/* Real-time search feedback badge */}
-        {searchQuery.trim() && (
-          <div className="flex items-center justify-between text-xs text-[#9a9aa6] px-1 py-0.5 animate-fadeIn">
-            <span>
-              Found <strong className="text-[#f5f5f7]">{filteredItems.length}</strong>{' '}
-              {filteredItems.length === 1 ? 'title' : 'titles'} matching &ldquo;{searchQuery.trim()}&rdquo; across your library
-            </span>
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              className="text-[#5360e6] hover:underline cursor-pointer font-medium"
-            >
-              Clear search
-            </button>
+        {/* Real-time search & genre filter feedback badge */}
+        {(searchQuery.trim() || selectedGenre) && (
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#9a9aa6] px-2.5 py-1.5 bg-[#121217] rounded-xl border border-[#23232b] animate-fadeIn">
+            <div className="flex flex-wrap items-center gap-2">
+              {selectedGenre && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#5360e6]/20 border border-[#5360e6]/35 text-[#f5f5f7] text-[11px] font-medium">
+                  <Tag aria-hidden="true" className="w-3 h-3 text-[#5360e6]" />
+                  <span>Genre: <strong className="text-white font-bold">{selectedGenre}</strong></span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedGenre('')}
+                    className="p-0.5 hover:text-white text-[#9a9aa6] transition cursor-pointer ml-0.5"
+                    aria-label="Remove genre filter"
+                  >
+                    <X aria-hidden="true" className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {searchQuery.trim() && (
+                <span>
+                  Found <strong className="text-[#f5f5f7] font-semibold">{filteredItems.length}</strong>{' '}
+                  {filteredItems.length === 1 ? 'title' : 'titles'} matching &ldquo;{searchQuery.trim()}&rdquo;
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              {selectedGenre && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedGenre('')}
+                  className="text-xs text-[#9a9aa6] hover:text-[#f5f5f7] transition cursor-pointer"
+                >
+                  Clear genre
+                </button>
+              )}
+              {searchQuery.trim() && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="text-xs text-[#5360e6] hover:underline cursor-pointer font-medium"
+                >
+                  Clear search
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
