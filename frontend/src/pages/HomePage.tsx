@@ -153,7 +153,7 @@ export const HomePage: React.FC = () => {
 
         <div id="seasonal" className="py-5 sm:py-7 scroll-mt-20 scroll-reveal-section">
           <CarouselRow
-            title={`Popular This Season · ${season} ${year}`}
+            title="Popular This Season"
             subtitle="Currently airing weekly anime series"
             icon={PlaySquare}
             animes={data?.seasonal?.length ? data.seasonal : (initialHomeData as any).seasonal}
