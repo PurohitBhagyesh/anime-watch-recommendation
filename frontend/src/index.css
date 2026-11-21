@@ -2,9 +2,10 @@
 
 @layer base {
   :root {
-    --font-heading: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Plus Jakarta Sans', 'Overpass', 'Segoe UI', Roboto, sans-serif;
+    --font-heading: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Plus Jakarta Sans', 'Segoe UI', Roboto, sans-serif;
     --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Plus Jakarta Sans', 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'SF Mono', Menlo, Monaco, Consolas, ui-monospace, monospace;
+    font-size-adjust: from-font;
 
     /* 3-Color Luxury Palette:
        1. Obsidian (#000000 / #0c0c0f) — UI Base & Surfaces (60%)

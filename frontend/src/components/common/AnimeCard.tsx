@@ -174,7 +174,7 @@ const AnimeCardComponent: React.FC<AnimeCardProps> = ({ anime, priority = false 
             width={185}
             height={265}
             loading={priority ? 'eager' : 'lazy'}
-            fetchPriority={priority ? 'auto' : 'low'}
+            fetchPriority={priority ? 'high' : undefined}
             decoding="async"
             onLoad={() => setImgLoaded(true)}
             onError={() => setImgLoaded(true)}
