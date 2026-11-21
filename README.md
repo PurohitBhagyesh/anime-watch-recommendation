@@ -77,7 +77,7 @@
 
 ## 🚀 SEO, Social Preview & Agentic Discovery
 
-* **Search & Canonical Edge Setup:** Validated `robots.txt` (`Allow: /`), **84-URL canonical `sitemap.xml`**, IndexNow ownership verification, permanent `301` apex-to-`www` canonical redirect (`animesenpai.online` → `https://www.animesenpai.online`), and media-scoped `<link rel="preload" as="image">` for fast Mobile & Desktop LCP.
+* **Search & Canonical Edge Setup:** Validated `robots.txt` (`Allow: /`), **75-URL streamlined canonical `sitemap.xml`**, IndexNow verification, permanent `301` apex-to-`www` canonical redirect (`animesenpai.online` → `https://www.animesenpai.online`), Google AdSense verification & `ads.txt`, and media-scoped `<link rel="preload" as="image">` for fast Mobile & Desktop LCP.
 * **Brand Assets & Structured Data:** Cache-busted raster favicons (`48x48` through `512x512`), `site.webmanifest`, JSON-LD schemas (`WebSite`, `Organization`, `AboutPage`, sitelinks), and an Ultra-HD `2400×1260` monochrome Obsidian/Platinum/Indigo 19-hero anime pantheon Open Graph & Twitter Card banner (`og-banner.jpg`).
 * **Agentic Browsing (4/4):** Standards-compliant `.well-known/ai-catalog.json`, `.well-known/ard.json`, and `.well-known/security.txt` manifests aligned to canonical production URLs.
 
