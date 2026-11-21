@@ -13,9 +13,26 @@ import {
 
 export const HomeNoticeBanner: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDismissed, setIsDismissed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('animesenpai_notice_dismissed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDismissed(true);
+    try {
+      localStorage.setItem('animesenpai_notice_dismissed', 'true');
+    } catch {}
+  };
+
+  if (isDismissed) return null;
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-5 pb-1">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-5 pb-1 animate-fadeIn">
       <div
         className={`rounded-2xl border transition-all duration-300 bg-[#0c0c0f] ${
           isOpen
@@ -24,16 +41,35 @@ export const HomeNoticeBanner: React.FC = () => {
         }`}
       >
         {/* Clickable Header Bar */}
-        <button
-          type="button"
+        <div
+          role="button"
+          tabIndex={0}
           onClick={() => setIsOpen((prev) => !prev)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setIsOpen((prev) => !prev);
+            }
+          }}
           aria-expanded={isOpen}
           aria-label="Toggle AnimeSenpai platform notice"
-          className="w-full px-3.5 sm:px-5 py-3 sm:py-3.5 flex items-center justify-between gap-3 text-left cursor-pointer group"
+          className="w-full px-2.5 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2.5 sm:gap-3 text-left cursor-pointer group select-none"
         >
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          {/* Left Side: Dismiss Cross Button + Notice Badge + Headline */}
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
+            {/* Left Cross Button to Dismiss & Hide Notice */}
+            <button
+              type="button"
+              onClick={handleDismiss}
+              aria-label="Dismiss and hide notice"
+              title="Dismiss notice"
+              className="w-7 h-7 rounded-full bg-[#16161b] hover:bg-rose-500/15 border border-[#23232b] hover:border-rose-500/35 text-[#9a9aa6] hover:text-rose-300 transition-all flex items-center justify-center flex-shrink-0 cursor-pointer active:scale-90"
+            >
+              <X aria-hidden="true" className="w-3.5 h-3.5" />
+            </button>
+
             {/* Pulsing Luminous Badge */}
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-[#5360e6]/15 text-[#5360e6] border border-[#5360e6]/30 flex-shrink-0">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-[#5360e6]/15 text-[#5360e6] border border-[#5360e6]/30 flex-shrink-0">
               <Sparkles aria-hidden="true" className="w-3 h-3 animate-pulse" />
               <span>Notice</span>
             </span>
@@ -44,7 +80,7 @@ export const HomeNoticeBanner: React.FC = () => {
             </span>
           </div>
 
-          {/* Upside-Down Rotating Chevron (turns upside down when opened) */}
+          {/* Right Side: Rotating Upside-Down Chevron (turns upside down when opened) */}
           <div className="flex items-center gap-1.5 flex-shrink-0">
             <span className="hidden min-[480px]:inline text-[11px] font-mono text-[#9a9aa6] group-hover:text-[#f5f5f7] transition-colors">
               {isOpen ? 'Close' : 'Read'}
@@ -57,7 +93,7 @@ export const HomeNoticeBanner: React.FC = () => {
               <ChevronDown aria-hidden="true" className="w-4 h-4 transition-transform duration-300" />
             </div>
           </div>
-        </button>
+        </div>
 
         {/* Expandable Notice Body (revealed when user flips the > upside down) */}
         {isOpen && (
@@ -95,33 +131,22 @@ export const HomeNoticeBanner: React.FC = () => {
               </div>
             </div>
 
-            {/* Quick Actions & Close Footer */}
-            <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-[#1c1c24]">
-              <div className="flex flex-wrap items-center gap-2">
-                <Link
-                  to="/discover"
-                  className="anilist-btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-full min-h-[36px]"
-                >
-                  <Compass aria-hidden="true" className="w-3.5 h-3.5" />
-                  <span>Browse Catalog</span>
-                </Link>
-                <Link
-                  to="/watchlist"
-                  className="anilist-btn-secondary inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-full min-h-[36px]"
-                >
-                  <Bookmark aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
-                  <span>Open Watchlist</span>
-                </Link>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs text-[#9a9aa6] hover:text-[#f5f5f7] rounded-lg transition-colors cursor-pointer"
+            {/* Quick Actions Footer (Clean - dismiss button removed from inside body) */}
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#1c1c24]">
+              <Link
+                to="/discover"
+                className="anilist-btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-full min-h-[36px]"
               >
-                <X aria-hidden="true" className="w-3.5 h-3.5" />
-                <span>Dismiss</span>
-              </button>
+                <Compass aria-hidden="true" className="w-3.5 h-3.5" />
+                <span>Browse Catalog</span>
+              </Link>
+              <Link
+                to="/watchlist"
+                className="anilist-btn-secondary inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-full min-h-[36px]"
+              >
+                <Bookmark aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
+                <span>Open Watchlist</span>
+              </Link>
             </div>
           </div>
         )}

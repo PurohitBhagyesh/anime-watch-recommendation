@@ -24,6 +24,9 @@
 </p>
 
 <p align="center">
+  <a href="TRD.md"><img src="https://img.shields.io/badge/Documentation-TRD-5360e6?style=flat-square" alt="TRD" /></a>
+  <a href="APP_FLOW.md"><img src="https://img.shields.io/badge/Design%20Brief-App%20Flow-5360e6?style=flat-square" alt="App Flow" /></a>
+  <a href="BACKEND_SCHEMA.md"><img src="https://img.shields.io/badge/Architecture-Backend%20Schema-5360e6?style=flat-square" alt="Backend Schema" /></a>
   <a href="architecture.md"><img src="https://img.shields.io/badge/Documentation-Architecture-151519?style=flat-square" alt="Architecture" /></a>
   <a href="design.md"><img src="https://img.shields.io/badge/Design%20System-Guidelines-151519?style=flat-square" alt="Design System" /></a>
   <a href="SECURITY.md"><img src="https://img.shields.io/badge/Security-SECURITY.md-151519?style=flat-square" alt="Security" /></a>
@@ -35,6 +38,9 @@
 
 ## 📚 Documentation & Governance
 
+* 🏛️ **[Technical Requirements Document (TRD.md)](TRD.md)** — Comprehensive engineering specification, SLAs, Core Web Vitals, API contracts, and security architecture.
+* 🎨 **[App Flow & UI/UX Design Brief (APP_FLOW.md)](APP_FLOW.md)** — Complete user flow diagrams, screen hierarchy, 3-color palette tokens, and tactile micro-interactions.
+* 🗄️ **[Backend Schema & API Architecture (BACKEND_SCHEMA.md)](BACKEND_SCHEMA.md)** — Entity-relationship models, Prisma ORM schema, Firestore declarative security rules, and REST endpoint specs.
 * 🏛️ **[Architecture Guide (architecture.md)](architecture.md)** — Edge topology, AniList GraphQL pipelines, Pub/Sub event bus, and caching strategy.
 * 🎨 **[Design System (design.md)](design.md)** — Monochrome Obsidian/Platinum tokens, Luminous Indigo button accent, responsive container queries, and accessibility specs.
 * 🛡️ **[Security Policy (SECURITY.md)](SECURITY.md)** — Responsible vulnerability disclosure, Firestore rules, CSP, CAPTCHA, rate limiting, and SQLi protection.
@@ -64,7 +70,8 @@
 * **🔍 Live AniList GraphQL Catalog & Watchlist Tracker:** Real-time autocomplete search, seasonal schedules, studios, voice cast, franchise relations, episode progress bars with auto-complete, personal 1–10 score distribution chart, clickable genre filters, sandboxed `youtube-nocookie.com` trailers, and Random Anime Picker.
 * **⚡ Universal Real-Time Watchlist Search:** Typing in the watchlist search box queries instantly across all title representations (`english`, `romaji`, `userPreferred`, `native`), genres, and synonyms across the entire personal library, automatically searching across all status categories so matching anime immediately appears without needing to switch tabs.
 * **💾 Resilient Non-Destructive JSON Import & Export:** Cross-browser standard JSON backup export utilizing `Blob` + `URL.createObjectURL` (compatible across iOS WebKit, Android Chrome, and desktop browsers) paired with a smart import engine that seamlessly parses raw arrays, wrapped `{ watchlist: [...] }`, `{ items: [...] }`, and AniList export shapes. Non-destructively merges imported items with existing browser records by ID rather than overwriting, with live feedback toasts reporting added and updated counts.
-* **📢 Interactive Expandable Notice Widget:** Positioned seamlessly between the Hero Banner and Trending Now on the Homepage, featuring a luminous `Notice` badge and an upside-down rotating chevron toggle (`rotate-180`) that unveils platform features (Live AniList Engine, Cross-Device Watchlist, 100% Free & Open) with quick action links to the catalog and personal watchlist.
+* **📢 Interactive Expandable Notice Widget:** Positioned seamlessly between the Hero Banner and Trending Now on the Homepage, featuring a tactile circular cross (`X`) dismiss button on the left to permanently hide the notice, a luminous `Notice` badge, and an upside-down rotating chevron toggle (`rotate-180`) on the right that unveils platform features (Live AniList Engine, Cross-Device Watchlist, 100% Free & Open) with direct catalog and watchlist action links.
+* **✨ High-Contrast Brand Typography & Tactile Interactions:** Refined `AnimeSenpai •` brand logo with bold `#f5f5f7` platinum lettering and radiant indigo glowing dot, accompanied by physics-based `active:scale-95` micro-interactions on all interactive controls.
 * **📱 Revamped Native Mobile Watchlist Experience:** Complete viewport containment (`overflow-x: hidden`, zero horizontal spill across 320px–412px viewports), **Sleek Mobile Status Options Menu** (eliminates horizontal scrolling on mobile in favor of an instant status picker with live counts and dynamic icons, while preserving full tabs on desktop), compact 2×2 mobile stats grid (`Total Anime`, `Watching`, `Mean Score`, `Watch Time`), tactile 40px touch targets, rich portrait cover cards (`aspect-[185/265]`), haptic-like active-scale `+1` episode stepper, custom mobile status/score dropdowns, guest device watchlist support with sign-in sync banner, and an authentic 2-column mobile poster grid with instant floating increment buttons in Grid View.
 
 ---

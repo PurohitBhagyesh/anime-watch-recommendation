@@ -20,7 +20,7 @@ export const AnimeSenpaiLogoIcon: React.FC<{
   return (
     <div
       style={{ width: size, height: size }}
-      className={`relative inline-flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105 ${className}`}
+      className={`relative inline-flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-105 active:scale-95 drop-shadow-[0_2px_8px_rgba(83,96,230,0.25)] ${className}`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -89,23 +89,23 @@ export const AppLogo: React.FC<AppLogoProps> = ({
     switch (size) {
       case 'sm':
         return {
-          iconSize: 36,
-          textSize: 'text-[17px] sm:text-[19px]',
+          iconSize: 32,
+          textSize: 'text-[17px] sm:text-[18.5px]',
         };
       case 'lg':
         return {
-          iconSize: 52,
+          iconSize: 50,
           textSize: 'text-2xl sm:text-3xl',
         };
       case 'xl':
         return {
-          iconSize: 64,
+          iconSize: 62,
           textSize: 'text-3xl sm:text-4xl',
         };
       case 'md':
       default:
         return {
-          iconSize: 42,
+          iconSize: 38,
           textSize: 'text-xl',
         };
     }
@@ -114,25 +114,28 @@ export const AppLogo: React.FC<AppLogoProps> = ({
   const dims = getDimensions();
 
   return (
-    <div className={`flex items-center gap-2.5 group cursor-pointer select-none ${className}`}>
+    <div className={`flex items-center gap-2 sm:gap-2.5 group cursor-pointer select-none transition-transform duration-200 active:scale-95 ${className}`}>
       <AnimeSenpaiLogoIcon size={dims.iconSize} />
       {withText && (
-        <div className="flex flex-col">
+        <div className="flex flex-col min-w-0">
           <div
-            className={`${dims.textSize} font-extrabold tracking-[-0.03em] text-[#f5f5f7] leading-none flex items-center`}
+            className={`${dims.textSize} font-extrabold tracking-[-0.035em] text-[#f5f5f7] leading-none flex items-center min-w-0`}
           >
             {brandName === 'AnimeSenpai' ? (
-              <>
-                <span>Anime</span>
-                <span className="text-[#9a9aa6] font-medium">Senpai</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#5360e6] ml-0.5 translate-y-[2px]" aria-hidden="true" />
-              </>
+              <span className="inline-flex items-center whitespace-nowrap">
+                <span className="text-[#f5f5f7] font-extrabold">Anime</span>
+                <span className="text-white font-extrabold ml-[1px]">Senpai</span>
+                <span
+                  className="inline-block w-1.5 h-1.5 rounded-full bg-[#5360e6] shadow-[0_0_8px_rgba(83,96,230,0.9)] ml-1"
+                  aria-hidden="true"
+                />
+              </span>
             ) : (
               brandName
             )}
           </div>
           {subtitle && (
-            <span className="text-[10px] text-[#9a9aa6] font-medium tracking-wider font-mono mt-0.5">
+            <span className="text-[10px] text-[#9a9aa6] font-medium tracking-wider font-mono mt-0.5 truncate">
               {subtitle}
             </span>
           )}
