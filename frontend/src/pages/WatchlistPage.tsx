@@ -48,6 +48,47 @@ const STATUS_LABELS: Record<WatchlistStatus, string> = {
   favorite: 'Favorite',
 };
 
+const STATUS_THEMES: Record<
+  WatchlistStatus,
+  { bg: string; text: string; dot: string }
+> = {
+  watching: {
+    bg: 'bg-emerald-500/15 border-emerald-500/35',
+    text: 'text-emerald-400',
+    dot: 'bg-emerald-400',
+  },
+  plan_to_watch: {
+    bg: 'bg-sky-500/15 border-sky-500/35',
+    text: 'text-sky-400',
+    dot: 'bg-sky-400',
+  },
+  completed: {
+    bg: 'bg-purple-500/15 border-purple-500/35',
+    text: 'text-purple-400',
+    dot: 'bg-purple-400',
+  },
+  rewatching: {
+    bg: 'bg-blue-500/15 border-blue-500/35',
+    text: 'text-blue-400',
+    dot: 'bg-blue-400',
+  },
+  paused: {
+    bg: 'bg-amber-500/15 border-amber-500/35',
+    text: 'text-amber-400',
+    dot: 'bg-amber-400',
+  },
+  dropped: {
+    bg: 'bg-rose-500/15 border-rose-500/35',
+    text: 'text-rose-400',
+    dot: 'bg-rose-400',
+  },
+  favorite: {
+    bg: 'bg-pink-500/15 border-pink-500/35',
+    text: 'text-pink-400',
+    dot: 'bg-pink-400',
+  },
+};
+
 export const WatchlistPage: React.FC = () => {
   useSEO({
     title: 'My Watchlist • Anime Tracker | AnimeSenpai',
@@ -190,7 +231,16 @@ export const WatchlistPage: React.FC = () => {
 
   const scoreDistribution = useMemo(() => {
     const dist: Record<number, number> = {
-      10: 0, 9: 0, 8: 0, 7: 0, 6: 0, 5: 0, 4: 0, 3: 0, 2: 0, 1: 0,
+      10: 0,
+      9: 0,
+      8: 0,
+      7: 0,
+      6: 0,
+      5: 0,
+      4: 0,
+      3: 0,
+      2: 0,
+      1: 0,
     };
     ratedItems.forEach((item) => {
       const r = item.userRating || 0;
@@ -265,7 +315,7 @@ export const WatchlistPage: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 space-y-6 animate-fadeIn flex flex-col items-center justify-center min-h-[60dvh] text-center">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-24 space-y-6 animate-fadeIn flex flex-col items-center justify-center min-h-[60dvh] text-center">
         <div className="w-16 h-16 bg-[#0c0c0f] rounded-2xl flex items-center justify-center border border-[#23232b]">
           <Bookmark aria-hidden="true" className="w-7 h-7 text-[#f5f5f7]" />
         </div>
@@ -278,13 +328,13 @@ export const WatchlistPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full sm:w-auto">
           <Link
             to="/login"
-            className="anilist-btn-primary px-7 py-2.5 text-xs sm:text-sm inline-flex items-center justify-center"
+            className="anilist-btn-primary px-7 py-3 sm:py-2.5 text-xs sm:text-sm inline-flex items-center justify-center min-h-[44px]"
           >
             Sign In
           </Link>
           <Link
             to="/signup"
-            className="anilist-btn-secondary px-7 py-2.5 text-xs sm:text-sm inline-flex items-center justify-center"
+            className="anilist-btn-secondary px-7 py-3 sm:py-2.5 text-xs sm:text-sm inline-flex items-center justify-center min-h-[44px]"
           >
             Create Account
           </Link>
@@ -294,95 +344,103 @@ export const WatchlistPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 sm:py-8 sm:pb-24 space-y-5 animate-fadeIn">
-      {/* Compact Header & Unified Pill Actions */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#23232b]">
+    <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 pt-4 pb-24 sm:py-8 sm:pb-24 space-y-4 sm:space-y-5 animate-fadeIn">
+      {/* Header & Mobile-Optimized Action Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 pb-4 border-b border-[#23232b]">
         <div className="min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#f5f5f7] tracking-[-0.03em] leading-tight">
-            My Watchlist
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#f5f5f7] tracking-[-0.03em] leading-tight">
+              My Watchlist
+            </h1>
+            <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-[#16161b] border border-[#23232b] text-[#d2d2dc] tabular-nums">
+              {totalAnime}
+            </span>
+          </div>
           <p className="text-xs text-[#9a9aa6] mt-0.5">
             Track episode progress, personal scores, and real-time synced status
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Unified Pill View Switcher */}
-          <div className="inline-flex items-center p-1 rounded-full bg-[#0c0c0f] border border-[#23232b]">
+        {/* Action Controls Bar */}
+        <div className="flex items-center justify-between sm:justify-end gap-2 pt-1 sm:pt-0">
+          {/* List / Grid View Switcher */}
+          <div className="inline-flex items-center p-0.5 sm:p-1 rounded-full bg-[#0c0c0f] border border-[#23232b]">
             <button
               type="button"
               onClick={() => setViewMode('table')}
               aria-label="List view"
               aria-pressed={viewMode === 'table'}
-              className={`p-2 rounded-full transition cursor-pointer ${
+              className={`p-2 rounded-full transition cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center ${
                 viewMode === 'table'
                   ? 'btn-accent-active'
                   : 'text-[#9a9aa6] hover:text-[#f5f5f7]'
               }`}
               title="List view"
             >
-              <List aria-hidden="true" className="w-3.5 h-3.5" />
+              <List aria-hidden="true" className="w-4 h-4" />
             </button>
             <button
               type="button"
               onClick={() => setViewMode('grid')}
               aria-label="Grid view"
               aria-pressed={viewMode === 'grid'}
-              className={`p-2 rounded-full transition cursor-pointer ${
+              className={`p-2 rounded-full transition cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center ${
                 viewMode === 'grid'
                   ? 'btn-accent-active'
                   : 'text-[#9a9aa6] hover:text-[#f5f5f7]'
               }`}
               title="Grid view"
             >
-              <LayoutGrid aria-hidden="true" className="w-3.5 h-3.5" />
+              <LayoutGrid aria-hidden="true" className="w-4 h-4" />
             </button>
           </div>
 
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-            accept=".json"
-            className="hidden"
-          />
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept=".json"
+              className="hidden"
+            />
 
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="anilist-btn-secondary inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[36px] text-xs cursor-pointer"
-            title="Import JSON backup"
-          >
-            <Upload aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
-            <span>Import</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={exportWatchlist}
-            disabled={watchlist.length === 0}
-            className="anilist-btn-secondary inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[36px] disabled:opacity-40 disabled:cursor-not-allowed text-xs cursor-pointer"
-            title="Export JSON backup"
-          >
-            <Download aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
-            <span>Export</span>
-          </button>
-
-          {watchlist.length > 0 && (
             <button
               type="button"
-              onClick={() => {
-                if (window.confirm('Clear your entire watchlist?')) {
-                  clearWatchlist();
-                }
-              }}
-              aria-label="Clear watchlist"
-              className="w-9 h-9 rounded-full bg-[#0c0c0f] hover:bg-rose-500/15 text-[#9a9aa6] hover:text-rose-300 border border-[#23232b] hover:border-rose-500/35 transition flex items-center justify-center cursor-pointer"
-              title="Clear all"
+              onClick={() => fileInputRef.current?.click()}
+              className="anilist-btn-secondary inline-flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2 min-h-[36px] text-xs font-semibold cursor-pointer"
+              title="Import JSON backup"
             >
-              <Trash2 aria-hidden="true" className="w-3.5 h-3.5" />
+              <Upload aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
+              <span className="hidden min-[380px]:inline">Import</span>
             </button>
-          )}
+
+            <button
+              type="button"
+              onClick={exportWatchlist}
+              disabled={watchlist.length === 0}
+              className="anilist-btn-secondary inline-flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2 min-h-[36px] disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold cursor-pointer"
+              title="Export JSON backup"
+            >
+              <Download aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
+              <span className="hidden min-[380px]:inline">Export</span>
+            </button>
+
+            {watchlist.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('Clear your entire watchlist?')) {
+                    clearWatchlist();
+                  }
+                }}
+                aria-label="Clear watchlist"
+                className="w-9 h-9 rounded-full bg-[#0c0c0f] hover:bg-rose-500/15 text-[#9a9aa6] hover:text-rose-300 border border-[#23232b] hover:border-rose-500/35 transition flex items-center justify-center cursor-pointer"
+                title="Clear all"
+              >
+                <Trash2 aria-hidden="true" className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -392,11 +450,11 @@ export const WatchlistPage: React.FC = () => {
           key={toast.id}
           role="status"
           aria-live="polite"
-          className={`px-4 py-2.5 rounded-2xl border text-xs font-medium flex items-center justify-between gap-3 animate-fadeIn ${
+          className={`px-3.5 py-2.5 rounded-2xl border text-xs font-medium flex items-center justify-between gap-3 animate-fadeIn ${
             toast.tone === 'success'
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-[#4ade80]'
+              ? 'bg-emerald-500/15 border-emerald-500/35 text-emerald-300'
               : toast.tone === 'danger'
-              ? 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+              ? 'bg-rose-500/15 border-rose-500/35 text-rose-300'
               : 'bg-[#16161b] border-[#383844] text-[#f5f5f7]'
           }`}
         >
@@ -419,7 +477,7 @@ export const WatchlistPage: React.FC = () => {
               type="button"
               onClick={() => setToast(null)}
               aria-label="Dismiss notification"
-              className="opacity-70 hover:opacity-100 cursor-pointer"
+              className="opacity-70 hover:opacity-100 cursor-pointer p-1"
             >
               <X aria-hidden="true" className="w-3.5 h-3.5" />
             </button>
@@ -427,108 +485,111 @@ export const WatchlistPage: React.FC = () => {
         </div>
       )}
 
-      {/* Monochrome Platinum Stats Summary Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 tabular-nums">
-        <div className="p-4 rounded-2xl anilist-card-static">
+      {/* High-Contrast Mobile Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 tabular-nums">
+        <div className="p-3.5 sm:p-4 rounded-2xl anilist-card-static">
           <span className="text-[10px] font-mono font-semibold uppercase tracking-widest text-[#9a9aa6]">
             Total Anime
           </span>
-          <p className="text-2xl font-extrabold text-[#f5f5f7] mt-1 leading-none">
+          <p className="text-xl sm:text-2xl font-extrabold text-[#f5f5f7] mt-1 leading-none">
             {totalAnime}
           </p>
-          <span className="text-[11px] text-[#666672] mt-1.5 block">
+          <span className="text-[11px] text-[#9a9aa6] mt-1.5 block truncate">
             {completedCount} completed
           </span>
         </div>
 
-        <div className="p-4 rounded-2xl anilist-card-static">
+        <div className="p-3.5 sm:p-4 rounded-2xl anilist-card-static">
           <span className="text-[10px] font-mono font-semibold uppercase tracking-widest text-[#9a9aa6]">
             Watch Time
           </span>
-          <p className="text-2xl font-extrabold text-[#f5f5f7] mt-1 leading-none">
+          <p className="text-xl sm:text-2xl font-extrabold text-[#f5f5f7] mt-1 leading-none">
             {daysWatched}
             <span className="text-xs font-medium text-[#9a9aa6] ml-1">days</span>
           </p>
-          <span className="text-[11px] text-[#666672] mt-1.5 block">
-            {totalEpisodesWatched} {totalEpisodesWatched === 1 ? 'episode' : 'episodes'}
+          <span className="text-[11px] text-[#9a9aa6] mt-1.5 block truncate">
+            {totalEpisodesWatched} {totalEpisodesWatched === 1 ? 'ep' : 'eps'}
           </span>
         </div>
 
-        <div className="p-4 rounded-2xl anilist-card-static">
+        <div className="p-3.5 sm:p-4 rounded-2xl anilist-card-static">
           <span className="text-[10px] font-mono font-semibold uppercase tracking-widest text-[#9a9aa6]">
             Mean Score
           </span>
-          <p className="text-2xl font-extrabold text-[#f5f5f7] mt-1 leading-none">
+          <p className="text-xl sm:text-2xl font-extrabold text-[#f5f5f7] mt-1 leading-none">
             {meanScore ? `${meanScore}%` : '—'}
           </p>
-          <span className="text-[11px] text-[#666672] mt-1.5 block">
-            {ratedItems.length} {ratedItems.length === 1 ? 'rated title' : 'rated titles'}
+          <span className="text-[11px] text-[#9a9aa6] mt-1.5 block truncate">
+            {ratedItems.length} {ratedItems.length === 1 ? 'rated' : 'rated'}
           </span>
         </div>
 
-        <div className="p-4 rounded-2xl anilist-card-static">
+        <div className="p-3.5 sm:p-4 rounded-2xl anilist-card-static">
           <span className="text-[10px] font-mono font-semibold uppercase tracking-widest text-[#9a9aa6]">
             Watching
           </span>
-          <p className="text-2xl font-extrabold text-[#f5f5f7] mt-1 leading-none">
+          <p className="text-xl sm:text-2xl font-extrabold text-[#f5f5f7] mt-1 leading-none">
             {watchingCount}
           </p>
-          <span className="text-[11px] text-[#666672] mt-1.5 block">
+          <span className="text-[11px] text-[#9a9aa6] mt-1.5 block truncate">
             Active {watchingCount === 1 ? 'series' : 'series'}
           </span>
         </div>
       </div>
 
-      {/* Refined Score Distribution & Clickable Top Genres Analytics */}
+      {/* Analytics (Score Distribution & Top Genres) */}
       {(ratedItems.length > 0 || genreBreakdown.length > 0) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {ratedItems.length > 0 && (
-            <div className="p-4 sm:p-5 rounded-2xl anilist-card-static space-y-3">
+            <div className="p-3.5 sm:p-5 rounded-2xl anilist-card-static space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-[#f5f5f7] flex items-center gap-2">
                   <BarChart3 aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
                   Score Distribution
                 </span>
-                <span className="text-[11px] font-mono text-[#666672]">1–10 scale</span>
+                <span className="text-[11px] font-mono text-[#9a9aa6]">1–10 scale</span>
               </div>
 
-              <div className="grid grid-cols-10 gap-1.5 items-end h-20 pt-3">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => {
-                  const count = scoreDistribution[score] || 0;
-                  const barHeight = count > 0 ? Math.max(20, (count / maxScoreCount) * 100) : 6;
-                  return (
-                    <div
-                      key={score}
-                      className="flex flex-col items-center justify-end h-full gap-1.5"
-                      title={`Score ${score}/10: ${count} ${count === 1 ? 'anime' : 'anime'}`}
-                    >
-                      <span
-                        className={`text-[10px] font-mono tabular-nums leading-none ${
-                          count > 0 ? 'text-[#f5f5f7] font-semibold' : 'text-transparent select-none'
-                        }`}
+              {/* Scroll-safe score distribution graph on narrow mobile */}
+              <div className="overflow-x-auto no-scrollbar pb-1">
+                <div className="grid grid-cols-10 gap-1.5 items-end h-20 pt-2 min-w-[280px]">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => {
+                    const count = scoreDistribution[score] || 0;
+                    const barHeight = count > 0 ? Math.max(20, (count / maxScoreCount) * 100) : 6;
+                    return (
+                      <div
+                        key={score}
+                        className="flex flex-col items-center justify-end h-full gap-1"
+                        title={`Score ${score}/10: ${count} anime`}
                       >
-                        {count}
-                      </span>
-                      <div className="w-full flex justify-center items-end flex-1">
-                        <div
-                          className={`w-full max-w-[18px] rounded-t-md transition-all duration-300 ${
-                            count > 0 ? 'bg-[#5360e6]' : 'bg-[#1c1c24]'
+                        <span
+                          className={`text-[10px] font-mono tabular-nums leading-none ${
+                            count > 0 ? 'text-[#f5f5f7] font-semibold' : 'text-transparent select-none'
                           }`}
-                          style={{ height: `${barHeight}%` }}
-                        />
+                        >
+                          {count}
+                        </span>
+                        <div className="w-full flex justify-center items-end flex-1">
+                          <div
+                            className={`w-full max-w-[18px] rounded-t-md transition-all duration-300 ${
+                              count > 0 ? 'bg-[#5360e6]' : 'bg-[#1c1c24]'
+                            }`}
+                            style={{ height: `${barHeight}%` }}
+                          />
+                        </div>
+                        <span className="text-[10px] font-mono text-[#9a9aa6] tabular-nums leading-none">
+                          {score}
+                        </span>
                       </div>
-                      <span className="text-[10px] font-mono text-[#666672] tabular-nums leading-none">
-                        {score}
-                      </span>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
 
           {genreBreakdown.length > 0 && (
-            <div className="p-4 sm:p-5 rounded-2xl anilist-card-static space-y-3">
+            <div className="p-3.5 sm:p-5 rounded-2xl anilist-card-static space-y-2.5">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-[#f5f5f7] flex items-center gap-2">
                   <Tag aria-hidden="true" className="w-3.5 h-3.5 text-[#9a9aa6]" />
@@ -545,7 +606,7 @@ export const WatchlistPage: React.FC = () => {
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {genreBreakdown.map(([genre, count]) => {
                   const isActive = selectedGenre === genre;
                   return (
@@ -553,7 +614,7 @@ export const WatchlistPage: React.FC = () => {
                       key={genre}
                       type="button"
                       onClick={() => setSelectedGenre((prev) => (prev === genre ? '' : genre))}
-                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition cursor-pointer ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition cursor-pointer min-h-[34px] ${
                         isActive
                           ? 'btn-accent-active'
                           : 'bg-[#16161b] hover:bg-[#1d1d24] border border-[#23232b] text-[#d2d2dc] hover:text-[#f5f5f7]'
@@ -576,9 +637,10 @@ export const WatchlistPage: React.FC = () => {
         </div>
       )}
 
-      {/* Status Filter Tabs + Inline Search/Sort */}
+      {/* Status Filter Tabs & Search Bar */}
       <div className="space-y-3">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 no-scrollbar touch-scroll-smooth flex-nowrap sm:flex-wrap border-b border-[#23232b]">
+        {/* Horizontal Touch Scrollable Status Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 no-scrollbar touch-scroll-smooth flex-nowrap sm:flex-wrap border-b border-[#23232b]">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const count =
@@ -592,9 +654,9 @@ export const WatchlistPage: React.FC = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setFilterStatus(tab.id)}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold transition flex-shrink-0 whitespace-nowrap active:scale-95 cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-full text-xs font-semibold transition flex-shrink-0 whitespace-nowrap active:scale-95 cursor-pointer min-h-[40px] ${
                   isActive
-                    ? 'btn-accent-active font-bold'
+                    ? 'btn-accent-active font-bold shadow-md'
                     : 'bg-[#0c0c0f] hover:bg-[#16161b] text-[#d2d2dc] hover:text-[#f5f5f7] border border-[#23232b]'
                 }`}
               >
@@ -602,7 +664,7 @@ export const WatchlistPage: React.FC = () => {
                 <span>{tab.label}</span>
                 <span
                   className={`px-1.5 py-0.2 text-[10px] rounded-full font-mono tabular-nums ${
-                    isActive ? 'bg-black/25 text-white' : 'bg-[#16161b] text-[#9a9aa6]'
+                    isActive ? 'bg-black/25 text-white font-bold' : 'bg-[#16161b] text-[#9a9aa6]'
                   }`}
                 >
                   {count}
@@ -619,25 +681,35 @@ export const WatchlistPage: React.FC = () => {
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Filter your list..."
+                placeholder="Search titles in list..."
                 aria-label="Filter your watchlist"
-                className="anilist-input w-full pl-9 pr-3.5 py-2 text-base sm:text-xs text-[#f5f5f7] placeholder:text-[#666672]"
+                className="anilist-input w-full pl-9 pr-8 py-2.5 sm:py-2 text-sm sm:text-xs text-[#f5f5f7] placeholder:text-[#9a9aa6] min-h-[40px] sm:min-h-[36px]"
               />
               <Search
                 aria-hidden="true"
-                className="w-3.5 h-3.5 text-[#666672] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                className="w-3.5 h-3.5 text-[#9a9aa6] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  aria-label="Clear search"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-[#9a9aa6] hover:text-white cursor-pointer"
+                >
+                  <X aria-hidden="true" className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
-            <div className="flex items-center gap-2">
-              <label htmlFor="watchlist-sort" className="text-[11px] text-[#9a9aa6] whitespace-nowrap">
+            <div className="flex items-center justify-between sm:justify-end gap-2">
+              <label htmlFor="watchlist-sort" className="text-xs text-[#9a9aa6] whitespace-nowrap">
                 Sort by
               </label>
               <select
                 id="watchlist-sort"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="anilist-input px-3 py-2 text-xs font-medium text-[#f5f5f7] cursor-pointer"
+                className="anilist-input px-3 py-2 text-xs font-semibold text-[#f5f5f7] min-h-[40px] sm:min-h-[36px] cursor-pointer"
               >
                 <option value="updated">Recently Updated</option>
                 <option value="title">Title (A–Z)</option>
@@ -652,9 +724,9 @@ export const WatchlistPage: React.FC = () => {
       {/* Watchlist Items */}
       {filteredItems.length > 0 ? (
         viewMode === 'table' ? (
-          <div className="space-y-2">
+          <div className="space-y-3 sm:space-y-2">
             {/* Desktop Table Header */}
-            <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-1.5 text-[10px] font-mono uppercase tracking-widest text-[#666672]">
+            <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-1.5 text-[10px] font-mono uppercase tracking-widest text-[#9a9aa6]">
               <span className="col-span-5">Anime</span>
               <span className="col-span-2 text-center">Score</span>
               <span className="col-span-2 text-center">Progress</span>
@@ -672,18 +744,21 @@ export const WatchlistPage: React.FC = () => {
                 : currentEp > 0
                 ? 35
                 : 0;
+              const isCompleted = totalEps ? currentEp >= totalEps : false;
+              const statusTheme = STATUS_THEMES[item.status] || STATUS_THEMES.watching;
 
               return (
                 <div
                   key={anime.id}
-                  className="p-3.5 rounded-2xl anilist-table-row"
+                  className="rounded-2xl anilist-table-row transition-all duration-200"
                 >
-                  {/* Mobile & Compact Tablet Layout (< 768px) */}
-                  <div className="md:hidden space-y-3">
-                    <div className="flex items-center gap-3">
+                  {/* Mobile Layout (< 768px): Rich Native App Card */}
+                  <div className="md:hidden p-3.5 space-y-3">
+                    {/* Top Row: Poster, Title, Meta, Delete */}
+                    <div className="flex items-start gap-3">
                       <Link
                         to={`/anime/${anime.id}`}
-                        className="w-12 aspect-[3/4] rounded-xl overflow-hidden flex-shrink-0 bg-[#16161b] border border-[#23232b]"
+                        className="w-16 min-[400px]:w-20 aspect-[185/265] rounded-xl overflow-hidden flex-shrink-0 bg-[#16161b] border border-[#23232b] shadow-md relative block active:scale-95 transition-transform"
                       >
                         <img
                           src={anime.coverImage.medium || anime.coverImage.large}
@@ -693,103 +768,147 @@ export const WatchlistPage: React.FC = () => {
                         />
                       </Link>
 
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <Link
-                          to={`/anime/${anime.id}`}
-                          className="font-semibold text-sm text-[#f5f5f7] line-clamp-1 block"
-                          title={title}
-                        >
-                          {title}
-                        </Link>
-                        <p className="text-[11px] text-[#9a9aa6]">
-                          {anime.format?.replace('_', ' ') || 'Anime'} · {anime.seasonYear || 'TBA'} ·{' '}
-                          {totalEps ? `${totalEps} eps` : 'Airing'}
-                        </p>
-                        <div className="w-full h-1 rounded-full bg-[#1e1e26] overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-[#5360e6] transition-all duration-300"
-                            style={{ width: `${progressPct}%` }}
-                          />
+                      <div className="min-w-0 flex-1 space-y-1.5">
+                        <div className="flex items-start justify-between gap-2">
+                          <Link
+                            to={`/anime/${anime.id}`}
+                            className="font-bold text-sm min-[400px]:text-[15px] text-[#f5f5f7] hover:text-[#5360e6] line-clamp-2 leading-snug transition-colors"
+                            title={title}
+                          >
+                            {title}
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => removeFromWatchlist(anime.id)}
+                            className="w-8 h-8 rounded-full text-[#9a9aa6] hover:text-rose-300 hover:bg-rose-500/15 transition flex items-center justify-center cursor-pointer flex-shrink-0"
+                            title="Remove from list"
+                            aria-label={`Remove ${title}`}
+                          >
+                            <Trash2 aria-hidden="true" className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-[#9a9aa6]">
+                          <span className="px-2 py-0.5 rounded-md bg-[#16161b] border border-[#23232b] text-[#d2d2dc] font-medium">
+                            {anime.format?.replace('_', ' ') || 'Anime'}
+                          </span>
+                          <span>·</span>
+                          <span>{anime.seasonYear || 'TBA'}</span>
+                          <span>·</span>
+                          <span>{totalEps ? `${totalEps} eps` : 'Airing'}</span>
+                        </div>
+
+                        {/* Status + Score Badges */}
+                        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusTheme.bg} ${statusTheme.text}`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${statusTheme.dot}`} />
+                            <span>{STATUS_LABELS[item.status]}</span>
+                          </span>
+                          {item.userRating && item.userRating > 0 ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/25 tabular-nums">
+                              ★ {item.userRating}/10
+                            </span>
+                          ) : null}
                         </div>
                       </div>
-
-                      <button
-                        type="button"
-                        onClick={() => removeFromWatchlist(anime.id)}
-                        className="w-8 h-8 rounded-full text-[#9a9aa6] hover:text-rose-300 hover:bg-rose-500/15 transition flex items-center justify-center cursor-pointer flex-shrink-0"
-                        title="Remove from list"
-                        aria-label={`Remove ${title}`}
-                      >
-                        <Trash2 aria-hidden="true" className="w-4 h-4" />
-                      </button>
                     </div>
 
-                    <div className="space-y-2 pt-2.5 border-t border-[#23232b]">
-                      <div className="grid grid-cols-2 gap-2">
-                        <select
-                          value={item.status}
-                          aria-label={`Watch status for ${title}`}
-                          onChange={(e) =>
-                            updateStatus(anime.id, e.target.value as WatchlistStatus)
-                          }
-                          className="anilist-input text-xs px-3 py-2 min-h-[38px] font-medium text-[#f5f5f7] w-full"
-                        >
-                          <option value="watching">Watching</option>
-                          <option value="plan_to_watch">Planning</option>
-                          <option value="completed">Completed</option>
-                          <option value="rewatching">Rewatching</option>
-                          <option value="paused">Paused</option>
-                          <option value="dropped">Dropped</option>
-                        </select>
-
-                        <select
-                          value={item.userRating || 0}
-                          aria-label={`Rating for ${title}`}
-                          onChange={(e) => updateRating(anime.id, Number(e.target.value))}
-                          className="anilist-input text-xs px-3 py-2 min-h-[38px] font-medium text-[#f5f5f7] w-full"
-                        >
-                          <option value="0">Unrated</option>
-                          {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
-                            <option key={r} value={r}>
-                              {r} / 10 ({r * 10}%)
-                            </option>
-                          ))}
-                        </select>
+                    {/* Progress Control Box */}
+                    <div className="p-2.5 rounded-xl bg-[#131317] border border-[#23232b] space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-[11px] font-semibold text-[#9a9aa6]">
+                          Episode Progress
+                        </span>
+                        <span className="font-mono font-bold text-[#f5f5f7] text-xs tabular-nums">
+                          {currentEp} / {totalEps ?? '—'}{' '}
+                          <span className="text-[#9a9aa6] font-normal">
+                            ({progressPct}%)
+                          </span>
+                        </span>
                       </div>
 
-                      <div className="flex items-center justify-between bg-[#16161b] px-3 py-1.5 rounded-xl border border-[#23232b]">
-                        <span className="text-[11px] font-medium text-[#9a9aa6]">Progress</span>
-                        <div className="flex items-center gap-1.5">
+                      {/* Progress Bar */}
+                      <div className="w-full h-1.5 rounded-full bg-[#1e1e26] overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-300 ${
+                            isCompleted ? 'bg-emerald-400' : 'bg-[#5360e6]'
+                          }`}
+                          style={{ width: `${progressPct}%` }}
+                        />
+                      </div>
+
+                      {/* Stepper + Status & Rating Dropdowns */}
+                      <div className="flex items-center gap-2 pt-0.5">
+                        {/* Tactile +1 Quick Increment Pill */}
+                        <div className="inline-flex items-center gap-0.5 p-0.5 rounded-xl bg-[#0c0c0f] border border-[#23232b]">
                           <button
                             type="button"
                             onClick={() =>
                               updateProgress(anime.id, Math.max(0, currentEp - 1))
                             }
                             aria-label={`Decrease episode for ${title}`}
-                            className="w-7 h-7 flex items-center justify-center rounded-full bg-[#0c0c0f] hover:bg-[#1d1d24] text-[#f5f5f7] border border-[#23232b] active:scale-95 transition cursor-pointer"
+                            className="w-8 h-8 rounded-lg text-[#9a9aa6] hover:text-[#f5f5f7] hover:bg-[#1a1a20] flex items-center justify-center active:scale-90 transition cursor-pointer"
                           >
                             <Minus aria-hidden="true" className="w-3.5 h-3.5" />
                           </button>
-                          <span className="font-mono font-semibold text-[#f5f5f7] text-xs min-w-[3.75rem] text-center tabular-nums">
-                            {currentEp} / {totalEps ?? '—'}
-                          </span>
                           <button
                             type="button"
                             onClick={() =>
                               updateProgress(anime.id, Math.min(maxEpisodes, currentEp + 1))
                             }
                             aria-label={`Increase episode for ${title}`}
-                            className="w-7 h-7 flex items-center justify-center rounded-full bg-[#0c0c0f] hover:bg-[#1d1d24] text-[#f5f5f7] border border-[#23232b] active:scale-95 transition cursor-pointer"
+                            className="px-2.5 h-8 rounded-lg bg-[#5360e6] hover:bg-[#6470f2] text-white font-bold text-xs flex items-center gap-1 active:scale-95 transition shadow-sm cursor-pointer whitespace-nowrap"
                           >
-                            <Plus aria-hidden="true" className="w-3.5 h-3.5" />
+                            <Plus aria-hidden="true" className="w-3.5 h-3.5 stroke-[3]" />
+                            <span>+1</span>
                           </button>
+                        </div>
+
+                        {/* Status Select */}
+                        <div className="flex-1 min-w-0">
+                          <select
+                            value={item.status}
+                            aria-label={`Watch status for ${title}`}
+                            onChange={(e) =>
+                              updateStatus(anime.id, e.target.value as WatchlistStatus)
+                            }
+                            className="anilist-input text-xs px-2.5 py-2 font-semibold text-[#f5f5f7] w-full min-h-[38px] cursor-pointer"
+                          >
+                            <option value="watching">Watching</option>
+                            <option value="plan_to_watch">Planning</option>
+                            <option value="completed">Completed</option>
+                            <option value="rewatching">Rewatching</option>
+                            <option value="paused">Paused</option>
+                            <option value="dropped">Dropped</option>
+                          </select>
+                        </div>
+
+                        {/* Score Select */}
+                        <div className="w-24 min-w-0">
+                          <select
+                            value={item.userRating || 0}
+                            aria-label={`Rating for ${title}`}
+                            onChange={(e) =>
+                              updateRating(anime.id, Number(e.target.value))
+                            }
+                            className="anilist-input text-xs px-2 py-2 font-semibold text-[#f5f5f7] w-full min-h-[38px] cursor-pointer"
+                          >
+                            <option value="0">Score</option>
+                            {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
+                              <option key={r} value={r}>
+                                ★ {r}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Desktop Table Row (>= 768px) */}
-                  <div className="hidden md:grid md:grid-cols-12 gap-3 items-center">
+                  <div className="hidden md:grid md:grid-cols-12 gap-3 items-center p-3.5">
                     <div className="flex items-center gap-3.5 col-span-5 min-w-0">
                       <Link
                         to={`/anime/${anime.id}`}
@@ -820,7 +939,9 @@ export const WatchlistPage: React.FC = () => {
                         </div>
                         <div className="w-full max-w-[220px] h-1 rounded-full bg-[#1e1e26] overflow-hidden">
                           <div
-                            className="h-full rounded-full bg-[#5360e6] transition-all duration-300"
+                            className={`h-full rounded-full transition-all duration-300 ${
+                              isCompleted ? 'bg-emerald-400' : 'bg-[#5360e6]'
+                            }`}
                             style={{ width: `${progressPct}%` }}
                           />
                         </div>
@@ -837,7 +958,7 @@ export const WatchlistPage: React.FC = () => {
                         <option value="0">Unrated</option>
                         {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
                           <option key={r} value={r}>
-                            {r} / 10 ({r * 10}%)
+                            ★ {r} / 10
                           </option>
                         ))}
                       </select>
@@ -904,8 +1025,8 @@ export const WatchlistPage: React.FC = () => {
             })}
           </div>
         ) : (
-          /* Refined Grid View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          /* Mobile-Optimized Grid View (2-col mobile, 3-4 col desktop) */
+          <div className="grid grid-cols-2 min-[480px]:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4">
             {filteredItems.map((item) => {
               const anime = item.anime;
               const title = getPreferredTitle(anime.title, 'Anime');
@@ -917,63 +1038,92 @@ export const WatchlistPage: React.FC = () => {
                 : currentEp > 0
                 ? 35
                 : 0;
+              const isCompleted = totalEps ? currentEp >= totalEps : false;
+              const statusTheme = STATUS_THEMES[item.status] || STATUS_THEMES.watching;
 
               return (
                 <div
                   key={anime.id}
-                  className="flex gap-3.5 p-3.5 rounded-2xl anilist-card-static group"
+                  className="flex flex-col bg-[#0c0c0f] rounded-2xl overflow-hidden border border-[#23232b] hover:border-[#383844] transition-all group"
                 >
-                  <Link
-                    to={`/anime/${anime.id}`}
-                    className="w-20 sm:w-24 aspect-[185/265] rounded-xl overflow-hidden bg-[#16161b] border border-[#23232b] flex-shrink-0 block"
-                  >
-                    <img
-                      src={anime.coverImage.large || anime.coverImage.medium}
-                      alt={title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                    />
-                  </Link>
+                  {/* Poster Image with Status + Score + Stepper Overlays */}
+                  <div className="relative aspect-[185/265] w-full bg-[#16161b] overflow-hidden">
+                    <Link to={`/anime/${anime.id}`} className="block w-full h-full">
+                      <img
+                        src={anime.coverImage.large || anime.coverImage.medium}
+                        alt={title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                    </Link>
 
-                  <div className="flex flex-col justify-between flex-1 min-w-0 space-y-2">
-                    <div className="space-y-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <Link
-                          to={`/anime/${anime.id}`}
-                          className="font-semibold text-sm text-[#f5f5f7] hover:underline line-clamp-1"
-                          title={title}
-                        >
-                          {title}
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => removeFromWatchlist(anime.id)}
-                          className="p-1 rounded-full text-[#9a9aa6] hover:text-rose-300 hover:bg-rose-500/15 transition cursor-pointer flex-shrink-0"
-                          title="Remove"
-                          aria-label={`Remove ${title}`}
-                        >
-                          <Trash2 aria-hidden="true" className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <p className="text-[11px] text-[#9a9aa6]">
-                        {anime.format?.replace('_', ' ') || 'Anime'} · {anime.seasonYear || 'TBA'}
-                      </p>
-                      <div className="w-full h-1 rounded-full bg-[#1e1e26] overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-[#5360e6] transition-all duration-300"
-                          style={{ width: `${progressPct}%` }}
-                        />
-                      </div>
+                    {/* Top Status & Score badges */}
+                    <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-1 pointer-events-none">
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[9px] min-[400px]:text-[10px] font-bold border backdrop-blur-md ${statusTheme.bg} ${statusTheme.text} truncate max-w-[65%]`}
+                      >
+                        {STATUS_LABELS[item.status]}
+                      </span>
+                      {item.userRating && item.userRating > 0 ? (
+                        <span className="px-1.5 py-0.5 rounded-full text-[9px] min-[400px]:text-[10px] font-bold bg-black/85 text-amber-400 border border-amber-500/30 backdrop-blur-md tabular-nums flex-shrink-0">
+                          ★ {item.userRating}
+                        </span>
+                      ) : null}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-1.5">
+                    {/* Bottom Floating Episode Overlay + Quick +1 Button */}
+                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between gap-1 pointer-events-auto">
+                      <span className="px-2 py-1 rounded-lg bg-black/85 border border-white/15 text-white text-[10px] min-[400px]:text-[11px] font-mono font-bold backdrop-blur-md tabular-nums">
+                        {currentEp}/{totalEps ?? '—'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateProgress(anime.id, Math.min(maxEpisodes, currentEp + 1))
+                        }
+                        aria-label={`Increase episode for ${title}`}
+                        className="w-7 h-7 rounded-lg bg-[#5360e6] hover:bg-[#6470f2] active:scale-90 text-white font-bold flex items-center justify-center shadow-lg transition cursor-pointer"
+                        title="Next episode"
+                      >
+                        <Plus aria-hidden="true" className="w-3.5 h-3.5 stroke-[3]" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Info Body */}
+                  <div className="p-2.5 sm:p-3 flex flex-col flex-1 justify-between gap-2">
+                    <div>
+                      <Link
+                        to={`/anime/${anime.id}`}
+                        className="font-bold text-xs sm:text-sm text-[#f5f5f7] line-clamp-2 hover:text-[#5360e6] leading-snug transition-colors"
+                        title={title}
+                      >
+                        {title}
+                      </Link>
+                      <p className="text-[10px] sm:text-[11px] text-[#9a9aa6] mt-0.5 truncate">
+                        {anime.format?.replace('_', ' ') || 'Anime'} · {anime.seasonYear || 'TBA'}
+                      </p>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="w-full h-1 rounded-full bg-[#1e1e26] overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          isCompleted ? 'bg-emerald-400' : 'bg-[#5360e6]'
+                        }`}
+                        style={{ width: `${progressPct}%` }}
+                      />
+                    </div>
+
+                    {/* Controls row */}
+                    <div className="flex items-center justify-between gap-1.5 pt-1 border-t border-[#23232b]">
                       <select
                         value={item.status}
                         aria-label={`Status for ${title}`}
                         onChange={(e) =>
                           updateStatus(anime.id, e.target.value as WatchlistStatus)
                         }
-                        className="anilist-input text-[11px] px-2 py-1.5 font-medium text-[#f5f5f7]"
+                        className="anilist-input text-[10px] sm:text-[11px] px-2 py-1 font-semibold text-[#f5f5f7] flex-1 min-w-0"
                       >
                         <option value="watching">Watching</option>
                         <option value="plan_to_watch">Planning</option>
@@ -982,49 +1132,15 @@ export const WatchlistPage: React.FC = () => {
                         <option value="paused">Paused</option>
                         <option value="dropped">Dropped</option>
                       </select>
-
-                      <select
-                        value={item.userRating || 0}
-                        aria-label={`Rating for ${title}`}
-                        onChange={(e) => updateRating(anime.id, Number(e.target.value))}
-                        className="anilist-input text-[11px] px-2 py-1.5 font-medium text-[#f5f5f7]"
+                      <button
+                        type="button"
+                        onClick={() => removeFromWatchlist(anime.id)}
+                        className="w-7 h-7 rounded-lg text-[#9a9aa6] hover:text-rose-300 hover:bg-rose-500/15 transition flex items-center justify-center cursor-pointer flex-shrink-0"
+                        title="Remove from list"
+                        aria-label={`Remove ${title}`}
                       >
-                        <option value="0">Unrated</option>
-                        {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((r) => (
-                          <option key={r} value={r}>
-                            {r}/10
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs pt-1.5 border-t border-[#23232b]">
-                      <span className="text-[11px] text-[#9a9aa6]">Episodes</span>
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            updateProgress(anime.id, Math.max(0, currentEp - 1))
-                          }
-                          aria-label={`Decrease episode for ${title}`}
-                          className="w-6 h-6 rounded-full bg-[#16161b] hover:bg-[#1d1d24] text-[#f5f5f7] border border-[#23232b] flex items-center justify-center cursor-pointer"
-                        >
-                          <Minus aria-hidden="true" className="w-3 h-3" />
-                        </button>
-                        <span className="font-mono font-semibold text-[#f5f5f7] min-w-[3rem] text-center text-[11px] tabular-nums">
-                          {currentEp} / {totalEps ?? '—'}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            updateProgress(anime.id, Math.min(maxEpisodes, currentEp + 1))
-                          }
-                          aria-label={`Increase episode for ${title}`}
-                          className="w-6 h-6 rounded-full bg-[#16161b] hover:bg-[#1d1d24] text-[#f5f5f7] border border-[#23232b] flex items-center justify-center cursor-pointer"
-                        >
-                          <Plus aria-hidden="true" className="w-3 h-3" />
-                        </button>
-                      </div>
+                        <Trash2 aria-hidden="true" className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1033,7 +1149,7 @@ export const WatchlistPage: React.FC = () => {
           </div>
         )
       ) : (
-        <div className="p-10 sm:p-12 rounded-2xl anilist-card-static text-center space-y-3">
+        <div className="p-8 sm:p-12 rounded-2xl anilist-card-static text-center space-y-3">
           <Bookmark aria-hidden="true" className="w-8 h-8 text-[#9a9aa6] mx-auto" />
           <h3 className="text-base font-bold text-[#f5f5f7]">
             {watchlist.length === 0 ? 'Your watchlist is empty' : 'No matching titles'}
