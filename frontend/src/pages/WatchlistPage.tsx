@@ -21,6 +21,7 @@ import {
   RotateCcw,
   X,
   Tag,
+  ChevronDown,
 } from 'lucide-react';
 import { useWatchlist } from '../context/WatchlistContext';
 import { useAuth } from '../context/AuthContext';
@@ -204,6 +205,9 @@ export const WatchlistPage: React.FC = () => {
     { id: 'paused', label: 'Paused', icon: PauseCircle },
     { id: 'dropped', label: 'Dropped', icon: XCircle },
   ];
+
+  const activeTab = tabs.find((t) => t.id === filterStatus) || tabs[0];
+  const ActiveTabIcon = activeTab.icon;
 
   // Derived stats
   const totalAnime = watchlist.length;
@@ -657,11 +661,43 @@ export const WatchlistPage: React.FC = () => {
         </div>
       )}
 
-      {/* Status Filter Tabs & Search Bar */}
+      {/* Status Filter: Mobile Options Menu (< sm) & Desktop Horizontal Status Tabs (>= sm) */}
       <div className="space-y-3 w-full min-w-0">
-        {/* Horizontal Touch Scrollable Status Tabs */}
-        <div className="w-full max-w-full min-w-0 overflow-hidden">
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 no-scrollbar touch-scroll-smooth flex-nowrap w-full max-w-full min-w-0 border-b border-[#23232b]">
+        {/* Mobile Status Options Menu (< 640px) */}
+        <div className="sm:hidden w-full min-w-0">
+          <div className="relative w-full">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none flex items-center">
+              <ActiveTabIcon aria-hidden="true" className="w-4 h-4 text-[#5360e6] flex-shrink-0" />
+            </div>
+            <select
+              id="mobile-watchlist-status"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              aria-label="Filter watchlist by status"
+              className="anilist-input w-full pl-10 pr-10 py-2.5 text-xs font-bold text-[#f5f5f7] appearance-none min-h-[44px] cursor-pointer bg-[#0c0c0f] border border-[#23232b] rounded-2xl focus:border-[#5360e6] shadow-sm"
+            >
+              {tabs.map((tab) => {
+                const count =
+                  tab.id === 'all'
+                    ? watchlist.length
+                    : watchlist.filter((i) => i.status === tab.id).length;
+                return (
+                  <option key={tab.id} value={tab.id} className="bg-[#121217] text-[#f5f5f7] py-2 font-medium">
+                    {tab.label} ({count})
+                  </option>
+                );
+              })}
+            </select>
+            <ChevronDown
+              aria-hidden="true"
+              className="w-4 h-4 text-[#9a9aa6] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+            />
+          </div>
+        </div>
+
+        {/* Desktop Horizontal Status Tabs (>= 640px) */}
+        <div className="hidden sm:block w-full max-w-full min-w-0 overflow-hidden">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 no-scrollbar touch-scroll-smooth flex-wrap w-full max-w-full min-w-0 border-b border-[#23232b]">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const count =
