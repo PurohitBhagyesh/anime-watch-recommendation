@@ -144,7 +144,7 @@ export const HomePage: React.FC = () => {
 
       {/* Main Editorial Catalog Sections */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 divide-y divide-[#1a1a22]">
-        <div id="trending" className="py-5 sm:py-7 scroll-mt-20">
+        <div id="trending" className="py-3.5 sm:py-5 scroll-mt-20">
           <CarouselRow
             title="Trending Now"
             subtitle="Most active and discussed anime across AniList right now"
@@ -155,7 +155,7 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        <div id="seasonal" className="py-5 sm:py-7 scroll-mt-20 scroll-reveal-section">
+        <div id="seasonal" className="py-3.5 sm:py-5 scroll-mt-20 scroll-reveal-section">
           <CarouselRow
             title="Popular This Season"
             subtitle="Currently airing weekly anime series"
@@ -165,11 +165,11 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        <div className="py-5 sm:py-7 below-fold-section scroll-reveal-section">
+        <div className="py-3.5 sm:py-5 below-fold-section scroll-reveal-section">
           <GenreGrid />
         </div>
 
-        <div id="popular" className="py-5 sm:py-7 scroll-mt-20 below-fold-section scroll-reveal-section">
+        <div id="popular" className="py-3.5 sm:py-5 scroll-mt-20 below-fold-section scroll-reveal-section">
           <CarouselRow
             title="All-Time Popular"
             subtitle="Most followed anime series and movies worldwide"
@@ -179,7 +179,7 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        <div id="top100" className="py-5 sm:py-7 scroll-mt-20 below-fold-section scroll-reveal-section">
+        <div id="top100" className="py-3.5 sm:py-5 scroll-mt-20 below-fold-section scroll-reveal-section">
           <CarouselRow
             title="Top 100 Anime"
             subtitle="Highest community-scored anime of all time"
@@ -189,7 +189,7 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        <div id="upcoming" className="pt-5 pb-4 sm:pt-7 sm:pb-6 scroll-mt-20 below-fold-section scroll-reveal-section">
+        <div id="upcoming" className="pt-3.5 pb-3 sm:pt-5 sm:pb-4 scroll-mt-20 below-fold-section scroll-reveal-section">
           <CarouselRow
             title="Upcoming Next Season"
             subtitle="Confirmed anime scheduled for future release"

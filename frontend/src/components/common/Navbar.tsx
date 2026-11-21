@@ -11,7 +11,6 @@ import {
   Menu,
   User,
   Settings,
-  Info,
 } from 'lucide-react';
 import { useWatchlist } from '../../context/WatchlistContext';
 import { useAuth } from '../../context/AuthContext';
@@ -632,30 +631,13 @@ export const Navbar: React.FC = () => {
                 tabIndex={mobileMenuOpen ? 0 : -1}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center justify-between py-3 text-[15px] font-medium border-b border-[#23232b] transition ${
-                  isActive('/settings') && !location.search.includes('about')
+                  isActive('/settings')
                     ? 'text-white'
                     : 'text-[#9a9aa6] hover:text-white'
                 }`}
               >
                 <span>Settings</span>
                 <Settings aria-hidden="true" className="w-4 h-4 text-[#9a9aa6]" />
-              </Link>
-
-              <Link
-                to="/settings?section=about"
-                tabIndex={mobileMenuOpen ? 0 : -1}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between py-3 text-[15px] font-medium border-b border-[#23232b] transition ${
-                  location.search.includes('about') ? 'text-white' : 'text-[#9a9aa6] hover:text-white'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span>About & Legal</span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#151519] border border-[#232329] text-[#9a9aa6]">
-                    Settings
-                  </span>
-                </div>
-                <Info aria-hidden="true" className="w-4 h-4 text-[#9a9aa6]" />
               </Link>
 
               {/* Auth Actions */}

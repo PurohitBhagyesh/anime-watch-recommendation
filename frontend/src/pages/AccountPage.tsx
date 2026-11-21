@@ -662,9 +662,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
   ];
 
   return (
-    <div className="settings-workspace w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 sm:py-8 animate-fadeIn space-y-5">
+    <div className="settings-workspace w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-12 sm:pb-8 animate-fadeIn space-y-4">
       {/* Compact Single-Row Header */}
-      <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#23232b]">
+      <div className="flex items-center justify-between gap-3 pb-3 sm:pb-3.5 border-b border-[#23232b]">
         <div className="min-w-0">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#f5f5f7] tracking-[-0.03em] leading-tight">
             Settings
@@ -735,12 +735,12 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
         </nav>
 
         {/* Main Panel */}
-        <div className="min-w-0 space-y-5">
+        <div className="min-w-0 space-y-4">
           {/* SECTION 1: Display, Text Size & Playback */}
           {activeSection === 'preferences' && (
-            <div className="space-y-4 animate-fadeIn">
+            <div className="space-y-3.5 animate-fadeIn">
               {/* Clean 3-Option Text Size Selector */}
-              <div className="anilist-card-static p-4 sm:p-5 space-y-3.5">
+              <div className="anilist-card-static p-3.5 sm:p-4 space-y-3">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Type aria-hidden="true" className="w-4 h-4 text-[#f5f5f7]" />
@@ -780,7 +780,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
 
               {/* Display & Title Options */}
               <div className="anilist-card-static divide-y divide-[#23232b] overflow-hidden">
-                <div className="p-4 sm:p-5 flex items-center justify-between gap-3">
+                <div className="p-3.5 sm:p-4 flex items-center justify-between gap-3">
                   <div>
                     <h2 className="text-sm sm:text-base font-bold text-[#f5f5f7]">Catalog & Language</h2>
                     <p className="text-xs text-[#9a9aa6] mt-0.5">
@@ -801,7 +801,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   </button>
                 </div>
 
-                <div className="settings-row-container p-4 sm:p-5">
+                <div className="settings-row-container p-3.5 sm:p-4">
                   <div className="settings-row">
                     <div className="min-w-0">
                       <span className="text-sm font-semibold text-[#f5f5f7] block">
@@ -835,7 +835,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   </div>
                 </div>
 
-                <div className="settings-row-container p-4 sm:p-5">
+                <div className="settings-row-container p-3.5 sm:p-4">
                   <div className="settings-row">
                     <div className="min-w-0">
                       <span className="text-sm font-semibold text-[#f5f5f7] block">
@@ -868,7 +868,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   </div>
                 </div>
 
-                <div className="settings-row-container p-4 sm:p-5">
+                <div className="settings-row-container p-3.5 sm:p-4">
                   <div className="settings-row">
                     <div className="min-w-0">
                       <span className="text-sm font-semibold text-[#f5f5f7] block">
@@ -909,7 +909,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
 
               {/* Playback & Comfort Switches */}
               <div className="anilist-card-static divide-y divide-[#23232b] overflow-hidden">
-                <label className="settings-row-container p-4 sm:p-5 block cursor-pointer">
+                <label className="settings-row-container p-3.5 sm:p-4 block cursor-pointer">
                   <div className="settings-row">
                     <div className="min-w-0">
                       <span className="text-sm font-semibold text-[#f5f5f7] block">
@@ -930,7 +930,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   </div>
                 </label>
 
-                <label className="settings-row-container p-4 sm:p-5 block cursor-pointer">
+                <label className="settings-row-container p-3.5 sm:p-4 block cursor-pointer">
                   <div className="settings-row">
                     <div className="min-w-0">
                       <span className="text-sm font-semibold text-[#f5f5f7] block">
@@ -951,7 +951,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                   </div>
                 </label>
 
-                <label className="settings-row-container p-4 sm:p-5 block cursor-pointer">
+                <label className="settings-row-container p-3.5 sm:p-4 block cursor-pointer">
                   <div className="settings-row">
                     <div className="min-w-0">
                       <span className="text-sm font-semibold text-[#f5f5f7] block">
@@ -1258,7 +1258,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
 
                   {/* CONNECTED SIGN-IN PROVIDERS (Google & Email) */}
                   <div className="anilist-card-static overflow-hidden divide-y divide-[#23232b]">
-                    <div className="p-4 sm:p-5 flex items-center gap-2.5">
+                    <div className="p-3.5 sm:p-4 flex items-center gap-2.5">
                       <Link2 aria-hidden="true" className="w-4 h-4 text-[#f5f5f7]" />
                       <div>
                         <h2 className="text-sm sm:text-base font-bold text-[#f5f5f7]">
@@ -1330,7 +1330,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
 
                   {/* EMAIL & PASSWORD MANAGEMENT */}
                   <div className="anilist-card-static overflow-hidden divide-y divide-[#23232b]">
-                    <div className="p-4 sm:p-5 space-y-3.5">
+                    <div className="p-3.5 sm:p-4 space-y-3.5">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
@@ -1431,7 +1431,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({ defaultTab }) => {
                     </div>
 
                     {/* Password Management */}
-                    <div className="p-4 sm:p-5 space-y-3.5">
+                    <div className="p-3.5 sm:p-4 space-y-3.5">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-start gap-2.5">
                           <KeyRound aria-hidden="true" className="w-4 h-4 text-[#f5f5f7] mt-0.5 flex-shrink-0" />

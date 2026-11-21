@@ -37,34 +37,56 @@ export const App: React.FC = () => {
       <AuthProvider>
         <WatchlistProvider>
           <BrowserRouter>
-            <div className="adaptive-shell flex flex-col min-h-dvh bg-[#000000] text-[#9a9aa6] selection:bg-[#5360e6] selection:text-white">
-              <ScrollProgressLine />
-              <Navbar />
-              <main className="flex-1 flex flex-col min-w-0">
-                <ErrorBoundary>
-                  <Suspense fallback={<PageLoader />}>
-                    <Routes>
-                      <Route path="/" element={<HomePage />} />
-                      <Route path="/discover" element={<DiscoverPage />} />
-                      <Route path="/anime/:id" element={<AnimeDetailsPage />} />
-                      <Route path="/watchlist" element={<WatchlistPage />} />
-                      <Route path="/account" element={<AccountPage defaultTab="account" />} />
-                      <Route path="/settings" element={<AccountPage defaultTab="settings" />} />
-                      <Route path="/login" element={<AuthPage initialMode="login" />} />
-                      <Route path="/signup" element={<AuthPage initialMode="signup" />} />
-                      <Route path="/auth" element={<AuthPage />} />
-                      <Route path="/privacy" element={<PrivacyPage />} />
-                      <Route path="/terms" element={<TermsPage />} />
-                      <Route path="/license" element={<LicensePage />} />
-                      <Route path="/security" element={<SecurityPage />} />
-                      <Route path="/about" element={<AboutPage />} />
-                      <Route path="*" element={<NotFoundPage />} />
-                    </Routes>
-                  </Suspense>
-                </ErrorBoundary>
-              </main>
-              <Footer />
-              <WebElementsBridge />
+            <div className="adaptive-shell relative flex flex-col min-h-dvh bg-[#000000] text-[#9a9aa6] selection:bg-[#5360e6] selection:text-white">
+              {/* Ethereal Anime Scenic Sky & Ocean Reflecting Background (Desktop Only, Scenery Only — Zero Characters) */}
+              <div
+                aria-hidden="true"
+                className="hidden lg:block fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
+              >
+                <picture>
+                  <source srcSet="/img/anime-sky-ocean-bg.webp" type="image/webp" />
+                  <img
+                    src="/img/anime-sky-ocean-bg.jpg"
+                    alt=""
+                    className="w-full h-full object-cover object-center opacity-[0.30] filter contrast-115 saturate-125 brightness-95"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </picture>
+                {/* Cinematic darkening & vignettes to guarantee 100% WCAG contrast and readability */}
+                <div className="absolute inset-0 bg-gradient-to-b from-[#000000]/80 via-[#000000]/65 to-[#000000]/90" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_25%,_#000000_82%)]" />
+              </div>
+
+              <div className="relative z-10 flex flex-col flex-1 min-h-dvh min-w-0">
+                <ScrollProgressLine />
+                <Navbar />
+                <main className="flex-1 flex flex-col min-w-0">
+                  <ErrorBoundary>
+                    <Suspense fallback={<PageLoader />}>
+                      <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/discover" element={<DiscoverPage />} />
+                        <Route path="/anime/:id" element={<AnimeDetailsPage />} />
+                        <Route path="/watchlist" element={<WatchlistPage />} />
+                        <Route path="/account" element={<AccountPage defaultTab="account" />} />
+                        <Route path="/settings" element={<AccountPage defaultTab="settings" />} />
+                        <Route path="/login" element={<AuthPage initialMode="login" />} />
+                        <Route path="/signup" element={<AuthPage initialMode="signup" />} />
+                        <Route path="/auth" element={<AuthPage />} />
+                        <Route path="/privacy" element={<PrivacyPage />} />
+                        <Route path="/terms" element={<TermsPage />} />
+                        <Route path="/license" element={<LicensePage />} />
+                        <Route path="/security" element={<SecurityPage />} />
+                        <Route path="/about" element={<AboutPage />} />
+                        <Route path="*" element={<NotFoundPage />} />
+                      </Routes>
+                    </Suspense>
+                  </ErrorBoundary>
+                </main>
+                <Footer />
+                <WebElementsBridge />
+              </div>
             </div>
           </BrowserRouter>
         </WatchlistProvider>
