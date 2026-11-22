@@ -8,6 +8,7 @@ export const DEFAULT_ROBOTS = 'index, follow, max-snippet:-1, max-image-preview:
 export interface SEOProps {
   title: string;
   description: string;
+  keywords?: string;
   canonicalUrl?: string;
   ogType?: 'website' | 'article' | 'video.movie' | 'video.tv_show' | 'video.other';
   ogImage?: string;
@@ -25,6 +26,7 @@ export interface SEOProps {
 export function useSEO({
   title,
   description,
+  keywords,
   canonicalUrl,
   ogType = 'website',
   ogImage,
@@ -60,11 +62,15 @@ export function useSEO({
       el.setAttribute('href', href);
     };
 
-    // 2. Set Meta Descriptions & Robots
+    // 2. Set Meta Descriptions, Keywords & Robots
     if (description) {
       setMeta('description', description);
       setMeta('og:description', description, true);
       setMeta('twitter:description', description);
+    }
+
+    if (keywords) {
+      setMeta('keywords', keywords);
     }
 
     if (title) {
@@ -112,6 +118,7 @@ export function useSEO({
   }, [
     title,
     description,
+    keywords,
     canonicalUrl,
     ogType,
     ogImage,

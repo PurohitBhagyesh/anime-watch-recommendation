@@ -116,7 +116,9 @@ export const WatchlistPage: React.FC = () => {
   useSEO({
     title: 'My Watchlist • Anime Tracker | AnimeSenpai',
     description:
-      'Track your anime episode progress, organize watching status, and manage your personal anime list on AnimeSenpai.',
+      'Track your anime episode progress, organize watching status, and manage your personal anime list on AnimeSenpai with zero account walls.',
+    keywords:
+      'anime tracker, anime watchlist, track anime episodes online, personal anime list, anilist sync, anime progress, export anime watchlist json',
     canonicalUrl: `${SITE_URL}/watchlist`,
     jsonLd: watchlistBreadcrumbs,
   });

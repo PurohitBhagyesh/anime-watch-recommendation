@@ -23,6 +23,8 @@ export const HomePage: React.FC = () => {
     title: 'AnimeSenpai • Anime Discovery, Tracker & Recommendations',
     description:
       'Discover 20,000+ anime, track episodes, sync watchlists, and watch official trailers free on AnimeSenpai — powered live by AniList.',
+    keywords:
+      'anime, anime tracker, anime discovery, anime recommendations, seasonal anime, top 100 anime, anime senpai, watchlist tracker, track anime online free',
     canonicalUrl: `${SITE_URL}/`,
   });
 

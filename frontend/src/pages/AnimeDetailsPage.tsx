@@ -205,6 +205,9 @@ export const AnimeDetailsPage: React.FC = () => {
   useSEO({
     title: pageTitle,
     description: pageDesc,
+    keywords: effectiveAnime
+      ? `${animeTitle}, ${animeTitle} anime, ${(effectiveAnime.genres || []).join(', ')}, watch ${animeTitle} trailer, ${animeTitle} cast, anime recommendations`
+      : undefined,
     canonicalUrl: effectiveAnime ? `${SITE_URL}/anime/${effectiveAnime.id}` : undefined,
     ogType: effectiveAnime?.format === 'MOVIE' ? 'video.movie' : 'video.tv_show',
     ogImage: effectiveAnime?.coverImage?.extraLarge || effectiveAnime?.coverImage?.large,

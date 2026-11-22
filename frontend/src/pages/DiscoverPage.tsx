@@ -113,6 +113,8 @@ export const DiscoverPage: React.FC = () => {
   useSEO({
     title: discoverTitle,
     description: discoverDesc,
+    keywords:
+      'discover anime, anime recommendations, seasonal anime, top 100 anime, what anime should i watch next, anime catalog, anilist search',
     canonicalUrl: discoverCanonical,
     robots: discoverRobots,
     jsonLd: discoverBreadcrumbs,

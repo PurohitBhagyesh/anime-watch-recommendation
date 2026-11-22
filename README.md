@@ -27,6 +27,7 @@
   <a href="TRD.md"><img src="https://img.shields.io/badge/Documentation-TRD-5360e6?style=flat-square" alt="TRD" /></a>
   <a href="APP_FLOW.md"><img src="https://img.shields.io/badge/Design%20Brief-App%20Flow-5360e6?style=flat-square" alt="App Flow" /></a>
   <a href="BACKEND_SCHEMA.md"><img src="https://img.shields.io/badge/Architecture-Backend%20Schema-5360e6?style=flat-square" alt="Backend Schema" /></a>
+  <a href="SEO_GROWTH_SYSTEM.md"><img src="https://img.shields.io/badge/SEO-10--Prompt%20System-5360e6?style=flat-square" alt="SEO Growth System" /></a>
   <a href="architecture.md"><img src="https://img.shields.io/badge/Documentation-Architecture-151519?style=flat-square" alt="Architecture" /></a>
   <a href="design.md"><img src="https://img.shields.io/badge/Design%20System-Guidelines-151519?style=flat-square" alt="Design System" /></a>
   <a href="SECURITY.md"><img src="https://img.shields.io/badge/Security-SECURITY.md-151519?style=flat-square" alt="Security" /></a>
@@ -41,6 +42,7 @@
 * 🏛️ **[Technical Requirements Document (TRD.md)](TRD.md)** — Comprehensive engineering specification, SLAs, Core Web Vitals, API contracts, and security architecture.
 * 🎨 **[App Flow & UI/UX Design Brief (APP_FLOW.md)](APP_FLOW.md)** — Complete user flow diagrams, screen hierarchy, 3-color palette tokens, and tactile micro-interactions.
 * 🗄️ **[Backend Schema & API Architecture (BACKEND_SCHEMA.md)](BACKEND_SCHEMA.md)** — Entity-relationship models, Prisma ORM schema, Firestore declarative security rules, and REST endpoint specs.
+* ⚡ **[10-Prompt SEO Content System (SEO_GROWTH_SYSTEM.md)](SEO_GROWTH_SYSTEM.md)** — Full implementation of the Prompts99 SEO system: 10 sub-topics, keyword universe, pillar-cluster hierarchy, competitor gap exploits, on-page technical packs, and monthly GSC growth loops.
 * 🏛️ **[Architecture Guide (architecture.md)](architecture.md)** — Edge topology, AniList GraphQL pipelines, Pub/Sub event bus, and caching strategy.
 * 🎨 **[Design System (design.md)](design.md)** — Monochrome Obsidian/Platinum tokens, Luminous Indigo button accent, responsive container queries, and accessibility specs.
 * 🛡️ **[Security Policy (SECURITY.md)](SECURITY.md)** — Responsible vulnerability disclosure, Firestore rules, CSP, CAPTCHA, rate limiting, and SQLi protection.
@@ -95,6 +97,7 @@
 
 ## 🚀 SEO, Social Preview & Google AdSense Readiness
 
+* **10-Prompt SEO Content System (Keywords to Growth):** Full operational execution of the Prompts99 framework detailed in [SEO_GROWTH_SYSTEM.md](SEO_GROWTH_SYSTEM.md), mapping 10 core sub-topics, high-intent keyword universe matrices, pillar-and-cluster hierarchies, competitor gap exploitation (vs MAL, AniList, LiveChart), on-page technical SEO packs with dynamic keyword injection in `useSEO`, and a monthly Google Search Console striking-distance audit loop.
 * **Search & Canonical Edge Setup:** Validated `robots.txt` (`Allow: /` for all bots, Googlebot, Googlebot-Image, Google-Favicon), **76-URL canonical `sitemap.xml`** with daily/weekly change frequencies covering core pages, seasonal discovery, top genres, and individual anime titles, IndexNow verification, permanent `301` apex-to-`www` canonical redirect (`animesenpai.online` → `https://www.animesenpai.online`), and media-scoped `<link rel="preload" as="image">` for fast Mobile & Desktop LCP.
 * **Google Search E-E-A-T & Structured Data (JSON-LD):**
   * **Brand & Authority:** Full `Organization` schema featuring founder credit, founding date, publishing principles, and disambiguating identity (distinguishing AnimeSenpai from anime blogs or pirate streaming sites).
