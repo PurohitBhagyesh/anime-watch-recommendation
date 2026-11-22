@@ -939,8 +939,8 @@ body[data-text-size="lg"] {
   contain-intrinsic-block-size: auto 24rem;
 }
 
-/* Native CSS Scroll-Driven Section Reveal (zero JS, compositor-only) */
-@media (prefers-reduced-motion: no-preference) {
+/* Native CSS Scroll-Driven Section Reveal (zero JS, compositor-only, desktop viewports) */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
   @supports ((animation-timeline: view()) and (animation-range: entry)) {
     @keyframes scrollSectionReveal {
       from {

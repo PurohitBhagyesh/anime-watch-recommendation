@@ -89,7 +89,7 @@ export const HomePage: React.FC = () => {
     }
     const timer = setTimeout(() => {
       loadData(true);
-    }, 1500);
+    }, 3500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -157,7 +157,7 @@ export const HomePage: React.FC = () => {
           />
         </div>
 
-        <div id="seasonal" className="py-3.5 sm:py-5 scroll-mt-20 scroll-reveal-section">
+        <div id="seasonal" className="py-3.5 sm:py-5 scroll-mt-20 below-fold-section scroll-reveal-section">
           <CarouselRow
             title="Popular This Season"
             subtitle="Currently airing weekly anime series"

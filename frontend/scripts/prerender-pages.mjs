@@ -16,7 +16,20 @@ if (!fs.existsSync(indexHtmlPath)) {
   process.exit(1);
 }
 
-const baseHtml = fs.readFileSync(indexHtmlPath, 'utf8');
+let baseHtml = fs.readFileSync(indexHtmlPath, 'utf8');
+
+// Inline compiled CSS into <style> to eliminate render-blocking CSS request
+const cssLinkRegex = /<link rel="stylesheet"[^>]*href="(\/assets\/index-[^"]+\.css)"[^>]*>/;
+const cssMatch = baseHtml.match(cssLinkRegex);
+if (cssMatch) {
+  const cssHref = cssMatch[1];
+  const cssFilePath = path.join(distDir, cssHref);
+  if (fs.existsSync(cssFilePath)) {
+    const cssContent = fs.readFileSync(cssFilePath, 'utf8');
+    baseHtml = baseHtml.replace(cssMatch[0], `<style id="app-critical-css">${cssContent}</style>`);
+    console.log(`Successfully inlined critical CSS (${cssContent.length} bytes) to eliminate render-blocking CSS!`);
+  }
+}
 
 // Load catalog & trailers
 let trailers = {};
@@ -374,3 +387,42 @@ for (const [id, anime] of animeMap.entries()) {
 }
 
 console.log(`Prerendered ${animeCount} canonical anime detail pages (with video structured data & players)`);
+
+// 3. PRERENDER HOMEPAGE LCP HERO SHELL INTO dist/index.html
+const homeHeroHtml = `
+  <div class="w-full pb-2 sm:pb-4">
+    <section aria-roledescription="carousel" aria-label="Featured anime spotlight" class="hero-adaptive relative w-full overflow-hidden min-h-[470px] min-[400px]:min-h-[510px] sm:min-h-[520px] md:min-h-[560px] lg:min-h-[620px] flex items-end border-b border-[#23232b] bg-[#000000]">
+      <div class="hero-bg-container absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <picture class="block w-full h-full">
+          <source media="(min-width: 640px)" srcSet="/img/hero/spotlight-desktop.webp" width="1920" height="600" />
+          <img src="/img/hero/spotlight-mobile.webp" alt="STEEL BALL RUN JoJo's Bizarre Adventure 2nd - 3rd STAGE anime featured banner" width="420" height="594" loading="eager" decoding="sync" fetchpriority="high" class="hero-img-lcp w-full h-full object-cover object-[center_18%] sm:object-[72%_20%] lg:sm:object-[76%_22%] filter brightness-[0.80] sm:brightness-[0.90] contrast-[1.05] sm:contrast-[1.08]" />
+        </picture>
+        <div class="absolute inset-0 sm:hidden bg-gradient-to-b from-[#000000]/35 via-[#000000]/15 via-35% to-[#000000]"></div>
+        <div class="absolute inset-x-0 bottom-0 h-[66%] sm:hidden bg-gradient-to-t from-[#000000] via-[#000000]/88 to-transparent"></div>
+        <div class="hidden sm:block absolute inset-0 bg-gradient-to-r from-[#000000] via-[#000000]/85 via-35% to-transparent to-75%"></div>
+        <div class="hidden sm:block absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#000000] via-[#000000]/45 to-transparent"></div>
+      </div>
+      <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-40 min-[400px]:pt-48 pb-5 sm:py-10 md:py-12 pointer-events-none">
+        <div class="max-w-xl lg:max-w-2xl space-y-3 sm:space-y-4 pointer-events-auto">
+          <h2 class="text-[1.6rem] min-[400px]:text-[1.85rem] sm:text-3xl md:text-4xl lg:text-[2.85rem] font-extrabold text-white tracking-[-0.035em] leading-[1.12] line-clamp-2 break-words drop-shadow-[0_2px_14px_rgba(0,0,0,0.85)]">
+            STEEL BALL RUN JoJo's Bizarre Adventure 2nd - 3rd STAGE
+          </h2>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="text-[11px] sm:text-xs font-medium text-[#c8c8d2] bg-[#121217] px-2.5 py-0.5 rounded-full border border-[#23232b]">Action</span>
+            <span class="text-[11px] sm:text-xs font-medium text-[#c8c8d2] bg-[#121217] px-2.5 py-0.5 rounded-full border border-[#23232b]">Adventure</span>
+            <span class="text-[11px] sm:text-xs font-medium text-[#c8c8d2] bg-[#121217] px-2.5 py-0.5 rounded-full border border-[#23232b]">Supernatural</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 pt-1 sm:pt-2">
+            <a href="/anime/210482" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-[#5360e6] text-white">
+              View Details
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+`;
+
+const homeWithHero = baseHtml.replace('<div id="root"></div>', `<div id="root">${homeHeroHtml}</div>`);
+fs.writeFileSync(indexHtmlPath, homeWithHero, 'utf8');
+console.log('Injected pre-rendered LCP hero shell into dist/index.html');

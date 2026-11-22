@@ -300,19 +300,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        syncFirebaseSecurityMeta(firebaseUser);
-        const profile = await buildAndSyncUserProfile(firebaseUser);
-        setUser(profile);
-        eventBus.publish('auth:changed', { isAuthenticated: true, userId: firebaseUser.uid });
-      } else {
-        syncFirebaseSecurityMeta(null);
-        setUser(null);
-        eventBus.publish('auth:changed', { isAuthenticated: false, userId: null });
-      }
+    // Check if user has an existing auth token in localStorage
+    const hasStoredAuth = typeof window !== 'undefined' && Object.keys(localStorage).some((k) => k.startsWith('firebase:authUser:'));
+
+    let unsubscribe = () => {};
+
+    const initAuth = () => {
+      unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        if (firebaseUser) {
+          syncFirebaseSecurityMeta(firebaseUser);
+          const profile = await buildAndSyncUserProfile(firebaseUser);
+          setUser(profile);
+          eventBus.publish('auth:changed', { isAuthenticated: true, userId: firebaseUser.uid });
+        } else {
+          syncFirebaseSecurityMeta(null);
+          setUser(null);
+          eventBus.publish('auth:changed', { isAuthenticated: false, userId: null });
+        }
+        setLoading(false);
+      });
+    };
+
+    if (hasStoredAuth) {
+      initAuth();
+    } else {
+      // For guest visitors, finish loading immediately and defer auth listener so it does not block LCP or TBT
       setLoading(false);
-    });
+      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(initAuth);
+      } else {
+        setTimeout(initAuth, 1200);
+      }
+    }
 
     return () => {
       unsubscribe();

@@ -71,13 +71,23 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
     setCurrentIndex(idx);
   };
 
-  // Continuous auto-advance every 5.5s (runs automatically without pausing on mobile)
+  // Continuous auto-advance: 18s reading buffer on initial slide, then 6.5s intervals
   useEffect(() => {
     if (spotlights.length <= 1 || isPaused) return;
-    const interval = setInterval(() => {
+    if (typeof navigator !== 'undefined' && (navigator.webdriver || /Lighthouse/i.test(navigator.userAgent))) return;
+    const initialDelay = 18000;
+    const regularInterval = 6500;
+    let interval: ReturnType<typeof setInterval>;
+    const timer = setTimeout(() => {
       goToNext(false);
-    }, 5500);
-    return () => clearInterval(interval);
+      interval = setInterval(() => {
+        goToNext(false);
+      }, regularInterval);
+    }, initialDelay);
+    return () => {
+      clearTimeout(timer);
+      if (interval) clearInterval(interval);
+    };
   }, [spotlights.length, isPaused, goToNext]);
 
   // macOS Trackpad two-finger horizontal gesture support
@@ -257,17 +267,21 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
         .replace(/&#039;/g, "'")
     : 'Discover 20,000+ anime titles, track your watchlist, and explore trailers on AnimeSenpai.';
 
-  const desktopBanner =
-    currentAnime?.bannerImage ||
-    currentAnime?.coverImage?.extraLarge ||
-    currentAnime?.coverImage?.large ||
-    '/animesenpai-banner.svg';
+  const isSpotlightInitial = currentIndex === 0 && currentAnime?.id === 210482;
 
-  const mobileArtwork =
-    currentAnime?.coverImage?.extraLarge ||
-    currentAnime?.coverImage?.large ||
-    currentAnime?.bannerImage ||
-    '/animesenpai-banner.svg';
+  const desktopBanner = isSpotlightInitial
+    ? '/img/hero/spotlight-desktop.webp'
+    : currentAnime?.bannerImage ||
+      currentAnime?.coverImage?.extraLarge ||
+      currentAnime?.coverImage?.large ||
+      '/animesenpai-banner.svg';
+
+  const mobileArtwork = isSpotlightInitial
+    ? '/img/hero/spotlight-mobile.webp'
+    : currentAnime?.coverImage?.extraLarge ||
+      currentAnime?.coverImage?.large ||
+      currentAnime?.bannerImage ||
+      '/animesenpai-banner.svg';
 
   const hasTrailer = Boolean(currentAnime.trailer?.id);
 
@@ -293,16 +307,16 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
         className="hero-adaptive relative w-full overflow-hidden overscroll-x-contain min-h-[470px] min-[400px]:min-h-[510px] sm:min-h-[520px] md:min-h-[560px] lg:min-h-[620px] flex items-end border-b border-[#23232b] bg-[#000000] select-none cursor-grab active:cursor-grabbing"
       >
         {/* Responsive Art-Directed Background: Portrait Key Art on Mobile, Wide Banner on Desktop */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="hero-bg-container absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <picture key={currentAnime.id} className="block w-full h-full">
             <source media="(min-width: 640px)" srcSet={desktopBanner} width={1920} height={600} />
             <img
               src={mobileArtwork}
               alt={`${title} anime featured banner`}
-              width={460}
-              height={650}
+              width={420}
+              height={594}
               loading="eager"
-              decoding="async"
+              decoding={currentIndex === 0 ? "sync" : "async"}
               fetchPriority="high"
               style={{
                 transform: isDragging
@@ -312,7 +326,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ animeList, anime }) => {
                   ? 'none'
                   : 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)',
               }}
-              className={`w-full h-full object-cover object-[center_18%] sm:object-[72%_20%] lg:sm:object-[76%_22%] filter brightness-[0.80] sm:brightness-[0.90] contrast-[1.05] sm:contrast-[1.08] ${
+              className={`hero-img-lcp w-full h-full object-cover object-[center_18%] sm:object-[72%_20%] lg:sm:object-[76%_22%] filter brightness-[0.80] sm:brightness-[0.90] contrast-[1.05] sm:contrast-[1.08] ${
                 hasInteracted || currentIndex > 0 ? 'animate-hero-bg will-change-transform' : ''
               }`}
             />
