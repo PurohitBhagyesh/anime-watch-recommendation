@@ -13,7 +13,8 @@ export interface SEOProps {
   ogType?: 'website' | 'article' | 'video.movie' | 'video.tv_show' | 'video.other';
   ogImage?: string;
   twitterImage?: string;
-  twitterCard?: 'summary' | 'summary_large_image';
+  twitterCard?: 'summary' | 'summary_large_image' | 'player';
+  videoUrl?: string;
   robots?: string;
   jsonLd?: Record<string, any> | Array<Record<string, any>> | null;
 }
@@ -32,6 +33,7 @@ export function useSEO({
   ogImage,
   twitterImage,
   twitterCard = 'summary_large_image',
+  videoUrl,
   robots = DEFAULT_ROBOTS,
   jsonLd,
 }: SEOProps) {
@@ -96,6 +98,19 @@ export function useSEO({
     setMeta('twitter:image', twitterImage || imageToUse);
     setMeta('twitter:image:alt', title || SITE_NAME);
 
+    // Video tags for Google Video Indexing & Rich Cards
+    if (videoUrl) {
+      setMeta('og:video', videoUrl, true);
+      setMeta('og:video:url', videoUrl, true);
+      setMeta('og:video:secure_url', videoUrl, true);
+      setMeta('og:video:type', 'text/html', true);
+      setMeta('og:video:width', '1280', true);
+      setMeta('og:video:height', '720', true);
+      setMeta('twitter:player', videoUrl);
+      setMeta('twitter:player:width', '1280');
+      setMeta('twitter:player:height', '720');
+    }
+
     // 3. Inject Dynamic Page-Level Structured Data (JSON-LD)
     let scriptEl = document.getElementById('dynamic-page-jsonld') as HTMLScriptElement | null;
     if (jsonLd) {
@@ -114,6 +129,21 @@ export function useSEO({
     return () => {
       const existingScript = document.getElementById('dynamic-page-jsonld');
       if (existingScript) existingScript.remove();
+      const videoMetaSelectors = [
+        'meta[property="og:video"]',
+        'meta[property="og:video:url"]',
+        'meta[property="og:video:secure_url"]',
+        'meta[property="og:video:type"]',
+        'meta[property="og:video:width"]',
+        'meta[property="og:video:height"]',
+        'meta[name="twitter:player"]',
+        'meta[name="twitter:player:width"]',
+        'meta[name="twitter:player:height"]',
+      ];
+      videoMetaSelectors.forEach((sel) => {
+        const el = document.querySelector(sel);
+        if (el) el.remove();
+      });
     };
   }, [
     title,
@@ -124,6 +154,7 @@ export function useSEO({
     ogImage,
     twitterImage,
     twitterCard,
+    videoUrl,
     robots,
     // JSON-LD is serialized for reliable memoization comparison
     JSON.stringify(jsonLd),

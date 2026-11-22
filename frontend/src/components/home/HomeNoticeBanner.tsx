@@ -52,7 +52,7 @@ export const HomeNoticeBanner: React.FC = () => {
             }
           }}
           aria-expanded={isOpen}
-          aria-label="Toggle AnimeSenpai platform notice"
+          aria-label="Notice: Welcome to AnimeSenpai platform notice"
           className="w-full px-2.5 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2.5 sm:gap-3 text-left cursor-pointer group select-none"
         >
           {/* Left Side: Dismiss Cross Button + Notice Badge + Headline */}
@@ -69,7 +69,7 @@ export const HomeNoticeBanner: React.FC = () => {
             </button>
 
             {/* Pulsing Luminous Badge */}
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-[#5360e6]/15 text-[#5360e6] border border-[#5360e6]/30 flex-shrink-0">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-[#5360e6]/20 text-[#818cf8] border border-[#5360e6]/40 flex-shrink-0">
               <Sparkles aria-hidden="true" className="w-3 h-3 animate-pulse" />
               <span>Notice</span>
             </span>
@@ -87,7 +87,7 @@ export const HomeNoticeBanner: React.FC = () => {
             </span>
             <div
               className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#16161b] border border-[#23232b] flex items-center justify-center text-[#9a9aa6] group-hover:text-[#f5f5f7] transition-all duration-300 ${
-                isOpen ? 'rotate-180 bg-[#5360e6]/15 border-[#5360e6]/40 text-[#5360e6]' : 'rotate-0'
+                isOpen ? 'rotate-180 bg-[#5360e6]/20 border-[#5360e6]/40 text-[#818cf8]' : 'rotate-0'
               }`}
             >
               <ChevronDown aria-hidden="true" className="w-4 h-4 transition-transform duration-300" />

@@ -5,11 +5,18 @@ Allow: /
 User-agent: Googlebot
 Allow: /
 
+User-agent: Googlebot-Video
+Allow: /
+
 User-agent: Googlebot-Image
 Allow: /
 
 User-agent: Google-Favicon
 Allow: /
 
-# XML Sitemap
+User-agent: Bingbot
+Allow: /
+
+# XML Sitemaps (Canonical URLs & Google Video Sitemap)
 Sitemap: https://www.animesenpai.online/sitemap.xml
+Sitemap: https://www.animesenpai.online/video-sitemap.xml

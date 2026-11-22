@@ -32,12 +32,13 @@ for (const key of Object.keys(catalog)) {
 
 const today = new Date().toISOString().split('T')[0];
 
+// STRICT CANONICAL ROUTES ONLY:
+// Google Search Console flags parameter variations (?genre=, ?sort=, ?seasonal=)
+// as "Alternate page with proper canonical tag" when included in sitemaps.
+// Sitemaps MUST strictly contain 100% canonical, indexable destination URLs.
 const staticRoutes = [
   { loc: `${SITE_URL}/`, changefreq: 'daily', priority: '1.0' },
   { loc: `${SITE_URL}/discover`, changefreq: 'daily', priority: '0.9' },
-  { loc: `${SITE_URL}/discover?seasonal=true`, changefreq: 'daily', priority: '0.9' },
-  { loc: `${SITE_URL}/discover?sort=POPULARITY_DESC`, changefreq: 'weekly', priority: '0.8' },
-  { loc: `${SITE_URL}/discover?sort=SCORE_DESC`, changefreq: 'weekly', priority: '0.8' },
   { loc: `${SITE_URL}/watchlist`, changefreq: 'daily', priority: '0.8' },
   { loc: `${SITE_URL}/about`, changefreq: 'weekly', priority: '0.8' },
   { loc: `${SITE_URL}/privacy`, changefreq: 'monthly', priority: '0.4' },
@@ -46,39 +47,13 @@ const staticRoutes = [
   { loc: `${SITE_URL}/security`, changefreq: 'monthly', priority: '0.4' },
 ];
 
-const genreList = [
-  'Action',
-  'Adventure',
-  'Comedy',
-  'Drama',
-  'Fantasy',
-  'Horror',
-  'Mahou Shoujo',
-  'Mecha',
-  'Music',
-  'Mystery',
-  'Psychological',
-  'Romance',
-  'Sci-Fi',
-  'Slice of Life',
-  'Sports',
-  'Supernatural',
-  'Thriller',
-];
-
-const genreRoutes = genreList.map((genre) => ({
-  loc: `${SITE_URL}/discover?genre=${encodeURIComponent(genre)}`,
-  changefreq: 'weekly',
-  priority: '0.7',
-}));
-
 const animeRoutes = Array.from(animeIds).sort((a, b) => a - b).map((id) => ({
   loc: `${SITE_URL}/anime/${id}`,
   changefreq: 'weekly',
   priority: '0.8',
 }));
 
-const allUrls = [...staticRoutes, ...genreRoutes, ...animeRoutes];
+const allUrls = [...staticRoutes, ...animeRoutes];
 
 const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -97,5 +72,4 @@ ${allUrls
 
 const sitemapPath = path.join(publicDir, 'sitemap.xml');
 fs.writeFileSync(sitemapPath, xmlContent, 'utf8');
-
-console.log(`Successfully generated sitemap.xml with ${allUrls.length} canonical URLs at ${sitemapPath}`);
+console.log(`Successfully generated canonical sitemap.xml with ${allUrls.length} URLs at ${sitemapPath}`);
